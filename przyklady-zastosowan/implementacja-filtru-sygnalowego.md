@@ -144,7 +144,7 @@ $ xretractor query.rql
 \- w drugim oknie wydać należy następujące polecenie:
 
 ```
-$ xqry -s outputAll -p 50:256 | gnuplot 2>/dev/null
+$ xqry -s outputAll -p 50:256 | gnuplot
 ```
 
 Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 23):
