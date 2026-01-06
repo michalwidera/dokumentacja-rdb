@@ -92,7 +92,7 @@ Pierwsza kolumna zawiera sekwencję liczb – taką jaką wpisaliśmy do pliku d
 Jak można to zobaczyć w formie graficznej? Proponuję wydać następujące polecenie:
 
 ```
-$ xqry -s str1 -p 50,50 | gnuplot 2>/dev/null
+$ xqry -s str1 -p 50,50 | gnuplot
 ```
 
 Na ekranie pojawi się następujące okno z płynącymi na bieżąco danymi:
