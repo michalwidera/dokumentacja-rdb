@@ -114,7 +114,7 @@ SELECT accRow[0]
 STREAM output
 FROM accRow.sumc
 
-SELECT output[0]/25000,source[0]
+SELECT (output[0]/25)/1000,source[0]
 STREAM outputAll
 FROM output+source
 ```
