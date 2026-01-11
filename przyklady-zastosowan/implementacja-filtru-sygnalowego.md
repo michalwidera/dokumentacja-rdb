@@ -49,7 +49,9 @@ grid on
 
 Uruchomienie powyższego kodu w programie Octave zaprezentuje następującą odpowiedź w postaci graficznej (Rys. 21):
 
-<figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
+<p align="center">Rys. 23 Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p>
+
+<figure><img src="../.gitbook/assets/czestotliwosci.svg" alt=""><figcaption></figcaption></figure>
 
 <p align="center">Rys. 23 Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p>
 
