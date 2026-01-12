@@ -58,9 +58,8 @@ $$
 oraz
 
 $$
-\mathcal{B}(\alpha ,\alpha ^{\prime })
-:=
-\left( \left\lfloor \frac{n-\alpha^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty }
+\mathcal{B}^{(c)}(\alpha ,\alpha ^{\prime }):=
+\left( \left\lceil \frac{n-\alpha ^{\prime }}{\alpha }\right\rceil \right) _{n=1}^{\infty }
 $$
 
 dokonują podziału zbioru ℕ wtedy i tylko wtedy gdy następujące pięć warunków zostanie spełnionych:
