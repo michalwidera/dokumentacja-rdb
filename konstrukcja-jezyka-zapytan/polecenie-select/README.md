@@ -14,7 +14,7 @@ Składnia polecenia SELECT przedstawia się następująco:
 SELECT wyrażenie_algebraiczne [, wyrażenie_algebraiczne] 
 STREAM nazwa_budowanego_strumienia
 FROM strumieniowe_wyrażnie_algebraiczne 
-[FILE nazwa_pliku_artefaktu] 
+[FILE 'nazwa_pliku_artefaktu'] 
 [RETENTION pojemoność [segmenty]]
 [VOLATILE]
 [STORAGE profile]
