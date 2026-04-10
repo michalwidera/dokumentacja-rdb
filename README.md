@@ -9,7 +9,7 @@ System **RetractorDB** jest systemem przeznaczonym do przetwarzania i rejestrowa
 Kod źródłowy systemu został opublikowany na licencji MIT i znajduje się pod adresem [https://github.com/michalwidera/retractordb](https://github.com/michalwidera/retractordb). Główna strona internetowa jest dostępna pod adresem [https://retractordb.com](https://retractordb.com).
 
 {% hint style="info" %}
-Analiza wykazała że system powinien być określony jako Edge Signal Processing Engine a nie jako System Zarządzania Seriami Czasowymi.
+Wstępna analiza wykazała że system powinien być określony jako Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów) a nie jako System Zarządzania Seriami Czasowymi (Time Series Databasse).
 {% endhint %}
 
 {% hint style="info" %}
