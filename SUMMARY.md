@@ -3,8 +3,6 @@
 ## RetractorDB/Doc
 
 * [System przetwarzania serii czasowych](README.md)
-  * [Geneza systemu](retractordb-doc/tytulem-wstepu/geneza-systemu.md)
-  * [Dlaczego wybrano taką nazwę dla systemu?](retractordb-doc/tytulem-wstepu/dlaczego-wybrano-taka-nazwe-dla-systemu.md)
 
 ***
 
@@ -53,4 +51,6 @@
 * [Załączniki](zalaczniki/README.md)
   * [Załącznik A – opcje wywołania xretractor](zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md)
   * [Załącznik B - opcje wywołania xqry](zalaczniki/zalacznik-b-opcje-wywolania-xqry.md)
+  * [Geneza systemu](zalaczniki/geneza-systemu.md)
+  * [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/dlaczego-wybrano-taka-nazwe-dla-systemu.md)
 * [Literatura](literatura.md)
