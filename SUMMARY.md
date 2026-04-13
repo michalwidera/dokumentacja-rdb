@@ -1,11 +1,6 @@
 # Table of contents
 
-## RetractorDB/Doc
-
-* [System przetwarzania serii czasowych](README.md)
-
-***
-
+* [RetractorDB](README.md)
 * [Podstawy matematyczne](podstawy-matematyczne.md)
   * [Algebra regularnych serii czasowych](podstawy-matematyczne/algebra-regularnych-serii-czasowych.md)
   * [Wyrażenia algebraiczne](podstawy-matematyczne/wyrazenia-algebraiczne.md)
