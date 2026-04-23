@@ -22,6 +22,7 @@
   * [Przetwarzanie i dystrybucja danych](architektura-systemu-przetwarzania-danych/przetwarzanie-i-dystrybucja-danych.md)
   * [Analiza artefaktów](architektura-systemu-przetwarzania-danych/analiza-artefaktow.md)
   * [Podsumowanie](architektura-systemu-przetwarzania-danych/podsumowanie.md)
+  * [Format zapisu artefaktów](architektura-systemu-przetwarzania-danych/format-zapisu-artefaktow.md)
 * [Kompilacja zapytań](kompilacja-zapytan/README.md)
   * [Rozwijanie symbolu \*](kompilacja-zapytan/rozwijanie-symbolu.md)
   * [Aliasowanie](kompilacja-zapytan/aliasowanie.md)
