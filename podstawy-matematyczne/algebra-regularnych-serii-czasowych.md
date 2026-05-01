@@ -32,7 +32,7 @@ Operacje jakie możemy na takim zbiorze danych wykonać zdefiniowałem następuj
 * przesunięcie sekwencji
 * agregacja i serializacja
 
-W operacji przeplotu biorą dwa różnie strumienie danych.
+W operacji przeplotu biorą udział dwa różne strumienie danych.
 
 Definiujemy ją następująco:
 
@@ -48,7 +48,7 @@ a_{\left\lfloor n z \right\rfloor } & \left\lfloor n z \right\rfloor
 \frac{\Delta _{a}\Delta _{b}}{\Delta _{a}+\Delta _{b}}
 $$
 
-Argumentem operacji splątania są dwa strumienie danych A i B, każdy z własną szybkością napływu danych. Wynikiem jest strumień wynikowy C – z nową różną od dwóch poprzednich szybkością napływu wyznaczoną wzorem powyżej.
+Argumentem operacji splątania (przeplotu) są dwa strumienie danych A i B, każdy z własną szybkością napływu danych. Wynikiem jest strumień wynikowy C – z nową różną od dwóch poprzednich szybkością napływu wyznaczoną wzorem powyżej.
 
 Operację będziemy oznaczać symbolem #.
 
@@ -66,7 +66,7 @@ $$
 b_{n} = c_{n+\left\lfloor \frac{n\Delta _{b}}{\Delta _{a}}\right\rfloor},\ \Delta _{b}=\frac{\Delta _{c}\Delta _{a}}{\left\vert \Delta _{c}-\Delta_{a}\right\vert }
 $$
 
-Operacje rozplątania 1 i 2 będziemy oznaczać symbolami % i &.
+Operacje rozplątania 1 i 2 będziemy oznaczać symbolami & i %.
 
 Argumentem operacji rozplątania jest splątany strumień danych oraz wymierna liczba określająca szybkość napływu odplątywanego strumienia danych. W wyniku operacji otrzymujemy strumień danych z wyznaczoną szybkością wzorem powyżej.
 
@@ -113,4 +113,4 @@ $$
 A_{rql}::=((s_n,\Delta_s), (\#,\&,\%,+,-,>,@))
 $$
 
-Gdzie pierwszy element pary definiującej algebrę to model danych a drugi to zdefiniowane formalnie na tym modelu danych operacje.
+Gdzie pierwszy element pary definiującej algebrę to model danych (s_n — seria danych, ∆_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.
