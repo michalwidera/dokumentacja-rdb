@@ -8,7 +8,9 @@ description: >-
 
 ## Podstawy matematyczne
 
+{% hint style="info" %}
 Czy wiesz co to jest medal Fieldsa? Jest to nagroda przyznawana wyłącznie wybitnym matematykom w wieku poniżej 40 lat. Nazywana jest matematycznym Noblem. Co ciekawe żaden matematyk nie otrzyma nagrody Nobla – zgodnie z życzeniem fundatora. Sam John Charles Fields (1863-1932) był Kanadyjskim matematykiem. John Charles Fields miał jednego doktoranta – Samuela Beatty (1881-1970).
+{% endhint %}
 
 Samuel Beatty w 1926 roku opublikował następujące twierdzenie \[1]:
 
