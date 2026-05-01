@@ -114,3 +114,5 @@ A_{rql}::=((s_n,\Delta_s), (\#,\&,\%,+,-,>,@))
 $$
 
 Gdzie pierwszy element pary definiującej algebrę to model danych (s_n — seria danych, ∆_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.
+
+Przedstawienie podstaw matematycznych systemu jest konieczne w celu zrozumienia dalszych technicznych aspektów rozwiązania. Przedstawione metody wybiegają poza standardowy materiał prezentowany obecnie na studiach z zakresu nauk technicznych. Wynika to z faktu, że podstawy matematyczne wydobyłem z obszaru dotychczas niemającego zastosowań w znanej mi technice. Są to metody umożliwiające zbudowanie nowego sposobu przetwarzania danych. Na tym polega jeden z aspektów różniących RetractorDB od reszty podobnych rozwiązań.
