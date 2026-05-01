@@ -4,4 +4,6 @@ Równania te z początku modelowałem w postaci programów w języku Python. Prz
 
 Dział matematyki który zawiera prace badawcze związane z tymi równaniami nosi nazwę systemów pokrywających \[4] w obszarze teorii liczb.
 
+{% hint style="info" %}
 Przedstawienie podstaw matematycznych systemu jest konieczne w celu zrozumienia dalszych technicznych aspektów rozwiązania. Przedstawione metody wybiegają poza standardowy materiał prezentowany obecnie na studiach z zakresu nauk technicznych. Wynika to z faktu, że podstawy matematyczne wydobyłem z obszaru dotychczas niemającego zastosowań w znanej mi technice. Są to metody umożliwiające zbudowanie nowego sposobu przetwarzania danych. Na tym polega jeden z aspektów różniących RetractorDB od reszty podobnych rozwiązań.
+{% endhint %}
