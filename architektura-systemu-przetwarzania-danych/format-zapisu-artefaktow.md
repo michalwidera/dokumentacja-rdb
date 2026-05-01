@@ -2,7 +2,7 @@
 description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przepływie danych.
+  kolejność ich zarejestrowania oraz przerwy w przep
 ---
 
 # Format zapisu artefaktów

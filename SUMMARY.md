@@ -43,7 +43,6 @@
   * [Implementacja filtru sygnałowego](przyklady-zastosowan/implementacja-filtru-sygnalowego.md)
 * [Dalsze kierunki rozwoju](dalsze-kierunki-rozwoju/README.md)
   * [Jeszcze inna matematyka](dalsze-kierunki-rozwoju/jeszcze-inna-matematyka.md)
-  * [Arytmetyka NULL](dalsze-kierunki-rozwoju/arytmetyka-null.md)
 * [Załączniki](zalaczniki/README.md)
   * [Załącznik A – opcje wywołania xretractor](zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md)
   * [Załącznik B - opcje wywołania xqry](zalaczniki/zalacznik-b-opcje-wywolania-xqry.md)

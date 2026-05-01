@@ -43,8 +43,8 @@ Kwestia zapętlenia bądź zaniechania tej funkcjonalności kontrolowana jest dy
 
 Dyrektywa DISPOSABLE powstała w celu usunięcia pliku z danymi oraz jego metadanych po przesłaniu ich do strumienia. Jeśli doda ją się na końcu polecenia, system po zakończeniu przesyłania danych – usunie zadeklarowane źródło danych.
 
-Dyrektywa HOLD tworzy wszystko co jest potrzebne do przetwarzania danych, jednak po uruchomieniu systemu nie realizuje odczytu danych ze źródła. Dopiero po pojawieniu się pierwszego zapytania wymagającego danych z danego źródła (np. [Ad Hoc](../realizacja-zapytan/zapytania-ad-hoc/)) - realizowany jest fizyczny odczyt. Jeśli źródło nie zostanie odpytane w pętli realizacji zapytań - w systemie będą prezentowane wartości odpowiadające wartościom 0/pustym.&#x20;
+Dyrektywa HOLD tworzy wszystko co jest potrzebne do przetwarzania danych, jednak po uruchomieniu systemu nie realizuje odczytu danych ze źródła. Dopiero po pojawieniu się pierwszego zapytania wymagającego danych z danego źródła (np. [Ad Hoc](../realizacja-zapytan/zapytania-ad-hoc/)) - realizowany jest fizyczny odczyt. Jeśli źródło nie zostanie odpytane w pętli realizacji zapytań - w systemie będą prezentowane wartości odpowiadające wartościom 0/pustym.
 
 {% hint style="info" %}
-W dalszych [planach rozwojowych](../dalsze-kierunki-rozwoju/arytmetyka-null.md) konieczne jest rozbudowanie systemu RetractorDB o mechanizm wsparcia wartości NULL odpowiadającym wartościom pustym.
+W dalszych [planach rozwojowych](/broken/pages/PhJefXKRQd1AlEgbEofA) konieczne jest rozbudowanie systemu RetractorDB o mechanizm wsparcia wartości NULL odpowiadającym wartościom pustym.
 {% endhint %}
