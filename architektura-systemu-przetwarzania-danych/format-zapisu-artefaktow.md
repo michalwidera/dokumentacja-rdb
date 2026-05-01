@@ -26,5 +26,5 @@ Każdy przetwarzany artefakt lub substrat w systemie ma skojarzone ze sobą wyma
 7. Jeśli w danym zarejestrowanym rekordzie znajdują się same wartości null oznacza to że dane nie zostały zarejestrowane w danym momencie czasu.
 8. Wartości null są wspierane dodatkowym plikiem indeksu - oznaczonego jako .meta
 
-<figure><img src="../.gitbook/assets/format-zapisu-indeks.svg" alt=""><figcaption><p>Rys. X Postać danych binarnych wraz ze skorzjonym indeksem.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/format-zapisu-indeks.svg" alt=""><figcaption><p>Rys. 8 Postać danych binarnych wraz ze skorzjonym indeksem.</p></figcaption></figure>
 

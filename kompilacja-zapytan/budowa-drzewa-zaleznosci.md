@@ -23,9 +23,7 @@ Graf, w którym uwypuklone zostaną dependencje pomiędzy poszczególnymi obiekt
 $ xretractor -c query5.rql -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-<figure><img src="../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure>
-
-<p align="center">Rys. 14. Dependencja efemeryd-artefakt</p>
+<figure><img src="../.gitbook/assets/image (6).png" alt=""><figcaption><p>Rys. 15. Dependencja efemeryd-artefakt</p></figcaption></figure>
 
 Skomplikujmy trochę ten graf dodając dwie deklaracje efemerydów i dodatkowy artefakt.
 
@@ -38,9 +36,7 @@ SELECT str2[0] STREAM str2 FROM core0 + core1
 
 Graf zależności dla powyższego zestawu zapytań prezentuje się następująco:
 
-<figure><img src="../.gitbook/assets/image (1) (1).png" alt=""><figcaption></figcaption></figure>
-
-<p align="center">Rys. 15. Dependencja efemerydy-artefakty</p>
+<figure><img src="../.gitbook/assets/image (1) (1).png" alt=""><figcaption><p>Rys. 16. Dependencja efemerydy-artefakty</p></figcaption></figure>
 
 Zbudujmy dodatkowy węzeł zależny od artefaktów. Najprościej dodać następujące zapytanie na końcu:
 
@@ -50,11 +46,9 @@ SELECT str3[0] STREAM str3 FROM str1#str2
 
 Graf zmieni swoją postać:
 
-<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2) (1).png" alt=""><figcaption><p>Rys. 17. Dependencja efemerydy-artefakty-artefakty</p></figcaption></figure>
 
-<p align="center">Rys. 16. Dependencja efemerydy-artefakty-artefakty</p>
-
-Jak widać na Rys. 16 strumień str3 nie jest zależny bezpośrednio od danych dostarczanych przez strumienie core0 i core1. Zapytania tworzą graf zależności a kolejności ich wywoływania jest uporządkowana. Wartość interwału w strumieniach rośnie w kierunku korzeni. Wzrost w kierunku korzenia wynika z równań wyznaczających interwały opracowanej algebry.
+Jak widać na Rys. 17 strumień str3 nie jest zależny bezpośrednio od danych dostarczanych przez strumienie core0 i core1. Zapytania tworzą graf zależności a kolejności ich wywoływania jest uporządkowana. Wartość interwału w strumieniach rośnie w kierunku korzeni. Wzrost w kierunku korzenia wynika z równań wyznaczających interwały opracowanej algebry.
 
 Proszę zwrócić uwagę, że zapytania w pliku rql przetwarzane są sekwencyjnie. Próba odwołania się w zapytaniu do obiektu, który nie jest jeszcze zdefiniowany skończy się błędem kompilacji.
 
@@ -64,10 +58,8 @@ W przypadku dołączenia do drzewa zależności następującego zapytania wytwor
 SELECT str4[0] STREAM str4 FROM (core1+core0)>2
 ```
 
-Tak dołączone zapytanie spowoduje modyfikację drzewa zależności w sposób przedstawiony na Rys. 17.
+Tak dołączone zapytanie spowoduje modyfikację drzewa zależności w sposób przedstawiony na Rys. 18.
 
-<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption></figcaption></figure>
-
-<p align="center">Rys. 17. Dependencja z substratem</p>
+<figure><img src="../.gitbook/assets/image (3) (1).png" alt=""><figcaption><p>Rys. 18. Dependencja z substratem</p></figcaption></figure>
 
 Substrat został oznaczony innym kolorem oraz oznaczeniem Auto znajdującym się obok interwału czasowego.
