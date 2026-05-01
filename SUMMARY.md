@@ -1,12 +1,12 @@
 # Table of contents
 
 * [RetractorDB](README.md)
-* [Podstawy matematyczne](podstawy-matematyczne.md)
+* [Podstawy matematyczne](podstawy-matematyczne/README.md)
   * [Algebra regularnych serii czasowych](podstawy-matematyczne/algebra-regularnych-serii-czasowych.md)
   * [Wyrażenia algebraiczne](podstawy-matematyczne/wyrazenia-algebraiczne.md)
   * [Implementacja programowa](podstawy-matematyczne/implementacja-programowa.md)
   * [Reprezentacja graficzna](podstawy-matematyczne/zaleznosci-pomiedzy-operatorami-algebry.md)
-  * [Podsumowanie](podsumowanie.md)
+  * [Podsumowanie](podstawy-matematyczne/podsumowanie.md)
 * [Konstrukcja języka zapytań](konstrukcja-jezyka-zapytan/README.md)
   * [Polecenie DECLARE](konstrukcja-jezyka-zapytan/polecenie-declare.md)
   * [Polecenie SELECT](konstrukcja-jezyka-zapytan/polecenie-select/README.md)
