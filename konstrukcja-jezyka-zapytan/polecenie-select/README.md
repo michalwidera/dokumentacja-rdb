@@ -15,7 +15,7 @@ SELECT wyrażenie_algebraiczne [, wyrażenie_algebraiczne]
 STREAM nazwa_budowanego_strumienia
 FROM strumieniowe_wyrażnie_algebraiczne 
 [FILE 'nazwa_pliku_artefaktu'] 
-[RETENTION pojemoność [segmenty]]
+[RETENTION pojemność [segmenty]]
 [VOLATILE]
 [STORAGE profile]
 ```
@@ -27,7 +27,7 @@ Pierwsza różnica poza składnią to fakt że polecenia te wprowadzone do syste
 Przykładem zapytania tworzącego nowy strumień danych może być następujące polecenie w języku RQL.
 
 ```
-SELECT str1[0]*10 + str1[1]*10, str[2]
+SELECT str1[0]*10 + str1[1]*10, str1[2]
 STREAM str1
 FROM A+B
 ```
@@ -38,7 +38,9 @@ Klauzula VOLATILE - tworzy ulotną formę zapytania. Zapytanie z tą klauzulą p
 
 Klauzula STORAGE umożliwia wybrór sposobu tworzenia i zarządzania tworzonymi artefaktami. Wybranie opcji:
 
-* DEFAULT wytworzy obiekt typu Posix Group Accessor (retencjonowany opcjonalnie) zarządzaca danych
-* SHADOW wytworzy obiekt typu Posix Group Accessor with Shadow (retncjonowany opcjonalnie) zarządza danych chroniący modyfikacje danych zarejestrowanych. W tym trybie modyfikacje zapisywane są do osobnego pliku z rozszerzeniem .shadow
+* DEFAULT wytworzy obiekt typu Posix Group Accessor z ochroną shadow — retencjonowany, modyfikacje zapisywane do pliku `.shadow`
+* DIRECT wytworzy obiekt typu Posix Group Accessor bez ochrony shadow — retencjonowany, bez pliku `.shadow`
+* POSIXSHD wytworzy pojedynczy plik binarny z ochroną shadow — nieretencjonowany, modyfikacje zapisywane do pliku `.shadow`
+* POSIX wytworzy pojedynczy plik binarny bez ochrony shadow — nieretencjonowany
 
 (inne typy wymagają testów i sprawdzenia np. MEMORY, POSIX, SHADOW, GENERIC, ...)

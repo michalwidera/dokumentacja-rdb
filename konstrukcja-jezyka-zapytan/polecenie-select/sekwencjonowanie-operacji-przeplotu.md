@@ -1,6 +1,6 @@
 # Sekwencjonowanie operacji przeplotu
 
-Przenalizujmy teraz operację przeplotu. Stwórzmy plik qplan2.rql o następującej treści:
+Przeanalizujmy teraz operację przeplotu. Stwórzmy plik qplan2.rql o następującej treści:
 
 ```
 DECLARE a BYTE STREAM A, 1 FILE 'data1.txt'
