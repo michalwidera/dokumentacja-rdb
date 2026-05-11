@@ -45,29 +45,22 @@ Plik cienia i plik metadanych są opcjonalne. W przypadku ciągłego napływu da
 
 Plik danych to sekwencja rekordów o stałej długości, zapisywanych jeden po drugim bez żadnego nagłówka. Rozmiar pojedynczego rekordu `R` wyznaczany jest przez deskryptor jako suma bajtów wszystkich pól.
 
-```mermaid
-graph LR
-    subgraph "Plik danych (N rekordów × R bajtów)"
-        R0["Rekord 0\nR bajtów"]
-        R1["Rekord 1\nR bajtów"]
-        R2["Rekord 2\nR bajtów"]
-        Rn["... Rekord N-1\nR bajtów"]
-    end
-    R0 --- R1 --- R2 --- Rn
-```
+| Offset w pliku | Zawartość  | Rozmiar  |
+| -------------- | ---------- | -------- |
+| 0              | Rekord 0   | R bajtów |
+| R              | Rekord 1   | R bajtów |
+| 2R             | Rekord 2   | R bajtów |
+| ...            | ...        | ...      |
+| (N-1) × R      | Rekord N-1 | R bajtów |
 
 Każdy rekord zawiera upakowane wartości pól w kolejności zdefiniowanej przez deskryptor:
 
-```mermaid
-graph LR
-    subgraph "Pojedynczy rekord R bajtów"
-        F0["pole_0\nlen_0 B"]
-        F1["pole_1\nlen_1 B"]
-        F2["..."]
-        Fn["pole_n\nlen_n B"]
-    end
-    F0 --- F1 --- F2 --- Fn
-```
+| Offset w rekordzie          | Pole   | Rozmiar      |
+| --------------------------- | ------ | ------------ |
+| 0                           | pole_0 | len_0 bajtów |
+| len_0                       | pole_1 | len_1 bajtów |
+| len_0 + len_1               | ...    | ...          |
+| len_0 + len_1 + ... + len_n | pole_n | len_n bajtów |
 
 Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Operacja **update** (modyfikacja istniejącego rekordu) — jeśli istnieje plik cienia — trafia do pliku cienia, a nie do pliku głównego.
 
@@ -87,52 +80,49 @@ Plik `.meta` to indeks wartości null i przerw w transmisji. Przechowuje informa
 
 ### Format pliku
 
-```mermaid
-graph TD
-    subgraph ".meta"
-        H["Nagłówek\ncreationTimeNs : int64 (8 B)"]
-        E0["Wpis RLE 0\ngapFlag|count|bitsetSize|bitset"]
-        E1["Wpis RLE 1\ngapFlag|count|bitsetSize|bitset"]
-        En["..."]
-        Ek["Wpis RLE k (bieżący, w pamięci)"]
-    end
-    H --> E0 --> E1 --> En --> Ek
-```
+| Pozycja      | Zawartość                              | Rozmiar       |
+| ------------ | -------------------------------------- | ------------- |
+| Nagłówek     | `creationTimeNs` (int64)               | 8 bajtów      |
+| Wpis RLE 0   | `gapFlag \| count \| bitsetSize \| bitset` | zmienny   |
+| Wpis RLE 1   | `gapFlag \| count \| bitsetSize \| bitset` | zmienny   |
+| ...          | ...                                    | ...           |
+| Wpis RLE k   | wpis bieżący (w pamięci)               | zmienny       |
 
 ### Format wpisu RLE
 
 Każdy wpis opisuje ciąg kolejnych rekordów z identycznym wzorcem null:
 
-```mermaid
-graph LR
-    subgraph "IndexRecord (18 B dla 2 pól)"
-        G["gapFlag\n1 B\n0=normalny\n1=przerwa"]
-        C["recordCount\n8 B (size_t)\nliczba rekordów"]
-        BS["bitsetSize\n8 B (size_t)\nliczba pól"]
-        BV["bitset\nceil(N/8) B\nbit i = pole i jest null"]
-    end
-    G --- C --- BS --- BV
-```
+| Pole          | Rozmiar       | Opis                              |
+| ------------- | ------------- | --------------------------------- |
+| `gapFlag`     | 1 B           | 0 = normalny rekord, 1 = przerwa  |
+| `recordCount` | 8 B (size_t)  | liczba rekordów w ciągu           |
+| `bitsetSize`  | 8 B (size_t)  | liczba pól (N)                    |
+| `bitset`      | ⌈N/8⌉ B       | bit i = pole i ma wartość null    |
 
 ### Kompresja RLE
 
 Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększenie `recordCount`. Nowy wpis tworzony jest dopiero gdy wzorzec się zmienia.
 
-```mermaid
-graph TD
-    subgraph "Strumień 10 rekordów (2 pola, bez null)"
-        A["wpis: isGap=F, count=10, bitset=[F,F]"]
-    end
-    subgraph "Strumień z null w polu 1 od rekordu 5"
-        B["wpis 0: isGap=F, count=5, bitset=[F,F]"]
-        C["wpis 1: isGap=F, count=5, bitset=[F,T]"]
-    end
-    subgraph "Strumień z przerwą po rekordzie 3"
-        D["wpis 0: isGap=F, count=3, bitset=[F,F]"]
-        E["wpis 1: isGap=T, count=7, bitset=[T,T]"]
-        F["wpis 2: isGap=F, count=..., bitset=[F,F]"]
-    end
-```
+**10 rekordów, 2 pola, bez null:**
+
+| Wpis  | isGap | count | bitset |
+| ----- | ----- | ----- | ------ |
+| wpis 0 | F    | 10    | \[F,F] |
+
+**Null w polu 1 od rekordu 5:**
+
+| Wpis   | isGap | count | bitset |
+| ------ | ----- | ----- | ------ |
+| wpis 0 | F     | 5     | \[F,F] |
+| wpis 1 | F     | 5     | \[F,T] |
+
+**Przerwa w transmisji po rekordzie 3:**
+
+| Wpis   | isGap | count | bitset |
+| ------ | ----- | ----- | ------ |
+| wpis 0 | F     | 3     | \[F,F] |
+| wpis 1 | T     | 7     | \[T,T] |
+| wpis 2 | F     | ...   | \[F,F] |
 
 ### Marker przerwy w transmisji (gap)
 
