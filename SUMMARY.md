@@ -44,6 +44,8 @@
     * [Odtwarzanie strumienia](realizacja-zapytan/zapytania-ad-hoc/odtwarzanie-strumienia.md)
   * [Ruchome okno danych AGSE](realizacja-zapytan/ruchome-okno-danych-agse/README.md)
     * [Przykład serializacji](realizacja-zapytan/ruchome-okno-danych-agse/przyklad-serializacji.md)
+    * [Przykład średniej ruchomej](realizacja-zapytan/ruchome-okno-danych-agse/przyklad-sredniej-ruchomej.md)
+    * [Różne typy okien](realizacja-zapytan/ruchome-okno-danych-agse/rozne-typy-okien.md)
 * [Alarmowanie](alarmowanie/README.md)
   * [Przykład alarmowania](alarmowanie/przyklad-alarmowania.md)
 * [Przykłady zastosowań](przyklady-zastosowan/README.md)
