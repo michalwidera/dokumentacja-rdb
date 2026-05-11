@@ -136,10 +136,14 @@ Plik cienia umożliwia modyfikację zarejestrowanych rekordów bez niszczenia da
 
 ### Format wpisu
 
-| Pole       | Rozmiar      | Opis                              |
-| ---------- | ------------ | --------------------------------- |
-| `position` | 8 B (size_t) | indeks rekordu w pliku głównym    |
-| `data`     | R bajtów     | nowe wartości rekordu             |
+```mermaid
+graph LR
+    subgraph "Shadow entry (8 + R bajtów)"
+        P["position\n8 B (size_t)\nindeks rekordu w pliku głównym"]
+        Dat["data\nR bajtów\nnowe wartości rekordu"]
+    end
+    P --- Dat
+```
 
 Każda modyfikacja dopisuje nowy wpis na koniec pliku cienia. Przy wielu modyfikacjach tego samego rekordu plik może zawierać wiele wpisów dla tej samej pozycji — aktualny jest ostatni.
 
