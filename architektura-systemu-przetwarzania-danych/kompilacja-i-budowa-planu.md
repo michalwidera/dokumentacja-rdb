@@ -95,3 +95,5 @@ Flagi trybu wykonania (bez `-c`):
 {% hint style="info" %}
 Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza ~1 sekundę przetwarzania.
 {% endhint %}
+
+Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md).

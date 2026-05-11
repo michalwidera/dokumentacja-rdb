@@ -36,11 +36,16 @@ Tak zbudowane zapytanie zakłada że ktoś zadeklarował strumienie A i B. Opera
 
 Klauzula VOLATILE - tworzy ulotną formę zapytania. Zapytanie z tą klauzulą przechowują tylko jeden rekord w pamięci - na dysku pojawia się tylko deskryptor opisujący strukturę danych.
 
-Klauzula STORAGE umożliwia wybrór sposobu tworzenia i zarządzania tworzonymi artefaktami. Wybranie opcji:
+Klauzula STORAGE umożliwia wybór sposobu tworzenia i zarządzania tworzonymi artefaktami. Pełna tabela typów z opisem każdego z nich znajduje się w rozdziale [Typy STORAGE](typy-storage.md).
 
-* DEFAULT wytworzy obiekt typu Posix Group Accessor z ochroną shadow — retencjonowany, modyfikacje zapisywane do pliku `.shadow`
-* DIRECT wytworzy obiekt typu Posix Group Accessor bez ochrony shadow — retencjonowany, bez pliku `.shadow`
-* POSIXSHD wytworzy pojedynczy plik binarny z ochroną shadow — nieretencjonowany, modyfikacje zapisywane do pliku `.shadow`
-* POSIX wytworzy pojedynczy plik binarny bez ochrony shadow — nieretencjonowany
+## Operatory klauzuli FROM
 
-(inne typy wymagają testów i sprawdzenia np. MEMORY, POSIX, SHADOW, GENERIC, ...)
+Strumieniowe wyrażenie algebraiczne w klauzuli `FROM` może zawierać:
+
+| Operator | Składnia | Opis |
+|----------|----------|------|
+| Suma | `A + B` | Połączenie dwóch strumieni — patrz [Sekwencjonowanie sumowania](sekwencjonowanie-operacji-sumowania.md) |
+| Przeplot | `A # B` | Interleaving dwóch strumieni — patrz [Sekwencjonowanie przeplotu](sekwencjonowanie-operacji-przeplotu.md) |
+| Przesunięcie | `A > N` | Przesuwa okno odczytu o N próbek |
+| Okno AGSE | `A @ (k, w)` | Ruchome okno danych — patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/README.md) |
+| Agregat | `A.min` / `A.max` / `A.avg` / `A.sumc` | Redukuje wielopolowy rekord do jednej wartości — patrz [Operatory agregujące](operatory-agregujace.md) |

@@ -9,13 +9,48 @@ Polecenie DECLARE służy do zadeklarowania źródła danych.
 Jego składnia opisana jest następująco:
 
 ```
-DECLARE pole typ [, pole typ]
+DECLARE pole typ[N] [, pole typ[N]]
 STREAM nazwa, szybkość
 FILE źródło
 [DISPOSABLE]
 [ONESHOT]
 [HOLD]
 ```
+
+## Typy pól
+
+Każde pole ma nazwę i typ. Dostępne typy:
+
+| Typ | Rozmiar | Opis |
+|-----|---------|------|
+| `BYTE` | 1 B | liczba całkowita bez znaku 8-bit |
+| `INTEGER` | 4 B | liczba całkowita ze znakiem 32-bit |
+| `UINT` | 4 B | liczba całkowita bez znaku 32-bit |
+| `FLOAT` | 4 B | liczba zmiennoprzecinkowa 32-bit |
+| `DOUBLE` | 8 B | liczba zmiennoprzecinkowa 64-bit |
+| `STRING` | N B | ciąg bajtów o stałej długości N |
+
+### Tablice pól (`typ[N]`)
+
+Do każdego pola można dodać mnożnik tablicowy `[N]` — pole zajmuje `N × rozmiar_typu` bajtów i tworzy `N` kolejnych pozycji w schemacie rekordu:
+
+```
+DECLARE coef INTEGER[25]
+STREAM filter, 1
+FILE 'coefficients.txt'
+```
+
+Pole `coef INTEGER[25]` tworzy rekord o rozmiarze 25 × 4 = 100 bajtów i daje dostęp do indeksów `filter[0]` … `filter[24]`. Jest to standardowy sposób przekazywania tablic współczynników (np. filtry FIR) do systemu.
+
+Wiele pól różnych typów można łączyć w jednym rekordzie:
+
+```
+DECLARE id UINT, wartosc FLOAT, nazwa STRING[16]
+STREAM pomiar, 0.1
+FILE 'czujnik.dat'
+```
+
+Rozmiar rekordu: 4 + 4 + 16 = 24 bajty.
 
 System RetractorDB działając pod kontrolą systemu Linux pobiera i zapisuje dane do plików. W systemie Linux dostęp do większości zasobów jest realizowany za pomocą dostępu do różnego rodzaju plików. Takie rozwiązanie ujednolica sposób dostępu do danych.
 
@@ -39,11 +74,7 @@ Aby parsowanie pliku nastąpiło automatycznie, plik musi nosić rozszerzenie .t
 
 Jeśli plik danych wejściowych będzie nosić rozszerzenie .dat – plik ten zostanie potraktowany jako plik binarny a odczyt danych z niego zostanie również zapętlony. Zapętlenie polega na tym że po przeczytaniu ostatniej wartości z pliku źródłowego, pozycja odczytu pliku kierowana jest na początek. Dane z takiego pliku czytane są w nieskończonej pętli, po zakończeniu wracając do początku.
 
-Kwestia zapętlenia bądź zaniechania tej funkcjonalności kontrolowana jest dyrektywą ONESHOT. Dodanie jej na końcu polecenia DECLARE spowoduje że plik z danymi przeczyta się tylko raz a po przesłaniu zostaną przedstawione w strumieniu wartości 0/puste.
-
-Dyrektywa DISPOSABLE powstała w celu usunięcia pliku z danymi oraz jego metadanych po przesłaniu ich do strumienia. Jeśli doda ją się na końcu polecenia, system po zakończeniu przesyłania danych – usunie zadeklarowane źródło danych.
-
-Dyrektywa HOLD tworzy wszystko co jest potrzebne do przetwarzania danych, jednak po uruchomieniu systemu nie realizuje odczytu danych ze źródła. Dopiero po pojawieniu się pierwszego zapytania wymagającego danych z danego źródła (np. [Ad Hoc](../realizacja-zapytan/zapytania-ad-hoc/)) - realizowany jest fizyczny odczyt. Jeśli źródło nie zostanie odpytane w pętli realizacji zapytań - w systemie będą prezentowane wartości odpowiadające wartościom 0/pustym.
+Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych — szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
 
 {% hint style="info" %}
 Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w sidecar pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaDataStream`.
