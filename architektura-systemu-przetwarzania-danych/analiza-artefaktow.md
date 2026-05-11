@@ -16,7 +16,7 @@ W celu przedstawienia procesu analizy artefaktów konieczne jest uwzględnienie 
 $ xretractor -m 10 query.rql
 ```
 
-Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 sekundach. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
+Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 cyklach przetwarzania. Parametr `-m` określa liczbę iteracji pętli głównej, nie liczbę sekund — czas działania zależy od interwału strumieni źródłowych. Dla strumieni z interwałem 0.1 s (10 Hz) oznacza to ~1 sekundę działania. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
 
 ```
 $ ls -al
@@ -69,7 +69,7 @@ $ cat core1.desc
 
 Pliki opisu metadanych są tworzone automatycznie w momencie zarejestrowania w systemie RetractorDB obiektu. Należy pamiętać aby usunąć te deskryptory w przypadku zmodyfikowania pliku query.rql
 
-Po uruchomieniu programu xtrdb w terminalu narzędzie wyświetli znak zachęty w postaci kropki. Można od razu rozpocząć komunikację z tym narzędziem. Przykład sesji:
+Po uruchomieniu programu xtrdb w terminalu narzędzie wyświetli znak zachęty w postaci kropki (`.`). Znak ten to wyłącznie prompt — nie jest częścią polecenia. Można od razu rozpocząć komunikację z tym narzędziem. Przykład sesji:
 
 ```
 $ xtrdb
@@ -79,12 +79,8 @@ ok
 {       INTEGER str1_0
         INTEGER str1_1
 }
-.read 0
-ok
-.print
-{       str1_0:20
-        str1_1:21
-}
+.list 1
+{ str1_0:20 str1_1:21 }
 .quit
 ```
 
@@ -92,7 +88,7 @@ Praca z tym narzędziem przypomina pracę z klasyczną, starą bazą danych dbas
 
 Głównym celem tego narzędzia było wsparcie przy tworzeniu skryptów testowych. RetractorDB jest deterministyczny. W systemie nie występuje zjawisko wyścigu – dane, które trafią na wejście – zawsze powinny dać te same wyniki na wyjściu. Chyba że zmieszamy wyniki z danymi przypadkowymi jak w przedstawionym przykładzie.
 
-Bardzo użyteczną funkcją w tym narzędziu jest funkcja list oraz rlist. Listująca początkowe elementy pliku lub końcowe elementy pliku –uwzględniając strukturę opisaną w metadanych.
+Bardzo użyteczną funkcją w tym narzędziu jest funkcja `list` oraz `rlist`. Listująca początkowe elementy pliku lub końcowe elementy pliku — uwzględniając strukturę opisaną w metadanych.
 
 ```
 .list 4
@@ -108,3 +104,16 @@ Bardzo użyteczną funkcją w tym narzędziu jest funkcja list oraz rlist. Listu
 ```
 
 Zachęcam do eksperymentów i przejrzenia źródeł tego narzędzia. Jest to jeden z mniej skomplikowanych a bardzo użytecznych elementów systemu RetractorDB.
+
+## Inspekcja metadanych null/gap
+
+Każdy artefakt ma skojarzony plik indeksu `.meta` opisany szczegółowo w rozdziale dotyczącym formatu zapisu. Zawartość tego pliku można obejrzeć bezpośrednio w xtrdb poleceniem `meta`:
+
+```
+.open str1
+ok
+.meta
+record 0: count=9 gap=false nullBitset=00
+```
+
+Wpis `gap=false` oznacza brak przerwy w danych, `nullBitset` informuje które pola zawierają wartości null (po jednym bicie na pole). Dane bez żadnych braków tworzą jeden wpis `count=N` gdzie N to łączna liczba rekordów.

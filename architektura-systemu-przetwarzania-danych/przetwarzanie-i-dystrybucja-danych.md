@@ -100,7 +100,7 @@ Na Rys. 13 widzimy to co dane przedstawiały w postaci numerycznej. Kształt pi�
 Typowym pomysłem na wysłanie danych poza system na którym funkcjonuje xretractor i xqry jest użycie polecenia:
 
 ```
-$ xqry -s str1 | nc -l -p 8888
+$ xqry -s str1 | nc -l 8888
 ```
 
 na drugim komputerze trzeba napisać:
@@ -108,6 +108,10 @@ na drugim komputerze trzeba napisać:
 ```
 $ nc nazwa_serwera_lub_jego_ip 8888
 ```
+
+{% hint style="info" %}
+Flaga `-p` w netcat (składnia BSD) nie jest obsługiwana przez GNU netcat dostępny na współczesnych systemach Ubuntu/Debian. Poprawna składnia to `nc -l 8888` (bez `-p`).
+{% endhint %}
 
 Transmisja danych odbędzie się przez sieć.
 

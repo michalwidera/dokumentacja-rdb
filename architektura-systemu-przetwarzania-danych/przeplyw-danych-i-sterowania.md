@@ -15,3 +15,15 @@ Reszta strzałek prezentuje przepływy danych zależne od prowadzonego z użycie
 Każdy z procesów na schemacie został oznaczony dodatkowo liczbą utrzymywanych ciągłych procesów w systemie. Oznaczenie „1” przy procesie xretractor oznacza że ten program będzie pilnował aby tylko jedna instancja tego procesu funkcjonowała w systemie. Próba uruchomienia kolejnej zakończy się błędem i komunikatem przy uruchomieniu. Program xtrdb nie utrzymuje żadnych ciągłych i nieskończonych procesów. Czyta dane, przetwarza, zwraca wyniki i kończy pracę. Oferuje też opcję pracy w trybie interaktywnym. Proces xqry oznaczony został jako „N”. W ten sposób chciałem wyrazić że procesów xqry można wywoływać więcej niż jeden. Jest to typowy scenariusz pracy z systemem RetractorDB. Klientów komunikujących się z procesorem planów realizacji zapytań z definicji występuje kilka.
 
 <figure><img src="../.gitbook/assets/przeplyw_danych_i_sterowania.png" alt=""><figcaption><p>Rys. 7. Przepływ danych i sterowania</p></figcaption></figure>
+
+## Zatrzymanie xretractor
+
+Proces xretractor obsługuje sygnały systemowe i kończy pracę w kontrolowany sposób po otrzymaniu:
+
+| Sygnał | Polecenie | Znaczenie |
+|--------|-----------|-----------|
+| `SIGINT` | Ctrl+C w terminalu | przerwanie interaktywne |
+| `SIGTERM` | `kill <pid>` | standardowe zakończenie procesu |
+| `SIGHUP` | `kill -HUP <pid>` | zakończenie przy zamknięciu terminala |
+
+Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown — pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.

@@ -29,7 +29,7 @@ Drugie polecenie tworzy artefakt o nazwie str1 pobierający przesunięte w czasi
 Aby przeprowadzić kompilację tego pliku należy wywołać następujące polecenie:
 
 ```
-$ xretractor query.rql -c
+$ xretractor -c query.rql
 ```
 
 Na ekranie wyświetli się następująca odpowiedź systemu:
@@ -51,7 +51,7 @@ Pominięcie parametru -c spowoduje podjęcie próby kompilacji i natychmiastoweg
 Oprócz przeglądu tekstowego możemy obejrzeć również pliki kompilacji w postaci graficznej. Do tego celu należy wywołać następujący ciąg poleceń:
 
 ```
-$ xretractor query.rql -c -d -f -s > out.dot && dot -Tpng out.dot -o out.png
+$ xretractor -c -d -f -s query.rql > out.dot && dot -Tpng out.dot -o out.png
 ```
 
 Zakładając że w środowisku uruchomieniowym masz zainstalowany program dot z pakietu graphivz wygenerujesz tym poleceniem plik graficzny przedstawiający odpowiedź systemu w postaci grafu.
@@ -65,3 +65,33 @@ Na Rys. 10 widać trywialny plan realizacji zapytania jaki powstał w wyniku kom
 Z drugiej strony widać operacje na strumieniach. Operacje na strumieniach realizowane są w innej domenie. Tam występuje przetwarzanie obiektów dwu lub jednowartościowych. Operacjom poddawane są albo dwa strumienie albo tylko jeden z argumentem. Klasyczny stos w przypadku Algebraicznych operacji strumieniowych nie ma zastosowania. Dla uproszczenia zapis przypomina trochę operacje na stosie. Widzimy w załączonym przykładzie że operacje na danych bieżących realizujemy poprzez przesunięcie danych w czasie o 2. Celowo nie mówię że to 2 sekundy – tutaj 2 oznacza wartość relatywną względem szybkości napływu. W przypadku szybkości napływu 10 próbek na sekundę – wartość 2 oznacza przesunięcie w czasie o 0.2 sekundy.
 
 Skomplikowane wyrażenia algebraiczne w których biorą udział co najmniej dwa operatory strumieniowe powodują powstanie wspominanych w poprzednich rozdziałach substratów. Każde zapytanie, które zawiera wyrażenia algebraiczne w klauzuli from z więcej niż jednym operatorem są rozbijane na operacje dwuargumentowe, zależne od siebie. Lista argumentów substratu to domyślnie pełne rozwinięcie schematu.
+
+## Dostępne flagi xretractor
+
+W trybie kompilacji (`-c`) i w trybie wykonania dostępne są różne zestawy flag. Poniżej flagi trybu kompilacji używane przy generowaniu grafów:
+
+| Flaga | Pełna nazwa | Znaczenie |
+|-------|-------------|-----------|
+| `-c` | `--onlycompile` | tylko kompilacja — nie uruchamia przetwarzania |
+| `-d` | `--dot` | generuj wyjście w formacie DOT (graphviz) |
+| `-f` | `--fields` | pokaż pola strumieni w grafie DOT |
+| `-s` | `--streamprogs` | pokaż programy strumieni w grafie DOT |
+| `-u` | `--rules` | pokaż reguły RULE w grafie DOT |
+| `-p` | `--transparent` | przezroczyste tło grafu DOT |
+| `-i` | `--hideruleprog` | ukryj program warunku reguły (z `-u`) |
+| `-m` | `--csv` | wyjście w formacie CSV |
+
+Flagi trybu wykonania (bez `-c`):
+
+| Flaga | Pełna nazwa | Znaczenie |
+|-------|-------------|-----------|
+| `-m N` | `--tlimitqry N` | uruchom N cykli przetwarzania, potem zakończ |
+| `-k` | `--noanykey` | nie czekaj na klawisz — tryb daemon/skrypt |
+| `-t` | `--realtime` | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
+| `-x` | `--xqrywait` | czekaj na pierwsze połączenie xqry przed startem |
+| `-s` | `--status` | sprawdź czy instancja xretractor już działa |
+| `-v` | `--verbose` | wyświetl parametry strumieni przy starcie |
+
+{% hint style="info" %}
+Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza ~1 sekundę przetwarzania.
+{% endhint %}
