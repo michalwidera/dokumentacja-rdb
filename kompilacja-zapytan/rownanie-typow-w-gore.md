@@ -8,11 +8,11 @@ Co się dzieje w przypadku, kiedy mnożymy dane typu BYTE z danymi typu INTEGER 
 
 Na chwilę obecną system RetractorDB wspiera następujące typy danych:
 
-1. BYTE – typ reprezentuje wartości 0-256,
+1. BYTE – typ reprezentuje wartości 0-255,
 2. INTEGER – typ reprezentuje 4 bajtowe wartości dla liczb ze znakiem,
 3. UINT – podobnie jak INTEGER dla liczb bez znaku,
 4. RATIONAL – liczby wymierne,
-5. FLOAT – liczby zmiennoprzecinikowe,
+5. FLOAT – liczby zmiennoprzecinkowe,
 6. DOUBLE – liczby zmiennoprzecinkowe podwójnej precyzji,
 7. STRING – ciągi znaków.
 

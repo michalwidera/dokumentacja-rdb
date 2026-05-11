@@ -14,7 +14,7 @@ Przeanalizujmy następujące zapytanie:
 DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.txt'
 DECLARE b INTEGER STREAM core1, 0.2 FILE '/dev/urandom'
 
-SELECT str1[0],str1[1],core[0],core1[0]
+SELECT str1[0],str1[1],core0[0],core1[0]
 STREAM str1
 FROM core0+core1
 ```
@@ -41,4 +41,4 @@ core1(1/5)      /dev/urandom
         b: INTEGER
 ```
 
-Przeanalizujmy co zrobił kompilator. W zapytaniu poprosiliśmy o pierwsze pole wynikowego schematu danych. Otrzymaliśmy to o co prosiliśmy. W drugim polu schematu tak samo – drugie pole bez zmian zostało dostarczone. W trzecim polu prosimy o pole ze schematu, który bierze udział w operacji strumieniowej. Z core0\[0] kompilator zrobił str1\[0]. Podobna operacja nastąpiła z polem core1\[0]. Prosząc o nie kompilator dostarczył str1\[1]. A co, jeśli operacja zostanie strumieniowa zostanie zastąpiona #. Zachęcam do eksperymentów.
+Przeanalizujmy co zrobił kompilator. W zapytaniu poprosiliśmy o pierwsze pole wynikowego schematu danych. Otrzymaliśmy to o co prosiliśmy. W drugim polu schematu tak samo – drugie pole bez zmian zostało dostarczone. W trzecim polu prosimy o pole ze schematu, który bierze udział w operacji strumieniowej. Z core0\[0] kompilator zrobił str1\[0]. Podobna operacja nastąpiła z polem core1\[0]. Prosząc o nie kompilator dostarczył str1\[1]. A co, jeśli operacja strumieniowa zostanie zastąpiona #? Zachęcam do eksperymentów.
