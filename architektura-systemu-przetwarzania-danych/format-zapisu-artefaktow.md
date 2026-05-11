@@ -2,7 +2,7 @@
 description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przepływie.
+  kolejność ich zarejestrowania oraz przerwy w przep
 ---
 
 # Format zapisu artefaktów
@@ -15,17 +15,17 @@ Napływające dane organizowane są w kolejne rekordy opisane deskryptorami. Des
 
 Każdy artefakt lub substrat może być skojarzony z maksymalnie czterema plikami:
 
-| Plik | Rozszerzenie | Cel |
-| ---- | ------------ | --- |
-| Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów — append-only |
-| Plik deskryptora | `.desc` | Schemat rekordu (pola, typy, rozmiary) |
-| Plik metadanych | `.meta` | Indeks wartości null i przerw w transmisji (RLE) |
-| Plik cienia | `.shadow` | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
+| Plik                  | Rozszerzenie         | Cel                                                       |
+| --------------------- | -------------------- | --------------------------------------------------------- |
+| Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów — append-only                    |
+| Plik deskryptora      | `.desc`              | Schemat rekordu (pola, typy, rozmiary)                    |
+| Plik metadanych       | `.meta`              | Indeks wartości null i przerw w transmisji (RLE)          |
+| Plik cienia           | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
 
 ```mermaid
 graph TD
     D[".desc\nDeskryptor\nschemat rekordu"]
-    B["Plik danych\nbinarny\nrekordy N×R bajtów"]
+    B["Plik danych\n binarny\nrekordy N×R bajtów"]
     M[".meta\nMetadane\nindeks null + przerwy"]
     S[".shadow\nPlik cienia\nmodyfikacje rekordów"]
 
@@ -39,7 +39,7 @@ graph TD
 
 Plik cienia i plik metadanych są opcjonalne. W przypadku ciągłego napływu danych bez przerw i bez modyfikacji — wystarczy sam plik danych binarnych i deskryptor.
 
----
+***
 
 ## Plik danych binarnych
 
@@ -79,7 +79,7 @@ DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
 
 Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.
 
----
+***
 
 ## Plik metadanych (.meta)
 
@@ -138,7 +138,7 @@ graph TD
 
 Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy — informacja żyje wyłącznie w pliku `.meta`.
 
----
+***
 
 ## Plik cienia (.shadow)
 
@@ -199,7 +199,7 @@ sequenceDiagram
 
 Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku głównego (nie ma ich w shadow).
 
----
+***
 
 ## Relacja pomiędzy plikami
 
