@@ -8,7 +8,7 @@ description: >-
 
 Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor. Argument w postaci pliku z sekwencją poleceń i zapytań jest wymagany. W oparciu o przepływ przedstawiony na Rys. 7 przygotowałem opis procesu Rys. 9 realizujący proces kompilacji w trybie rozwojowym. Proces kompilacji można wywołać nawet jak już jakiś inny proces xretractor funkcjonuje. Blokowanie jednej instancji procesu przetwarzania danych odnosi się tylko do procesu realizacji planu zapytania. Wywołanie kompilacji w tym przypadku, nawet jeśli funkcjonuje już ten proces w systemie nie zgłosi błędu. Próba uruchomienia kolejnego przetwarzania – tak.
 
-<figure><img src="../.gitbook/assets/image (5) (1).png" alt=""><figcaption><p>Rys. 9. Proces kompilacji</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/schemat_procesu_kompilacji.png" alt=""><figcaption><p>Rys. 9. Proces kompilacji</p></figcaption></figure>
 
 Jako przykładowy plik przeznaczony do kompilacji przyjmiemy plik query.rql o następującej zawartości:
 
@@ -56,7 +56,7 @@ $ xretractor query.rql -c -d -f -s > out.dot && dot -Tpng out.dot -o out.png
 
 Zakładając że w środowisku uruchomieniowym masz zainstalowany program dot z pakietu graphivz wygenerujesz tym poleceniem plik graficzny przedstawiający odpowiedź systemu w postaci grafu.
 
-<figure><img src="../.gitbook/assets/image (6) (1).png" alt=""><figcaption><p>Rys. 10. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/graf_plan_zapytania.png" alt=""><figcaption><p>Rys. 10. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
 
 System RetractorDB potrafi wygenerować rysunek jako odpowiedź na jeden ze zleconych ciągów przetwarzania danych. Prezentacja graficzna jest najbardziej odpowiednia w przypadku tworzenia i przedstawiania grafów przetwarzania danych. Niestety czytelność ucierpi w przypadku bardzo skomplikowanych schematów.
 

@@ -125,7 +125,7 @@ $ xretractor -c query.rql -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 
 Ujrzymy następujący obraz (Rys. 25):
 
-<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption><p>Rys. 25 Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/zaleznosc_strumieni_filtr_sygnalowy.png" alt=""><figcaption><p>Rys. 25 Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
 
 Próba podejrzenia zawartych pól oraz typów danych spowoduje rozszerzenie wygenerowanego rysunku na tyle, że niemożliwe jest załączenie tutaj wygenerowanego wyniku bez utraty czytelności.
 
@@ -145,7 +145,7 @@ $ xqry -s outputAll -p 50:256 | gnuplot
 
 Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 26):
 
-<figure><img src="../.gitbook/assets/image (4).png" alt=""><figcaption><p>Rys. 26 Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/gnuplot_filtracja_sygnalu.png" alt=""><figcaption><p>Rys. 26 Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
 
 Na Rys. 26 widzimy dwa wykresy nałożone na siebie. Ten bardziej zróżnicowany – na ekranie komputera widoczny jako niebieska linia zawierająca dużą zmienność to wizualizacja sygnału wejściowego. Dane pobrane z generatora liczb pseudolosowych z częstotliwością 50 próbek na sekundę. Oraz drugi wykres opływający dane wejściowe – na ekranie komputera prezentowany w kolorze czerwonym, bardziej łagodny, opływający – to właśnie dane przefiltrowane opracowanym filtrem sygnałowym. Sygnał, którego pasmo przepustowe zostało ograniczone do 0-2Hz (niskich częstotliwości) i ograniczone zaporowo w obszarze (5-25Hz) w obszarze wysokich częstotliwości. Obrazowo można powiedzieć, że wyizolowaliśmy linię melodyczną dla basów.
 

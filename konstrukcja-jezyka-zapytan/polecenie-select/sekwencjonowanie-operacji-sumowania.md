@@ -27,7 +27,7 @@ Program swirly zainstalowany został z repozytorium GitHub \[[6](../../literatur
 
 Modyfikację jaką zastosowałem w moim przypadku użycia to alternatywne znaczenie pionowych linii. W moim przypadku pionowe linia oddzielają jednolite interwały czasowe – prezentujące ilość cykli o które poprosiliśmy przy wywołaniu (w tym przypadku to 3 cykle). Wygenerowany obraz przedstawia Rys. 3:
 
-<figure><img src="../../.gitbook/assets/image (1) (1) (1).png" alt=""><figcaption><p>Rys. 3 Schemat Kulkowy - Operacja sumy</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/schemat_kulkowy_operacja_sumy.png" alt=""><figcaption><p>Rys. 3 Schemat Kulkowy - Operacja sumy</p></figcaption></figure>
 
 W tym miejscu konieczne jest kilka słów wyjaśnienia dotyczące tego generatora oraz sposobu generacji wytycznych dla tego generatora. Wbudowałem w kompilator opcję wizualizacji realizacji sekwencji operacji. Diagramy tworzone przez program Swirly są jednym z wygodnych sposobów prezentacji zależności czasowych. Na wejściu program Swirly oczekuje pliku tekstowego z opisem diagramu. Generator symulujący wskazaną ilość cykli w argumencie i budujący plik dla Swirly został wbudowany w kompilator.
 
@@ -78,6 +78,6 @@ o:=fi
 
 Wywołamy następnie ponownie program swirly zobaczymy bardziej dokładny rysunek przedstawiający sekwencję zdarzeń występujących w systemie.
 
-<figure><img src="../../.gitbook/assets/image (1) (1) (1) (1).png" alt=""><figcaption><p>Rys. 4 Schemat kulkowy - Suma, diagram zmodyfikowany</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/schemat_kulkowy_sumy.png" alt=""><figcaption><p>Rys. 4 Schemat kulkowy - Suma, diagram zmodyfikowany</p></figcaption></figure>
 
 Na diagramie przedstawionym na rysunku Rys. 4 widać, które kulki zostały połączone i z których kulek powstały. Przypominam jednak że to obraz poprawiony ręcznie, dla celów tego opracowania – generator wbudowany w kompilator nie realizuje tej funkcjonalności.
