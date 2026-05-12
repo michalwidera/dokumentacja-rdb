@@ -4,7 +4,7 @@
 * [Podstawy matematyczne](podstawy-matematyczne/README.md)
   * [Algebra regularnych serii czasowych](podstawy-matematyczne/algebra-regularnych-serii-czasowych.md)
   * [Wyrażenia algebraiczne](podstawy-matematyczne/wyrazenia-algebraiczne.md)
-  * [Implementacja programowa](podstawy-matematyczne/implementacja-programowa.md)
+  * [Implementacja modelu](podstawy-matematyczne/implementacja-programowa.md)
   * [Reprezentacja graficzna](podstawy-matematyczne/zaleznosci-pomiedzy-operatorami-algebry.md)
   * [Podsumowanie](podstawy-matematyczne/podsumowanie.md)
 * [Konstrukcja języka zapytań](konstrukcja-jezyka-zapytan/README.md)
