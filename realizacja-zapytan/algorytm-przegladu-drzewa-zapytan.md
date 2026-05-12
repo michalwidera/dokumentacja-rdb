@@ -27,7 +27,7 @@ _Rys. 25. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
 `qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()`.
 
 ```mermaid
-graph LR
+graph TD
     A["A (DECLARE)\nrInterval=1/3"] --> B["B\nSELECT FROM A\nrInterval=1/3"]
     A --> D["D\nSELECT FROM A,B\nrInterval=1"]
     B --> C["C\nSELECT FROM B\nrInterval=1/2"]
@@ -122,7 +122,7 @@ flowchart TD
     S([processRows - inSet]) --> P1
 
     subgraph P1["Przebieg 1 — nie-deklaracje (kolejność topologiczna)"]
-        direction LR
+        direction TB
         X1["constructInputPayload()\nbuduje dane wejściowe z FROM"] --> X2
         X2["constructOutputPayload()\newaluuje wyrażenia SELECT"] --> X3
         X3["write()\nzapis na dysk / pamięć"] --> X4
@@ -132,7 +132,7 @@ flowchart TD
     P1 --> P2
 
     subgraph P2["Przebieg 2 — deklaracje (odblokowanie na następny slot)"]
-        direction LR
+        direction TB
         Y1{"bufferState\n== armed?"} -->|tak| Y2
         Y2["bufferState = flux\nodblokuj odczyt"] --> Y3
         Y3["revRead(0)\nodczytaj nowe dane"] --> Y4
@@ -154,7 +154,7 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449):
 
 ```mermaid
-flowchart LR
+flowchart TB
     A([inSet]) --> B["printRowValue()\nserializuj do Boost property_tree"]
     B --> C{klienci\nsubskrybujący\nstrumień?}
     C -->|tak| D["kolejka brcdbr&lt;id&gt;\ntry_send(dane)"]
