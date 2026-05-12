@@ -30,7 +30,7 @@ Oba okna proponuję ustawić obok siebie. Zobaczymy, że pojawianie się wartoś
 
 Zapis sesji:
 
-<figure><img src="../.gitbook/assets/alarm-example.svg" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/alarm-example.svg" alt=""><figcaption></figcaption></figure>
 
 ## Przykład 2: zapis kontekstu zdarzenia (DO DUMP)
 
@@ -134,4 +134,3 @@ DO DUMP -5 TO 5 RETENTION 10
 Reguły `prog_gorny` i `zapis_kontekstu` reagują na ten sam warunek niezależnie — przekroczenie progu górnego jednocześnie zapisuje log i utrwala okno danych. Reguła `prog_dolny` obsługuje osobno próg dolny.
 
 Wszystkie trzy reguły są ewaluowane przy każdej nowej próbce strumienia `str1`.
-
