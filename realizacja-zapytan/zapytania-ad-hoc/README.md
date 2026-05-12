@@ -1,10 +1,12 @@
 ---
+description: >-
+  "Ad hoc" to łacińskie wyrażenie oznaczające "doraźnie", "w tym celu" lub
+  "specjalnie". Używa się go do opisania działań, spotkań czy projektów
+  realizowanych jednorazowo, bez długoterminowego planu, w
 icon: rectangle-ad
 ---
 
 # Zapytania Ad hoc
-
-"Ad hoc" to łacińskie wyrażenie oznaczające "doraźnie", "w tym celu" lub "specjalnie". Używa się go do opisania działań, spotkań czy projektów realizowanych jednorazowo, bez długoterminowego planu, w odpowiedzi na konkretną potrzebę lub problem.
 
 Przez zapytania Ad hoc rozumiemy zapytania kierowane do działającego systemu. W typowym scenariuszu jaki zakładano w przypadku rozwoju systemu, założono we wstępnie rozpatrywanych scenariuszach, że użytkownik systemu będzie znał wszystkie zapytania i źródła danych wymagane do uzyskania przetworzonych serii czasowych.
 
