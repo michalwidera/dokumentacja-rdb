@@ -1,5 +1,5 @@
 ---
-description: To polecenie tworzy źródła prawdy - tzw. Efemerydy
+description: To polecenie tworzy ulotne źródła prawdy - tzw. Efemerydy
 ---
 
 # Polecenie DECLARE
@@ -21,14 +21,14 @@ FILE źródło
 
 Każde pole ma nazwę i typ. Dostępne typy:
 
-| Typ | Rozmiar | Opis |
-|-----|---------|------|
-| `BYTE` | 1 B | liczba całkowita bez znaku 8-bit |
-| `INTEGER` | 4 B | liczba całkowita ze znakiem 32-bit |
-| `UINT` | 4 B | liczba całkowita bez znaku 32-bit |
-| `FLOAT` | 4 B | liczba zmiennoprzecinkowa 32-bit |
-| `DOUBLE` | 8 B | liczba zmiennoprzecinkowa 64-bit |
-| `STRING` | N B | ciąg bajtów o stałej długości N |
+| Typ       | Rozmiar | Opis                               |
+| --------- | ------- | ---------------------------------- |
+| `BYTE`    | 1 B     | liczba całkowita bez znaku 8-bit   |
+| `INTEGER` | 4 B     | liczba całkowita ze znakiem 32-bit |
+| `UINT`    | 4 B     | liczba całkowita bez znaku 32-bit  |
+| `FLOAT`   | 4 B     | liczba zmiennoprzecinkowa 32-bit   |
+| `DOUBLE`  | 8 B     | liczba zmiennoprzecinkowa 64-bit   |
+| `STRING`  | N B     | ciąg bajtów o stałej długości N    |
 
 ### Tablice pól (`typ[N]`)
 

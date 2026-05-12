@@ -2,6 +2,7 @@
 description: >-
   Podobnie jak SQL oparto na algebrze zbiorów, RQL jest oparty na algebrze
   regularnych serii czasowych - rozdział: Podstawy matematyczne
+icon: '2'
 ---
 
 # Konstrukcja języka zapytań

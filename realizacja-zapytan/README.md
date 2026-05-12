@@ -2,6 +2,7 @@
 description: >-
   Połączenie wiedzy z zakresu budowy systemu z wiedzą o kompilacji umożliwi
   przedstawienie sposobu realizacji zapytań.
+icon: '5'
 ---
 
 # Realizacja zapytań

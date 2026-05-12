@@ -1,5 +1,6 @@
 ---
 description: Nadawanie nazw - prawo i konieczność w przypadku wejścia na niezbadany teren.
+icon: '1'
 ---
 
 # Artefakty, Substraty, Efemerydy

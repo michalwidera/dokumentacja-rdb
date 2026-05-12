@@ -1,5 +1,6 @@
 ---
 description: Opis powiązań i elementów z których zbudowany jest cały system.
+icon: '3'
 ---
 
 # Architektura systemu

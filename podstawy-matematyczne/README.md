@@ -2,6 +2,7 @@
 description: >-
   "Każde równanie umieszczone w pracy zmniejsza liczbę czytelników o połowę" -
   Stephen Hawking. Trudno, bez ofiar się nie obejdzie.
+icon: '1'
 ---
 
 # Podstawy matematyczne

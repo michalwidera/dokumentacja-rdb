@@ -2,6 +2,7 @@
 description: >-
   Idąc tą ścieżką nie liczyłem się z koniecznością zdobycia umiejętności
   opisanych w księdze smoka.
+icon: '4'
 ---
 
 # Kompilacja zapytań
