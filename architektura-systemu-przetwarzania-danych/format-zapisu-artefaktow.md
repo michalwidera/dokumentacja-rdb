@@ -3,6 +3,7 @@ description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
   kolejność ich zarejestrowania oraz przerwy w przep
+icon: line-height
 ---
 
 # Format zapisu artefaktów
@@ -37,7 +38,7 @@ graph TD
     style M fill:#cdf,color:#000
 ```
 
-*Rys. 10. Zestaw plików artefaktu i ich powiązania*
+_Rys. 10. Zestaw plików artefaktu i ich powiązania_
 
 Plik cienia i plik metadanych są opcjonalne. W przypadku ciągłego napływu danych bez przerw i bez modyfikacji — wystarczy sam plik danych binarnych i deskryptor.
 
@@ -57,12 +58,12 @@ Plik danych to sekwencja rekordów o stałej długości, zapisywanych jeden po d
 
 Każdy rekord zawiera upakowane wartości pól w kolejności zdefiniowanej przez deskryptor:
 
-| Offset w rekordzie          | Pole   | Rozmiar      |
-| --------------------------- | ------ | ------------ |
-| 0                           | pole_0 | len_0 bajtów |
-| len_0                       | pole_1 | len_1 bajtów |
-| len_0 + len_1               | ...    | ...          |
-| len_0 + len_1 + ... + len_n | pole_n | len_n bajtów |
+| Offset w rekordzie             | Pole    | Rozmiar       |
+| ------------------------------ | ------- | ------------- |
+| 0                              | pole\_0 | len\_0 bajtów |
+| len\_0                         | pole\_1 | len\_1 bajtów |
+| len\_0 + len\_1                | ...     | ...           |
+| len\_0 + len\_1 + ... + len\_n | pole\_n | len\_n bajtów |
 
 Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Operacja **update** (modyfikacja istniejącego rekordu) — jeśli istnieje plik cienia — trafia do pliku cienia, a nie do pliku głównego.
 
@@ -82,24 +83,24 @@ Plik `.meta` to indeks wartości null i przerw w transmisji. Przechowuje informa
 
 ### Format pliku
 
-| Pozycja      | Zawartość                              | Rozmiar       |
-| ------------ | -------------------------------------- | ------------- |
-| Nagłówek     | `creationTimeNs` (int64)               | 8 bajtów      |
-| Wpis RLE 0   | `gapFlag \| count \| bitsetSize \| bitset` | zmienny   |
-| Wpis RLE 1   | `gapFlag \| count \| bitsetSize \| bitset` | zmienny   |
-| ...          | ...                                    | ...           |
-| Wpis RLE k   | wpis bieżący (w pamięci)               | zmienny       |
+| Pozycja    | Zawartość                                  | Rozmiar  |
+| ---------- | ------------------------------------------ | -------- |
+| Nagłówek   | `creationTimeNs` (int64)                   | 8 bajtów |
+| Wpis RLE 0 | `gapFlag \| count \| bitsetSize \| bitset` | zmienny  |
+| Wpis RLE 1 | `gapFlag \| count \| bitsetSize \| bitset` | zmienny  |
+| ...        | ...                                        | ...      |
+| Wpis RLE k | wpis bieżący (w pamięci)                   | zmienny  |
 
 ### Format wpisu RLE
 
 Każdy wpis opisuje ciąg kolejnych rekordów z identycznym wzorcem null:
 
-| Pole          | Rozmiar       | Opis                              |
-| ------------- | ------------- | --------------------------------- |
-| `gapFlag`     | 1 B           | 0 = normalny rekord, 1 = przerwa  |
-| `recordCount` | 8 B (size_t)  | liczba rekordów w ciągu           |
-| `bitsetSize`  | 8 B (size_t)  | liczba pól (N)                    |
-| `bitset`      | ⌈N/8⌉ B       | bit i = pole i ma wartość null    |
+| Pole          | Rozmiar       | Opis                             |
+| ------------- | ------------- | -------------------------------- |
+| `gapFlag`     | 1 B           | 0 = normalny rekord, 1 = przerwa |
+| `recordCount` | 8 B (size\_t) | liczba rekordów w ciągu          |
+| `bitsetSize`  | 8 B (size\_t) | liczba pól (N)                   |
+| `bitset`      | ⌈N/8⌉ B       | bit i = pole i ma wartość null   |
 
 ### Kompresja RLE
 
@@ -107,9 +108,9 @@ Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększ
 
 **10 rekordów, 2 pola, bez null:**
 
-| Wpis  | isGap | count | bitset |
-| ----- | ----- | ----- | ------ |
-| wpis 0 | F    | 10    | \[F,F] |
+| Wpis   | isGap | count | bitset |
+| ------ | ----- | ----- | ------ |
+| wpis 0 | F     | 10    | \[F,F] |
 
 **Null w polu 1 od rekordu 5:**
 
@@ -138,10 +139,10 @@ Plik cienia umożliwia modyfikację zarejestrowanych rekordów bez niszczenia da
 
 ### Format wpisu
 
-| Pole       | Rozmiar      | Opis                              |
-| ---------- | ------------ | --------------------------------- |
-| `position` | 8 B (size_t) | indeks rekordu w pliku głównym    |
-| `data`     | R bajtów     | nowe wartości rekordu             |
+| Pole       | Rozmiar       | Opis                           |
+| ---------- | ------------- | ------------------------------ |
+| `position` | 8 B (size\_t) | indeks rekordu w pliku głównym |
+| `data`     | R bajtów      | nowe wartości rekordu          |
 
 Każda modyfikacja dopisuje nowy wpis na koniec pliku cienia. Przy wielu modyfikacjach tego samego rekordu plik może zawierać wiele wpisów dla tej samej pozycji — aktualny jest ostatni.
 
@@ -156,7 +157,7 @@ flowchart TD
     MAIN --> RET2["Zwróć dane oryginalne"]
 ```
 
-*Rys. 11. Priorytety odczytu rekordu z pliku cienia*
+_Rys. 11. Priorytety odczytu rekordu z pliku cienia_
 
 ### Scalanie (merge)
 
@@ -176,7 +177,7 @@ sequenceDiagram
     App->>Shadow: ftruncate(0) — wyczyść plik cienia
 ```
 
-*Rys. 12. Scalanie pliku cienia z plikiem głównym*
+_Rys. 12. Scalanie pliku cienia z plikiem głównym_
 
 ### Przykład: modyfikacja rekordu
 
@@ -226,4 +227,4 @@ graph LR
     end
 ```
 
-*Rys. 13. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu*
+_Rys. 13. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_

@@ -1,5 +1,6 @@
 ---
 description: Ten proces wydaje się trywialny. Cierpliwości.
+icon: share-all
 ---
 
 # Przetwarzanie i dystrybucja danych

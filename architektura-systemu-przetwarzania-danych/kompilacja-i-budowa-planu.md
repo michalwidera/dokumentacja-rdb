@@ -2,6 +2,7 @@
 description: >-
   Zaczynałem od Boost::Spirit, skończyłem z Antlr4 ... pliki .g4 zawierają
   gramatykę.
+icon: language
 ---
 
 # Kompilacja i budowa planu
@@ -70,30 +71,30 @@ Skomplikowane wyrażenia algebraiczne w których biorą udział co najmniej dwa 
 
 W trybie kompilacji (`-c`) i w trybie wykonania dostępne są różne zestawy flag. Poniżej flagi trybu kompilacji używane przy generowaniu grafów:
 
-| Flaga | Pełna nazwa | Znaczenie |
-|-------|-------------|-----------|
-| `-c` | `--onlycompile` | tylko kompilacja — nie uruchamia przetwarzania |
-| `-d` | `--dot` | generuj wyjście w formacie DOT (graphviz) |
-| `-f` | `--fields` | pokaż pola strumieni w grafie DOT |
-| `-s` | `--streamprogs` | pokaż programy strumieni w grafie DOT |
-| `-u` | `--rules` | pokaż reguły RULE w grafie DOT |
-| `-p` | `--transparent` | przezroczyste tło grafu DOT |
-| `-i` | `--hideruleprog` | ukryj program warunku reguły (z `-u`) |
-| `-m` | `--csv` | wyjście w formacie CSV |
+| Flaga | Pełna nazwa      | Znaczenie                                      |
+| ----- | ---------------- | ---------------------------------------------- |
+| `-c`  | `--onlycompile`  | tylko kompilacja — nie uruchamia przetwarzania |
+| `-d`  | `--dot`          | generuj wyjście w formacie DOT (graphviz)      |
+| `-f`  | `--fields`       | pokaż pola strumieni w grafie DOT              |
+| `-s`  | `--streamprogs`  | pokaż programy strumieni w grafie DOT          |
+| `-u`  | `--rules`        | pokaż reguły RULE w grafie DOT                 |
+| `-p`  | `--transparent`  | przezroczyste tło grafu DOT                    |
+| `-i`  | `--hideruleprog` | ukryj program warunku reguły (z `-u`)          |
+| `-m`  | `--csv`          | wyjście w formacie CSV                         |
 
 Flagi trybu wykonania (bez `-c`):
 
-| Flaga | Pełna nazwa | Znaczenie |
-|-------|-------------|-----------|
-| `-m N` | `--tlimitqry N` | uruchom N cykli przetwarzania, potem zakończ |
-| `-k` | `--noanykey` | nie czekaj na klawisz — tryb daemon/skrypt |
-| `-t` | `--realtime` | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
-| `-x` | `--xqrywait` | czekaj na pierwsze połączenie xqry przed startem |
-| `-s` | `--status` | sprawdź czy instancja xretractor już działa |
-| `-v` | `--verbose` | wyświetl parametry strumieni przy starcie |
+| Flaga  | Pełna nazwa     | Znaczenie                                        |
+| ------ | --------------- | ------------------------------------------------ |
+| `-m N` | `--tlimitqry N` | uruchom N cykli przetwarzania, potem zakończ     |
+| `-k`   | `--noanykey`    | nie czekaj na klawisz — tryb daemon/skrypt       |
+| `-t`   | `--realtime`    | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
+| `-x`   | `--xqrywait`    | czekaj na pierwsze połączenie xqry przed startem |
+| `-s`   | `--status`      | sprawdź czy instancja xretractor już działa      |
+| `-v`   | `--verbose`     | wyświetl parametry strumieni przy starcie        |
 
 {% hint style="info" %}
-Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza ~1 sekundę przetwarzania.
+Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza \~1 sekundę przetwarzania.
 {% endhint %}
 
 Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md).

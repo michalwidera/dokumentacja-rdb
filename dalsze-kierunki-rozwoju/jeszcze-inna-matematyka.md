@@ -1,3 +1,7 @@
+---
+icon: function
+---
+
 # Jeszcze inna matematyka
 
 Kilka lat temu poszukiwałem rozszerzenia algebry przedstawionej w rozdziale o podstawach matematycznych o liczby zespolone. Bezpośrednie zastosowanie gaussowskich liczb zespolonych - zakładając, że bazą obliczeń będą liczby wymierne nie dało spodziewanych efektów. Modele obliczeniowe wskazywały na to, że rozkład zbioru liczb naturalnych w oparciu o te liczby nie działa.

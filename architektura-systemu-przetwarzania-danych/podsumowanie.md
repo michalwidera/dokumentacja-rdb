@@ -1,3 +1,7 @@
+---
+icon: sigma
+---
+
 # Podsumowanie
 
 W podsumowaniu należy wskazać na przekazy w rozdziale zakres wiedzy. Tutaj chciałem przedstawić jak poszczególne elementy systemu możemy uruchamiać, jak wyglądają ciągi poleceń w oparciu o które budujemy dalsze funkcjonalności z wykorzystaniem systemu RetractorDB.

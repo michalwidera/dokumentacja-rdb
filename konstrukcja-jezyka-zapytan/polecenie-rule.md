@@ -2,6 +2,7 @@
 description: >-
   Tym poleceniem możesz wytworzyć reakcje systemu na zachodzące zjawiska.
   Alarmowanie ma szerokie zastosowanie.
+icon: alarm-exclamation
 ---
 
 # Polecenie RULE

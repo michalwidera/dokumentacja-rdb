@@ -1,5 +1,6 @@
 ---
 description: Graf zależności musi być acykliczny. Kompilator to sprawdza.
+icon: arrows-spin
 ---
 
 # Wykrywanie pętli w kompilacji
@@ -29,7 +30,7 @@ graph LR
     style str2 fill:#f66,color:#fff
 ```
 
-*Rys. 24. Cykl w grafie zależności zapytań*
+_Rys. 24. Cykl w grafie zależności zapytań_
 
 ## Efekt kompilacji
 

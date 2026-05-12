@@ -1,5 +1,6 @@
 ---
 description: Kompilacja to nie jeden krok, lecz łańcuch kolejnych przekształceń.
+icon: shoe-prints
 ---
 
 # Przebiegi kompilacji

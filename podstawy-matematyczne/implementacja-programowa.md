@@ -2,15 +2,16 @@
 description: >-
   Tak naprawdę to zaczęło się wszystko tutaj od modeli w Pythonie. Matematyka
   powstała później ...
+icon: calculator-simple
 ---
 
-# Implementacja programowa
+# Implementacja modelu
 
 Opracowane równania algebry zaimplementowano pierwotnie w języku Python. Jest to znany mi najbardziej efektywny sposób modelowania i numerycznego weryfikowania hipotez. Każdy z operatorów został zaimplementowany wewnątrz osobnej funkcji. Operacje realizowane na zmiennych wymiernych (biblioteka Fraction). Wyniki prezentowane są w postaci ograniczonych tablic. Operatory te jednak w końcowej implementacji realizują operacje na nieskończonych strukturach danych.
 
 ### Operacja przeplotu
 
-&#x20;Na początku zbudujmy operację przeplotu:
+Na początku zbudujmy operację przeplotu:
 
 {% tabs %}
 {% tab title="Kod źródłowy" %}
@@ -46,8 +47,6 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-
-
 {% endtab %}
 
 {% tab title="Efekt uruchomienia" %}

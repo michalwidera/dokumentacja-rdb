@@ -1,3 +1,7 @@
+---
+icon: tree-deciduous
+---
+
 # Algorytm przeglądu drzewa zapytań
 
 ## Przegląd ogólny
@@ -14,9 +18,9 @@ flowchart TD
     F["broadcast(inSet)\nKolejki Boost IPC → klienci xqry"] --> C
 ```
 
-*Rys. 25. Algorytm przeglądu drzewa zapytań – przegląd ogólny*
+_Rys. 25. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
 
----
+***
 
 ## Struktura danych: qTree
 
@@ -30,13 +34,13 @@ graph LR
     B --> D
 ```
 
-*Rys. 26. Przykładowy graf zależności dla qTree*
+_Rys. 26. Przykładowy graf zależności dla qTree_
 
 Po sortowaniu topologicznym kolejność w wektorze: `[A, B, C, D]`. Zapytanie C zależne od B zawsze trafi po B w iteracji — gwarantuje poprawność obliczeń.
 
 Metoda `getAvailableTimeIntervals()` wyodrębnia ze wszystkich zapytań unikalne wartości `rInterval` (z pominięciem dyrektyw kompilatora i wartości zerowych) — wynik to wejście do konstruktora `TimeLine`.
 
----
+***
 
 ## Minimalna siatka czasowa: TimeLine / CRSMath
 
@@ -69,15 +73,15 @@ timeline
         C (rInterval=1/2)
 ```
 
-*Rys. 27. Minimalna siatka czasowa dla delt {1/2, 1/3}*
+_Rys. 27. Minimalna siatka czasowa dla delt {1/2, 1/3}_
 
 Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlot_ / inDelta` ma mianownik równy 1 (slot jest całkowitą wielokrotnością delty zapytania).
 
----
+***
 
 ## Krok zerowy: `processZeroStep()`
 
-Przed wejściem w pętlę `executorsm::run()` wywołuje `processZeroStep()` (`dataModel.cpp`, linia ~85). Przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
+Przed wejściem w pętlę `executorsm::run()` wywołuje `processZeroStep()` (`dataModel.cpp`, linia \~85). Przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
 
 ```cpp
 for (auto &q : coreInstance_) {
@@ -91,13 +95,13 @@ for (auto &q : coreInstance_) {
 
 Po tym kroku każda deklaracja ma `bufferState = armed` — dane z fizycznego źródła są w `outputPayload`.
 
----
+***
 
 ## Główna pętla: filtrowanie i przetwarzanie
 
 ### Filtrowanie zapytań: `getAwaitedStreamsSet()`
 
-Dla bieżącego slotu `tl` (`executorsm.cpp`, linia ~88):
+Dla bieżącego slotu `tl` (`executorsm.cpp`, linia \~88):
 
 ```cpp
 std::set<std::string> retVal;
@@ -111,7 +115,7 @@ Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie — podzbiór ws
 
 ### Przetwarzanie: `processRows(inSet)`
 
-Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia ~98):
+Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98):
 
 ```mermaid
 flowchart TD
@@ -139,15 +143,15 @@ flowchart TD
     P2 --> E([koniec])
 ```
 
-*Rys. 28. Algorytm processRows – dwa przejścia przetwarzania*
+_Rys. 28. Algorytm processRows – dwa przejścia przetwarzania_
 
 Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania skonsumowały ich `outputPayload` w przejściu 1.
 
----
+***
 
 ## Rozgłaszanie wyników: `broadcast()`
 
-Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia ~449):
+Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449):
 
 ```mermaid
 flowchart LR
@@ -160,11 +164,11 @@ flowchart LR
     C -->|brak| H([pomiń])
 ```
 
-*Rys. 29. Algorytm broadcast – rozsyłanie wyników przez Boost IPC*
+_Rys. 29. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 
 `printRowValue()` buduje strukturę z nazwą strumienia, liczbą pól, wartościami i bitmapą null, zapisuje jako Boost info format i wysyła przez `boost::interprocess::message_queue`.
 
----
+***
 
 ## Pełny przykład: zapytania A, B, C, D dla delt {1/2, 1/3}
 
@@ -204,6 +208,6 @@ sequenceDiagram
     ES->>IPC: broadcast({B, C, D})
 ```
 
-*Rys. 30. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}*
+_Rys. 30. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}_
 
 Drzewo zależności determinuje kolejność przejścia 1. Interwały czasowe z algebry Beatty'ego wyznaczają, które węzły drzewa są aktywne w danym slocie.

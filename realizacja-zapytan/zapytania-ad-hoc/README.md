@@ -1,3 +1,7 @@
+---
+icon: rectangle-ad
+---
+
 # Zapytania Ad hoc
 
 "Ad hoc" to łacińskie wyrażenie oznaczające "doraźnie", "w tym celu" lub "specjalnie". Używa się go do opisania działań, spotkań czy projektów realizowanych jednorazowo, bez długoterminowego planu, w odpowiedzi na konkretną potrzebę lub problem.

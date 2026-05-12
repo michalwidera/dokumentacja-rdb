@@ -1,5 +1,6 @@
 ---
 description: To jest jedna z tych funkcji języka, na które się nie zwraca uwagi. Niedobrze.
+icon: rotate
 ---
 
 # Aliasowanie

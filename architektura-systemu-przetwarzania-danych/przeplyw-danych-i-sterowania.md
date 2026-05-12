@@ -1,5 +1,6 @@
 ---
 description: Perspektywa przepływu danych.
+icon: chart-diagram
 ---
 
 # Przepływ danych i sterowania
@@ -20,10 +21,10 @@ Każdy z procesów na schemacie został oznaczony dodatkowo liczbą utrzymywanyc
 
 Proces xretractor obsługuje sygnały systemowe i kończy pracę w kontrolowany sposób po otrzymaniu:
 
-| Sygnał | Polecenie | Znaczenie |
-|--------|-----------|-----------|
-| `SIGINT` | Ctrl+C w terminalu | przerwanie interaktywne |
-| `SIGTERM` | `kill <pid>` | standardowe zakończenie procesu |
-| `SIGHUP` | `kill -HUP <pid>` | zakończenie przy zamknięciu terminala |
+| Sygnał    | Polecenie          | Znaczenie                             |
+| --------- | ------------------ | ------------------------------------- |
+| `SIGINT`  | Ctrl+C w terminalu | przerwanie interaktywne               |
+| `SIGTERM` | `kill <pid>`       | standardowe zakończenie procesu       |
+| `SIGHUP`  | `kill -HUP <pid>`  | zakończenie przy zamknięciu terminala |
 
 Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown — pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.

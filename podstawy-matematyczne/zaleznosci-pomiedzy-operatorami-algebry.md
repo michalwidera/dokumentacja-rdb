@@ -1,5 +1,6 @@
 ---
 description: Próbowałem namalować opracowaną algebrę.
+icon: uncharted
 ---
 
 # Reprezentacja graficzna

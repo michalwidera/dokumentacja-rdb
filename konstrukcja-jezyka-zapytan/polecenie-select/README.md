@@ -2,6 +2,7 @@
 description: >-
   Tym poleceniem wytworzysz artefakty i substraty. Substraty stworzą się same,
   jako efekt uboczny.
+icon: function
 ---
 
 # Polecenie SELECT
@@ -42,10 +43,10 @@ Klauzula STORAGE umożliwia wybór sposobu tworzenia i zarządzania tworzonymi a
 
 Strumieniowe wyrażenie algebraiczne w klauzuli `FROM` może zawierać:
 
-| Operator | Składnia | Opis |
-|----------|----------|------|
-| Suma | `A + B` | Połączenie dwóch strumieni — patrz [Sekwencjonowanie sumowania](sekwencjonowanie-operacji-sumowania.md) |
-| Przeplot | `A # B` | Interleaving dwóch strumieni — patrz [Sekwencjonowanie przeplotu](sekwencjonowanie-operacji-przeplotu.md) |
-| Przesunięcie | `A > N` | Przesuwa okno odczytu o N próbek |
-| Okno AGSE | `A @ (k, w)` | Ruchome okno danych — patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/README.md) |
-| Agregat | `A.min` / `A.max` / `A.avg` / `A.sumc` | Redukuje wielopolowy rekord do jednej wartości — patrz [Operatory agregujące](operatory-agregujace.md) |
+| Operator     | Składnia                               | Opis                                                                                                       |
+| ------------ | -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Suma         | `A + B`                                | Połączenie dwóch strumieni — patrz [Sekwencjonowanie sumowania](sekwencjonowanie-operacji-sumowania.md)    |
+| Przeplot     | `A # B`                                | Interleaving dwóch strumieni — patrz [Sekwencjonowanie przeplotu](sekwencjonowanie-operacji-przeplotu.md)  |
+| Przesunięcie | `A > N`                                | Przesuwa okno odczytu o N próbek                                                                           |
+| Okno AGSE    | `A @ (k, w)`                           | Ruchome okno danych — patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/) |
+| Agregat      | `A.min` / `A.max` / `A.avg` / `A.sumc` | Redukuje wielopolowy rekord do jednej wartości — patrz [Operatory agregujące](operatory-agregujace.md)     |

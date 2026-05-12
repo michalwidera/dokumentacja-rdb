@@ -1,3 +1,7 @@
+---
+icon: window-frame
+---
+
 # Ruchome okno danych AGSE
 
 Ruchome okno danych to pojęcie powszechnie stosowane w systemach przetwarzających strumienie lub serie czasowe. Idea polega na grupowaniu danych w oknach czasowych, dając możliwość użytkownikowi możliwość przetwarzania w zamrożonych migawkach.
@@ -22,13 +26,13 @@ Jeśli strumień źródłowy ma `W` pól w rekordzie i interwał `Δ`, to strumi
 * `|w|` pól w rekordzie wyjściowym,
 * interwał wyjściowy `Δ_out = (Δ / W) × k`.
 
-| Parametry          | Efekt                                                             |
-| ------------------ | ----------------------------------------------------------------- |
-| `k = \|w\|`        | okno tumbling — kolejne okna nie zachodzą na siebie              |
-| `k < \|w\|`        | okno przesuwne (sliding) — kolejne okna zachodzą na siebie       |
-| `k > \|w\|`        | próbkowanie z przerwami — część danych jest pomijana             |
-| `k = 1, \|w\| = 1` | serializacja — wielopolowy rekord rozbijany na jednoelementowe   |
-| `w < 0`            | agregacja lustrzana — kolejność pól w oknie odwrócona            |
+| Parametry          | Efekt                                                          |
+| ------------------ | -------------------------------------------------------------- |
+| `k = \|w\|`        | okno tumbling — kolejne okna nie zachodzą na siebie            |
+| `k < \|w\|`        | okno przesuwne (sliding) — kolejne okna zachodzą na siebie     |
+| `k > \|w\|`        | próbkowanie z przerwami — część danych jest pomijana           |
+| `k = 1, \|w\| = 1` | serializacja — wielopolowy rekord rozbijany na jednoelementowe |
+| `w < 0`            | agregacja lustrzana — kolejność pól w oknie odwrócona          |
 
 ## Typowe wzorce użycia
 

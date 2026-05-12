@@ -1,3 +1,7 @@
+---
+icon: wave-sine
+---
+
 # Implementacja filtru sygnałowego
 
 Zagadnienia związane z przetwarzaniem sygnałów cyfrowych zawierają w sobie problemy związane z filtracją. Celem filtracji jest rozdzielenie informacji zawartych wewnątrz sygnału. Zazwyczaj celem jest oddzielenie sygnału od jego zakłóceń.

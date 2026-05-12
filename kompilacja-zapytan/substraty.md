@@ -1,5 +1,6 @@
 ---
 description: Licencja poetica - jestem pierwszy to sobie wymyślam nazwy. Nie mam wyjścia.
+icon: trash-can
 ---
 
 # Substraty

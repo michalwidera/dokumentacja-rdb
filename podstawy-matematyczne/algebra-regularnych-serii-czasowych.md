@@ -2,6 +2,7 @@
 description: >-
   Przypomnę że w typowym systemie relacyjnym też używamy algebry zbiorów, tylko
   nie musimy się tym przejmować.
+icon: square-root
 ---
 
 # Algebra regularnych serii czasowych
@@ -17,11 +18,11 @@ Przez strumień danych rozumiemy uporządkowaną parę S := (s<sub>n</sub>,∆) 
 Tak zdefiniowaną serię danych w systemie określam jako strumień danych. Taki regularnie przepływający przez system zestaw danych, zazwyczaj opisany schematem danych zawiera pola różnych typów. Każdy odczyt występuje w równym odstępie czasu pomiędzy kolejnymi pomiarami. Taka konstrukcja bardziej przypomina sygnał cyfrowy niż nieregularny strumień danych – jednak oznaczenie jej jako strumień w dalszej części prac badawczych okaże się uzasadnione.
 
 {% hint style="info" %}
-Uwaga: \
+Uwaga:\
 Pojęcie strumień i Seria czasowa w tej pracy używane są zamiennie i oznaczają to samo.\
-Formalnie w literaturze naukowej strumień oznaczany jest jako zbiór par (a,t) – gdzie a oznacza krotkę, a czast oznacza jej moment zarejestrowania lub wystąpienia. \
-W strumieniu dopuszczalne są krotki, których czas t pokrywa się dla różnych krotek. W przypadku serii czasowej rozróżniamy dwa typy serii – regularne i nieregularne. \
-\- W przypadku serii nieregularnych – seria to sekwencja uporządkowanych krotek w czasie – {a<sub>t</sub>,t<sub>n</sub>}, gdzie czas t<sub>n</sub> jest unikalny w zbiorze dla każdej krotki. \
+Formalnie w literaturze naukowej strumień oznaczany jest jako zbiór par (a,t) – gdzie a oznacza krotkę, a czast oznacza jej moment zarejestrowania lub wystąpienia.\
+W strumieniu dopuszczalne są krotki, których czas t pokrywa się dla różnych krotek. W przypadku serii czasowej rozróżniamy dwa typy serii – regularne i nieregularne.\
+\- W przypadku serii nieregularnych – seria to sekwencja uporządkowanych krotek w czasie – {a<sub>t</sub>,t<sub>n</sub>}, gdzie czas t<sub>n</sub> jest unikalny w zbiorze dla każdej krotki.\
 \- Natomiast seria regularnej serii czasowej może zostać opisana sekwencją krotek i regularnym odstępem czasu pomiędzy ich występowaniem – ({a<sub>t</sub>},D) – i to ta ostatnia definicja jest bazą dalszych operacji w opracowanym systemie.
 {% endhint %}
 
@@ -113,4 +114,4 @@ $$
 A_{rql}::=((s_n,\Delta_s), (\#,\&,\%,+,-,>,@))
 $$
 
-Gdzie pierwszy element pary definiującej algebrę to model danych (s_n — seria danych, ∆_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.
+Gdzie pierwszy element pary definiującej algebrę to model danych (s\_n — seria danych, ∆\_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.

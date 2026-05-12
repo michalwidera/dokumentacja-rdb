@@ -2,6 +2,7 @@
 description: >-
   W zapytaniach pojawiają się nienaturalnie połączone operacje i argumenty.
   Tutaj znajdziesz wyjaśnienie.
+icon: sigma
 ---
 
 # Wyrażenia algebraiczne

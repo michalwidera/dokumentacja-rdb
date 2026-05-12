@@ -1,5 +1,6 @@
 ---
 description: Cukier syntaktyczny.
+icon: overline
 ---
 
 # Przetwarzanie symbolu \_

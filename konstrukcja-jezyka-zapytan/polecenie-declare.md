@@ -1,5 +1,6 @@
 ---
 description: To polecenie tworzy ulotne źródła prawdy - tzw. Efemerydy
+icon: binary
 ---
 
 # Polecenie DECLARE

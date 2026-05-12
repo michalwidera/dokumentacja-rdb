@@ -1,5 +1,6 @@
 ---
 description: Skąd kompilator wie, jak często liczyć wynik? Z równań algebraicznych.
+icon: stopwatch-20
 ---
 
 # Rozwiązywanie interwałów

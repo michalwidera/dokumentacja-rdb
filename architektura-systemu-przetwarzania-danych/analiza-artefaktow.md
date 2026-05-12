@@ -1,5 +1,6 @@
 ---
 description: Narzędzie xtrdb miało służyć tylko do testów ...
+icon: magnifying-glass-chart
 ---
 
 # Analiza artefaktów
@@ -16,7 +17,7 @@ W celu przedstawienia procesu analizy artefaktów konieczne jest uwzględnienie 
 $ xretractor -m 10 query.rql
 ```
 
-Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 cyklach przetwarzania. Parametr `-m` określa liczbę iteracji pętli głównej, nie liczbę sekund — czas działania zależy od interwału strumieni źródłowych. Dla strumieni z interwałem 0.1 s (10 Hz) oznacza to ~1 sekundę działania. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
+Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 cyklach przetwarzania. Parametr `-m` określa liczbę iteracji pętli głównej, nie liczbę sekund — czas działania zależy od interwału strumieni źródłowych. Dla strumieni z interwałem 0.1 s (10 Hz) oznacza to \~1 sekundę działania. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
 
 ```
 $ ls -al

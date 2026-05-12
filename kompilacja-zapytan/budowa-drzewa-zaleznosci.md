@@ -2,6 +2,7 @@
 description: >-
   Kompilacja w efekcie tworzy graf. Polecam poznać sortowanie topologiczne.
   Przydaje się.
+icon: tree-palm
 ---
 
 # Budowa drzewa zależności
