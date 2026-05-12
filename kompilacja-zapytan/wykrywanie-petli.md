@@ -29,6 +29,8 @@ graph LR
     style str2 fill:#f66,color:#fff
 ```
 
+*Rys. 24. Cykl w grafie zależności zapytań*
+
 ## Efekt kompilacji
 
 Próba kompilacji takiego pliku kończy się błędem:

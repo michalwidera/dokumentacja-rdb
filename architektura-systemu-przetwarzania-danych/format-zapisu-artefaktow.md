@@ -37,6 +37,8 @@ graph TD
     style M fill:#cdf,color:#000
 ```
 
+*Rys. 10. Zestaw plików artefaktu i ich powiązania*
+
 Plik cienia i plik metadanych są opcjonalne. W przypadku ciągłego napływu danych bez przerw i bez modyfikacji — wystarczy sam plik danych binarnych i deskryptor.
 
 ***
@@ -154,6 +156,8 @@ flowchart TD
     MAIN --> RET2["Zwróć dane oryginalne"]
 ```
 
+*Rys. 11. Priorytety odczytu rekordu z pliku cienia*
+
 ### Scalanie (merge)
 
 Operacja `merge()` scala zmiany z pliku cienia do pliku głównego i zeruje plik cienia. Po scaleniu dane oryginalne są bezpowrotnie nadpisane.
@@ -171,6 +175,8 @@ sequenceDiagram
     end
     App->>Shadow: ftruncate(0) — wyczyść plik cienia
 ```
+
+*Rys. 12. Scalanie pliku cienia z plikiem głównym*
 
 ### Przykład: modyfikacja rekordu
 
@@ -219,3 +225,5 @@ graph LR
         R1 --> R5
     end
 ```
+
+*Rys. 13. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu*

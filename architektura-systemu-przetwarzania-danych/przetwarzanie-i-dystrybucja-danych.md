@@ -4,9 +4,9 @@ description: Ten proces wydaje się trywialny. Cierpliwości.
 
 # Przetwarzanie i dystrybucja danych
 
-W przypadku rozpoczęcia procesu przetwarzania danych analizując przedstawiony na Rys. 9 można wydzielić następujący schemat przepływu - Rys. 12:
+W przypadku rozpoczęcia procesu przetwarzania danych analizując przedstawiony na Rys. 9 można wydzielić następujący schemat przepływu - Rys. 16:
 
-<figure><img src="../.gitbook/assets/schemat_przeplywu_przetwarzanie.png" alt=""><figcaption><p>Rys. 12. Schemat przepływu sterowania w procesie przetwarzania</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/schemat_przeplywu_przetwarzanie.png" alt=""><figcaption><p>Rys. 16. Schemat przepływu sterowania w procesie przetwarzania</p></figcaption></figure>
 
 Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych i zbudowanie ciągu przetwarzającego dane. W ramach tego ciągu na wejściu użyjemy przygotowanego pliku z planem realizacji zapytania, przygotujemy plik binarny z danymi. Zbudujemy proces przetwarzający dane i prezentujący wyniki.
 
@@ -46,9 +46,9 @@ $ seq 20 28 > datafile1.txt
 
 Plik będzie zawierać kolejne liczby od 20 do 28.
 
-Rzut okna na plan realizacji zapytania przedstawi obraz na Rys. 13:
+Rzut okna na plan realizacji zapytania przedstawi obraz na Rys. 17:
 
-<figure><img src="../.gitbook/assets/graf_plan_zapytania_2.png" alt=""><figcaption><p>Rys. 13. Graficzna reprezentacja planu realizacji zapytania 2</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/graf_plan_zapytania_2.png" alt=""><figcaption><p>Rys. 17. Graficzna reprezentacja planu realizacji zapytania 2</p></figcaption></figure>
 
 Jeśli przygotowaliśmy plik z danymi możemy uruchomić proces kompilacji i przetwarzania danych. Realizujemy to wydając następujące polecenie:
 
@@ -93,9 +93,9 @@ $ xqry -s str1 -p 50,50 | gnuplot
 
 Na ekranie pojawi się następujące okno z płynącymi na bieżąco danymi:
 
-<figure><img src="../.gitbook/assets/gnuplot_dane_realtime.png" alt=""><figcaption><p>Rys. 14. Zrzut zawartości okna gnuplot przedstawiający dane napływające</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/gnuplot_dane_realtime.png" alt=""><figcaption><p>Rys. 18. Zrzut zawartości okna gnuplot przedstawiający dane napływające</p></figcaption></figure>
 
-Na Rys. 14 widzimy to co dane przedstawiały w postaci numerycznej. Kształt piły to pierwsza kolumna, nieregularny kształt opływający kształt piły to druga kolumna. Rysunek przedstawia dane statyczne – w oknie jednak dane te napływają i rysunek jest aktualizowany na bieżąco.
+Na Rys. 18 widzimy to co dane przedstawiały w postaci numerycznej. Kształt piły to pierwsza kolumna, nieregularny kształt opływający kształt piły to druga kolumna. Rysunek przedstawia dane statyczne – w oknie jednak dane te napływają i rysunek jest aktualizowany na bieżąco.
 
 Typowym pomysłem na wysłanie danych poza system na którym funkcjonuje xretractor i xqry jest użycie polecenia:
 

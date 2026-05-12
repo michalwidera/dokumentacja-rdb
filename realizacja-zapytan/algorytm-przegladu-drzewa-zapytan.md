@@ -14,6 +14,8 @@ flowchart TD
     F["broadcast(inSet)\nKolejki Boost IPC → klienci xqry"] --> C
 ```
 
+*Rys. 25. Algorytm przeglądu drzewa zapytań – przegląd ogólny*
+
 ---
 
 ## Struktura danych: qTree
@@ -27,6 +29,8 @@ graph LR
     B --> C["C\nSELECT FROM B\nrInterval=1/2"]
     B --> D
 ```
+
+*Rys. 26. Przykładowy graf zależności dla qTree*
 
 Po sortowaniu topologicznym kolejność w wektorze: `[A, B, C, D]`. Zapytanie C zależne od B zawsze trafi po B w iteracji — gwarantuje poprawność obliczeń.
 
@@ -64,6 +68,8 @@ timeline
     section t = 3/2
         C (rInterval=1/2)
 ```
+
+*Rys. 27. Minimalna siatka czasowa dla delt {1/2, 1/3}*
 
 Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlot_ / inDelta` ma mianownik równy 1 (slot jest całkowitą wielokrotnością delty zapytania).
 
@@ -133,6 +139,8 @@ flowchart TD
     P2 --> E([koniec])
 ```
 
+*Rys. 28. Algorytm processRows – dwa przejścia przetwarzania*
+
 Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania skonsumowały ich `outputPayload` w przejściu 1.
 
 ---
@@ -151,6 +159,8 @@ flowchart LR
     E -->|tak - brak odbiorcy| G["usuń kolejkę\nusuń id2StreamName_"]
     C -->|brak| H([pomiń])
 ```
+
+*Rys. 29. Algorytm broadcast – rozsyłanie wyników przez Boost IPC*
 
 `printRowValue()` buduje strukturę z nazwą strumienia, liczbą pól, wartościami i bitmapą null, zapisuje jako Boost info format i wysyła przez `boost::interprocess::message_queue`.
 
@@ -193,5 +203,7 @@ sequenceDiagram
     DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
     ES->>IPC: broadcast({B, C, D})
 ```
+
+*Rys. 30. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}*
 
 Drzewo zależności determinuje kolejność przejścia 1. Interwały czasowe z algebry Beatty'ego wyznaczają, które węzły drzewa są aktywne w danym slocie.
