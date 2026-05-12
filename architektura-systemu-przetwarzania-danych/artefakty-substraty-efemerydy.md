@@ -6,7 +6,7 @@ description: Nadawanie nazw - prawo i konieczność w przypadku wejścia na niez
 
 Z racji faktu, że system przeznaczony jest do pracy ciągłej i teoretycznie otrzymywane wyniki bez prowadzenia procesu retencji danych zapełniłby każdy nośnik danych wprowadzamy dodatkowe definicje związane z charakterem przetwarzanych danych.
 
-Przedstawiając opis Rys. 7 wspominano o artefaktach. Jest to jedna z definicji wymagających wyjaśnienia.
+Przedstawiając opis Rys. 9 wspominano o artefaktach. Jest to jedna z definicji wymagających wyjaśnienia.
 
 {% hint style="success" %}
 Definicja (Artefakt): Przez artefakty rozumiemy dane przetwarzane w systemie w postaci strumieni, które docelowo zostają zmaterializowane jako utrwalony wynik i efekt przetwarzania innych danych.

@@ -4,11 +4,11 @@ description: Narzędzie xtrdb miało służyć tylko do testów ...
 
 # Analiza artefaktów
 
-Analizując szerzej potencjalne ścieżki danych na Rys. 7 ostatnią nieopisaną ścieżką jest ścieżka w której bierze udział narzędzie xtrdb.
+Analizując szerzej potencjalne ścieżki danych na Rys. 9 ostatnią nieopisaną ścieżką jest ścieżka w której bierze udział narzędzie xtrdb.
 
 W trakcie tworzenia systemu potrzebowałem narzędzia umożliwiającego dostęp do artefaktów w celu przeprowadzenia testów integracyjnych. W celu weryfikacji poprawności musiałem porównać wyniki przetwarzania na różnych etapach.
 
-<figure><img src="../.gitbook/assets/przeplyw_danych_analiza_artefaktow.png" alt=""><figcaption><p>Rys. 14. Przepływ danych w analizie artefaktów</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/przeplyw_danych_analiza_artefaktow.png" alt=""><figcaption><p>Rys. 15. Przepływ danych w analizie artefaktów</p></figcaption></figure>
 
 W celu przedstawienia procesu analizy artefaktów konieczne jest uwzględnienie całego ciągu przetwarzania. Użyjemy tego samego zapytania co poprzednio. Uruchomimy jednak nasz proces przetwarzania danych w trochę inny sposób.
 
