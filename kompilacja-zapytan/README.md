@@ -15,15 +15,33 @@ W tym rozdziale chcę wyjaśnić, jak rozwiązałem problemy syntaktyczne, któr
 
 ## Wejście i wyjście kompilatora
 
-Wejściem kompilatora jest plik `.rql` — tekst w języku RetractorQL. Parser ANTLR4 przetwarza go i buduje wewnętrzną reprezentację `qTree`: topologicznie posortowany wektor zapytań, w którym każde zapytanie opisuje jeden strumień wynikowy wraz z jego operacjami i zależnościami.
+{% stepper %}
+{% step %}
+### Plik `.rql`
 
-`qTree` przechodzi przez łańcuch dziesięciu etapów przekształceń. Na wyjściu kompilacji `qTree` jest gotowym planem wykonania — każde zapytanie ma wyznaczone: schemat pól z typami i offsetami bajtowymi, interwał czasowy (deltę), rozmiary buforów oraz sekwencję instrukcji stosu. Ten plan przejmuje `dataModel` i realizuje go cyklicznie w czasie rzeczywistym.
+Wejście kompilatora — tekst w języku RetractorQL zawierający dyrektywy `DECLARE` i `SELECT`. Parser ANTLR4 czyta plik sekwencyjnie; odwołanie do strumienia niezdefiniowanego wcześniej w pliku kończy się błędem kompilacji.
+{% endstep %}
 
-```
-plik .rql  →  parser ANTLR4  →  qTree  →  10 etapów kompilacji  →  plan wykonania  →  dataModel
-```
+{% step %}
+### Parser ANTLR4 → `qTree`
 
-Tryb `-c` zatrzymuje `xretractor` po kompilacji i drukuje skompilowany plan na standardowe wyjście — bez uruchamiania przetwarzania. To główne narzędzie diagnostyczne podczas pisania zapytań.
+Parser buduje wewnętrzną reprezentację `qTree`: topologicznie posortowany `std::vector<query>`. Każdy element opisuje jeden strumień — jego schemat pól, sekwencję instrukcji stosu, zależności od innych strumieni i interwał czasowy (delta).
+{% endstep %}
+
+{% step %}
+### 10 etapów kompilacji
+
+`qTree` przechodzi przez łańcuch przekształceń: od rozbicia wyrażeń FROM na operacje dwuargumentowe, przez wyznaczenie delt i offsetów bajtowych, aż po weryfikację semantyczną i obliczenie rozmiarów buforów. Każdy etap zakłada sukces poprzedniego.
+{% endstep %}
+
+{% step %}
+### Plan wykonania → `dataModel`
+
+Na wyjściu kompilacji każde zapytanie w `qTree` ma wyznaczone: schemat pól z typami i offsetami, deltę, rozmiary buforów oraz gotową sekwencję instrukcji. Ten plan przejmuje `dataModel` i realizuje go cyklicznie w czasie rzeczywistym.
+
+Flaga `-c` zatrzymuje `xretractor` po tym kroku i drukuje plan na standardowe wyjście — bez uruchamiania przetwarzania.
+{% endstep %}
+{% endstepper %}
 
 ## Przegląd poruszonych w rozdziale tematów
 
