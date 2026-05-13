@@ -62,7 +62,7 @@ core2(3/10)     sensor_c.txt
         e: INTEGER
 ```
 
-Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji.
+Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji. Jak interpretować każdy element tego planu — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Łańcuch etapów
 

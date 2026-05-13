@@ -56,5 +56,8 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opis
 
 {% step %}
 **[Równanie typów w górę](rownanie-typow-w-gore.md)** definiuje reguły promocji typów obowiązujące przez cały łańcuch kompilacji. Wynik działania `BYTE * INTEGER` ma typ `INTEGER` — kompilator wyznacza typ pola wyjściowego statycznie, zanim dane zostaną przetworzone. Opisano też kompletną hierarchię typów obsługiwanych przez RetractorDB.
+
+{% step %}
+**[Debugowanie kompilacji](debugowanie-kompilacji.md)** zbiera w jednym miejscu narzędzia diagnostyczne: flaga `-c` do inspekcji planu, pipeline `-c -d -f -s` do wizualizacji grafu przez `graphviz`, tablicę znaczeń instrukcji planu (PUSH\_ID, PUSH\_STREAM, STREAM\_ADD, ...) oraz katalog typowych błędów kompilacji z ich przyczynami i sposobem naprawy.
 {% endstep %}
 {% endstepper %}

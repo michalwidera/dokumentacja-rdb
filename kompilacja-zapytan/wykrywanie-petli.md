@@ -44,7 +44,7 @@ $ cat out.txt
 [error] Circular dependency: stream interval resolution stalled with 1 unresolved streams
 ```
 
-Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć.
+Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć. Jak uruchomić kompilację i czytać komunikaty błędów — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Mechanizm wykrywania
 

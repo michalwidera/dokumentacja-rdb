@@ -40,6 +40,7 @@
   * [Przebiegi kompilacji](kompilacja-zapytan/przebiegi-kompilacji.md)
   * [Rozwiązywanie interwałów](kompilacja-zapytan/rozwiazywanie-interwalow.md)
   * [Wykrywanie pętli w kompilacji](kompilacja-zapytan/wykrywanie-petli.md)
+  * [Debugowanie kompilacji](kompilacja-zapytan/debugowanie-kompilacji.md)
 * [Realizacja zapytań](realizacja-zapytan/README.md)
   * [Algorytm przeglądu drzewa zapytań](realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md)
   * [Zapytania Ad hoc](realizacja-zapytan/zapytania-ad-hoc/README.md)
