@@ -2,24 +2,49 @@
 description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przep
+  kolejność ich zarejestrowania oraz przerwy w przepływie.
 icon: line-height
 ---
 
-# Format zapisu artefaktów
+# Format zapisu danych
 
-W systemie przetwarzane są serie czasowe w postaci artefaktów, efemerydów i substratów. Dane domyślnie zapisywane są w zwykłych plikach znajdujących się pod kontrolą systemu operacyjnego.
+W systemie przetwarzane są serie czasowe w trzech postaciach: **artefaktów**, **efemerydów** i **substratów**. Każdy typ ma inne przeznaczenie i inną strategię przechowywania.
 
-Napływające dane organizowane są w kolejne rekordy opisane deskryptorami. Deskryptory specyfikują stałą i niezmienną postać każdego rekordu — zbiór pól z nazwami, typami i rozmiarami.
+## Typy strumieni
 
-## Zestaw plików artefaktu
+| Typ strumienia | Słowo kluczowe RQL | Strategia składowania | Opis |
+| -------------- | ------------------ | --------------------- | ---- |
+| **Artefakt**   | `SELECT … FILE`    | `DEFAULT` (domyślna)  | Zmaterializowany wynik zapytania; zapisywany na dysk, trwały między uruchomieniami |
+| **Efemeryd**   | `SELECT … VOLATILE` | `MEMORY`             | Strumień ulotny; istnieje tylko w pamięci operacyjnej, nie jest składowany |
+| **Substrat**   | `SUBSTRAT 'typ'`   | konfigurowalny        | Strumień pośredni; domyślnie `DEFAULT`, można nadpisać dyrektywą `SUBSTRAT` |
 
-Każdy artefakt lub substrat może być skojarzony z maksymalnie czterema plikami:
+Deklaracje wejściowe (`DECLARE`) zawsze korzystają z akcesorów `DEVICE` lub `TEXTSOURCE` — reprezentują zewnętrzne źródła danych, nie strumienie obliczane.
+
+### Typy akcesorów składowania
+
+Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementację `FileInterface`:
+
+| Typ (`TYPE_PROFILE`) | Klasa implementacji | Zastosowanie |
+| -------------------- | ------------------- | ------------ |
+| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją |
+| `DIRECT`             | `groupFile<posixBinaryFile>` | Zapis bezpośredni bez cienia, z retencją |
+| `POSIX`              | `posixBinaryFile`   | Surowy zapis POSIX bez cienia |
+| `POSIXSHD`           | `posixBinaryFileWithShadow` | POSIX z plikiem cienia |
+| `MEMORY`             | `memoryFile`        | Składowanie wyłącznie w RAM (efemerydy) |
+| `GENERIC`            | `genericBinaryFile` | Ogólny akcesor binarny |
+| `DEVICE`             | `binaryDeviceRO`    | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
+| `TEXTSOURCE`         | `textSourceRO`      | Tekstowe źródło danych wejściowych (tylko odczyt) |
+
+---
+
+## Zestaw plików artefaktu i substratu
+
+Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie czterema plikami:
 
 | Plik                  | Rozszerzenie         | Cel                                                       |
 | --------------------- | -------------------- | --------------------------------------------------------- |
 | Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów — append-only                    |
-| Plik deskryptora      | `.desc`              | Schemat rekordu (pola, typy, rozmiary)                    |
+| Plik deskryptora      | `.desc`              | Schemat rekordu (pola, typy, rozmiary, typ składowania)   |
 | Plik metadanych       | `.meta`              | Indeks wartości null i przerw w transmisji (RLE)          |
 | Plik cienia           | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
 
@@ -40,9 +65,104 @@ graph TD
 
 _Rys. 10. Zestaw plików artefaktu i ich powiązania_
 
-Plik cienia i plik metadanych są opcjonalne. W przypadku ciągłego napływu danych bez przerw i bez modyfikacji — wystarczy sam plik danych binarnych i deskryptor.
+Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
-***
+Efemerydy **nie posiadają żadnych plików na dysku** — istnieją wyłącznie w pamięci operacyjnej procesu i znikają po jego zakończeniu.
+
+---
+
+## Plik deskryptora (.desc)
+
+Plik `.desc` opisuje strukturę rekordu. Jest parsowany przez gramatykę ANTLR4 (`DESC.g4`) i może zawierać pola danych, metainformację o typie składowania oraz politykę retencji.
+
+### Składnia
+
+```
+{ <polecenie>* }
+```
+
+Każde polecenie to jedno z poniższych:
+
+```
+BYTE     nazwa [N]          # tablica N bajtów (domyślnie N=1)
+INTEGER  nazwa [N]          # 32-bitowe liczby całkowite ze znakiem
+UINT     nazwa [N]          # 32-bitowe bez znaku
+FLOAT    nazwa [N]          # 32-bitowe zmiennoprzecinkowe (IEEE 754)
+DOUBLE   nazwa [N]          # 64-bitowe zmiennoprzecinkowe
+RATIONAL nazwa [N]          # para int64: licznik i mianownik
+STRING   nazwa [rozmiar]    # ciąg znaków o stałej długości
+REF      "ścieżka/plik"     # referencja do zewnętrznego pliku deskryptora
+TYPE     identyfikator      # typ składowania (DEFAULT, MEMORY, POSIXSHD, …)
+RETENTION pojemność segment # retencja cykliczna na dysku
+RETMEMORY pojemność         # retencja cykliczna w pamięci
+```
+
+### Przykłady plików `.desc`
+
+**Artefakt domyślny** — dwa pola numeryczne, składowanie `DEFAULT` (plik danych + plik cienia):
+
+```
+{
+  INTEGER  ts
+  FLOAT    value
+  TYPE     DEFAULT
+}
+```
+
+**Efemeryd** — strumień ulotny wyłącznie w RAM:
+
+```
+{
+  DOUBLE   x
+  DOUBLE   y
+  TYPE     MEMORY
+}
+```
+
+**Substrat z retencją** — cykliczny bufor ostatnich 1000 rekordów na dysku (10 segmentów po 100):
+
+```
+{
+  INTEGER  ts
+  FLOAT    a
+  FLOAT    b
+  TYPE     DEFAULT
+  RETENTION 1000 100
+}
+```
+
+**Deklaracja źródła binarnego** (`DECLARE` w RQL generuje ten schemat):
+
+```
+{
+  INTEGER  a
+  FLOAT    b
+  TYPE     DEVICE
+  REF      "sensor/data.bin"
+}
+```
+
+### Rozmiary typów pól
+
+| Typ        | Rozmiar pojedynczej wartości |
+| ---------- | ---------------------------- |
+| `BYTE`     | 1 B                          |
+| `INTEGER`  | 4 B                          |
+| `UINT`     | 4 B                          |
+| `FLOAT`    | 4 B                          |
+| `DOUBLE`   | 8 B                          |
+| `RATIONAL` | 16 B (dwa int64)             |
+| `STRING`   | N B (deklarowany rozmiar)    |
+
+Dla pól tablicowych `nazwa[N]` całkowity rozmiar = rozmiar_typu × N. Pola `TYPE`, `REF`, `RETENTION` i `RETMEMORY` nie zajmują miejsca w rekordzie — są metadanymi deskryptora.
+
+Rozmiar rekordu `R` = suma rozmiarów wszystkich pól danych.
+
+### Pole TYPE a strategia składowania
+
+Pole `TYPE` w deskryptorze bezpośrednio wyznacza, który akcesor (`FileInterface`) zostanie użyty przez `storage::initializeAccessor()`. Brak pola `TYPE` jest równoznaczny z `DEFAULT`. Wartość jest nieczuła na wielkość liter (`MEMORY` = `memory`).
+
+---
 
 ## Plik danych binarnych
 
@@ -75,7 +195,7 @@ DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
 
 Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.
 
-***
+---
 
 ## Plik metadanych (.meta)
 
@@ -131,7 +251,7 @@ Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększ
 
 Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy — informacja żyje wyłącznie w pliku `.meta`.
 
-***
+---
 
 ## Plik cienia (.shadow)
 
@@ -192,7 +312,7 @@ _Rys. 12. Scalanie pliku cienia z plikiem głównym_
 
 Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku głównego (nie ma ich w shadow).
 
-***
+---
 
 ## Relacja pomiędzy plikami
 

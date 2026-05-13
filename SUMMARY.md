@@ -25,7 +25,7 @@
   * [Perspektywa ogólna](architektura-systemu-przetwarzania-danych/schemat-architektury.md)
   * [Przepływ danych i sterowania](architektura-systemu-przetwarzania-danych/przeplyw-danych-i-sterowania.md)
   * [Artefakty, Substraty, Efemerydy](architektura-systemu-przetwarzania-danych/artefakty-substraty-efemerydy.md)
-  * [Format zapisu artefaktów](architektura-systemu-przetwarzania-danych/format-zapisu-artefaktow.md)
+  * [Format zapisu danych](architektura-systemu-przetwarzania-danych/format-zapisu-danych.md)
   * [Kompilacja i budowa planu](architektura-systemu-przetwarzania-danych/kompilacja-i-budowa-planu.md)
   * [Przetwarzanie i dystrybucja danych](architektura-systemu-przetwarzania-danych/przetwarzanie-i-dystrybucja-danych.md)
   * [Analiza artefaktów](architektura-systemu-przetwarzania-danych/analiza-artefaktow.md)
