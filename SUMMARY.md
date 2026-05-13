@@ -55,6 +55,6 @@
   * [Opcje wywołania](zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md)
   * [Geneza systemu](zalaczniki/geneza-systemu/README.md)
     * [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/geneza-systemu/dlaczego-wybrano-taka-nazwe-dla-systemu.md)
-    * [Dalsze kierunki rozwoju](zalaczniki/geneza-systemu/dalsze-kierunki-rozwoju/README.md)
-      * [Jeszcze inna matematyka](zalaczniki/geneza-systemu/dalsze-kierunki-rozwoju/jeszcze-inna-matematyka.md)
+  * [Dalsze kierunki rozwoju](zalaczniki/dalsze-kierunki-rozwoju/README.md)
+    * [Jeszcze inna matematyka](zalaczniki/dalsze-kierunki-rozwoju/jeszcze-inna-matematyka.md)
 * [Literatura](literatura.md)
