@@ -10,24 +10,24 @@ Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśl
 ## Przykład pętli
 
 ```
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
-DECLARE b INTEGER STREAM core1, 0.2 FILE 'datafile2.dat'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-SELECT str0[0]*10,(str0[1]+10)*10 STREAM str0 FROM core0+core1
-SELECT str1[0] STREAM str1 FROM str0.max
-SELECT * STREAM str2 FROM str0 + str2
+SELECT merged[0]*10, merged[2]+10 STREAM merged FROM core0 + core1
+SELECT agg[0] STREAM agg FROM merged.max
+SELECT * STREAM broken FROM merged + broken
 ```
 
-Ostatnie zapytanie definiuje `str2` jako wynik operacji `str0 + str2` — strumień zależy od samego siebie. Graf zależności zawiera cykl:
+Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl:
 
 ```mermaid
 graph LR
-    core0 --> str0
-    core1 --> str0
-    str0 --> str1
-    str0 --> str2
-    str2 -->|cykl| str2
-    style str2 fill:#f66,color:#fff
+    core0 --> merged
+    core1 --> merged
+    merged --> agg
+    merged --> broken
+    broken -->|cykl| broken
+    style broken fill:#f66,color:#fff
 ```
 
 _Rys. 24. Cykl w grafie zależności zapytań_
@@ -66,11 +66,11 @@ Warunek `>=` (a nie `>`) chroni przed fałszywymi pozytywami: jeśli liczba nie 
 Usunąć odwołanie strumienia do samego siebie lub do strumienia, który od niego zależy. W powyższym przykładzie zapytanie:
 
 ```
-SELECT * STREAM str2 FROM str0 + str2
+SELECT * STREAM broken FROM merged + broken
 ```
 
-należy zastąpić odwołaniem do strumienia, który istnieje niezależnie od `str2`:
+należy zastąpić odwołaniem do strumienia, który istnieje niezależnie od `broken`:
 
 ```
-SELECT * STREAM str2 FROM str0 + core0
+SELECT * STREAM broken FROM merged + core0
 ```

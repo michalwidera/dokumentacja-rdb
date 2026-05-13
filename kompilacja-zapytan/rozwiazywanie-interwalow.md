@@ -7,6 +7,8 @@ icon: stopwatch-20
 
 Każdy strumień w RetractorDB ma przypisany interwał czasowy — delta (Δ). Interwał określa, jak często produkowane są nowe wartości. Dla strumieni deklarowanych (`DECLARE`) interwał podaje użytkownik. Dla strumieni wynikowych (`SELECT`) interwał wyznacza kompilator z równań algebry strumieni.
 
+Przykłady w tym rozdziale używają kanonicznych deklaracji z całego rozdziału: `core0` (Δ=1/10), `core1` (Δ=1/5), `core2` (Δ=3/10).
+
 ## Algorytm
 
 Etap `resolveStreamIntervals` działa iteracyjnie:

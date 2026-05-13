@@ -9,37 +9,39 @@ W przypadku, w którym złączymy dwa strumienie danych operatorem sumy. Pojawi 
 
 Możemy jednak użyć też nazw z jakich strumień powstał. Na wartość wskazywać będzie nazwa strumienia wynikowego indeksowana względem początku schematu, jak również nazwa strumienia źródłowego przesunięta względem pozycji złączenia.
 
-Przeanalizujmy następujące zapytanie:
+Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.txt'
-DECLARE b INTEGER STREAM core1, 0.2 FILE '/dev/urandom'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-SELECT str1[0],str1[1],core0[0],core1[0]
-STREAM str1
-FROM core0+core1
+SELECT merged[0], merged[2], core0[0], core1[0]
+STREAM merged
+FROM core0 + core1
 ```
 
-Po kompilacji otrzymamy następujący wynik:
+Po kompilacji otrzymamy:
 
 ```
 $ xretractor -c query.rql
-str1(1/10)
+merged(1/10)
         :- PUSH_STREAM(core0)
         :- PUSH_STREAM(core1)
         :- STREAM_ADD
-        str1_0: INTEGER
-                PUSH_ID(str1[0])
-        str1_1: INTEGER
-                PUSH_ID(str1[1])
-        str1_2: INTEGER
-                PUSH_ID(str1[0])
-        str1_3: INTEGER
-                PUSH_ID(str1[1])
-core0(1/10)     datafile1.txt
-        a: INTEGER
-core1(1/5)      /dev/urandom
+        merged_0: BYTE
+                PUSH_ID(merged[0])
+        merged_1: INTEGER
+                PUSH_ID(merged[2])
+        merged_2: BYTE
+                PUSH_ID(merged[0])
+        merged_3: INTEGER
+                PUSH_ID(merged[2])
+core0(1/10)     sensor_a.txt
+        a: BYTE
         b: INTEGER
+core1(1/5)      sensor_b.txt
+        c: INTEGER
+        d: FLOAT
 ```
 
-Przeanalizujmy co zrobił kompilator. W zapytaniu poprosiliśmy o pierwsze pole wynikowego schematu danych. Otrzymaliśmy to o co prosiliśmy. W drugim polu schematu tak samo – drugie pole bez zmian zostało dostarczone. W trzecim polu prosimy o pole ze schematu, który bierze udział w operacji strumieniowej. Z core0\[0] kompilator zrobił str1\[0]. Podobna operacja nastąpiła z polem core1\[0]. Prosząc o nie kompilator dostarczył str1\[1]. A co, jeśli operacja strumieniowa zostanie zastąpiona #? Zachęcam do eksperymentów.
+`merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` — to to samo pole. Natomiast `core1[0]` — pierwsze pole schematu `core1` — trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2. A co, jeśli operację `+` zastąpimy `#`? Zachęcam do eksperymentów.

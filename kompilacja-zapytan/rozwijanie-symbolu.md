@@ -7,46 +7,47 @@ icon: star-shooting
 
 Każdy, który pisał w języku SQL poznał magiczny znak \* w tym języku. Wywołanie polecenia SELECT z tym argumentem rozwinie listę argumentów w oparciu o schematy tabel powstałych w wyniku złączeń relacyjnych. Coś podobnego chciałem osiągnąć w języku RQL.
 
-Jako przykład można przytoczyć zapytanie:
+Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```
-DECLARE a BYTE STREAM core1, 0.1 FILE 'datafile1.dat'
-DECLARE b INTEGER, c FLOAT STREAM core2, 0.2 FILE 'datafile2.txt'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
 SELECT *
-STREAM str1
-FROM core1+core2
+STREAM merged
+FROM core0 + core1
 
-SELECT str2[1]
-STREAM str2
-FROM str1
+SELECT merged[2]
+STREAM result
+FROM merged
 ```
 
-Rodzi się pytanie – dlaczego aż tak skomplikowany przykład?
-
-Skompilujmy i zobaczmy efekt kompilacji:
+Skompilujmy i zobaczmy efekt:
 
 ```
 $ xretractor -c query.rql
-str1(1/10)
+merged(1/10)
+        :- PUSH_STREAM(core0)
         :- PUSH_STREAM(core1)
-        :- PUSH_STREAM(core2)
         :- STREAM_ADD
-        core1_0: BYTE
-                PUSH_ID(str1[0])
-        core2_1: INTEGER
-                PUSH_ID(str1[1])
-        core2_2: FLOAT
-                PUSH_ID(str1[2])
-str2(1/10)
-        :- PUSH_STREAM(str1)
-        str2_0: INTEGER
-                PUSH_ID(str2[1])
-core1(1/10)     datafile1.dat
+        core0_0: BYTE
+                PUSH_ID(merged[0])
+        core0_1: INTEGER
+                PUSH_ID(merged[1])
+        core1_2: INTEGER
+                PUSH_ID(merged[2])
+        core1_3: FLOAT
+                PUSH_ID(merged[3])
+result(1/10)
+        :- PUSH_STREAM(merged)
+        result_0: INTEGER
+                PUSH_ID(result[2])
+core0(1/10)     sensor_a.txt
         a: BYTE
-core2(1/5)      datafile2.txt
         b: INTEGER
-        c: FLOAT
+core1(1/5)      sensor_b.txt
+        c: INTEGER
+        d: FLOAT
 ```
 
-Taki zrzut kompilatora nie wyjaśnia zbyt wiele. Widzimy, że \* zamieniła się w trzy pola core1\_0, core2\_1, core2\_2. Pojawiają się też sekwencje operacji na stosie w których kolejne już str1 od 0 do 2 się pojawiają. Istotne okazują się jednak typy, które prowadzą nas z których pól, na które przeskoczyły nazwy. Specjalnie przydzieliłem różne typy do rożnych pól w deklaracjach. Dzięki temu w zapytaniu odwołując się do drugiego pola w kolejności przez str2\[1] widzimy, że wpadło pole typu Int. Pola ułożyły się zgodnie z tym jak zdefiniowano operator sumy strumieni.
+Symbol `*` zamienił się w cztery pola: `core0_0`, `core0_1`, `core1_2`, `core1_3`. Konwencja nazewnictwa: nazwa strumienia źródłowego + absolutna pozycja w schemacie wynikowym. Typy pól decydują o kolejności — `core0` wnosi BYTE i INTEGER na pozycje 0 i 1, `core1` wnosi INTEGER i FLOAT na pozycje 2 i 3. Odwołując się przez `merged[2]` w zapytaniu `result` dostajemy pole typu INTEGER — trzecie w kolejności, pierwsze z `core1`.

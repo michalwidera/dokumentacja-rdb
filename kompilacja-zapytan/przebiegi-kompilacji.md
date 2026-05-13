@@ -7,6 +7,65 @@ icon: shoe-prints
 
 Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transformuje wewnętrzną reprezentację zapytań — drzewo `qTree` — i przekazuje wynik do następnego. Kolejność jest ściśle ustalona: każdy etap zakłada, że poprzedni zakończył się sukcesem.
 
+`qTree` to topologicznie posortowany `std::vector<query>` — centralna struktura danych kompilatora i executora. Każdy element wektora odpowiada jednemu zapytaniu (`SELECT` lub `DECLARE`) i przechowuje jego schemat pól, sekwencję instrukcji stosu, interwał czasowy oraz referencje do strumieni źródłowych. Sortowanie topologiczne gwarantuje, że strumień źródłowy zawsze poprzedza strumień wynikowy — etapy mogą przetwarzać `qTree` liniowo, bez nawrotów.
+
+## Przykład śledzący
+
+Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
+
+```
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE e INTEGER            STREAM core2, 0.3 FILE 'sensor_c.txt'
+
+SELECT *
+STREAM merged
+FROM core0 + core1
+
+SELECT merged[0], merged[2], core0[0], core1[0]
+STREAM result
+FROM merged
+```
+
+Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:
+
+```
+merged(1/10)
+        :- PUSH_STREAM(core0)
+        :- PUSH_STREAM(core1)
+        :- STREAM_ADD
+        core0_0: BYTE
+                PUSH_ID(merged[0])
+        core0_1: INTEGER
+                PUSH_ID(merged[1])
+        core1_2: INTEGER
+                PUSH_ID(merged[2])
+        core1_3: FLOAT
+                PUSH_ID(merged[3])
+result(1/10)
+        :- PUSH_STREAM(merged)
+        result_0: BYTE
+                PUSH_ID(merged[0])
+        result_1: INTEGER
+                PUSH_ID(merged[2])
+        result_2: BYTE
+                PUSH_ID(merged[0])
+        result_3: INTEGER
+                PUSH_ID(merged[2])
+core0(1/10)     sensor_a.txt
+        a: BYTE
+        b: INTEGER
+core1(1/5)      sensor_b.txt
+        c: INTEGER
+        d: FLOAT
+core2(3/10)     sensor_c.txt
+        e: INTEGER
+```
+
+Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji.
+
+## Łańcuch etapów
+
 Łańcuch etapów definiuje funkcja `compiler::compile()`:
 
 {% stepper %}

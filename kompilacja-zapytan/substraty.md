@@ -11,17 +11,17 @@ Na początek chciałbym zwrócić uwagę na pewną własność wprowadzonych wyr
 
 W praktyce w systemie realizuję wyłącznie operacje jedno lub dwuargumentowe. Przykładem operacji jednoargumentowych to przesunięcie w czasie lub operacja Agse. Tam argumentem jest tylko jeden strumień danych. Reszta operacji to operacje na dwóch strumieniach danych. W trakcie kompilacji wszystkie wyrażenia algebraiczne rozbijane są na takie, które mają dwa argumenty.
 
-Zobaczmy to na przykładzie:
+Przykład używa kanonicznych deklaracji z całego rozdziału — trzy strumienie o różnych typach i interwałach:
 
 ```
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.txt'
-DECLARE b INTEGER STREAM core1, 0.2 FILE '/dev/urandom'
-DECLARE c INTEGER STREAM core2, 0.3 FILE 'datafile2.txt'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE e INTEGER            STREAM core2, 0.3 FILE 'sensor_c.txt'
 
-SELECT str1[0] STREAM str1 FROM (core0#core1)+core2
+SELECT merged[0] STREAM merged FROM (core0 # core1) + core2
 ```
 
-I przeprowadźmy kompilację:
+Kompilacja:
 
 ```
 $ xretractor -c query.rql
@@ -29,38 +29,46 @@ STREAM_HASH_core0_core1(1/15)
         :- PUSH_STREAM(core0)
         :- PUSH_STREAM(core1)
         :- STREAM_HASH
-        a: INTEGER
+        a: BYTE
                 PUSH_ID(STREAM_HASH_core0_core1[0])
-str1(1/15)
+        b: INTEGER
+                PUSH_ID(STREAM_HASH_core0_core1[1])
+        c: INTEGER
+                PUSH_ID(STREAM_HASH_core0_core1[2])
+        d: FLOAT
+                PUSH_ID(STREAM_HASH_core0_core1[3])
+merged(1/15)
         :- PUSH_STREAM(STREAM_HASH_core0_core1)
         :- PUSH_STREAM(core2)
         :- STREAM_ADD
-        str1_0: INTEGER
-                PUSH_ID(str1[0])
-core0(1/10)     datafile1.txt
-        a: INTEGER
-core1(1/5)      /dev/urandom
+        merged_0: BYTE
+                PUSH_ID(merged[0])
+core0(1/10)     sensor_a.txt
+        a: BYTE
         b: INTEGER
-core2(3/10)     datafile2.txt
+core1(1/5)      sensor_b.txt
         c: INTEGER
+        d: FLOAT
+core2(3/10)     sensor_c.txt
+        e: INTEGER
 ```
 
-Przenalizujmy co tu się wydarzyło? Pojawił się niezapowiedziany strumień STREAM\_HASH\_core0\_core1. To jest właśnie wspomniany substrat. Strumień danych pojawiający się w wyniku kompilacji i wymogu przetwarzania operacji dwuargumentowych.
+Pojawił się niezapowiedziany strumień `STREAM_HASH_core0_core1` — to właśnie substrat. Kompilator rozbił `(core0 # core1) + core2` na dwie operacje dwuargumentowe i wstawił pośredni strumień. Delta substratu: Δ = (1/10 · 1/5) / (1/10 + 1/5) = 1/15.
 
-A co się stanie jak dołączymy zapytanie o treści?
-
-```
-SELECT str2[0] STREAM str2 FROM (core0#core1)>2
-```
-
-Tutaj zostanie dołączone do efektów kompilacji tylko jedno zapytanie:
+Co się stanie po dołączeniu zapytania:
 
 ```
-str2(1/15)
+SELECT merged2[0] STREAM merged2 FROM (core0 # core1) > 2
+```
+
+Do planu dołączone zostanie tylko jedno nowe zapytanie:
+
+```
+merged2(1/15)
         :- PUSH_STREAM(STREAM_HASH_core0_core1)
         :- STREAM_TIMEMOVE(2)
-        str2_0: INTEGER
-                PUSH_ID(str2[0])
+        merged2_0: BYTE
+                PUSH_ID(merged2[0])
 ```
 
 Zastanawiasz się pewne dlaczego tylko jedno a nie ponownie dwa? Odpowiedź to optymalizacja. Korzystamy z pośrednich wyników poprzedniego. To jedna z nieoczekiwanych korzyści zastosowania RetractorDB.
@@ -83,34 +91,36 @@ Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy
 
 ### Przykład redukcji
 
-Rozważmy zapytanie:
+Rozważmy zapytanie z kanonicznymi deklaracjami:
 
 ```
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
-DECLARE a INTEGER STREAM core1, 0.2 FILE 'datafile2.dat'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-SELECT str1[0] STREAM str1 FROM (core0>2)+core1
-SELECT str2[0] STREAM str2 FROM core0>2
+SELECT merged[0] STREAM merged FROM (core0 > 2) + core1
+SELECT shifted[0] STREAM shifted FROM core0 > 2
 ```
 
-Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_core0`, `str1` i `str2`. Substrat i `str2` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_core0)` w `str1` zostaje zastąpione przez `PUSH_STREAM(str2)`:
+Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
 
 ```
-str1(1/10)
-        :- PUSH_STREAM(str2)
+merged(1/10)
+        :- PUSH_STREAM(shifted)
         :- PUSH_STREAM(core1)
         :- STREAM_ADD
-        str1_0: INTEGER
-                PUSH_ID(str1[0])
-str2(1/10)
+        merged_0: BYTE
+                PUSH_ID(merged[0])
+shifted(1/10)
         :- PUSH_STREAM(core0)
         :- STREAM_TIMEMOVE(2)
-        str2_0: INTEGER
-                PUSH_ID(str2[0])
-core0(1/10)     datafile1.dat
-        a: INTEGER
-core1(1/5)      datafile2.dat
-        a: INTEGER
+        shifted_0: BYTE
+                PUSH_ID(shifted[0])
+core0(1/10)     sensor_a.txt
+        a: BYTE
+        b: INTEGER
+core1(1/5)      sensor_b.txt
+        c: INTEGER
+        d: FLOAT
 ```
 
 ### Ważne ograniczenie: tylko substraty są redukowane
@@ -120,27 +130,28 @@ Redukcja dotyczy wyłącznie substratów wygenerowanych przez kompilator (`isSub
 Przykład — dwa zapytania użytkownika o tej samej operacji:
 
 ```
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
 
-SELECT str1[0] STREAM str1 FROM core0>2
-SELECT str2[0] STREAM str2 FROM core0>2
+SELECT shifted1[0] STREAM shifted1 FROM core0 > 2
+SELECT shifted2[0] STREAM shifted2 FROM core0 > 2
 ```
 
 Wynik kompilacji zachowa oba strumienie bez żadnej redukcji:
 
 ```
-str1(1/10)
+shifted1(1/10)
         :- PUSH_STREAM(core0)
         :- STREAM_TIMEMOVE(2)
-        str1_0: INTEGER
-                PUSH_ID(str1[0])
-str2(1/10)
+        shifted1_0: BYTE
+                PUSH_ID(shifted1[0])
+shifted2(1/10)
         :- PUSH_STREAM(core0)
         :- STREAM_TIMEMOVE(2)
-        str2_0: INTEGER
-                PUSH_ID(str2[0])
-core0(1/10)     datafile1.dat
-        a: INTEGER
+        shifted2_0: BYTE
+                PUSH_ID(shifted2[0])
+core0(1/10)     sensor_a.txt
+        a: BYTE
+        b: INTEGER
 ```
 
 Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania.
