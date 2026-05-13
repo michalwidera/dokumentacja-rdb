@@ -8,6 +8,8 @@ Zagadnienia związane z przetwarzaniem sygnałów cyfrowych zawierają w sobie p
 
 Filtry mogą być analogowe oraz cyfrowe. W ramach proponowanego rozwiązania skupimy się na filtrach cyfrowych. Filtr cyfrowy implementowany jest jako ciąg operacji na kolejnych danych przetwarzanego sygnału w danym oknie czasowym. Z reguły dobierając filtr cyfrowy musimy zdecydować na jakie kompromisy musimy się zgodzić. Dodatkowo, możemy trafić na zabezpieczenia prawne związane z niektórymi algorytmami lub metodami \[[9](../literatura.md)].
 
+### Projektowanie filtru w Octave
+
 Projektując filtr cyfrowy musimy określić jaki zakres częstotliwości chcemy wytłumić a jaki wzmocnić lub pozostawić nienaruszony. Parametry te określamy jako pasmo zaporowe i przepustowe. Jednym ze znanych mi narzędzi używanych do konstrukcji filtrów cyfrowych jest program GNU Octave ([https://octave.org](https://octave.org)). Za pomocą tego narzędzia możemy wygenerować wymagane współczynniki do obliczeń prostego cyfrowego filtru sygnałowego.
 
 Dla przykładu przyjmiemy następujące wartości wymagane do konstrukcji filtru sygnałowego:
@@ -83,7 +85,7 @@ ans =
    -460
 ```
 
-…
+### Implementacja w systemie RetractorDB
 
 Uzyskane wartości powinniśmy przenieść do pliku tekstowego o nazwie filterremez.txt
 
@@ -130,6 +132,8 @@ $ xretractor -c query.rql -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 Ujrzymy następujący obraz (Rys. 35):
 
 <figure><img src="../.gitbook/assets/zaleznosc_strumieni_filtr_sygnalowy.png" alt=""><figcaption><p>Rys. 35 Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
+
+### Uruchomienie
 
 Próba podejrzenia zawartych pól oraz typów danych spowoduje rozszerzenie wygenerowanego rysunku na tyle, że niemożliwe jest załączenie tutaj wygenerowanego wyniku bez utraty czytelności.
 
