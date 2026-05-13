@@ -68,3 +68,79 @@ Zastanawiasz się pewne dlaczego tylko jedno a nie ponownie dwa? Odpowiedź to o
 Jest jeszcze jedna istotna rzecz o której należy wspomnieć w tym punkcie. Istnieje dyrektywa SUBSTRAT, której argumentem jest ciąg znaków ujęty w apostrofy. Można użyć następujących typów ‘memory’, ‘default’, ‘direct’, ‘posix’, ‘posixshd’, ‘generic’, ‘device’, ‘textsource’. Pełny opis każdego typu znajdziesz w rozdziale [Typy STORAGE](../konstrukcja-jezyka-zapytan/polecenie-select/typy-storage.md). Domyślny typ ‘default’ spowoduje, że substraty będą materializować się w całości na dysku. To nie jest oczekiwana wartość w systemie produkcyjnym, ale oczekiwana w trakcie rozwoju i debugowania. Typ użyteczny to ‘memory’. Substraty tego typu lądują tylko w pamięci. Ich dane nigdy nie lądują na dysku – wszystko odbywa się w pamięci, danych jest tylko tyle ile jest wymaganych do realizacji zapytań. Reszta typów na chwilę obecną jest nieprzetestowana i znajduje się w fazie rozwojowej.
 
 Dodanie zapytania o tych samych operacjach, ale innej nazwie niż nazwa substratu niestety nie wygeneruje zapytania odwołującego się do substratu. Ta funkcjonalność znajduje się w planach rozwojowych.
+
+## Redukcja substratów
+
+Kompilator realizuje optymalizację zwaną **redukcją substratów** (funkcja `deduplicateSubstrats`). Polega ona na tym, że jeśli użytkownik zdefiniował zapytanie strukturalnie identyczne z wygenerowanym substratem, substrat jest usuwany z planu, a jego odwołania zastępowane są nazwą zapytania użytkownika.
+
+### Warunki redukcji
+
+Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy spełnione są jednocześnie trzy warunki:
+
+1. **Ten sam schemat** — typy i nazwy pól wyjściowych są identyczne.
+2. **Ta sama delta** — częstotliwość próbkowania strumieni jest taka sama.
+3. **Te same operacje przetwarzania** — sekwencja instrukcji `PUSH_STREAM` / `STREAM_TIMEMOVE` / `STREAM_HASH` itp. jest identyczna.
+
+### Przykład redukcji
+
+Rozważmy zapytanie:
+
+```
+DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
+DECLARE a INTEGER STREAM core1, 0.2 FILE 'datafile2.dat'
+
+SELECT str1[0] STREAM str1 FROM (core0>2)+core1
+SELECT str2[0] STREAM str2 FROM core0>2
+```
+
+Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_core0`, `str1` i `str2`. Substrat i `str2` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_core0)` w `str1` zostaje zastąpione przez `PUSH_STREAM(str2)`:
+
+```
+str1(1/10)
+        :- PUSH_STREAM(str2)
+        :- PUSH_STREAM(core1)
+        :- STREAM_ADD
+        str1_0: INTEGER
+                PUSH_ID(str1[0])
+str2(1/10)
+        :- PUSH_STREAM(core0)
+        :- STREAM_TIMEMOVE(2)
+        str2_0: INTEGER
+                PUSH_ID(str2[0])
+core0(1/10)     datafile1.dat
+        a: INTEGER
+core1(1/5)      datafile2.dat
+        a: INTEGER
+```
+
+### Ważne ograniczenie: tylko substraty są redukowane
+
+Redukcja dotyczy wyłącznie substratów wygenerowanych przez kompilator (`isSubstrat = true`). Zapytania zdefiniowane jawnie przez użytkownika **nigdy** nie są redukowane, nawet jeśli dwa z nich mają identyczną strukturę.
+
+Przykład — dwa zapytania użytkownika o tej samej operacji:
+
+```
+DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
+
+SELECT str1[0] STREAM str1 FROM core0>2
+SELECT str2[0] STREAM str2 FROM core0>2
+```
+
+Wynik kompilacji zachowa oba strumienie bez żadnej redukcji:
+
+```
+str1(1/10)
+        :- PUSH_STREAM(core0)
+        :- STREAM_TIMEMOVE(2)
+        str1_0: INTEGER
+                PUSH_ID(str1[0])
+str2(1/10)
+        :- PUSH_STREAM(core0)
+        :- STREAM_TIMEMOVE(2)
+        str2_0: INTEGER
+                PUSH_ID(str2[0])
+core0(1/10)     datafile1.dat
+        a: INTEGER
+```
+
+Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania.
