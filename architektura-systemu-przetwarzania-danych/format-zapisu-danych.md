@@ -10,15 +10,7 @@ icon: line-height
 
 W systemie przetwarzane są serie czasowe w trzech postaciach: **artefaktów**, **efemerydów** i **substratów**. Każdy typ ma inne przeznaczenie i inną strategię przechowywania.
 
-## Typy strumieni
-
-| Typ strumienia | Słowo kluczowe RQL | Strategia składowania | Opis |
-| -------------- | ------------------ | --------------------- | ---- |
-| **Artefakt**   | `SELECT … FILE`    | `DEFAULT` (domyślna)  | Zmaterializowany wynik zapytania; zapisywany na dysk, trwały między uruchomieniami |
-| **Efemeryd**   | `SELECT … VOLATILE` | `MEMORY`             | Strumień ulotny; istnieje tylko w pamięci operacyjnej, nie jest składowany |
-| **Substrat**   | `SUBSTRAT 'typ'`   | konfigurowalny        | Strumień pośredni; domyślnie `DEFAULT`, można nadpisać dyrektywą `SUBSTRAT` |
-
-Deklaracje wejściowe (`DECLARE`) zawsze korzystają z akcesorów `DEVICE` lub `TEXTSOURCE` — reprezentują zewnętrzne źródła danych, nie strumienie obliczane.
+Substraty i Artefakty - formalnie niczym nie różnią się w systemie. Jedyna różnica to fakt, że substraty zostały wygenerowane w oparciu o równiania algebry strumieni danych i nie zostały zapisane bezpośrednio w ciągu poleceń dla kompilatora. Jeśli zadeklarujemy strumień Artefaktu, który pokryje postać substratu - substrat zostanie zredukowany. Efemerydy to strumienie, które powstały za pomocą polecenia Declare - zawierają wartości które istnieją tylko przez chwilkę.
 
 ### Typy akcesorów składowania
 
