@@ -40,6 +40,8 @@ $$
 
 oraz dokonują podziału zbioru dodatnich liczb całkowitych.
 
+<figure><img src="../.gitbook/assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna zbiorów rozłącznych</p></figcaption></figure>
+
 Te dwie sekwencje dokonują podziału zbioru liczb naturalnych. Oznacza to że dysponując dwoma liczbami niewymiernymi, pomiędzy którymi wskazana w twierdzeniu zależność – będziemy mogli podzielić zbiór wszystkich liczb naturalnych na dwa rozłączne zbiory (Rys. 1).
 
 Twierdzenie Beaty samo w sobie jest bardzo ciekawą obserwacją – jednak w przypadku systemów komputerowych mamy pewien problem z liczbami niewymiernymi. Liczby rzeczywiste – pomimo faktu że w niektórych językach programowania pojawia się czasem słowo Real lub Float jako reprezentanta typu liczby rzeczywistej, z liczbami rzeczywistymi nie mają wiele wspólnego. Fundamentalny problem polega na tym że ich nie mamy i zapewne nigdy mieć nie będziemy.
