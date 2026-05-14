@@ -21,20 +21,21 @@ if (ctx->VOLATILE()) {
 ```
 
 Oznacza to, że:
+
 * bufor w pamięci przechowuje zawsze tylko jeden, ostatni rekord,
 * dane nie trafiają na dysk,
 * deskryptor `.desc` jest tworzony — inne procesy mogą poznać schemat strumienia.
 
 ## Różnica względem `STORAGE MEMORY`
 
-| Cecha              | `VOLATILE`         | `STORAGE MEMORY`                  |
-| ------------------ | ------------------ | --------------------------------- |
-| Pojemność bufora   | zawsze 1 rekord    | zależna od `RETENTION`            |
-| Klauzula `RETENTION` | ignorowana       | stosowana                         |
-| Deskryptor na dysku | tak               | tak                               |
-| Dane na dysku      | nie                | nie                                |
+| Cecha                | `VOLATILE`      | `STORAGE MEMORY`       |
+| -------------------- | --------------- | ---------------------- |
+| Pojemność bufora     | zawsze 1 rekord | zależna od `RETENTION` |
+| Klauzula `RETENTION` | ignorowana      | stosowana              |
+| Deskryptor na dysku  | tak             | tak                    |
+| Dane na dysku        | nie             | nie                    |
 
-`VOLATILE` przydaje się gdy wynik zapytania jest pobierany przez `xqry` na bieżąco i historia nie jest potrzebna — np. aktualna wartość czujnika udostępniana przez IPC.
+`VOLATILE` przydaje się gdy wynik zapytania jest pobierany przez `xqry` na bieżąco i historia nie jest potrzebna — np. aktualna wartość czujnika udostępniana przez system operacyjny.
 
 ## Przykład
 
