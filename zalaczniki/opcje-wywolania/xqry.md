@@ -17,6 +17,7 @@ Allowed options:
   -t [ --detail ] arg         show details of this stream
   -a [ --adhoc ] arg          adhoc query mode
   -m [ --tlimitqry ] arg (=0) limit of elements, 0 - no limit
+  -n [ --null ]               if null row appear - skip it in output
   -l [ --hello ]              diagnostic - hello db world
   -k [ --kill ]               kill xretractor server
   -d [ --dir ]                list of queries
@@ -24,9 +25,10 @@ Allowed options:
   -r [ --raw ]                raw output mode (default)
   -g [ --graphite ]           graphite output mode
   -f [ --influxdb ]           influxDB output mode
-  -p [ --gnuplot ] arg        x,y - gnuplot output mode
+  -p [ --gnuplot ] arg        x,y or x,ymin,ymax - gnuplot output mode
   -h [ --help ]               produce help message
   -c [ --needctrlc ]          force ctl+c for stop this tool
+  -w [ --wait-server ]        poll until xretractor server is available
 ```
 
 ---
@@ -39,6 +41,7 @@ Allowed options:
 | `-t` / `detail arg`     | Wyświetla szczegółowe informacje o strumieniu: nazwę, delta, treść zapytania i listę pól z typami (YAML).   |
 | `-a` / `adhoc arg`      | Dołącza zapytanie do systemu w trakcie jego działania (tryb ad hoc).                                        |
 | `-m` / `tlimitqry arg`  | Ogranicza liczbę odebranych wyników. Wartość `0` oznacza brak limitu. Szczególnie przydatne z opcją `-k`.   |
+| `-n` / `null`           | Pomija wiersze, w których wszystkie pola mają wartość null. Przydatne przy strumieniach z lukami pomiarowymi — eliminuje szum w wyjściu bez filtrowania po stronie klienta. |
 
 Przykładowa odpowiedź opcji `detail`:
 
@@ -60,10 +63,11 @@ stream:
 
 | Opcja              | Znaczenie                                                                              |
 | ------------------ | -------------------------------------------------------------------------------------- |
-| `-l` / `hello`     | Weryfikacja działania kanału komunikacyjnego z `xretractor` (ping diagnostyczny).      |
-| `-k` / `kill`      | Żądanie zatrzymania procesu `xretractor`.                                              |
-| `-d` / `dir`       | Wylistowanie wszystkich zapytań realizowanych przez `xretractor` w formacie tekstowym. |
-| `-y` / `diryaml`   | Wylistowanie wszystkich zapytań w formacie YAML.                                       |
+| `-l` / `hello`          | Weryfikacja działania kanału komunikacyjnego z `xretractor` (ping diagnostyczny).      |
+| `-k` / `kill`           | Żądanie zatrzymania procesu `xretractor`.                                              |
+| `-d` / `dir`            | Wylistowanie wszystkich zapytań realizowanych przez `xretractor` w formacie tekstowym. |
+| `-y` / `diryaml`        | Wylistowanie wszystkich zapytań w formacie YAML.                                       |
+| `-w` / `wait-server`    | Odpytuje co 100 ms czy `xretractor` jest dostępny (maks. 30 s), a po potwierdzeniu wykonuje żądane polecenie. Umożliwia niezawodne uruchamianie `xqry` w skryptach startowych i kontenerach, gdy kolejność startu procesów nie jest gwarantowana. |
 
 ---
 
@@ -76,7 +80,7 @@ stream:
 | `-r` / `raw`       | Tekstowy       | Domyślny. Dane bez dekoracji — przydatny do skryptów i potokowania.          |
 | `-g` / `graphite`  | Graphite       | Format `metryka wartość znacznik_czasu` — gotowy do wysłania do Graphite.    |
 | `-f` / `influxdb`  | InfluxDB       | Line protocol InfluxDB — gotowy do importu do bazy szeregów czasowych.       |
-| `-p` / `gnuplot x,y` | Gnuplot      | Agregaty dla bezpośredniego zasilania `gnuplot`; argument podaje kolumny x,y.|
+| `-p` / `gnuplot x,y` lub `x,ymin,ymax` | Gnuplot | Agregaty dla bezpośredniego zasilania `gnuplot`. Argument `x,y` podaje oś czasu i wartość; `x,ymin,ymax` dodatkowo ogranicza zakres osi Y. Separatorem może być `,` lub `:`. |
 
 ---
 
