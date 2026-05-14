@@ -1,7 +1,8 @@
 ---
 description: >-
   "Każde równanie umieszczone w pracy zmniejsza liczbę czytelników o połowę" -
-  Stephen Hawking. Trudno, bez ofiar się nie obejdzie.
+  Stephen Hawking. No cóż, trudno... bez ofiar się nie obejdzie - humanistów nie
+  będzie mi żal.
 icon: '1'
 ---
 
