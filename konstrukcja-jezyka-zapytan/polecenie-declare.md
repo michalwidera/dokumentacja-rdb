@@ -78,5 +78,5 @@ Jeśli plik danych wejściowych będzie nosić rozszerzenie .dat – plik ten zo
 Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych — szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
 
 {% hint style="info" %}
-Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w sidecar pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaDataStream`.
+Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaDataStream`.
 {% endhint %}
