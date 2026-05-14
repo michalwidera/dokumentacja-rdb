@@ -40,7 +40,7 @@ $$
 
 oraz dokonują podziału zbioru dodatnich liczb całkowitych.
 
-<figure><img src="../.gitbook/assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna zbiorów rozłącznych</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna pojęcia zbiorów rozłącznych</p></figcaption></figure>
 
 Te dwie sekwencje dokonują podziału zbioru liczb naturalnych. Oznacza to że dysponując dwoma liczbami niewymiernymi, pomiędzy którymi wskazana w twierdzeniu zależność – będziemy mogli podzielić zbiór wszystkich liczb naturalnych na dwa rozłączne zbiory (Rys. 1).
 
