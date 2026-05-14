@@ -55,7 +55,7 @@ graph TD
     style M fill:#cdf,color:#000
 ```
 
-_Rys. 10. Zestaw plików artefaktu i ich powiązania_
+_Rys. 11. Zestaw plików artefaktu i ich powiązania_
 
 Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
@@ -269,7 +269,7 @@ flowchart TD
     MAIN --> RET2["Zwróć dane oryginalne"]
 ```
 
-_Rys. 11. Priorytety odczytu rekordu z pliku cienia_
+_Rys. 12. Priorytety odczytu rekordu z pliku cienia_
 
 ### Scalanie (merge)
 
@@ -289,7 +289,7 @@ sequenceDiagram
     App->>Shadow: ftruncate(0) — wyczyść plik cienia
 ```
 
-_Rys. 12. Scalanie pliku cienia z plikiem głównym_
+_Rys. 13. Scalanie pliku cienia z plikiem głównym_
 
 ### Przykład: modyfikacja rekordu
 
@@ -339,7 +339,7 @@ graph LR
     end
 ```
 
-_Rys. 13. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+_Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
 ---
 

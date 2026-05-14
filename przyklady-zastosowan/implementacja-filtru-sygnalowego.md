@@ -53,9 +53,9 @@ ylabel('wzmocnienie (dB)')
 grid on
 ```
 
-Uruchomienie powyższego kodu w programie Octave zaprezentuje następującą odpowiedź w postaci graficznej (Rys. 34):
+Uruchomienie powyższego kodu w programie Octave zaprezentuje następującą odpowiedź w postaci graficznej (Rys. 36):
 
-<figure><img src="../.gitbook/assets/czestotliwosci.svg" alt=""><figcaption><p>Rys. 34 Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/czestotliwosci.svg" alt=""><figcaption><p>Rys. 36 Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p></figcaption></figure>
 
 Na osi rzędnych Octave przedstawia znormalizowaną częstotliwość. Zakres prezentowanej na rysunku częstotliwości na osi rzędnych od 0 do 1 odpowiada częstotliwości od 0Hz do 25Hz. Na osi odciętych pierwszy rysunek prezentuje liniowe wzmocnienie, drugi tą samą wielkość ale w skali logarytmicznej.
 
@@ -129,9 +129,9 @@ Widzimy tutaj 4 zapytania. Przeglądając rozdział dotyczący [rozwijania symbo
 $ xretractor -c query.rql -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-Ujrzymy następujący obraz (Rys. 35):
+Ujrzymy następujący obraz (Rys. 37):
 
-<figure><img src="../.gitbook/assets/zaleznosc_strumieni_filtr_sygnalowy.png" alt=""><figcaption><p>Rys. 35 Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/zaleznosc_strumieni_filtr_sygnalowy.png" alt=""><figcaption><p>Rys. 37 Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
 
 ### Uruchomienie
 
@@ -151,11 +151,11 @@ $ xretractor query.rql
 $ xqry -s outputAll -p 50:256 | gnuplot
 ```
 
-Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 36):
+Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 38):
 
-<figure><img src="../.gitbook/assets/gnuplot_filtracja_sygnalu.png" alt=""><figcaption><p>Rys. 36 Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/gnuplot_filtracja_sygnalu.png" alt=""><figcaption><p>Rys. 38 Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
 
-Na Rys. 36 widzimy dwa wykresy nałożone na siebie. Ten bardziej zróżnicowany – na ekranie komputera widoczny jako niebieska linia zawierająca dużą zmienność to wizualizacja sygnału wejściowego. Dane pobrane z generatora liczb pseudolosowych z częstotliwością 50 próbek na sekundę. Oraz drugi wykres opływający dane wejściowe – na ekranie komputera prezentowany w kolorze czerwonym, bardziej łagodny, opływający – to właśnie dane przefiltrowane opracowanym filtrem sygnałowym. Sygnał, którego pasmo przepustowe zostało ograniczone do 0-2Hz (niskich częstotliwości) i ograniczone zaporowo w obszarze (5-25Hz) w obszarze wysokich częstotliwości. Obrazowo można powiedzieć, że wyizolowaliśmy linię melodyczną dla basów.
+Na Rys. 38 widzimy dwa wykresy nałożone na siebie. Ten bardziej zróżnicowany – na ekranie komputera widoczny jako niebieska linia zawierająca dużą zmienność to wizualizacja sygnału wejściowego. Dane pobrane z generatora liczb pseudolosowych z częstotliwością 50 próbek na sekundę. Oraz drugi wykres opływający dane wejściowe – na ekranie komputera prezentowany w kolorze czerwonym, bardziej łagodny, opływający – to właśnie dane przefiltrowane opracowanym filtrem sygnałowym. Sygnał, którego pasmo przepustowe zostało ograniczone do 0-2Hz (niskich częstotliwości) i ograniczone zaporowo w obszarze (5-25Hz) w obszarze wysokich częstotliwości. Obrazowo można powiedzieć, że wyizolowaliśmy linię melodyczną dla basów.
 
 Należy pamiętać, że na ekranie komputera ten wykres przesuwa się w prawo bardzo szybko, prezentując obraz możliwości bieżącego przetwarzania danych realizowanych w systemie RetractorDB.
 

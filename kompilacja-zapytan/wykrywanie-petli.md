@@ -30,7 +30,7 @@ graph LR
     style broken fill:#f66,color:#fff
 ```
 
-_Rys. 24. Cykl w grafie zależności zapytań_
+_Rys. 25. Cykl w grafie zależności zapytań_
 
 ## Efekt kompilacji
 
