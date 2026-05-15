@@ -14,11 +14,21 @@ W praktyce w systemie realizuję wyłącznie operacje jedno lub dwuargumentowe. 
 Przykład używa kanonicznych deklaracji z całego rozdziału — trzy strumienie o różnych typach i interwałach:
 
 ```
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
-DECLARE e INTEGER            STREAM core2, 0.3 FILE 'sensor_c.txt'
+DECLARE a BYTE, b INTEGER
+STREAM core0, 0.1
+FILE 'sensor_a.txt'
 
-SELECT merged[0] STREAM merged FROM (core0 # core1) + core2
+DECLARE c INTEGER, d FLOAT
+STREAM core1, 0.2
+FILE 'sensor_b.txt'
+
+DECLARE e INTEGER
+STREAM core2, 0.3
+FILE 'sensor_c.txt'
+
+SELECT merged[0]
+STREAM merged
+FROM (core0 # core1) + core2
 ```
 
 Kompilacja:
