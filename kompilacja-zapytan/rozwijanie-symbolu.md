@@ -10,8 +10,13 @@ Każdy, który pisał w języku SQL poznał magiczny znak \* w tym języku. Wywo
 Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE a BYTE, b INTEGER
+STREAM core0, 0.1
+FILE 'sensor_a.txt'
+
+DECLARE c INTEGER, d FLOAT
+STREAM core1, 0.2
+FILE 'sensor_b.txt'
 
 SELECT *
 STREAM merged
