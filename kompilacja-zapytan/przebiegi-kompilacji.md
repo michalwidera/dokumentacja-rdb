@@ -14,9 +14,17 @@ Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transfo
 Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
 
 ```
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
-DECLARE e INTEGER            STREAM core2, 0.3 FILE 'sensor_c.txt'
+DECLARE a BYTE, b INTEGER 
+STREAM core0, 0.1
+FILE 'sensor_a.txt'
+
+DECLARE c INTEGER, d FLOAT
+STREAM core1, 0.2
+FILE 'sensor_b.txt'
+
+DECLARE e INTEGER
+STREAM core2, 0.3
+FILE 'sensor_c.txt'
 
 SELECT *
 STREAM merged
@@ -70,65 +78,64 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 
 {% stepper %}
 {% step %}
-### extractIntermediateStreams
+#### extractIntermediateStreams
 
 Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` wymagają pośredniego strumienia. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
 {% endstep %}
 
 {% step %}
-### expandSchemaWildcards
+#### expandSchemaWildcards
 
 Rozwija symbol `*` w klauzuli SELECT. Zastępuje go listą pól wynikających z schematu strumienia źródłowego — patrz [Rozwijanie symbolu \*](rozwijanie-symbolu.md).
 {% endstep %}
 
 {% step %}
-### resolveStreamIntervals   (← tu wykrywane są pętle)  &#x20;
+#### resolveStreamIntervals (← tu wykrywane są pętle)
 
 Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów algebraicznych i interwałów strumieni wejściowych. Algorytm iteracyjny — w każdej rundzie rozwiązuje tyle strumieni, ile jest możliwe. Wykrywa cykliczne zależności zatrzymując się, gdy liczba nierozwiązanych strumieni przestaje maleć — patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md) i [Wykrywanie pętli](wykrywanie-petli.md).
 {% endstep %}
 
 {% step %}
-### deduplicateSubstrats
+#### deduplicateSubstrats
 
 Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej (np. `core0#core1`), etap wskazuje drugie zapytanie na substrat utworzony przez pierwsze. Unika powielania obliczeń — patrz przykład w [Substraty](substraty.md).
 {% endstep %}
 
 {% step %}
-### resolveFieldReferences
+#### resolveFieldReferences
 
 Przekształca odwołania do pól ze schematów źródłowych na indeksy w schemacie wynikowym. Obsługuje aliasowanie — `core0[0]` zamienia na `str1[0]` itp. — patrz [Aliasowanie](aliasowanie.md).
 {% endstep %}
 
 {% step %}
-### expandIndexWildcards
+#### expandIndexWildcards
 
 Rozwija symbol `_` w indeksach pól. Powielenie formuły dla wszystkich pasujących par pól ze schematów argumentów — patrz [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md).
 {% endstep %}
 
 {% step %}
-### localizeFieldOffsets
+#### localizeFieldOffsets
 
 Wyznacza bajkowe offsety pól w buforach binarnych. Po tym etapie schemat każdego strumienia jest gotowy do alokacji pamięci.
 {% endstep %}
 
 {% step %}
-### computeRequiredCapacities
+#### computeRequiredCapacities
 
 Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie rozmiarów schematów i wymagań okien czasowych.
 {% endstep %}
 
 {% step %}
-### validateConstraints
+#### validateConstraints
 
 Weryfikuje poprawność semantyczną skompilowanego planu: zgodność typów, rozmiary okien, dostępność źródeł danych.
 {% endstep %}
 
 {% step %}
-### applyCapacitiesToStreams
+#### applyCapacitiesToStreams
 
 Aplikuje obliczone pojemności do obiektów strumieni. Po tym etapie plan jest gotowy do wykonania przez `dataModel`.
 {% endstep %}
 {% endstepper %}
 
 Każdy etap zwraca `"OK"` lub komunikat błędu — wówczas kompilacja się zatrzymuje.
-
