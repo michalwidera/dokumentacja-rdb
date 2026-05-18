@@ -1,5 +1,5 @@
 ---
-description: Słowem wstępu.
+description: Brzegowy System Przetwarzania Sygnałów/ESPE
 ---
 
 # RetractorDB
@@ -20,5 +20,5 @@ UWAGA: Polecenia opracowanego języka zapytań prezentowane są z rozbiciem na s
 Ta dokumentacja nie powstała w celu spełnienia jakiegoś formalnego wymagania. Ta dokumentacja powstała bo stworzone narzędzie - **RetractorDB** jest na tyle skomplikowane, że bez niego zrozumienie całości analizując jedynie stworzony kod wydaje mi się niewykonalne.\
 Postawiłem użytkownikom wysoki próg wejścia. Mam nadzieję że stworzony dokument ułatwi pierwszym użytkownikom zrozumienie i potencjalne zastosowanie efektów mojego wysiłku. Liczę na to że po przeczytaniu, zrobieniu kilku eksperymentów znajdziesz potencjalne zastosowania w rozwiązaniu Twojego problemu. To właśnie było moją bazową motywacją. Stworzenie czegoś, co przyda się komuś, kiedyś... Bo wymyślanie koła na nowo za każdym razem to marnowanie wysiłku intelektualnego poprzednich pokoleń.\
 Pozdrawiam,\
-Michał &#x20;
+Michał
 {% endhint %}
