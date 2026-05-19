@@ -1,5 +1,5 @@
 ---
-description: Brzegowy System Przetwarzania Sygnałów/ESPE
+description: Brzegowy System Przetwarzania Sygnałów (ESPE)
 ---
 
 # RetractorDB
