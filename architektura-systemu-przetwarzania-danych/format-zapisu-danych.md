@@ -2,7 +2,7 @@
 description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przep
+  kolejność ich zarejestrowania oraz przerwy w przepływie.
 icon: line-height
 ---
 
@@ -16,18 +16,18 @@ Substraty i Artefakty - formalnie niczym nie różnią się w systemie. Jedyna r
 
 Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementację `FileInterface`:
 
-| Typ (`TYPE_PROFILE`) | Klasa implementacji                    | Zastosowanie                                                      |
-| -------------------- | -------------------------------------- | ----------------------------------------------------------------- |
-| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją        |
-| `DIRECT`             | `groupFile<posixBinaryFile>`           | Zapis bezpośredni bez cienia, z retencją                          |
-| `POSIX`              | `posixBinaryFile`                      | Surowy zapis POSIX bez cienia                                     |
-| `POSIXSHD`           | `posixBinaryFileWithShadow`            | POSIX z plikiem cienia                                            |
-| `MEMORY`             | `memoryFile`                           | Składowanie wyłącznie w RAM (efemerydy)                           |
-| `GENERIC`            | `genericBinaryFile`                    | Ogólny akcesor binarny                                            |
-| `DEVICE`             | `binaryDeviceRO`                       | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
-| `TEXTSOURCE`         | `textSourceRO`                         | Tekstowe źródło danych wejściowych (tylko odczyt)                 |
+| Typ (`TYPE_PROFILE`) | Klasa implementacji | Zastosowanie |
+| -------------------- | ------------------- | ------------ |
+| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją |
+| `DIRECT`             | `groupFile<posixBinaryFile>` | Zapis bezpośredni bez cienia, z retencją |
+| `POSIX`              | `posixBinaryFile`   | Surowy zapis POSIX bez cienia |
+| `POSIXSHD`           | `posixBinaryFileWithShadow` | POSIX z plikiem cienia |
+| `MEMORY`             | `memoryFile`        | Składowanie wyłącznie w RAM (efemerydy) |
+| `GENERIC`            | `genericBinaryFile` | Ogólny akcesor binarny |
+| `DEVICE`             | `binaryDeviceRO`    | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
+| `TEXTSOURCE`         | `textSourceRO`      | Tekstowe źródło danych wejściowych (tylko odczyt) |
 
-***
+---
 
 ## Zestaw plików artefaktu i substratu
 
@@ -61,7 +61,7 @@ Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych be
 
 Efemerydy **nie posiadają żadnych plików na dysku** — istnieją wyłącznie w pamięci operacyjnej procesu i znikają po jego zakończeniu.
 
-***
+---
 
 ## Plik deskryptora (.desc)
 
@@ -146,7 +146,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 | `RATIONAL` | 16 B (dwa int64)             |
 | `STRING`   | N B (deklarowany rozmiar)    |
 
-Dla pól tablicowych `nazwa[N]` całkowity rozmiar = rozmiar\_typu × N. Pola `TYPE`, `REF`, `RETENTION` i `RETMEMORY` nie zajmują miejsca w rekordzie — są metadanymi deskryptora.
+Dla pól tablicowych `nazwa[N]` całkowity rozmiar = rozmiar_typu × N. Pola `TYPE`, `REF`, `RETENTION` i `RETMEMORY` nie zajmują miejsca w rekordzie — są metadanymi deskryptora.
 
 Rozmiar rekordu `R` = suma rozmiarów wszystkich pól danych.
 
@@ -154,7 +154,7 @@ Rozmiar rekordu `R` = suma rozmiarów wszystkich pól danych.
 
 Pole `TYPE` w deskryptorze bezpośrednio wyznacza, który akcesor (`FileInterface`) zostanie użyty przez `storage::initializeAccessor()`. Brak pola `TYPE` jest równoznaczny z `DEFAULT`. Wartość jest nieczuła na wielkość liter (`MEMORY` = `memory`).
 
-***
+---
 
 ## Plik danych binarnych
 
@@ -187,7 +187,7 @@ DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
 
 Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.
 
-***
+---
 
 ## Plik metadanych (.meta)
 
@@ -243,7 +243,7 @@ Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększ
 
 Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy — informacja żyje wyłącznie w pliku `.meta`.
 
-***
+---
 
 ### Klasa metaDataStream
 
@@ -255,10 +255,10 @@ Plikiem `.meta` zarządza klasa `rdb::metaDataStream`. Hermetyzuje ona trzy obsz
 
 Klasa przechowuje dwa stany:
 
-| Stan                              | Lokalizacja           | Opis                                                                   |
-| --------------------------------- | --------------------- | ---------------------------------------------------------------------- |
-| Zatwierdzone segmenty             | plik `.meta` na dysku | wszystkie zakończone przebiegi RLE                                     |
-| Segment bieżący (`currentEntry_`) | pamięć operacyjna     | aktualnie akumulowany przebieg (jeszcze niezapisany lub do nadpisania) |
+| Stan | Lokalizacja | Opis |
+| ---- | ----------- | ---- |
+| Zatwierdzone segmenty | plik `.meta` na dysku | wszystkie zakończone przebiegi RLE |
+| Segment bieżący (`currentEntry_`) | pamięć operacyjna | aktualnie akumulowany przebieg (jeszcze niezapisany lub do nadpisania) |
 
 ### Cykl życia obiektu
 
@@ -274,10 +274,9 @@ stateDiagram-v2
 ```
 
 **Konstruktor** (`metaDataStream(descriptor, path)`):
-
-* Inicjalizuje pusty `currentEntry_` na podstawie liczby pól deskryptora.
-* Wywołuje `loadIndex()` — jeżeli plik istnieje, wczytuje wszystkie zatwierdzone segmenty, wyznacza `committedRecordCount_`, a ostatni niegapowy segment przenosi z powrotem do `currentEntry_` (umożliwia kontynuację serii RLE po restarcie).
-* Jeżeli plik nie istnieje, tworzy go i zapisuje nagłówek (znacznik czasu utworzenia strumienia).
+- Inicjalizuje pusty `currentEntry_` na podstawie liczby pól deskryptora.
+- Wywołuje `loadIndex()` — jeżeli plik istnieje, wczytuje wszystkie zatwierdzone segmenty, wyznacza `committedRecordCount_`, a ostatni niegapowy segment przenosi z powrotem do `currentEntry_` (umożliwia kontynuację serii RLE po restarcie).
+- Jeżeli plik nie istnieje, tworzy go i zapisuje nagłówek (znacznik czasu utworzenia strumienia).
 
 **Destruktor** automatycznie wywołuje `flushCurrentEntry()`, gwarantując, że bieżący bufor trafi na dysk nawet gdy program zakończy pracę w normalnym trybie.
 
@@ -327,7 +326,7 @@ sequenceDiagram
 
     S->>M: onTransmissionGap(5)
     M->>F: flushCurrentEntry() — zapisz [normalny, count=N]
-    M->>F: appendEntry({isGap=true, count=5})
+    M->>F: appendEntry(isGap=true, count=5)
     Note over F: plik zawiera teraz marker przerwy
 ```
 
@@ -361,12 +360,12 @@ sequenceDiagram
 
     S->>M: onRecordAppended([F,F])
     S->>M: flushCurrentEntry()
-    Note over M: tailDirty_=true → overwrite
-    M->>F: seek(-entrySize); write([F,F], count=2)
+    Note over M: tailDirty_=true, overwrite last entry
+    M->>F: overwrite last entry: [F,F] count=2
 
     S->>M: onRecordAppended([F,F])
     S->>M: flushCurrentEntry()
-    M->>F: seek(-entrySize); write([F,F], count=3)
+    M->>F: overwrite last entry: [F,F] count=3
 
     S->>M: onRecordAppended([T,F])
     Note over M: inny wzorzec → nowy wpis
@@ -403,14 +402,14 @@ sequenceDiagram
 
 ### Interfejs zapytań
 
-| Metoda             | Opis                                                                                                                                           |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Działa zarówno dla rekordów w segmentach zatwierdzonych (dysk), jak i w segmencie bieżącym (pamięć).      |
-| `isGapBefore(i)`   | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
-| `segments()`       | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Służy do inspekcji i testów.             |
-| `totalRecords()`   | Suma rekordów we wszystkich segmentach (committed + pending).                                                                                  |
-| `isEmpty()`        | Skrót: `totalRecords() == 0`.                                                                                                                  |
-| `reset()`          | Czyści indeks: zeruje liczniki, przepisuje plik z samym nagłówkiem. Wywoływany przez `storage` przy rotacji pliku danych.                      |
+| Metoda | Opis |
+| ------ | ---- |
+| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Działa zarówno dla rekordów w segmentach zatwierdzonych (dysk), jak i w segmencie bieżącym (pamięć). |
+| `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
+| `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Służy do inspekcji i testów. |
+| `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |
+| `isEmpty()` | Skrót: `totalRecords() == 0`. |
+| `reset()` | Czyści indeks: zeruje liczniki, przepisuje plik z samym nagłówkiem. Wywoływany przez `storage` przy rotacji pliku danych. |
 
 ### Przykład użycia — typowy scenariusz produkcyjny
 
@@ -430,7 +429,7 @@ isGapBefore(2)  → false
 totalRecords()  → 4
 ```
 
-***
+---
 
 ## Plik cienia (.shadow)
 
@@ -491,7 +490,7 @@ _Rys. 13. Scalanie pliku cienia z plikiem głównym_
 
 Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku głównego (nie ma ich w shadow).
 
-***
+---
 
 ## Relacja pomiędzy plikami
 
@@ -528,7 +527,7 @@ graph LR
 
 _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
-***
+---
 
 ## Podsumowanie: uzasadnienie przyjętej struktury
 
@@ -536,10 +535,10 @@ _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
 Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w pliku binarnym: stały rozmiar rekordu, brak nagłówka, brak opisu struktury. Takie podejście ma jedną zaletę — minimalny narzut — i szereg istotnych ograniczeń:
 
-* Interpretacja danych wymaga wiedzy zewnętrznej wobec pliku (nazwy pól, typy, kolejność).
-* Brak informacji o przerwach w transmisji — ciągłość danych jest pozorna.
-* Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
-* Zmiana struktury rekordu unieważnia cały plik.
+- Interpretacja danych wymaga wiedzy zewnętrznej wobec pliku (nazwy pól, typy, kolejność).
+- Brak informacji o przerwach w transmisji — ciągłość danych jest pozorna.
+- Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
+- Zmiana struktury rekordu unieważnia cały plik.
 
 RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, gdzie przerwy zasilania, zaniki sygnału i konieczność retrospektywnej korekty danych są normalnym zjawiskiem eksploatacyjnym, nie wyjątkiem. Struktura czterech plików odpowiada bezpośrednio na każde z tych ograniczeń.
 
@@ -549,37 +548,37 @@ RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, g
 
 Plik danych binarnych jest bezużyteczny bez znajomości struktury rekordu. Deskryptor przechowuje tę wiedzę obok danych, co oznacza:
 
-* Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji — wystarczy plik `.desc`.
-* Narzędzie `xtrdb` może analizować dowolny artefakt bez dodatkowych parametrów.
-* Zmiana struktury strumienia (dodanie pola, zmiana typu) jest jawna i wersjonowalna.
-* Pole `TYPE` w deskryptorze decyduje o strategii składowania, co pozwala temu samemu silnikowi obsługiwać trwałe artefakty, ulotne efemerydy i zewnętrzne źródła danych bez zmiany logiki zapytań.
+- Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji — wystarczy plik `.desc`.
+- Narzędzie `xtrdb` może analizować dowolny artefakt bez dodatkowych parametrów.
+- Zmiana struktury strumienia (dodanie pola, zmiana typu) jest jawna i wersjonowalna.
+- Pole `TYPE` w deskryptorze decyduje o strategii składowania, co pozwala temu samemu silnikowi obsługiwać trwałe artefakty, ulotne efemerydy i zewnętrzne źródła danych bez zmiany logiki zapytań.
 
 **Plik metadanych (`.meta`) — wiarygodność serii czasowej**
 
 Seria czasowa z dziurami, traktowana jako ciągła, prowadzi do błędnych obliczeń okien czasowych, błędnych agregacji i fałszywych korelacji. Plik `.meta` zapewnia:
 
-* Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) — semantycznie zupełnie różnych stanów.
-* Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych — plik binarny pozostaje gęsty i adresowalny pozycyjnie.
-* Kompresję RLE — typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
-* Możliwość odtworzenia dokładnego harmonogramu rejestracji, w tym długości przerw, co jest niezbędne przy obliczaniu interwałów w algebrze strumieni.
+- Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) — semantycznie zupełnie różnych stanów.
+- Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych — plik binarny pozostaje gęsty i adresowalny pozycyjnie.
+- Kompresję RLE — typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
+- Możliwość odtworzenia dokładnego harmonogramu rejestracji, w tym długości przerw, co jest niezbędne przy obliczaniu interwałów w algebrze strumieni.
 
 **Plik cienia (`.shadow`) — niedestruktywna korekta danych**
 
 W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową procedurą. Nadpisanie pliku binarnego jest nieodwracalne i usuwa dowód oryginalnego pomiaru. Plik cienia:
 
-* Pozwala skorygować dowolny historyczny rekord bez modyfikacji pliku głównego.
-* Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
-* Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
-* Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
+- Pozwala skorygować dowolny historyczny rekord bez modyfikacji pliku głównego.
+- Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
+- Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
+- Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
 
 ### Porównanie podejść
 
-| Właściwość                          | Surowy plik binarny                             | Struktura RetractorDB                                          |
-| ----------------------------------- | ----------------------------------------------- | -------------------------------------------------------------- |
-| Samoopisywalność                    | brak — wymaga zewnętrznej dokumentacji          | tak — deskryptor `.desc` przy danych                           |
-| Obsługa przerw w transmisji         | brak — przerwy niewidoczne lub fikcyjne rekordy | tak — `.meta` rejestruje przerwy bez rozszerzania pliku danych |
-| Wartości null per pole              | brak — zero = null nierozróżnialne              | tak — bitset null w `.meta`                                    |
-| Korekta danych historycznych        | destruktywna                                    | niedestruktywna — `.shadow`                                    |
-| Przywrócenie oryginału po korekcie  | niemożliwe                                      | tak — usunięcie `.shadow`                                      |
-| Wielokrotność strategii składowania | brak                                            | tak — pole `TYPE` w deskryptorze                               |
-| Koszt przy danych bez przerw i null | —                                               | minimalny: `.meta` ≈ 17 B nagłówek + 1 wpis RLE                |
+| Właściwość | Surowy plik binarny | Struktura RetractorDB |
+| ---------- | ------------------- | --------------------- |
+| Samoopisywalność | brak — wymaga zewnętrznej dokumentacji | tak — deskryptor `.desc` przy danych |
+| Obsługa przerw w transmisji | brak — przerwy niewidoczne lub fikcyjne rekordy | tak — `.meta` rejestruje przerwy bez rozszerzania pliku danych |
+| Wartości null per pole | brak — zero = null nierozróżnialne | tak — bitset null w `.meta` |
+| Korekta danych historycznych | destruktywna | niedestruktywna — `.shadow` |
+| Przywrócenie oryginału po korekcie | niemożliwe | tak — usunięcie `.shadow` |
+| Wielokrotność strategii składowania | brak | tak — pole `TYPE` w deskryptorze |
+| Koszt przy danych bez przerw i null | — | minimalny: `.meta` ≈ 17 B nagłówek + 1 wpis RLE |
