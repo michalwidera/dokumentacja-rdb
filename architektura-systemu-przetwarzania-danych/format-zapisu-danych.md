@@ -264,11 +264,13 @@ Klasa przechowuje dwa stany:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Budowa: konstruktor
-    Budowa --> Aktywny: loadIndex() — wczytuje plik,\nodtwarza currentEntry_
-    Aktywny --> Aktywny: onRecordAppended()\nonRecordModified()\nonTransmissionGap()
-    Aktywny --> Aktywny: flushCurrentEntry()\n(wywołanie jawne)
-    Aktywny --> [*]: destruktor — flushCurrentEntry()\nautomatyczny zapis ostatniego segmentu
+    [*] --> Budowa : konstruktor
+    Budowa --> Aktywny : loadIndex()
+    Aktywny --> Aktywny : onRecordAppended()
+    Aktywny --> Aktywny : onRecordModified()
+    Aktywny --> Aktywny : onTransmissionGap()
+    Aktywny --> Aktywny : flushCurrentEntry()
+    Aktywny --> [*] : destruktor (auto flush)
 ```
 
 **Konstruktor** (`metaDataStream(descriptor, path)`):
