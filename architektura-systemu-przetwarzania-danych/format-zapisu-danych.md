@@ -245,6 +245,190 @@ Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jes
 
 ---
 
+### Klasa metaDataStream
+
+Plikiem `.meta` zarządza klasa `rdb::metaDataStream`. Hermetyzuje ona trzy obszary odpowiedzialności:
+
+1. **Agregację RLE w pamięci** — buforuje bieżący segment (ostatnią serię rekordów z identycznym wzorcem null) w polu `currentEntry_`, nie zapisując go do pliku przy każdym rekordzie.
+2. **Trwałość danych** — wyłącznie zakończone segmenty (gdy wzorzec się zmienia lub gdy nastąpi jawne wywołanie `flushCurrentEntry()`) trafiają do pliku jako wpisy zatwierdzone (_committed_).
+3. **Indeks zapytań** — udostępnia interfejs do odpytywania wzorca null dla dowolnego rekordu oraz wykrywania przerw w transmisji.
+
+Klasa przechowuje dwa stany:
+
+| Stan | Lokalizacja | Opis |
+| ---- | ----------- | ---- |
+| Zatwierdzone segmenty | plik `.meta` na dysku | wszystkie zakończone przebiegi RLE |
+| Segment bieżący (`currentEntry_`) | pamięć operacyjna | aktualnie akumulowany przebieg (jeszcze niezapisany lub do nadpisania) |
+
+### Cykl życia obiektu
+
+```mermaid
+stateDiagram-v2
+    [*] --> Budowa: konstruktor
+    Budowa --> Aktywny: loadIndex() — wczytuje plik,\nodtwarza currentEntry_
+    Aktywny --> Aktywny: onRecordAppended()\nonRecordModified()\nonTransmissionGap()
+    Aktywny --> Aktywny: flushCurrentEntry()\n(wywołanie jawne)
+    Aktywny --> [*]: destruktor — flushCurrentEntry()\nautomatyczny zapis ostatniego segmentu
+```
+
+**Konstruktor** (`metaDataStream(descriptor, path)`):
+- Inicjalizuje pusty `currentEntry_` na podstawie liczby pól deskryptora.
+- Wywołuje `loadIndex()` — jeżeli plik istnieje, wczytuje wszystkie zatwierdzone segmenty, wyznacza `committedRecordCount_`, a ostatni niegapowy segment przenosi z powrotem do `currentEntry_` (umożliwia kontynuację serii RLE po restarcie).
+- Jeżeli plik nie istnieje, tworzy go i zapisuje nagłówek (znacznik czasu utworzenia strumienia).
+
+**Destruktor** automatycznie wywołuje `flushCurrentEntry()`, gwarantując, że bieżący bufor trafi na dysk nawet gdy program zakończy pracę w normalnym trybie.
+
+### Interfejs aktualizacji
+
+Klasa wyróżnia trzy scenariusze zmiany stanu metadanych:
+
+#### `onRecordAppended(nullBitset)`
+
+Wywoływany przez `storage` po każdym dołączeniu nowego rekordu do pliku danych.
+
+```
+wzorzec identyczny z currentEntry_?
+├─ TAK → zwiększ currentEntry_.recordCount (akumulacja RLE, brak I/O)
+└─ NIE → flushCurrentEntry() (poprzedni segment na dysk)
+          ustaw currentEntry_ = {nullBitset, count=1}
+```
+
+Operacja I/O następuje **wyłącznie przy zmianie wzorca** — dla serii identycznych rekordów koszt to jedna inkrementacja licznika w pamięci.
+
+#### `onRecordModified(index, nullBitset)`
+
+Wywoływany przez `storage` przy aktualizacji istniejącego rekordu. Lokalizuje rekord w segmentach RLE i rozbija segment na maksymalnie trzy części: przed modyfikowanym rekordem, sam rekord, za nim.
+
+```
+rekord w currentEntry_ (pamięć)?
+├─ TAK → splitSegment() w pamięci, nowe fragmenty dołączone do pliku
+└─ NIE → wczytaj plik, splitSegment(), przepisz plik (rewriteFile)
+```
+
+Przykład rozbicia segmentu `[allNull × 5]` przy modyfikacji rekordu 2:
+
+```
+Przed:  [allNull × 5]
+Po:     [allNull × 2] [allPresent × 1] [allNull × 2]
+```
+
+#### `onTransmissionGap(duration)`
+
+Rejestruje przerwę w transmisji o podanej długości (w jednostkach interwału strumienia). Najpierw zatwierdza bieżący segment (`flushCurrentEntry()`), następnie dołącza do pliku wpis z `isGap=true`.
+
+```mermaid
+sequenceDiagram
+    participant S as storage
+    participant M as metaDataStream
+    participant F as plik .meta
+
+    S->>M: onTransmissionGap(5)
+    M->>F: flushCurrentEntry() — zapisz [normalny, count=N]
+    M->>F: appendEntry({isGap=true, count=5})
+    Note over F: plik zawiera teraz marker przerwy
+```
+
+### Mechanizm bezpieczeństwa: `flushCurrentEntry()` i nadpisywanie (tailDirty\_)
+
+Klasa `storage` wywołuje `flushCurrentEntry()` po **każdym** wywołaniu `write()`, aby zagwarantować przeżycie awarii procesu. Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu — powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
+
+Rozwiązanie: mechanizm **lazy overwrite** oznaczany flagą `tailDirty_`.
+
+```
+flushCurrentEntry() → zapis [wzorzec, count=2] na dysk
+onRecordAppended(ten sam wzorzec):
+    currentEntry_.count = 2 (przywrócony z dysku)
+    tailDirty_ = true        ← następny flush nadpisze, nie doda
+    currentEntry_.count++    → count = 3
+flushCurrentEntry() → seek na ostatni wpis, overwrite [wzorzec, count=3]
+    (rozmiar pliku bez zmian)
+```
+
+Diagram sekwencji dla typowego wzorca `storage` (append + flush po każdym rekordzie):
+
+```mermaid
+sequenceDiagram
+    participant S as storage
+    participant M as metaDataStream
+    participant F as plik .meta
+
+    S->>M: onRecordAppended([F,F])
+    S->>M: flushCurrentEntry()
+    M->>F: appendEntry([F,F], count=1)
+
+    S->>M: onRecordAppended([F,F])
+    S->>M: flushCurrentEntry()
+    Note over M: tailDirty_=true → overwrite
+    M->>F: seek(-entrySize); write([F,F], count=2)
+
+    S->>M: onRecordAppended([F,F])
+    S->>M: flushCurrentEntry()
+    M->>F: seek(-entrySize); write([F,F], count=3)
+
+    S->>M: onRecordAppended([T,F])
+    Note over M: inny wzorzec → nowy wpis
+    S->>M: flushCurrentEntry()
+    M->>F: appendEntry([T,F], count=1)
+```
+
+Dzięki temu plik `.meta` rośnie wyłącznie przy **zmianie wzorca null** — nie przy każdym rekordzie. Przy ciągłym napływie jednorodnych danych plik ma stały rozmiar niezależnie od liczby rekordów.
+
+### Persystencja i odtwarzanie stanu
+
+Po restarcie procesu nowy obiekt `metaDataStream` wczytuje plik przez `loadIndex()`:
+
+1. Odczytuje nagłówek — znacznik czasu (`creationTimeNs`), przechowywany jako `int64` nanosekund od epoki.
+2. Wczytuje wszystkie zatwierdzone wpisy z pliku.
+3. Jeżeli ostatni wpis **nie jest gap-em** — przenosi go z powrotem do `currentEntry_` i usuwa z pliku (umożliwia kontynuację RLE po restarcie bez duplikacji).
+4. Wyznacza `committedRecordCount_` jako sumę `recordCount` wszystkich niegalowych wpisów pozostałych w pliku.
+
+```mermaid
+sequenceDiagram
+    participant Proc1 as Pierwsza sesja
+    participant F as plik .meta
+    participant Proc2 as Druga sesja
+
+    Proc1->>F: zapisuje segmenty [A×500][B×200]
+    Note over Proc1: destruktor → flushCurrentEntry()
+    Proc1->>F: ostatni segment zatwierdzony
+
+    Proc2->>F: loadIndex()
+    F-->>Proc2: odczyt wszystkich segmentów
+    Note over Proc2: ostatni segment przeniesiony\ndo currentEntry_\n(gotowość do kontynuacji RLE)
+    Proc2->>Proc2: totalRecords() = 700
+```
+
+### Interfejs zapytań
+
+| Metoda | Opis |
+| ------ | ---- |
+| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Działa zarówno dla rekordów w segmentach zatwierdzonych (dysk), jak i w segmencie bieżącym (pamięć). |
+| `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
+| `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Służy do inspekcji i testów. |
+| `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |
+| `isEmpty()` | Skrót: `totalRecords() == 0`. |
+| `reset()` | Czyści indeks: zeruje liczniki, przepisuje plik z samym nagłówkiem. Wywoływany przez `storage` przy rotacji pliku danych. |
+
+### Przykład użycia — typowy scenariusz produkcyjny
+
+```
+storage.write(rec0)           → onRecordAppended([F,F,F]) + flushCurrentEntry()
+storage.write(rec1)           → onRecordAppended([F,F,F]) + flushCurrentEntry()
+storage.write(rec2_val_null)  → onRecordAppended([T,F,F]) + flushCurrentEntry()
+storage.write(rec3)           → onRecordAppended([F,F,F]) + flushCurrentEntry()
+
+Plik .meta po powyższych operacjach (4 flushe, 2 segmenty):
+  [isGap=F, count=2, bitset=[F,F,F]]   ← wpis 0
+  [isGap=F, count=1, bitset=[T,F,F]]   ← wpis 1  (rec2)
+  [isGap=F, count=1, bitset=[F,F,F]]   ← wpis 2  (rec3, bieżący w pamięci)
+
+getNullBitset(2) → [T,F,F]   (pole 0 rekordu 2 jest null)
+isGapBefore(2)  → false
+totalRecords()  → 4
+```
+
+---
+
 ## Plik cienia (.shadow)
 
 Plik cienia umożliwia modyfikację zarejestrowanych rekordów bez niszczenia danych oryginalnych. Usunięcie pliku `.shadow` przywraca oryginalny stan danych.
