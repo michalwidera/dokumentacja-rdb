@@ -396,7 +396,8 @@ sequenceDiagram
 
     Proc2->>F: loadIndex()
     F-->>Proc2: odczyt wszystkich segmentów
-    Note over Proc2: ostatni segment przeniesiony\ndo currentEntry_\n(gotowość do kontynuacji RLE)
+    Note over Proc2: ostatni segment przeniesiony do currentEntry_
+    Note over Proc2: gotowość do kontynuacji RLE
     Proc2->>Proc2: totalRecords() = 700
 ```
 
