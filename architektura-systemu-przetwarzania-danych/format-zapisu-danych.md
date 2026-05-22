@@ -326,7 +326,7 @@ sequenceDiagram
 
     S->>M: onTransmissionGap(5)
     M->>F: flushCurrentEntry() — zapisz [normalny, count=N]
-    M->>F: appendEntry({isGap=true, count=5})
+    M->>F: appendEntry(isGap=true, count=5)
     Note over F: plik zawiera teraz marker przerwy
 ```
 
@@ -360,12 +360,12 @@ sequenceDiagram
 
     S->>M: onRecordAppended([F,F])
     S->>M: flushCurrentEntry()
-    Note over M: tailDirty_=true → overwrite
-    M->>F: seek(-entrySize); write([F,F], count=2)
+    Note over M: tailDirty_=true, overwrite last entry
+    M->>F: overwrite last entry: [F,F] count=2
 
     S->>M: onRecordAppended([F,F])
     S->>M: flushCurrentEntry()
-    M->>F: seek(-entrySize); write([F,F], count=3)
+    M->>F: overwrite last entry: [F,F] count=3
 
     S->>M: onRecordAppended([T,F])
     Note over M: inny wzorzec → nowy wpis
