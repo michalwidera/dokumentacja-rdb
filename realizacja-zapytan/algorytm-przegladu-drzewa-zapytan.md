@@ -9,13 +9,14 @@ icon: tree-deciduous
 Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące komponenty: `dataModel` (logika przetwarzania) oraz `executorsm` (pętla czasowa i IPC). Przed wejściem w główną pętlę system wykonuje **krok zerowy**, po czym cyklicznie iteruje po minimalnym zbiorze interwałów czasowych.
 
 ```mermaid
+%%{init: {"markdownAutoWrap": false}}%%
 flowchart TD
     A([Inicjalizacja]) --> B
-    B["processZeroStep()\nTylko DECLARE: revRead(0) → fire()"] --> C
-    C["TimeLine::getNextTimeSlot()\nWyznacz następny slot czasowy"] --> D
-    D["getAwaitedStreamsSet()\nFiltruj: rInterval dzieli bieżący slot"] --> E
-    E["dataModel::processRows(inSet)\nPrzebieg 1: nie-deklaracje → input → output → zapis\nPrzebieg 2: deklaracje → odblokowanie"] --> F
-    F["broadcast(inSet)\nKolejki Boost IPC → klienci xqry"] --> C
+    B["processZeroStep()<br/>Tylko DECLARE: revRead(0) → fire()"] --> C
+    C["TimeLine::getNextTimeSlot()<br/>Wyznacz następny slot czasowy"] --> D
+    D["getAwaitedStreamsSet()<br/>Filtruj: rInterval dzieli bieżący slot"] --> E
+    E["dataModel::processRows(inSet)<br/>Przebieg 1: nie-deklaracje → input → output → zapis<br/>Przebieg 2: deklaracje → odblokowanie"] --> F
+    F["broadcast(inSet)<br/>Kolejki Boost IPC → klienci xqry"] --> C
 ```
 
 _Rys. 26. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
@@ -27,10 +28,11 @@ _Rys. 26. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
 `qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()`.
 
 ```mermaid
+%%{init: {"markdownAutoWrap": false}}%%
 graph TD
-    A["A (DECLARE)\nrInterval=1/3"] --> B["B\nSELECT FROM A\nrInterval=1/3"]
-    A --> D["D\nSELECT FROM A,B\nrInterval=1"]
-    B --> C["C\nSELECT FROM B\nrInterval=1/2"]
+    A["A (DECLARE)<br/>rInterval=1/3"] --> B["B<br/>SELECT FROM A<br/>rInterval=1/3"]
+    A --> D["D<br/>SELECT FROM A,B<br/>rInterval=1"]
+    B --> C["C<br/>SELECT FROM B<br/>rInterval=1/2"]
     B --> D
 ```
 
@@ -118,25 +120,26 @@ Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie — podzbiór ws
 Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98):
 
 ```mermaid
+%%{init: {"markdownAutoWrap": false}}%%
 flowchart TD
     S([processRows - inSet]) --> P1
 
     subgraph P1["Przebieg 1 — nie-deklaracje (kolejność topologiczna)"]
         direction TB
-        X1["constructInputPayload()\nbuduje dane wejściowe z FROM"] --> X2
-        X2["constructOutputPayload()\newaluuje wyrażenia SELECT"] --> X3
-        X3["write()\nzapis na dysk / pamięć"] --> X4
-        X4["constructRulesAndUpdate()\newaluuje klauzule RULE"]
+        X1["constructInputPayload()<br/>buduje dane wejściowe z FROM"] --> X2
+        X2["constructOutputPayload()<br/>ewaluuje wyrażenia SELECT"] --> X3
+        X3["write()<br/>zapis na dysk / pamięć"] --> X4
+        X4["constructRulesAndUpdate()<br/>ewaluuje klauzule RULE"]
     end
 
     P1 --> P2
 
     subgraph P2["Przebieg 2 — deklaracje (odblokowanie na następny slot)"]
         direction TB
-        Y1{"bufferState\n== armed?"} -->|tak| Y2
-        Y2["bufferState = flux\nodblokuj odczyt"] --> Y3
-        Y3["revRead(0)\nodczytaj nowe dane"] --> Y4
-        Y4["fire()\nprzypisz do outputPayload"]
+        Y1{"bufferState<br/>== armed?"} -->|tak| Y2
+        Y2["bufferState = flux<br/>odblokuj odczyt"] --> Y3
+        Y3["revRead(0)<br/>odczytaj nowe dane"] --> Y4
+        Y4["fire()<br/>przypisz do outputPayload"]
         Y1 -->|nie| Y5([pomiń])
     end
 
@@ -154,13 +157,14 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449):
 
 ```mermaid
+%%{init: {"markdownAutoWrap": false}}%%
 flowchart TB
-    A([inSet]) --> B["printRowValue()\nserializuj do Boost property_tree"]
-    B --> C{klienci\nsubskrybujący\nstrumień?}
-    C -->|tak| D["kolejka brcdbr&lt;id&gt;\ntry_send(dane)"]
-    D --> E{kolejka\npełna?}
+    A([inSet]) --> B["printRowValue()<br/>serializuj do Boost property_tree"]
+    B --> C{klienci<br/>subskrybujący<br/>strumień?}
+    C -->|tak| D["kolejka brcdbr&lt;id&gt;<br/>try_send(dane)"]
+    D --> E{kolejka<br/>pełna?}
     E -->|nie| F([wysłano])
-    E -->|tak - brak odbiorcy| G["usuń kolejkę\nusuń id2StreamName_"]
+    E -->|tak - brak odbiorcy| G["usuń kolejkę<br/>usuń id2StreamName_"]
     C -->|brak| H([pomiń])
 ```
 
