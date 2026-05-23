@@ -57,6 +57,8 @@ graph TD
 
 _Rys. 11. Zestaw plików artefaktu i ich powiązania_
 
+Diagram przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, a `.shadow` przechowuje opcjonalne nadpisania rekordów.
+
 Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
 Efemerydy **nie posiadają żadnych plików na dysku** — istnieją wyłącznie w pamięci operacyjnej procesu i znikają po jego zakończeniu.
@@ -459,6 +461,8 @@ flowchart TD
 
 _Rys. 12. Priorytety odczytu rekordu z pliku cienia_
 
+Diagram przedstawia logikę odczytu rekordu: system najpierw sprawdza wpis w `.shadow`, a dopiero przy jego braku odczytuje rekord z pliku głównego.
+
 ### Scalanie (merge)
 
 Operacja `merge()` scala zmiany z pliku cienia do pliku głównego i zeruje plik cienia. Po scaleniu dane oryginalne są bezpowrotnie nadpisane.
@@ -478,6 +482,8 @@ sequenceDiagram
 ```
 
 _Rys. 13. Scalanie pliku cienia z plikiem głównym_
+
+Diagram przedstawia przebieg `merge()`: kolejne wpisy `(position, data)` z `.shadow` są zapisywane do pliku głównego, a po zakończeniu plik cienia jest czyszczony.
 
 ### Przykład: modyfikacja rekordu
 
@@ -595,6 +601,8 @@ ok
 
 ## Relacja pomiędzy plikami
 
+W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny (Rys. 11) opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, a `.shadow` gromadzi modyfikacje bez niszczenia oryginału. Poziom operacyjny (Rys. 12-14) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow`, `merge()` przenosi poprawki do pliku głównego, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
+
 ```mermaid
 graph LR
     subgraph "Zapis nowego rekordu (append)"
@@ -627,6 +635,8 @@ graph LR
 ```
 
 _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+
+Diagram przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta` i `.shadow`.
 
 ---
 
