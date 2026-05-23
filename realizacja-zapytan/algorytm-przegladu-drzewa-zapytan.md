@@ -6,7 +6,7 @@ icon: tree-deciduous
 
 ## Przegląd ogólny
 
-Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące komponenty: `dataModel` (logika przetwarzania) oraz `executorsm` (pętla czasowa i IPC). Przed wejściem w główną pętlę system wykonuje **krok zerowy**, po czym cyklicznie iteruje po minimalnym zbiorze interwałów czasowych.
+Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące komponenty: `dataModel` (logika przetwarzania) oraz `executorsm` (pętla czasowa i IPC). Przed wejściem w główną pętlę system wykonuje **krok zerowy**, po czym cyklicznie iteruje po minimalnym zbiorze interwałów czasowych (Rys. 26).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -25,7 +25,7 @@ _Rys. 26. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
 
 ## Struktura danych: qTree
 
-`qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()`.
+`qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()` (Rys. 27).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -56,7 +56,7 @@ Wejście: {1/2, 1/3}  →  Wyjście: {1/2, 1/3}
 (żadne nie jest wielokrotnością drugiego)
 ```
 
-`getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich:
+`getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich (Rys. 28):
 
 ```mermaid
 timeline
@@ -117,7 +117,7 @@ Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie — podzbiór ws
 
 ### Przetwarzanie: `processRows(inSet)`
 
-Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98):
+Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98), co ilustruje Rys. 29:
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -154,7 +154,7 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 
 ## Rozgłaszanie wyników: `broadcast()`
 
-Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449):
+Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 30:
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -175,6 +175,8 @@ _Rys. 30. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 ***
 
 ## Pełny przykład: zapytania A, B, C, D dla delt {1/2, 1/3}
+
+Rys. 31 przedstawia kompletną sekwencję wywołań dla czterech zapytań A, B, C, D rozłożonych na siatce czasowej z deltami {1/2, 1/3}.
 
 ```mermaid
 sequenceDiagram

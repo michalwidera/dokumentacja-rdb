@@ -18,7 +18,7 @@ DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 ```
 
-Graf, w którym uwypuklone zostaną dependencje pomiędzy poszczególnymi obiektami uzyskamy w następujący sposób:
+Graf, w którym uwypuklone zostaną dependencje pomiędzy poszczególnymi obiektami uzyskamy w następujący sposób (Rys. 21):
 
 ```
 $ xretractor -c query5.rql -d > out.dot && dot -Tsvg out.dot -o out.svg
@@ -37,7 +37,7 @@ SELECT str1[0] STREAM str1 FROM core0
 SELECT str2[0] STREAM str2 FROM core0 + core1
 ```
 
-Graf zależności dla powyższego zestawu zapytań prezentuje się następująco:
+Graf zależności dla powyższego zestawu zapytań prezentuje się następująco (Rys. 22):
 
 <figure><img src="../.gitbook/assets/dependencja_efemerydy_artefakty.png" alt=""><figcaption><p>Rys. 22. Dependencja efemerydy-artefakty</p></figcaption></figure>
 

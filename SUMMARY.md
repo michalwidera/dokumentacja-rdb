@@ -46,6 +46,7 @@
   * [Zapytania Ad hoc](realizacja-zapytan/zapytania-ad-hoc/README.md)
     * [Przykład Ad hoc](realizacja-zapytan/zapytania-ad-hoc/przyklad-ad-hoc.md)
     * [Odtwarzanie strumienia](realizacja-zapytan/zapytania-ad-hoc/odtwarzanie-strumienia.md)
+  * [Realizacja alarmowania](realizacja-zapytan/realizacja-alarowania.md)
   * [Ruchome okno danych AGSE](realizacja-zapytan/ruchome-okno-danych-agse/README.md)
     * [Przykład serializacji](realizacja-zapytan/ruchome-okno-danych-agse/przyklad-serializacji.md)
     * [Przykład średniej ruchomej](realizacja-zapytan/ruchome-okno-danych-agse/przyklad-sredniej-ruchomej.md)

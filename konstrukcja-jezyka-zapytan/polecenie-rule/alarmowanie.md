@@ -29,7 +29,7 @@ $ xretractor -c query.rql -d -u -p -i > out.dot &&
 dot -Tpng out.dot -o out.png
 ```
 
-Wyświetlając plik out.png zobaczymy na ekranie coś zbliżonego:
+Wyświetlając plik out.png zobaczymy na ekranie coś zbliżonego (Rys. 6):
 
 <figure><img src="../../.gitbook/assets/zaleznosc_obiektow_alarmowania.png" alt=""><figcaption><p>Rys. 6 Zależność obiektów w przypadku użycia alarmowania</p></figcaption></figure>
 
@@ -46,7 +46,7 @@ $ xretractor -c query.rql -d -u -p > out.dot &&
 dot -Tpng out.dot -o out.png
 ```
 
-Plik wyjściowy prezentuje się w następujący sposób:
+Plik wyjściowy prezentuje się w następujący sposób (Rys. 7):
 
 <figure><img src="../../.gitbook/assets/warunek_uruchomienia_alarmowania.png" alt=""><figcaption><p>Rys. 7 Kod odpowiedzialny za warunek uruchomienia alarmowania.</p></figcaption></figure>
 

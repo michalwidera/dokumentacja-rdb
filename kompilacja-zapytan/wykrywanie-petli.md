@@ -23,7 +23,7 @@ SELECT agg[0] STREAM agg FROM merged.max
 SELECT * STREAM broken FROM merged + broken
 ```
 
-Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl:
+Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl (Rys. 25):
 
 ```mermaid
 graph LR

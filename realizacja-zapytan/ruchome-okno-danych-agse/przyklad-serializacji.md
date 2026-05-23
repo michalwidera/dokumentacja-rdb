@@ -45,9 +45,9 @@ To co widzimy to przykład serializacji. Ciekawy aspekt operatora Agse w tym prz
 $ xretractor -c qplan3.rql -f -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-W pliku out.svg zobaczymy następujący plan realizacji zapytania:
+W pliku out.svg zobaczymy następujący plan realizacji zapytania (Rys. 38):
 
-<figure><img src="../../.gitbook/assets/plan_zapytania_agse.png" alt=""><figcaption><p>Rys. 34 Plan realizacji zapytania po kompilacji AGSE</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/plan_zapytania_agse.png" alt=""><figcaption><p>Rys. 38 Plan realizacji zapytania po kompilacji AGSE</p></figcaption></figure>
 
 Ze strumienia źródłowego, w którym co sekundę przychodzą dane zawierające dwa bajty – tworzony jest strumień danych w którym co pół sekundy pojawia się jeden bajt.
 
@@ -91,9 +91,9 @@ $ xqry -s str4
 
 Ten minus przy wskazaniu szerokości okna, to odbicie lustrzane. Rozmiar okna wynosi dwa, natomiast sekwencja pól jest zbudowana w odwrotnej kolejności.
 
-Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 35):
+Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 39):
 
-<figure><img src="../../.gitbook/assets/plan_serializacja_deserializacja.png" alt=""><figcaption><p>Rys. 35 SErializacja i DEserializacja</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/plan_serializacja_deserializacja.png" alt=""><figcaption><p>Rys. 39 SErializacja i DEserializacja</p></figcaption></figure>
 
 Zaprezentowano tutaj najbardziej podstawowy przykład zastosowania operatora ruchomego okna danych. Jeśli zaczniemy eksperymentować ze skokiem i rozmiarem okna, zauważymy, że jesteśmy w stanie stworzyć dowolne, przesuwające się okno nad strumieniem danych lub pominąć niektóre elementy budując skok większy od szerokości okna.
 

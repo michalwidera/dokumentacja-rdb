@@ -464,7 +464,7 @@ flowchart TD
 
 _Rys. 12. Priorytety odczytu rekordu z pliku cienia_
 
-Diagram przedstawia logikę odczytu rekordu: system najpierw sprawdza wpis w `.shadow`, a dopiero przy jego braku odczytuje rekord z pliku głównego.
+Rys. 12 przedstawia logikę odczytu rekordu: system najpierw sprawdza wpis w `.shadow`, a dopiero przy jego braku odczytuje rekord z pliku głównego.
 
 ### Scalanie (merge)
 
@@ -486,7 +486,7 @@ sequenceDiagram
 
 _Rys. 13. Scalanie pliku cienia z plikiem głównym_
 
-Diagram przedstawia przebieg `merge()`: kolejne wpisy `(position, data)` z `.shadow` są zapisywane do pliku głównego, a po zakończeniu plik cienia jest czyszczony.
+Rys. 13 przedstawia przebieg `merge()`: kolejne wpisy `(position, data)` z `.shadow` są zapisywane do pliku głównego, a po zakończeniu plik cienia jest czyszczony.
 
 ### Przykład: modyfikacja rekordu
 
@@ -644,7 +644,7 @@ graph LR
 
 _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
-Diagram przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta` i `.shadow`.
+Rys. 14 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta` i `.shadow`.
 
 ---
 
