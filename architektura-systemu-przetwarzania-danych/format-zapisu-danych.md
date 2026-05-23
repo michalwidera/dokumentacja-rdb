@@ -42,10 +42,10 @@ Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie czt
 
 ```mermaid
 graph TD
-    D[".desc\nDeskryptor\nschemat rekordu"]
-    B["Plik danych\n binarny\nrekordy N×R bajtów"]
-    M[".meta\nMetadane\nindeks null + przerwy"]
-    S[".shadow\nPlik cienia\nmodyfikacje rekordów"]
+  D[".desc: deskryptor (schemat rekordu)"]
+  B["Plik danych binarnych (rekordy N×R bajtów)"]
+  M[".meta: metadane (indeks null i przerw)"]
+  S[".shadow: plik cienia (modyfikacje rekordów)"]
 
     D -->|"opisuje strukturę"| B
     B -->|"towarzyszący indeks"| M
@@ -450,6 +450,9 @@ Każda modyfikacja dopisuje nowy wpis na koniec pliku cienia. Przy wielu modyfik
 
 ### Priorytety odczytu
 
+Priorytety odczytu to reguła rozstrzygania, z którego źródła system ma zwrócić wartość rekordu, gdy ten sam indeks może występować jednocześnie w pliku głównym i w pliku cienia. W RetractorDB priorytet definiowany jest deterministycznie: najpierw sprawdzany jest `.shadow` (od końca, aby wybrać najnowszą modyfikację), a dopiero przy braku wpisu wykonywany jest odczyt z pliku głównego. Pojęcie to dotyczy aspektu **spójności i wersjonowania odczytu** danych po modyfikacjach, a nie samego fizycznego formatu zapisu rekordu w pliku binarnym.
+
+
 ```mermaid
 flowchart TD
     Q["Odczyt rekordu na pozycji P"]
@@ -502,6 +505,8 @@ Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku
 
 ## Mechanizm rotacji plików
 
+Przez rotację plików rozumiemy kontrolowane zamykanie bieżącego zestawu plików danych i metadanych oraz przeniesienie ich do wersji historycznych (`.old<N>`), tak aby nowa sesja mogła rozpocząć zapis od czystego stanu bez utraty wcześniejszych pomiarów. Stosuje się to po to, aby oddzielić kolejne sesje akwizycji, zachować pełną ścieżkę audytu i ułatwić diagnostykę problemów w czasie. Celem rotacji jest jednocześnie utrzymanie porządku operacyjnego (aktualny zestaw roboczy + archiwum sesji) oraz zapewnienie możliwości odtworzenia i porównania danych historycznych.
+
 ### Domyślne zachowanie (bez dyrektywy `ROTATION`)
 
 Bez dyrektywy `ROTATION` w skrypcie RQL, `xretractor` przy każdym starcie **usuwa** pliki artefaktów (dane binarne, `.desc`, `.meta`) i zaczyna rejestrację od nowa. Pliki deklaracji (`DECLARE`) oraz efemerydy nie są usuwane — nie mają plików na dysku.
@@ -516,7 +521,10 @@ ROTATION rdb_counter
 
 Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCount()` = `N`) i zapisuje `N+1` przy zamknięciu. Licznik rośnie monotonicznie z każdą sesją `xretractor`.
 
-### Przepływ rotacji
+### Przepływ sterowania w procesie rotacji
+
+W tym punkcie chcemy pokazać pełną sekwencję życia plików podczas jednej sesji i przejścia do kolejnej. Diagram ma wyjaśnić kolejność zdarzeń: wykrycie rotacji przy starcie, utworzenie nowego indeksu `.meta`, normalny zapis danych w trakcie pracy oraz archiwizację plików przy zamknięciu procesu. Kluczowy przekaz jest taki, że rotacja nie jest pojedynczą operacją, lecz procesem rozłożonym w czasie, który łączy moment startu i stopu sesji.
+
 
 ```mermaid
 sequenceDiagram
