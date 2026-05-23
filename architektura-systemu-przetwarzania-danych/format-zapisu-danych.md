@@ -410,7 +410,8 @@ sequenceDiagram
 | `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Służy do inspekcji i testów. |
 | `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |
 | `isEmpty()` | Skrót: `totalRecords() == 0`. |
-| `reset()` | Czyści indeks: zeruje liczniki, przepisuje plik z samym nagłówkiem. Wywoływany przez `storage` przy rotacji pliku danych. |
+| `rotate(percounter)` | Rotuje plik indeksu: przemianowuje bieżący plik `.meta` na `.meta.old<N>`, tworzy nowy pusty plik. Wywoływana przez `storage::detectStartupState()` po wykryciu rotacji pliku danych (plik danych pusty, indeks niepusty). Gdy `percounter < 0`, plik nie jest przemianowywany — wykonywany jest tylko reset indeksu. |
+| `reset()` | Czyści indeks w miejscu: zeruje liczniki, przepisuje plik z samym nagłówkiem bez zmiany jego nazwy. Wywoływany przez `storage` przy czyszczeniu bez zachowania historii (np. po `purge()`). |
 
 ### Przykład użycia — typowy scenariusz produkcyjny
 
@@ -493,6 +494,105 @@ Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku
 
 ---
 
+## Mechanizm rotacji plików
+
+### Domyślne zachowanie (bez dyrektywy `ROTATION`)
+
+Bez dyrektywy `ROTATION` w skrypcie RQL, `xretractor` przy każdym starcie **usuwa** pliki artefaktów (dane binarne, `.desc`, `.meta`) i zaczyna rejestrację od nowa. Pliki deklaracji (`DECLARE`) oraz efemerydy nie są usuwane — nie mają plików na dysku.
+
+### Dyrektywa `ROTATION` i licznik sesji
+
+Dyrektywa `ROTATION` włącza tryb zachowania historii. Przyjmuje ścieżkę do pliku przechowującego trwały licznik sesji:
+
+```
+ROTATION rdb_counter
+```
+
+Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCount()` = `N`) i zapisuje `N+1` przy zamknięciu. Licznik rośnie monotonicznie z każdą sesją `xretractor`.
+
+### Przepływ rotacji
+
+```mermaid
+sequenceDiagram
+    participant RQL as xretractor
+    participant D as plik danych
+    participant M as plik .meta
+    participant Old as pliki .old*
+
+    Note over RQL: start sesji N, percounter = N
+    RQL->>D: detectStartupState(): dane puste, meta niepusta → rotacja
+    RQL->>Old: metaDataStream::rotate(N): rename .meta → .meta.oldN
+    RQL->>M: nowy pusty plik .meta
+
+    Note over RQL: praca — zapis rekordów
+    RQL->>D: dopisuje rekordy
+    RQL->>M: aktualizuje indeks RLE
+
+    Note over RQL: stop (Ctrl+C / SIGTERM)
+    RQL->>Old: ~posixBinaryFile: rename → <name>.oldN
+    RQL->>Old: ~posixBinaryFile: rename → <name>.shadow.oldN (jeśli istnieje)
+    Note over RQL: PersistentCounter zapisuje N+1 do pliku
+```
+
+Rotacja pliku `.meta` następuje **przy starcie** sesji N — `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaDataStream::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
+
+### Co trafia do plików `.old<N>`
+
+| Plik | Kiedy powstaje |
+| ---- | -------------- |
+| `<name>.oldN` | Zamknięcie sesji N — destruktor `posixBinaryFile` przemianowuje plik danych |
+| `<name>.shadow.oldN` | Zamknięcie sesji N — destruktor `posixBinaryFileWithShadow` przemianowuje plik cienia |
+| `<name>.meta.oldN` | Start sesji N — `detectStartupState()` wykrywa rotację i przemianowuje `.meta` pozostawiony przez sesję N−1 |
+
+Wskutek tej kolejności: plik `.meta.oldN` zawiera metadane null dla danych z sesji `N−1`, podczas gdy plik `.oldN` zawiera dane sesji `N`. W sekcji `ROTATED FILES` narzędzia `xtrdb -s` pliki są grupowane według numeru suffiksu — pary `.oldN` i `.meta.oldN` różnią się więc o 1 w stosunku do sesji, której fizycznie odpowiadają.
+
+### Przykład sekwencji trzech sesji
+
+Po trzech zakończonych sesjach (0, 1, 2) i w trakcie czwartej (3):
+
+```
+pomiar.old0         ← dane z sesji 0 (zapis sesji 0, przemianowanie w destruktorze sesji 0)
+pomiar.meta.old1    ← metadane z sesji 0 (przemianowanie przy starcie sesji 1)
+pomiar.old1         ← dane z sesji 1
+pomiar.meta.old2    ← metadane z sesji 1 (przemianowanie przy starcie sesji 2)
+pomiar.old2         ← dane z sesji 2
+pomiar.meta.old3    ← metadane z sesji 2 (przemianowanie przy starcie sesji 3)
+pomiar              ← dane bieżące (sesja 3)
+pomiar.meta         ← metadane bieżące (sesja 3)
+```
+
+Widok `xtrdb -s` w trakcie sesji 3:
+
+```
+$ xtrdb -s pomiar
+...
+├──────────────────────────────────────────────────────────────┤
+│  ROTATED FILES                                               │
+│  [3] pomiar.meta.old3                                   26 B │
+│  [2] pomiar.old2                                       800 B │
+│      pomiar.meta.old2                                   26 B │
+│  [1] pomiar.old1                                       800 B │
+│      pomiar.meta.old1                                   26 B │
+│  [0] pomiar.old0                                       400 B │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Plik `pomiar.meta.old3` jest w grupie `[3]` sam — odpowiadający mu plik `pomiar.old3` powstanie dopiero przy zamknięciu bieżącej sesji.
+
+### Otwieranie pliku rotowanego w `xtrdb`
+
+Pliki rotowane można analizować poleceniem `open` w trybie interaktywnym `xtrdb`. Polecenie `open` automatycznie wyciąga nazwę bazową (usuwa `.old<N>`) i szuka deskryptora `<nazwa_bazowa>.desc`:
+
+```
+$ xtrdb
+. open pomiar.old1
+ok
+. print
+...
+```
+
+---
+
 ## Relacja pomiędzy plikami
 
 ```mermaid
@@ -527,6 +627,215 @@ graph LR
 ```
 
 _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+
+---
+
+## Narzędzie inspekcji: `xtrdb -s`
+
+Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania artefaktu — bez otwierania procesu `xretractor`, bez wchodzenia w tryb interaktywny. Wystarczy wskazać ścieżkę bazową (bez rozszerzenia), a narzędzie samo znajdzie powiązane pliki: `.desc`, dane binarne, `.meta`, `.shadow`, segmenty cykliczne i pliki rotowane.
+
+### Cel i zastosowanie
+
+| Sytuacja | Co daje `xtrdb -s` |
+| -------- | ------------------- |
+| Diagnoza po awarii | Widać od razu, czy plik danych jest spójny z metadanymi — różne liczby rekordów sygnalizują problem |
+| Weryfikacja retencji | Sekcja DATA TOTAL pokazuje podział na segmenty i aktualny stopień wypełnienia bufora cyklicznego |
+| Kontrola modyfikacji | Sekcja SHADOW ujawnia liczbę niezatwierdzonych zmian — `Updates: N` oznacza, że `merge()` nie był wykonany |
+| Analiza jakości danych | Pasek META z symbolami `=`, `-`, `~`, `X` pokazuje wzorzec null i przerwy bez parsowania pliku binarnego |
+| Audyt historii rotacji | Sekcja ROTATED FILES wymienia stare wersje pliku po kolejnych rotacjach |
+
+Polecenie jest **tylko do odczytu** — nie modyfikuje żadnego pliku. Można je uruchamiać również gdy `xretractor` nie działa.
+
+### Co pokazuje mapa
+
+Górna część raportu to trzyelementowa mapa poglądowa:
+
+```
+│ [shadow]   │ [binary data] │ [meta index]                    │
+```
+
+Każdy wiersz mapy odpowiada jednemu segmentowi RLE lub segmentowi danych:
+
+| Kolumna | Zawartość |
+| ------- | --------- |
+| `[shadow]` | Dla artefaktu bez retencji: liczba niezapisanych modyfikacji (`N updates`). Dla retencji segmentowej: etykieta segmentu `sN` z liczbą modyfikacji. |
+| `[binary data]` | Zakres indeksów rekordów w pliku binarnym (`begin-end`) lub etykieta segmentu `sN begin-end`. Wiersze z przerwą w transmisji (gap) mają puste pole. |
+| `[meta index]` | Opis segmentu RLE z pliku `.meta`: liczba rekordów i wzorzec null w formie `[====]`. |
+
+Poniżej mapy następują kolejne sekcje:
+
+| Sekcja | Opis |
+| ------ | ---- |
+| `DESCRIPTOR` | Ścieżka i rozmiar pliku `.desc`, lista pól z typami i rozmiarami, rozmiar rekordu w bajtach. |
+| `DATA` | Liczba rekordów, ścieżka do pliku danych. Przy retencji (`RETENTION`): podział na segmenty, polityka (liczba segmentów i pojemność), maksymalny dopuszczalny rozmiar bufora, lista plików `_segment_*`. |
+| `META` | Liczba segmentów RLE i rekordów w indeksie, graficzny pasek obrazujący wzorzec null w czasie. |
+| `SHADOW` | Ścieżka i rozmiar pliku cienia oraz liczba niezatwierdzonych modyfikacji. |
+| `ROTATED FILES` | Pliki z poprzednich rotacji (`.old1`, `.old2`, …) wraz z rozmiarami. |
+
+#### Legenda paska META
+
+```
+[====] — dane bez wartości null
+[----] — częściowe null (przynajmniej jedno pole ma wartość null)
+[~~~~] — wszystkie pola mają wartość null (nullfill)
+[XXXX] — przerwa w transmisji (gap)
+```
+
+---
+
+### Przykład 1 — artefakt prosty
+
+Strumień `pomiar` z dwoma polami, 100 rekordów, bez modyfikacji, bez przerw:
+
+```
+{
+  INTEGER  ts
+  FLOAT    value
+  TYPE     DEFAULT
+}
+```
+
+```
+$ xtrdb -s pomiar
+```
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Storage map: pomiar                                         │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│            │ 0-100         │ [====] 100 records, no nulls    │
+├────────────┴───────────────┴─────────────────────────────────┤
+│  DESCRIPTOR  pomiar.desc                                43 B │
+│  INTEGER  ts                                             4 B │
+│  FLOAT  value                                            4 B │
+│  Record size:                                            8 B │
+├──────────────────────────────────────────────────────────────┤
+│  DATA        pomiar                                    800 B │
+│  Records: 100                                                │
+├──────────────────────────────────────────────────────────────┤
+│  META        pomiar.meta                                26 B │
+│  Segments: 1   Records: 100                                  │
+│  [=========================100==========================]    │
+│  Legend: [====] data  [----] partial null                    │
+│          [~~~~] nullfill  [XXXX] gap                         │
+├──────────────────────────────────────────────────────────────┤
+│  SHADOW      pomiar.shadow (missing)                     0 B │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Interpretacja: jeden segment RLE, brak przerw, brak null, plik cienia nieobecny. Plik binarny ma dokładnie 100 × 8 = 800 bajtów.
+
+---
+
+### Przykład 2 — artefakt z przerwą w transmisji i modyfikacją
+
+Strumień `czujnik` z trzema polami. Po 50 rekordach nastąpiła przerwa (10 jednostek interwału), następnie napłynęło 30 rekordów z częściowymi brakami w polu `pressure`. Dwa rekordy zostały później zmodyfikowane (plik cienia obecny):
+
+```
+{
+  INTEGER  ts
+  FLOAT    temp
+  FLOAT    pressure
+  TYPE     DEFAULT
+}
+```
+
+```
+$ xtrdb -s czujnik
+```
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Storage map: czujnik                                        │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│            │ 0-50          │ [====] 50 records, no nulls     │
+│            │               │ [XXXX] 10 records, gap          │
+│ 2 updates  │ 50-80         │ [----] 30 records, some nulls   │
+├────────────┴───────────────┴─────────────────────────────────┤
+│  DESCRIPTOR  czujnik.desc                               52 B │
+│  INTEGER  ts                                             4 B │
+│  FLOAT  temp                                             4 B │
+│  FLOAT  pressure                                         4 B │
+│  Record size:                                           12 B │
+├──────────────────────────────────────────────────────────────┤
+│  DATA        czujnik                                   960 B │
+│  Records: 80                                                 │
+├──────────────────────────────────────────────────────────────┤
+│  META        czujnik.meta                               60 B │
+│  Segments: 3   Records: 80                                   │
+│  [========50=========][gap:10][===========30============]   │
+│  Legend: [====] data  [----] partial null                    │
+│          [~~~~] nullfill  [XXXX] gap                         │
+├──────────────────────────────────────────────────────────────┤
+│  SHADOW      czujnik.shadow                             26 B │
+│  Updates: 2                                                  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w pliku danych), przerwa jest zakodowana wyłącznie w `.meta`. Kolumna `[binary data]` pokazuje pusty zakres dla segmentu gapowego — dane binarnych nie ma. Pole `pressure` w rekordach 50–79 ma wartości null w niektórych polach (`[----]`). Plik cienia zawiera 2 modyfikacje, które jeszcze nie zostały scalone z plikiem głównym.
+
+---
+
+### Przykład 3 — artefakt z retencją segmentową
+
+Strumień `bufor` z retencją cykliczną: maksymalnie 10 segmentów po 100 rekordów (łącznie 1000 rekordów). Aktualnie zapisano 280 rekordów w trzech segmentach:
+
+```
+{
+  DOUBLE   value
+  TYPE     DEFAULT
+  RETENTION 1000 100
+}
+```
+
+```
+$ xtrdb -s bufor
+```
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Storage map: bufor                                          │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│ s0         │ s0 0-100      │ [====] 100 records, no nulls    │
+│ s1         │ s1 100-200    │ [====] 100 records, no nulls    │
+│ s2         │ s2 200-280    │ [====] 80 records, no nulls     │
+├────────────┴───────────────┴─────────────────────────────────┤
+│  DESCRIPTOR  bufor.desc                                 48 B │
+│  DOUBLE  value                                           8 B │
+│  Record size:                                            8 B │
+├──────────────────────────────────────────────────────────────┤
+│  DATA TOTAL  rec=280 src=0 seg=280                    2240 B │
+│  Records: 280                                                │
+│  Source: bufor   Segments: bufor_segment_*                   │
+│  Segmented data (RETENTION): 3                               │
+│  Policy: segments=10 capacity=100                            │
+│  Retention cap records: 1000                                 │
+│  Retention cap bytes: 8000                                   │
+│  Total records: 280                                          │
+│    current=0  segments=280                                   │
+│  Total bytes: 2240                                           │
+│    current=0  segments=2240                                  │
+│    [0] bufor_segment_0 rec:100 range:0-100                   │
+│    [1] bufor_segment_1 rec:100 range:100-200                 │
+│    [2] bufor_segment_2 rec:80 range:200-280                  │
+├──────────────────────────────────────────────────────────────┤
+│  META        bufor.meta                                 26 B │
+│  Segments: 1   Records: 280                                  │
+│  [========================280=========================]      │
+│  Legend: [====] data  [----] partial null                    │
+│          [~~~~] nullfill  [XXXX] gap                         │
+├──────────────────────────────────────────────────────────────┤
+│  SHADOW      bufor.shadow (missing)                      0 B │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Interpretacja: kolumna `[binary data]` pokazuje każdy segment z etykietą `sN` i zakresem indeksów globalnych. Sekcja DATA TOTAL zawiera pełne zestawienie: `src=0` (brak rekordów poza segmentami), `seg=280` (wszystkie rekordy w segmentach). Przy wypełnieniu bufora (10 segmentów × 100 = 1000 rekordów) najstarszy segment zostanie usunięty, a nowy dopisany.
 
 ---
 
@@ -571,6 +880,8 @@ W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową p
 - Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
 - Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
 - Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
+
+
 
 ### Porównanie podejść
 
