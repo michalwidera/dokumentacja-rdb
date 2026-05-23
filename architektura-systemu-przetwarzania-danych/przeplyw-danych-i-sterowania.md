@@ -28,3 +28,49 @@ Proces xretractor obsługuje sygnały systemowe i kończy pracę w kontrolowany 
 | `SIGHUP`  | `kill -HUP <pid>`  | zakończenie przy zamknięciu terminala |
 
 Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown — pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.
+
+### Zatrzymanie przez xqry
+
+Obok sygnałów systemowych xretractor można zatrzymać programowo — za pomocą polecenia:
+
+```bash
+xqry --kill
+```
+
+#### Jak przebiega zamknięcie krok po kroku
+
+**1. xqry wysyła żądanie „kill"**
+
+Proces xqry buduje komunikat IPC i umieszcza go w kolejce komunikatów `RetractorQueryQueue` — wspólnym kanale łączącym wszystkich klientów z xretractor. Wiadomość zawiera identyfikator procesu xqry (PID) i polecenie `kill`.
+
+**2. xretractor odbiera polecenie i ustawia flagę zatrzymania**
+
+Wątek komunikacyjny xretractor (`commandProcessorLoop`) stale nasłuchuje na `RetractorQueryQueue`. Po odebraniu komunikatu `kill` ustawia atomową zmienną `iTimeLimitCnt` na wartość `stop_now`. Ten sam mechanizm jest używany przez obsługę sygnałów systemowych — niezależnie od źródła (sygnał `SIGINT`/`SIGTERM`/`SIGHUP` lub polecenie xqry `--kill`) efekt jest identyczny.
+
+**3. Główna pętla przetwarzania wykrywa flagę i kończy bieżący cykl**
+
+Pętla główna sprawdza `iTimeLimitCnt` przy każdej iteracji. Gdy wykryje wartość `stop_now`, kończy bieżący cykl i wychodzi z pętli — bez przerywania w połowie obliczeń. Zapewnia to integralność zapisywanych artefaktów.
+
+**4. xretractor powiadamia wszystkich podłączonych klientów (broadcast OOB)**
+
+Po wyjściu z pętli xretractor wywołuje `boradcastOutOfBussiness()`. Funkcja ta przegląda wewnętrzną mapę `id2StreamName_Relation`, która zawiera wpis dla każdego procesu xqry subskrybującego strumień danych (każde wywołanie `xqry --select` rejestruje się w tej mapie przez polecenie `show`). Dla każdego zarejestrowanego klienta xretractor wysyła do jego dedykowanej kolejki komunikat specjalny o wartości `OUT_OF_BUSSINESS`.
+
+**5. Każdy klient xqry odbiera sygnał zakończenia i kończy działanie**
+
+Każdy działający proces xqry ma własną, indywidualną kolejkę komunikatów o nazwie `brcdbr<PID>`. Po odebraniu komunikatu `OUT_OF_BUSSINESS` xqry ustawia wewnętrzną flagę `done` i kończy działanie w kontrolowany sposób — niezależnie od tego, ile danych zdążył odebrać.
+
+**6. Sprzątanie zasobów IPC**
+
+Na zakończenie xretractor usuwa wszystkie współdzielone zasoby IPC: segment pamięci współdzielonej `RetractorShmemMap`, kolejkę poleceń `RetractorQueryQueue`, mutex `RetractorMapMutex` oraz indywidualne kolejki wszystkich klientów.
+
+#### Co się dzieje przy wielu procesach xqry
+
+RetractorDB jest zaprojektowany do pracy z wieloma równoległymi klientami. Gdy w systemie działają jednocześnie — powiedzmy — trzy procesy xqry subskrybujące różne strumienie, a jeden z nich wywoła `xqry --kill`:
+
+- xretractor przetworzy żądanie kill **jednorazowo**, niezależnie od tego, który klient je wysłał,
+- mechanizm `boradcastOutOfBussiness()` roześle komunikat `OUT_OF_BUSSINESS` do **wszystkich** zarejestrowanych klientów jednocześnie,
+- każdy z trzech procesów xqry otrzyma sygnał zakończenia i zakończy działanie samodzielnie,
+- klienci, którzy nie subskrybowali żadnego strumienia (np. xqry wywołany tylko z `--dir` lub `--hello`), nie są wpisani do mapy i nie muszą być powiadamiani — te polecenia kończą działanie natychmiast po udzieleniu odpowiedzi.
+
+Warto zwrócić uwagę, że xqry wykrywa również nieaktywność serwera: jeżeli przez 10 sekund nie napłyną żadne dane, klient sam się wyłącza z ostrzeżeniem w logu. Jest to zabezpieczenie na wypadek nagłej awarii xretractor bez możliwości rozesłania komunikatu OOB.
+
