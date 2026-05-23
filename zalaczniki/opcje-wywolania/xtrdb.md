@@ -1,6 +1,6 @@
 # xtrdb
 
-Program `xtrdb` to interaktywne narzędzie do analizy artefaktów i substratów zapisanych przez system RetractorDB. W odróżnieniu od `xretractor` i `xqry` nie przyjmuje flag wiersza poleceń z opisem zapytań — zamiast tego pracuje w trybie interaktywnym (REPL), odczytując polecenia ze standardowego wejścia.
+Program `xtrdb` to interaktywne narzędzie do analizy artefaktów i substratów zapisanych przez system RetractorDB. Pracuje głównie w trybie interaktywnym (REPL), ale udostępnia także kilka opcji uruchomienia (np. `--help`, `--noprompt`, `--storagemap`).
 
 {% hint style="warning" %}
 Wywołanie `xtrdb` blokuje uruchomiony równolegle `xretractor` — przed użyciem `xtrdb` zatrzymaj serwer lub poczekaj na zakończenie pracy systemu. Narzędzie samo wykrywa blokadę i zgłosi błąd, jeśli `xretractor` działa.
@@ -11,16 +11,23 @@ Wywołanie `xtrdb` blokuje uruchomiony równolegle `xretractor` — przed użyci
 ## Uruchomienie
 
 ```
-$ xtrdb           # tryb interaktywny (z promptem)
-$ xtrdb noprompt  # tryb wsadowy (bez promptu, bez kolorów)
-$ xtrdb -h        # wyświetl informacje o wersji i zakończ
+$ xtrdb                    # tryb interaktywny (z promptem)
+$ xtrdb -n                 # tryb wsadowy (bez promptu i bez "ok")
+$ xtrdb --noprompt         # to samo co -n
+$ xtrdb noprompt           # zgodność wsteczna (legacy, argument pozycyjny)
+$ xtrdb -s plik_danych     # pokaż strukturę storage dla wskazanego pliku i zakończ
+$ xtrdb --storagemap plik  # to samo co -s
+$ xtrdb -h                 # help i informacje o buildzie, potem zakończ
 ```
 
-Tryb `noprompt` usuwa kolorowanie i prompt `.` — przydatny, gdy wejście pochodzi z pliku lub potoku:
+Tryb `-n/--noprompt` usuwa kolorowanie, prompt `.` i komunikat `ok` — przydatny, gdy wejście pochodzi z pliku lub potoku.
+Wciąż działa też historyczny wariant pozycyjny `noprompt`.
 
 ```
-$ xtrdb noprompt < script.xtrdb
+$ xtrdb -n < script.xtrdb
 ```
+
+Opcja `-s/--storagemap` uruchamia tylko raport struktury pliku danych i kończy działanie programu (bez wejścia do REPL).
 
 Po uruchomieniu narzędzie wypisuje prompt `.` i czeka na polecenie. Każde polecenie kończy się naciśnięciem Enter.
 
