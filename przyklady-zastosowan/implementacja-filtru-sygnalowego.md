@@ -24,7 +24,7 @@ Dla takich założeń filtra sygnałowego program w języku Octave tworzący fil
 
 ```
 pkg signal load
-filtord = 25 % Dlugość filtru
+filtord = 25 % Długość filtru
 Fs = 50;     % Częstotliwość próbkowania 50Hz
 FNq = Fs/2;  % Częstotliwość Nyquista
 F1c = 2;     % Pasmo przepustowe 0 - 2Hz
@@ -43,12 +43,12 @@ Parametry zmiennoprzecinkowe filtru możemy wyświetlić wydając polecenie reme
 octave:1> [h, w] = freqz ( remez(filtord,f,m) );
 subplot(2,1,1);
 plot (f, m, '', w/pi, abs (h), '');
-xlabel('Znormalizowana czestotliwosc')
+xlabel('Znormalizowana częstotliwość')
 ylabel('wzmocnienie')
 grid on
 subplot(2,1,2);
 plot(f,20*log10(m+1e-5),'', w/pi,20*log10(abs(h)),'');
-xlabel('Znormalizowana czestotliwosc')
+xlabel('Znormalizowana częstotliwość')
 ylabel('wzmocnienie (dB)')
 grid on
 ```

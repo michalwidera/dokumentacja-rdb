@@ -4,12 +4,12 @@ description: Brzegowy System Przetwarzania Sygnałów (ESPE)
 
 # RetractorDB
 
-System **RetractorDB** jest systemem przeznaczonym do przetwarzania i rejestrowania regularnych serii czasowych. System składa się z trzech współpracujących ze sobą programów. Programy zostały stworzone w języku C++ a repozytorium znajduje się pod ciągłą kontrolą testów i integracji. Kod testowany jest na platformach x64 i Arm64 działających pod kontrolą systemu Linux. System opracowano z zamiarem uruchamiania go w rygorze czasu rzeczywistego. Główny proces zarządza dwoma wątkami. Pierwszy wątek przetwarza plan realizacji zapytania. Ten wątek jest sekwencyjny i deterministyczny. Drugi wątek zapewniają komunikację ze światem zewnętrznym, wymianę danych i zarządzanie kolejkami komunikacyjnymi.
+System **RetractorDB** jest systemem przeznaczonym do przetwarzania i rejestrowania regularnych serii czasowych. System składa się z trzech współpracujących ze sobą programów. Programy zostały stworzone w języku C++ a repozytorium znajduje się pod ciągłą kontrolą testów i integracji. Kod testowany jest na platformach x64 i Arm64 działających pod kontrolą systemu Linux. System opracowano z zamiarem uruchamiania go w rygorze czasu rzeczywistego. Główny proces zarządza dwoma wątkami. Pierwszy wątek przetwarza plan realizacji zapytania. Ten wątek jest sekwencyjny i deterministyczny. Drugi wątek zapewnia komunikację ze światem zewnętrznym, wymianę danych i zarządzanie kolejkami komunikacyjnymi.
 
 Kod źródłowy systemu został opublikowany na licencji MIT i znajduje się pod adresem [https://github.com/michalwidera/retractordb](https://github.com/michalwidera/retractordb). Główna strona internetowa jest dostępna pod adresem [https://retractordb.com](https://retractordb.com).
 
 {% hint style="warning" %}
-Wstępna analiza wykazała że system powinien być określony jako Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów) a nie jako System Zarządzania Seriami Czasowymi (Time Series Databasse). Prawdopodobnie ten system powinien pełnić komplementarną rolę dla inny systemów analitycznych a nie konkurować z nimi.
+Wstępna analiza wykazała że system powinien być określony jako Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów) a nie jako System Zarządzania Seriami Czasowymi (Time Series Database). Prawdopodobnie ten system powinien pełnić komplementarną rolę dla innych systemów analitycznych a nie konkurować z nimi.
 {% endhint %}
 
 {% hint style="info" %}
