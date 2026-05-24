@@ -1,5 +1,11 @@
 # Pliki artefaktu
 
+Rozdział opisuje cztery pliki tworzące kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`) i plik cienia (`.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaDataStream` — mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi czterema plikami na poziomie operacji `append`, `update` i `read`.
+
+Zakres rozdziału **nie obejmuje** mechanizmu rotacji plików między sesjami (→ [Rotacja](rotacja.md)) ani narzędzia inspekcji `xtrdb -s` (→ [Narzędzie inspekcji](narzedzie-inspekcji.md)).
+
+---
+
 ## Plik deskryptora (.desc)
 
 Plik `.desc` opisuje strukturę rekordu. Jest parsowany przez gramatykę ANTLR4 (`DESC.g4`) i może zawierać pola danych, metainformację o typie składowania oraz politykę retencji.
@@ -476,3 +482,43 @@ graph LR
 _Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
 Rys. 14 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta` i `.shadow`.
+
+## Punkt wyjścia — plik binarny bez metadanych
+
+Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w pliku binarnym: stały rozmiar rekordu, brak nagłówka, brak opisu struktury. Takie podejście ma jedną zaletę — minimalny narzut — i szereg istotnych ograniczeń:
+
+- Interpretacja danych wymaga wiedzy zewnętrznej wobec pliku (nazwy pól, typy, kolejność).
+- Brak informacji o przerwach w transmisji — ciągłość danych jest pozorna.
+- Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
+- Zmiana struktury rekordu unieważnia cały plik.
+
+RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, gdzie przerwy zasilania, zaniki sygnału i konieczność retrospektywnej korekty danych są normalnym zjawiskiem eksploatacyjnym, nie wyjątkiem. Struktura czterech plików odpowiada bezpośrednio na każde z tych ograniczeń.
+
+## Co wnosi każdy plik
+
+**Deskryptor (`.desc`) — samoopisywalność i niezależność od kodu**
+
+Plik danych binarnych jest bezużyteczny bez znajomości struktury rekordu. Deskryptor przechowuje tę wiedzę obok danych, co oznacza:
+
+- Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji — wystarczy plik `.desc`.
+- Narzędzie `xtrdb` może analizować dowolny artefakt bez dodatkowych parametrów.
+- Zmiana struktury strumienia (dodanie pola, zmiana typu) jest jawna i wersjonowalna.
+- Pole `TYPE` w deskryptorze decyduje o strategii składowania, co pozwala temu samemu silnikowi obsługiwać trwałe artefakty, ulotne efemerydy i zewnętrzne źródła danych bez zmiany logiki zapytań.
+
+**Plik metadanych (`.meta`) — wiarygodność serii czasowej**
+
+Seria czasowa z dziurami, traktowana jako ciągła, prowadzi do błędnych obliczeń okien czasowych, błędnych agregacji i fałszywych korelacji. Plik `.meta` zapewnia:
+
+- Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) — semantycznie zupełnie różnych stanów.
+- Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych — plik binarny pozostaje gęsty i adresowalny pozycyjnie.
+- Kompresję RLE — typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
+- Możliwość odtworzenia dokładnego harmonogramu rejestracji, w tym długości przerw, co jest niezbędne przy obliczaniu interwałów w algebrze strumieni.
+
+**Plik cienia (`.shadow`) — niedestruktywna korekta danych**
+
+W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową procedurą. Nadpisanie pliku binarnego jest nieodwracalne i usuwa dowód oryginalnego pomiaru. Plik cienia:
+
+- Pozwala skorygować dowolny historyczny rekord bez modyfikacji pliku głównego.
+- Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
+- Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
+- Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.

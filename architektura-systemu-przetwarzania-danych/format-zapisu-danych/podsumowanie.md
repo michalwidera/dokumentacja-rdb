@@ -1,44 +1,30 @@
 # Podsumowanie: uzasadnienie przyjętej struktury
 
-## Punkt wyjścia — plik binarny bez metadanych
+Rozdział zbiera wnioski z wszystkich części dokumentacji formatu zapisu danych i wyjaśnia, dlaczego przyjęta struktura czterech plików jest minimalna i wystarczająca dla systemu rejestracji serii czasowych działającego w czasie rzeczywistym.
 
-Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w pliku binarnym: stały rozmiar rekordu, brak nagłówka, brak opisu struktury. Takie podejście ma jedną zaletę — minimalny narzut — i szereg istotnych ograniczeń:
+## Zestaw plików i typy akcesorów
 
-- Interpretacja danych wymaga wiedzy zewnętrznej wobec pliku (nazwy pól, typy, kolejność).
-- Brak informacji o przerwach w transmisji — ciągłość danych jest pozorna.
-- Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
-- Zmiana struktury rekordu unieważnia cały plik.
+Każdy artefakt lub substrat składa się z maksymalnie czterech plików — plik danych binarnych, deskryptor `.desc`, indeks `.meta` i plik cienia `.shadow`. Pole `TYPE` w deskryptorze wybiera implementację `FileInterface`: `DEFAULT` (dane + cień + retencja), `MEMORY` (wyłącznie RAM, efemerydy), `DEVICE` / `TEXTSOURCE` (zewnętrzne źródła tylko do odczytu) i warianty pośrednie. Wybór akcesora następuje raz przy inicjalizacji `storage` — logika zapytań RQL nie zna szczegółów składowania.
 
-RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, gdzie przerwy zasilania, zaniki sygnału i konieczność retrospektywnej korekty danych są normalnym zjawiskiem eksploatacyjnym, nie wyjątkiem. Struktura czterech plików odpowiada bezpośrednio na każde z tych ograniczeń.
+## Pliki artefaktu
 
-## Co wnosi każdy plik
+**Deskryptor (`.desc`)** definiuje schemat rekordu w gramatyce ANTLR4: nazwy pól, typy (`BYTE`, `INTEGER`, `FLOAT`, `DOUBLE`, `RATIONAL`, `STRING`), rozmiary tablic, politykę retencji (`RETENTION`, `RETMEMORY`) i typ akcesora (`TYPE`). Rozmiar rekordu `R` to suma bajtów wszystkich pól danych — pola metadeskryptora nie zajmują miejsca w rekordzie. Deskryptor przy danych oznacza samoopisywalność: narzędzie `xtrdb` lub dowolny kod może zinterpretować artefakt bez dostępu do kodu źródłowego.
 
-**Deskryptor (`.desc`) — samoopisywalność i niezależność od kodu**
+**Plik danych binarnych** to płaska sekwencja rekordów stałej długości `R` bez nagłówka. Rekord `i` leży zawsze na offsecie `i × R`. Operacja `append` dopisuje na koniec; operacja `update` — przy obecnym `.shadow` — trafia do pliku cienia, nie nadpisuje pliku głównego.
 
-Plik danych binarnych jest bezużyteczny bez znajomości struktury rekordu. Deskryptor przechowuje tę wiedzę obok danych, co oznacza:
+**Plik metadanych (`.meta`)** przechowuje kompresowany RLE indeks wartości null i przerw w transmisji. Każdy wpis RLE opisuje ciąg kolejnych rekordów z identycznym wzorcem null: flagę `isGap`, liczbę rekordów `recordCount`, rozmiar bitset i sam bitset. Przerwa w transmisji (`gap`) istnieje wyłącznie w `.meta` — plik binarny jej nie rejestruje i pozostaje gęsty. Klasą zarządzającą jest `rdb::metaDataStream`: buforuje bieżący segment w `currentEntry_`, zapisuje segment na dysk tylko przy zmianie wzorca, a mechanizm `tailDirty_` zapewnia, że rozmiar pliku nie rośnie przy ciągłym napływie jednorodnych danych. Po restarcie `loadIndex()` odtwarza stan i przenosi ostatni niegapowy segment z powrotem do pamięci, umożliwiając kontynuację RLE.
 
-- Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji — wystarczy plik `.desc`.
-- Narzędzie `xtrdb` może analizować dowolny artefakt bez dodatkowych parametrów.
-- Zmiana struktury strumienia (dodanie pola, zmiana typu) jest jawna i wersjonowalna.
-- Pole `TYPE` w deskryptorze decyduje o strategii składowania, co pozwala temu samemu silnikowi obsługiwać trwałe artefakty, ulotne efemerydy i zewnętrzne źródła danych bez zmiany logiki zapytań.
+**Plik cienia (`.shadow`)** gromadzi modyfikacje rekordów jako sekwencję wpisów `(position, data)`. Odczyt rekordu sprawdza `.shadow` od końca (najnowsza modyfikacja wygrywa), przy braku wpisu czyta z pliku głównego. Usunięcie `.shadow` w pełni przywraca stan wyjściowy. Operacja `merge()` przepisuje poprawki do pliku głównego i zeruje plik cienia.
 
-**Plik metadanych (`.meta`) — wiarygodność serii czasowej**
+## Mechanizm rotacji
 
-Seria czasowa z dziurami, traktowana jako ciągła, prowadzi do błędnych obliczeń okien czasowych, błędnych agregacji i fałszywych korelacji. Plik `.meta` zapewnia:
+Dyrektywa `ROTATION rdb_counter` włącza tryb zachowania historii sesji. `PersistentCounter` przechowuje monotonicznie rosnący numer sesji `N`. Rotacja jest procesem rozłożonym w czasie: przy **starcie** sesji N funkcja `detectStartupState()` wykrywa niezgodność (plik danych pusty, `.meta` niepusty) i przemianowuje `.meta` na `.meta.oldN`; przy **zamknięciu** sesji destruktor `posixBinaryFile` przemianowuje plik danych na `.oldN` i plik cienia na `.shadow.oldN`. Konsekwencją tej kolejności jest przesunięcie o 1: `.meta.oldN` zawiera metadane sesji `N−1`, a `.oldN` — dane sesji `N`. Bez dyrektywy `ROTATION` pliki artefaktów są usuwane przy każdym starcie.
 
-- Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) — semantycznie zupełnie różnych stanów.
-- Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych — plik binarny pozostaje gęsty i adresowalny pozycyjnie.
-- Kompresję RLE — typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
-- Możliwość odtworzenia dokładnego harmonogramu rejestracji, w tym długości przerw, co jest niezbędne przy obliczaniu interwałów w algebrze strumieni.
+## Narzędzie inspekcji `xtrdb -s`
 
-**Plik cienia (`.shadow`) — niedestruktywna korekta danych**
+Polecenie `xtrdb -s <ścieżka>` jest jedynym narzędziem do inspekcji stanu składowania bez uruchamiania `xretractor`. Raport składa się z mapy poglądowej (kolumny: shadow, binary data, meta index) i sekcji szczegółowych: `DESCRIPTOR`, `DATA` (lub `DATA TOTAL` przy retencji segmentowej), `META` z paskiem RLE, `SHADOW` z liczbą niezatwierdzonych modyfikacji oraz `ROTATED FILES` z historią rotacji. Pasek META używa czterech symboli: `=` (dane bez null), `-` (częściowe null), `~` (nullfill), `X` (gap). Narzędzie jest tylko do odczytu i działa gdy proces `xretractor` nie działa.
 
-W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową procedurą. Nadpisanie pliku binarnego jest nieodwracalne i usuwa dowód oryginalnego pomiaru. Plik cienia:
-
-- Pozwala skorygować dowolny historyczny rekord bez modyfikacji pliku głównego.
-- Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
-- Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
-- Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
+---
 
 ## Porównanie podejść
 
