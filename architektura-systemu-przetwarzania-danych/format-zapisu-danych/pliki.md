@@ -1,4 +1,4 @@
-# Pliki artefaktu
+# Pliki
 
 Rozdział opisuje cztery pliki tworzące kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`) i plik cienia (`.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaDataStream` — mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi czterema plikami na poziomie operacji `append`, `update` i `read`.
 
