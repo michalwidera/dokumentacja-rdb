@@ -27,7 +27,7 @@
   * [Artefakty, Substraty, Efemerydy](architektura-systemu-przetwarzania-danych/artefakty-substraty-efemerydy.md)
   * [Format zapisu danych](architektura-systemu-przetwarzania-danych/format-zapisu-danych/readme.md)
     * [Pliki](architektura-systemu-przetwarzania-danych/format-zapisu-danych/pliki.md)
-    * [Mechanizm rotacji plików](architektura-systemu-przetwarzania-danych/format-zapisu-danych/rotacja.md)
+    * [Mechanizm rotacji](architektura-systemu-przetwarzania-danych/format-zapisu-danych/rotacja.md)
     * [Narzędzie inspekcji xtrdb -s](architektura-systemu-przetwarzania-danych/format-zapisu-danych/narzedzie-inspekcji.md)
     * [Podsumowanie](architektura-systemu-przetwarzania-danych/format-zapisu-danych/podsumowanie.md)
   * [Kompilacja i budowa planu](architektura-systemu-przetwarzania-danych/kompilacja-i-budowa-planu.md)
