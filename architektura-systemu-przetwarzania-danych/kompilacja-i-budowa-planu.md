@@ -97,4 +97,8 @@ Flagi trybu wykonania (bez `-c`):
 Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza \~1 sekundę przetwarzania.
 {% endhint %}
 
+{% hint style="warning" %}
+Przy użyciu `-m N` w skryptach i testach zawsze dodawaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient (`xqry`) zdąży się podłączyć — klient nie otrzyma żadnych danych i będzie czekał do przekroczenia limitu czasowego. Flaga `-x` wstrzymuje przetwarzanie do nadejścia pierwszej komendy od `xqry`.
+{% endhint %}
+
 Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md).

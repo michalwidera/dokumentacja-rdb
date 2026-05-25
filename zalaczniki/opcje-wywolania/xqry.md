@@ -67,7 +67,7 @@ stream:
 | `-k` / `kill`           | Żądanie zatrzymania procesu `xretractor`.                                              |
 | `-d` / `dir`            | Wylistowanie wszystkich zapytań realizowanych przez `xretractor` w formacie tekstowym. |
 | `-y` / `diryaml`        | Wylistowanie wszystkich zapytań w formacie YAML.                                       |
-| `-w` / `wait-server`    | Odpytuje co 100 ms czy `xretractor` jest dostępny (maks. 30 s), a po potwierdzeniu wykonuje żądane polecenie. Umożliwia niezawodne uruchamianie `xqry` w skryptach startowych i kontenerach, gdy kolejność startu procesów nie jest gwarantowana. |
+| `-w` / `wait-server`    | Odpytuje co 100 ms czy `xretractor` jest dostępny (maks. 30 s), a po potwierdzeniu wykonuje żądane polecenie. Umożliwia niezawodne uruchamianie `xqry` w skryptach startowych i kontenerach, gdy kolejność startu procesów nie jest gwarantowana. Sprawdza wyłącznie dostępność IPC — nie wysyła żadnej komendy do serwera i nie wyzwala przetwarzania danych. |
 
 ---
 
@@ -90,6 +90,33 @@ stream:
 | ------------------ | -------------------------------------------------------------------------------------------------- |
 | `-h` / `help`      | Wyświetlenie tekstu pomocy.                                                                        |
 | `-c` / `needctrlc` | W normalnym trybie dowolny klawisz zatrzymuje odbiór danych. Ta opcja wymaga użycia `Ctrl+C`.      |
+
+---
+
+---
+
+## Wzorzec uruchamiania w skryptach
+
+Przy użyciu `xretractor -m N` (ograniczona liczba cykli) istnieje ryzyko wyścigu: serwer może przetworzyć wszystkie dane zanim klient zdąży się podłączyć. Gwarantowany wzorzec:
+
+```sh
+# Strona serwera: -x powoduje wstrzymanie przetwarzania do czasu
+# nadejścia pierwszej komendy od xqry
+xretractor query.rql -m 100 -k -x &
+
+# Strona klienta: -w sprawdza gotowość IPC bez wysyłania komend,
+# więc nie wyzwala przypadkowo przetwarzania
+xqry -w -s strumien -m 10
+```
+
+Flagi `-w` i `-x` są komplementarne:
+
+| Flaga             | Narzędzie     | Rola                                                                 |
+| ----------------- | ------------- | -------------------------------------------------------------------- |
+| `-w` / `wait-server` | `xqry`     | Czeka na gotowość IPC serwera przed wysłaniem komendy                |
+| `-x` / `xqrywait`   | `xretractor` | Wstrzymuje przetwarzanie do nadejścia pierwszej komendy od klienta   |
+
+Bez `xretractor -x` przy strumieniach plikowych (szybkich) dane mogą zostać przetworzone w całości przed połączeniem klienta — `xqry` będzie czekał na dane, które nigdy nie nadejdą.
 
 ---
 
