@@ -2,7 +2,7 @@
 description: >-
   Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
   systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przepływie.
+  kolejność ich zarejestrowania oraz przerwy w przep
 icon: line-height
 ---
 
@@ -16,18 +16,18 @@ Substraty i Artefakty - formalnie niczym nie różnią się w systemie. Jedyna r
 
 Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementację `FileInterface`:
 
-| Typ (`TYPE_PROFILE`) | Klasa implementacji | Zastosowanie |
-| -------------------- | ------------------- | ------------ |
-| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją |
-| `DIRECT`             | `groupFile<posixBinaryFile>` | Zapis bezpośredni bez cienia, z retencją |
-| `POSIX`              | `posixBinaryFile`   | Surowy zapis POSIX bez cienia |
-| `POSIXSHD`           | `posixBinaryFileWithShadow` | POSIX z plikiem cienia |
-| `MEMORY`             | `memoryFile`        | Składowanie wyłącznie w RAM (efemerydy) |
-| `GENERIC`            | `genericBinaryFile` | Ogólny akcesor binarny |
-| `DEVICE`             | `binaryDeviceRO`    | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
-| `TEXTSOURCE`         | `textSourceRO`      | Tekstowe źródło danych wejściowych (tylko odczyt) |
+| Typ (`TYPE_PROFILE`) | Klasa implementacji                    | Zastosowanie                                                      |
+| -------------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją        |
+| `DIRECT`             | `groupFile<posixBinaryFile>`           | Zapis bezpośredni bez cienia, z retencją                          |
+| `POSIX`              | `posixBinaryFile`                      | Surowy zapis POSIX bez cienia                                     |
+| `POSIXSHD`           | `posixBinaryFileWithShadow`            | POSIX z plikiem cienia                                            |
+| `MEMORY`             | `memoryFile`                           | Składowanie wyłącznie w RAM (efemerydy)                           |
+| `GENERIC`            | `genericBinaryFile`                    | Ogólny akcesor binarny                                            |
+| `DEVICE`             | `binaryDeviceRO`                       | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
+| `TEXTSOURCE`         | `textSourceRO`                         | Tekstowe źródło danych wejściowych (tylko odczyt)                 |
 
----
+***
 
 ## Zestaw plików artefaktu i substratu
 
@@ -63,11 +63,11 @@ Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych be
 
 Efemerydy **nie posiadają żadnych plików na dysku** — istnieją wyłącznie w pamięci operacyjnej procesu i znikają po jego zakończeniu.
 
----
+***
 
 ## Rozdziały
 
-- [Pliki artefaktu](pliki.md) — deskryptor, dane binarne, metadane, plik cienia i relacje między nimi
-- [Mechanizm rotacji plików](rotacja.md) — dyrektywa `ROTATION`, cykl życia plików, przykłady sesji
-- [Narzędzie inspekcji `xtrdb -s`](narzedzie-inspekcji.md) — mapa składowania, sekcje raportu, przykłady
-- [Podsumowanie](podsumowanie.md) — uzasadnienie przyjętej struktury, porównanie podejść
+* [Pliki artefaktu](pliki.md) — deskryptor, dane binarne, metadane, plik cienia i relacje między nimi
+* [Mechanizm rotacji plików](rotacja.md) — dyrektywa `ROTATION`, cykl życia plików, przykłady sesji
+* [Narzędzie inspekcji `xtrdb -s`](narzedzie-inspekcji.md) — mapa składowania, sekcje raportu, przykłady
+* [Podsumowanie](podsumowanie.md) — uzasadnienie przyjętej struktury, porównanie podejść
