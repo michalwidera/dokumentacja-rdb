@@ -1,7 +1,6 @@
 # Table of contents
 
 * [RetractorDB](README.md)
-* [Przegląd rozwiązań](przeglad-rozwiazan.md)
 * [Podstawy matematyczne](podstawy-matematyczne/README.md)
   * [Algebra regularnych serii czasowych](podstawy-matematyczne/algebra-regularnych-serii-czasowych.md)
   * [Formalne podstawy i dowody](podstawy-matematyczne/formalne-podstawy-i-dowody.md)
