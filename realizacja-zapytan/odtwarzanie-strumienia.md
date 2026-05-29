@@ -64,6 +64,6 @@ $ xqry -s core
 …
 ```
 
-Nagrany przykład poniżej (Rys. 33):
+Nagrany przykład poniżej (Rys. 43):
 
-<figure><img src="../.gitbook/assets/adhoc-example.svg" alt=""><figcaption><p>Rys. 33 Nagrany przykład odtwarzania strumienia</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/adhoc-example.svg" alt=""><figcaption><p>Rys. 43 Nagrany przykład odtwarzania strumienia</p></figcaption></figure>

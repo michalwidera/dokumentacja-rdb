@@ -13,7 +13,7 @@ Mechanizm alarmowania (dyrektywa `RULE`) jest nieodłączną częścią główne
 
 ## Miejsce RULE w cyklu przetwarzania
 
-Przypomnijmy schemat funkcji `processRows()` opisanej w rozdziale [Algorytm przeglądu drzewa zapytań](algorytm-przegladu-drzewa-zapytan.md). Dla każdego zapytania nie będącego deklaracją wykonywane są kolejno cztery kroki (Rys. 34):
+Przypomnijmy schemat funkcji `processRows()` opisanej w rozdziale [Algorytm przeglądu drzewa zapytań](algorytm-przegladu-drzewa-zapytan.md). Dla każdego zapytania nie będącego deklaracją wykonywane są kolejno cztery kroki (Rys. 37):
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -23,7 +23,7 @@ flowchart LR
     C --> D["constructRulesAndUpdate()"]
 ```
 
-_Rys. 34. Kolejność kroków przetwarzania jednego zapytania_
+_Rys. 37. Kolejność kroków przetwarzania jednego zapytania_
 
 Krok czwarty — `constructRulesAndUpdate()` — to właśnie wykonanie wszystkich reguł przypiętych do bieżącego zapytania. Wywoływany jest po zapisaniu wyników `SELECT` na dysk, co oznacza, że reguła zawsze ocenia **gotową, właśnie obliczoną próbkę** strumienia.
 
@@ -37,7 +37,7 @@ Każda reguła zawiera listę tokenów opisujących wyrażenie logiczne (pole `c
 2. Przekazuje warunek do silnika `expressionEvaluator::eval()` — **tego samego silnika**, który oblicza wyrażenia `SELECT`.
 3. Rzutuje wynik na wartość logiczną (`boolCast`): każda niezerowa wartość liczbowa to `true`, zero to `false`.
 
-Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM` lub `DO DUMP`). Jeśli niespełniony — reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 35.
+Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM` lub `DO DUMP`). Jeśli niespełniony — reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 38.
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -52,7 +52,7 @@ flowchart TD
     G --> H
 ```
 
-_Rys. 35. Przepływ ewaluacji reguły_
+_Rys. 38. Przepływ ewaluacji reguły_
 
 ***
 
@@ -102,7 +102,7 @@ Po rejestracji zadanie trafia do kolejki `bookOfTasks[streamName]`. W każdej ko
    - Wpp. — zapisz bieżącą próbkę do pliku i dekrementuj `dumpedRecordsToGo`.
 2. Gdy `dumpedRecordsToGo` osiągnie 0 — zamknij deskryptor pliku i usuń zadanie z kolejki.
 
-Pełna sekwencja dla `DUMP -3 TO 2` przedstawiona jest na Rys. 36.
+Pełna sekwencja dla `DUMP -3 TO 2` przedstawiona jest na Rys. 39.
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -124,7 +124,7 @@ sequenceDiagram
     DM->>DM: Zamknij plik — zadanie gotowe
 ```
 
-_Rys. 36. Sekwencja zbierania danych przez DO DUMP –3 TO 2_
+_Rys. 39. Sekwencja zbierania danych przez DO DUMP –3 TO 2_
 
 ### Przypadek opóźnionego startu (step\_back ≥ 0)
 
@@ -171,7 +171,7 @@ $ xtrdb
 
 ## Wiele reguł — kolejność ewaluacji
 
-Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w jednej iteracji `constructRulesAndUpdate()`, w kolejności ich deklaracji w pliku `.rql`. Każda reguła jest niezależna — spełnienie jednej nie wpływa na ewaluację pozostałych (Rys. 37).
+Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w jednej iteracji `constructRulesAndUpdate()`, w kolejności ich deklaracji w pliku `.rql`. Każda reguła jest niezależna — spełnienie jednej nie wpływa na ewaluację pozostałych (Rys. 40).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -187,7 +187,7 @@ flowchart TD
     R3 -->|false| X3([pomiń])
 ```
 
-_Rys. 37. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
+_Rys. 40. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
 
 ***
 
