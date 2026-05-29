@@ -48,7 +48,7 @@ flowchart TD
     C -->|false| E([pomiń])
     D -->|DO SYSTEM| F["system(polecenie)"]
     D -->|DO DUMP| G["dumpManager::registerTask()"]
-    F --> H["dumpManager::processStreamChunk()"]
+    F --> H["dumpManager::<br/>processStreamChunk()"]
     G --> H
 ```
 
