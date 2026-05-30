@@ -59,7 +59,7 @@ Wskutek tej kolejności: plik `.meta.oldN` zawiera metadane null dla danych z se
 
 Po trzech zakończonych sesjach (0, 1, 2) i w trakcie czwartej (3):
 
-```
+```text
 pomiar.old0         ← dane z sesji 0 (zapis sesji 0, przemianowanie w destruktorze sesji 0)
 pomiar.meta.old1    ← metadane z sesji 0 (przemianowanie przy starcie sesji 1)
 pomiar.old1         ← dane z sesji 1
@@ -72,7 +72,7 @@ pomiar.meta         ← metadane bieżące (sesja 3)
 
 Widok `xtrdb -s` w trakcie sesji 3:
 
-```
+```bash
 $ xtrdb -s pomiar
 ...
 ├──────────────────────────────────────────────────────────────┤
