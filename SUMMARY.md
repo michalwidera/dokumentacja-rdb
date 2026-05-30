@@ -66,4 +66,5 @@
     * [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/geneza-systemu/dlaczego-wybrano-taka-nazwe-dla-systemu.md)
   * [Dalsze kierunki rozwoju](zalaczniki/dalsze-kierunki-rozwoju/README.md)
     * [Jeszcze inna matematyka](zalaczniki/dalsze-kierunki-rozwoju/jeszcze-inna-matematyka.md)
+  * [Kolorowanie składni RQL](zalaczniki/kolorowanie-skladni/README.md)
 * [Literatura](literatura.md)
