@@ -35,7 +35,7 @@ DECLARE a INTEGER STREAM core0, 0.1 FILE '/dev/urandom'
 SELECT str[0], str[0] / 2 STREAM str1 FROM core0
 ```
 
-![Podswietlenie - zrzut okna](../../.gitbook/assets/image.png)
+![Podswietlenie - zrzut okna](../../.gitbook/assets/vscode-podswietlenie-rql.png)
 
 Słowa kluczowe (`STORAGE`, `DECLARE`, `SELECT`, `FROM`) są podświetlane jako komendy, typy danych (`INTEGER`) jako typy, a komentarze zaczynające się od `#` lub `//` jako komentarze.
 
@@ -113,7 +113,7 @@ RULE regulation1 ON str4 when str4[0] = 20 or str4[0] = 23 DO SYSTEM 'echo "test
 
 Widok tekstu w edytorze vim.
 
-![widok w edytorze vim](../../.gitbook/assets/image-2.png)
+![widok w edytorze vim](../../.gitbook/assets/vim-podswietlenie-rql.png)
 
 ***
 
@@ -200,4 +200,4 @@ RULE testrule3 ON str1 WHEN str1[0] = 13 OR str1[0] = 11 DO SYSTEM 'echo "system
 
 Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat`.
 
-<figure><img src="../../.gitbook/assets/image (1).png" alt="Widok polecenia batcat test.rql"><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption></figcaption></figure>
