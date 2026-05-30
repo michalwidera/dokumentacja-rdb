@@ -35,20 +35,20 @@ DECLARE a INTEGER STREAM core0, 0.1 FILE '/dev/urandom'
 SELECT str[0], str[0] / 2 STREAM str1 FROM core0
 ```
 
-![Podswietlenie - zrzut okna](image.png)
+![Podswietlenie - zrzut okna](../../.gitbook/assets/image.png)
 
 Słowa kluczowe (`STORAGE`, `DECLARE`, `SELECT`, `FROM`) są podświetlane jako komendy, typy danych (`INTEGER`) jako typy, a komentarze zaczynające się od `#` lub `//` jako komentarze.
 
----
+***
 
 ## Vim
 
 Repozytorium zawiera dwa pliki Vima w katalogu `scripts/.vim/`:
 
-| Plik | Opis |
-| ---- | ---- |
-| `scripts/.vim/syntax/rql.vim` | Definicja grup składniowych i ich przypisań kolorystycznych |
-| `scripts/.vim/ftdetect/rql.vim` | Automatyczne wykrywanie typu pliku po rozszerzeniu `.rql` |
+| Plik                            | Opis                                                        |
+| ------------------------------- | ----------------------------------------------------------- |
+| `scripts/.vim/syntax/rql.vim`   | Definicja grup składniowych i ich przypisań kolorystycznych |
+| `scripts/.vim/ftdetect/rql.vim` | Automatyczne wykrywanie typu pliku po rozszerzeniu `.rql`   |
 
 ### Instalacja przez buildrdb.sh
 
@@ -88,17 +88,17 @@ au BufRead,BufNewFile *.rql set filetype=rql
 
 ### Podświetlane elementy
 
-| Grupa Vima | Przykłady |
-| ---------- | --------- |
-| `Keyword` | `SELECT`, `DECLARE`, `STREAM`, `FROM`, `FILE`, `RULE`, `ON`, `WHEN`, `DO` |
-| `PreProc` | `STORAGE`, `ROTATION`, `SUBSTRAT` |
-| `Operator` | `AND`, `OR`, `NOT` |
-| `Constant` | `MEMORY`, `POSIX`, `DIRECT`, `GENERIC`, `TEXTSOURCE` |
-| `Type` | `INTEGER`, `FLOAT`, `BYTE`, `CHAR`, `UINT`, `STRING`, `DOUBLE` |
-| `Function` | `MIN`, `MAX`, `AVG`, `Count`, `Sqrt`, `Abs`, `ToNumber` |
-| `Comment` | `# komentarz`, `// komentarz`, `/* blok */` |
-| `String` | `'ścieżka/do/pliku.dat'` |
-| `Number` | `42`, `3.14`, `1/2`, `1e5` |
+| Grupa Vima | Przykłady                                                                 |
+| ---------- | ------------------------------------------------------------------------- |
+| `Keyword`  | `SELECT`, `DECLARE`, `STREAM`, `FROM`, `FILE`, `RULE`, `ON`, `WHEN`, `DO` |
+| `PreProc`  | `STORAGE`, `ROTATION`, `SUBSTRAT`                                         |
+| `Operator` | `AND`, `OR`, `NOT`                                                        |
+| `Constant` | `MEMORY`, `POSIX`, `DIRECT`, `GENERIC`, `TEXTSOURCE`                      |
+| `Type`     | `INTEGER`, `FLOAT`, `BYTE`, `CHAR`, `UINT`, `STRING`, `DOUBLE`            |
+| `Function` | `MIN`, `MAX`, `AVG`, `Count`, `Sqrt`, `Abs`, `ToNumber`                   |
+| `Comment`  | `# komentarz`, `// komentarz`, `/* blok */`                               |
+| `String`   | `'ścieżka/do/pliku.dat'`                                                  |
+| `Number`   | `42`, `3.14`, `1/2`, `1e5`                                                |
 
 **Przykład pliku zapytania z zaznaczonymi fragmentami:**
 
@@ -113,10 +113,9 @@ RULE regulation1 ON str4 when str4[0] = 20 or str4[0] = 23 DO SYSTEM 'echo "test
 
 Widok tekstu w edytorze vim.
 
-![widok w edytorze vim](image-2.png)
+![widok w edytorze vim](../../.gitbook/assets/image-2.png)
 
-
----
+***
 
 ## bat / batcat
 
@@ -201,6 +200,4 @@ RULE testrule3 ON str1 WHEN str1[0] = 13 OR str1[0] = 11 DO SYSTEM 'echo "system
 
 Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat`.
 
-![widok po poleceniu bat](image-1.png)
-
-
+<figure><img src="../../.gitbook/assets/image (1).png" alt="Widok polecenia batcat test.rql"><figcaption></figcaption></figure>
