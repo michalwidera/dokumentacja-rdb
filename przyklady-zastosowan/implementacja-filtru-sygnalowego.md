@@ -161,4 +161,4 @@ Należy pamiętać, że na ekranie komputera ten wykres przesuwa się w prawo ba
 
 Zapis ekranu w trakcie realizacji procesu przetwarzania ekranu:
 
-<figure><img src="../.gitbook/assets/dsp-record (1).gif" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/dsp-record (1).gif" alt="Animacja przebiegu filtracji sygnału w czasie rzeczywistym"><figcaption><p>Rys. 47 Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
