@@ -57,7 +57,7 @@
   * [Odtwarzanie strumienia](realizacja-zapytan/odtwarzanie-strumienia.md)
 * [Przykłady zastosowań](przyklady-zastosowan/README.md)
   * [Implementacja filtru sygnałowego](przyklady-zastosowan/implementacja-filtru-sygnalowego.md)
-  * [Wizualizacja EKG — baza MIT-BIH](przyklady-zastosowan/wizualizacja-ekg-mit-bih.md)
+  * [Wizualizacja EKG i Detekcja Arytmii — baza MIT-BIH](przyklady-zastosowan/wizualizacja-ekg-mit-bih.md)
 * [Załączniki](zalaczniki/README.md)
   * [Opcje wywołania](zalaczniki/opcje-wywolania/README.md)
     * [xretractor](zalaczniki/opcje-wywolania/xretractor.md)
