@@ -80,7 +80,7 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 {% step %}
 #### extractIntermediateStreams
 
-Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` wymagają pośredniego strumienia. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
+Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` oraz zapisy łańcuchowe bez nawiasów (`core0+core1+core2`, `core0#core1#core2`) wymagają pośrednich strumieni. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
 {% endstep %}
 
 {% step %}
@@ -116,7 +116,7 @@ Rozwija symbol `_` w indeksach pól. Powielenie formuły dla wszystkich pasując
 {% step %}
 #### localizeFieldOffsets
 
-Wyznacza bajkowe offsety pól w buforach binarnych. Po tym etapie schemat każdego strumienia jest gotowy do alokacji pamięci.
+Wyznacza offsety bajtowe pól w buforach binarnych. Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami. Po tym etapie schemat każdego strumienia jest gotowy do alokacji pamięci.
 {% endstep %}
 
 {% step %}

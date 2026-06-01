@@ -57,7 +57,7 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opis
 {% endstep %}
 
 {% step %}
-[**Substraty**](substraty.md) wyjaśnia etap `extractIntermediateStreams` — pierwszy krok kompilacji. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania — unikając powielania obliczeń.
+[**Substraty**](substraty.md) wyjaśnia etap `extractIntermediateStreams` — pierwszy krok kompilacji. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`, `core0+core1+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania — unikając powielania obliczeń.
 {% endstep %}
 
 {% step %}

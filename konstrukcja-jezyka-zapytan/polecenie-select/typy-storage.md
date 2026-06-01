@@ -12,7 +12,7 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 | -------------- | ------------------------------------- | :------: | :----: | ----------------------------------------------- |
 | `DEFAULT`      | `groupFile<posixBinaryFileWithShadow>`| tak      | tak    | Domyślny tryb produkcyjny; plik `.shadow` chroni modyfikacje |
 | `DIRECT`       | `groupFile<posixBinaryFile>`          | tak      | nie    | Retencja bez ochrony shadow                     |
-| `MEMORY`       | `memoryFile`                          | nie      | nie    | Dane wyłącznie w pamięci; brak zapisu na dysk   |
+| `MEMORY`       | `memoryFile`                          | tak (RAM)| nie    | Dane wyłącznie w pamięci; bufor kołowy bez zapisu na dysk |
 | `POSIX`        | `posixBinaryFile`                     | nie      | nie    | Pojedynczy plik binarny; bez retencji           |
 | `POSIXSHD`     | `posixBinaryFileWithShadow`           | nie      | tak    | Pojedynczy plik z ochroną shadow; bez retencji  |
 | `GENERIC`      | `genericBinaryFile`                   | nie      | nie    | Generyczny plik binarny                         |
@@ -22,12 +22,14 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 **Retencja** — artefakty rotowane, starsze pliki usuwane automatycznie (wymaga `RETENTION` w `SELECT`).\
 **Shadow** — każda modyfikacja zapisywana jest do osobnego pliku `.shadow`; dane historyczne są chronione przed nadpisaniem.
 
+W przypadku `MEMORY` retencja działa w pamięci jako bufor kołowy: kolejne dopisania nadpisują najstarszy slot (`index % capacity`). Dane nie są segmentowane do plików i nie trafiają na dysk.
+
 ## Kiedy używać
 
 Wybór zależy od wymagań środowiska:
 
 * **Środowisko produkcyjne, dane krytyczne** → `DEFAULT` (retencja + shadow)
-* **Środowisko produkcyjne, dane nieistotne historycznie** → `MEMORY` (zero dysku)
+* **Środowisko produkcyjne, dane nieistotne historycznie** → `MEMORY` (zero dysku, retencja w RAM)
 * **Rozwój i debugowanie** → `DEFAULT` lub `DIRECT` (dane widoczne na dysku)
 * **Odczyt z urządzenia lub pliku tekstowego** → `DEVICE` / `TEXTSOURCE` (odpowiednio)
 
