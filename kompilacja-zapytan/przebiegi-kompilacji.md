@@ -116,7 +116,7 @@ Rozwija symbol `_` w indeksach pól. Powielenie formuły dla wszystkich pasując
 {% step %}
 #### localizeFieldOffsets
 
-Wyznacza offsety bajtowe pól w buforach binarnych. Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami. Po tym etapie schemat każdego strumienia jest gotowy do alokacji pamięci.
+Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemacie wynikowym (`merged[z]`). Dla ADD indeks wynika z sumy liczności pól poprzedzających strumieni; dla HASH każde pole otrzymuje indeks 0 (schemat jednoargumentowy). Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami.
 {% endstep %}
 
 {% step %}
