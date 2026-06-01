@@ -174,13 +174,13 @@ Gdy kilka zapytań korzysta z tej samej operacji strumieniowej – np. `core0 + 
 
 ### Kiedy substrat jest tworzony
 
-Substrat generowany jest dla każdego zapytania, którego program zawiera więcej niż jeden operator strumieniowy. Dotyczy to operatorów: `STREAM_ADD`, `STREAM_SUBTRACT`, `STREAM_HASH`, `STREAM_DEHASH_DIV`, `STREAM_DEHASH_MOD`, `STREAM_TIMEMOVE`, `STREAM_AGSE`. Warunek sprawdza funkcja `query::isReductionRequired()` (`src/retractor/lib/query.cpp:51`).
+Substrat generowany jest dla każdego zapytania, którego program zawiera więcej niż jeden operator strumieniowy. Dotyczy to operatorów: `STREAM_ADD`, `STREAM_SUBTRACT`, `STREAM_HASH`, `STREAM_DEHASH_DIV`, `STREAM_DEHASH_MOD`, `STREAM_TIMEMOVE`, `STREAM_AGSE`. Warunek sprawdza funkcja `query::isReductionRequired()`.
 
-Nowo powstałemu substratowi nadawana jest nazwa zbudowana z symbolu operacji i nazw operandów, np. `STREAM_ADD_core1_core0` (funkcja `composeStreamName`, `src/retractor/lib/compiler.cpp:184`). W programie zapytania macierzystego token operatora zastępowany jest tokenem `PUSH_STREAM` wskazującym na ten substrat.
+Nowo powstałemu substratowi nadawana jest nazwa zbudowana z symbolu operacji i nazw operandów, np. `STREAM_ADD_core1_core0` (funkcja `composeStreamName` w `compiler.cpp`). W programie zapytania macierzystego token operatora zastępowany jest tokenem `PUSH_STREAM` wskazującym na ten substrat.
 
 ### Algorytm deduplikacji
 
-Po ekstrakcji substratów i wyznaczeniu interwałów czasowych kompilator uruchamia krok `deduplicateSubstrats()` (`src/retractor/lib/compiler.cpp:759`). Algorytm działa iteracyjnie – pętla `while(changed)` powtarza przeszukiwanie aż do momentu, gdy żadna para duplikatów nie zostanie już znaleziona.
+Po ekstrakcji substratów i wyznaczeniu interwałów czasowych kompilator uruchamia krok `deduplicateSubstrats()`. Algorytm działa iteracyjnie – pętla `while(changed)` powtarza przeszukiwanie aż do momentu, gdy żadna para duplikatów nie zostanie już znaleziona.
 
 W każdym przebiegu dla każdej pary substratów `(it, it2)` sprawdzane są kolejno pięć warunków równoważności:
 
@@ -188,13 +188,13 @@ W każdym przebiegu dla każdej pary substratów `(it, it2)` sprawdzane są kole
 2. **Długość programu** – liczba tokenów w `lProgram` musi być identyczna
 3. **Długość schematu** – liczba pól w `lSchema` musi być identyczna
 4. **Zawartość programu** – każdy token porównywany jest według typu polecenia (`getCommandID()`) i wartości parametru (`getVT()`)
-5. **Zawartość schematu** – każde pole porównywane jest według nazwy (`rname`), typu (`rtype`), rozmiaru w bajtach (`rlen`) i liczności (`rarray`)
+5. **Zawartość schematu** – każde pole porównywane jest według typu (`rtype`), rozmiaru w bajtach (`rlen`) i liczności (`rarray`)
 
 Jeśli wszystkie warunki są spełnione, substrat `it` uznawany jest za duplikat substratu `it2`. Kompilator przechodzi przez cały `coreInstance` i we wszystkich tokenach `PUSH_STREAM` odnoszących się do starej nazwy (`it->id`) podstawia nową nazwę (`it2->id`). Następnie duplikat jest usuwany z listy zapytań (`coreInstance.erase(it)`), a pętla startuje od początku.
 
 ### Miejsce w potoku kompilacji
 
-Deduplikacja jest czwartym krokiem ośmiofazowego potoku (`src/retractor/lib/compiler.cpp:799`):
+Deduplikacja jest czwartym krokiem ośmiofazowego potoku (funkcja `compiler::compile()`):
 
 ```
 1. extractIntermediateStreams   – wyodrębnienie substratów
@@ -232,7 +232,7 @@ Graf po deduplikacji to dokładnie to, co zwraca `xretractor -c -d` — kompilat
 
 ## Wchłonięcie substratu przez jawny strumień
 
-Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dla kandydata `it2` (linia 766 w `compiler.cpp`). Oznacza to, że substrat automatyczny może zostać wchłonięty nie tylko przez inny substrat, ale przez **dowolny strumień o identycznym programie i schemacie** — w tym przez strumień zdefiniowany jawnie przez użytkownika.
+Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dla kandydata `it2` — sprawdzenie to istnieje tylko w pętli zewnętrznej. Oznacza to, że substrat automatyczny może zostać wchłonięty nie tylko przez inny substrat, ale przez **dowolny strumień o identycznym programie i schemacie** — w tym przez strumień zdefiniowany jawnie przez użytkownika.
 
 Rozważmy zapytanie zawierające wyłącznie złożone wyrażenie:
 
@@ -257,3 +257,63 @@ substrat `STREAM_ADD_core0_core1` spełnia wszystkie warunki równoważności wz
 <figure><img src="../.gitbook/assets/absorb_z_mysum.svg" alt=""><figcaption><p>Rys. 28. Graf po dodaniu SELECT * STREAM mysum FROM core0+core1 — substrat zastąpiony przez jawny strumień</p></figcaption></figure>
 
 Efekt uboczny: `mysum` staje się węzłem wspólnym — obsługuje zarówno własnych konsumentów, jak i tych, którzy wcześniej korzystali z automatycznego substratu. Użytkownik zyskuje przy tym jawną nazwę dla wyników pośrednich i może odpytywać je przez `xqry`.
+
+## Aktualizacja schematu po wchłonięciu
+
+Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuje w `lSchema` sekwencję instrukcji opisujących, jak zbudować wartość wyjściową każdego pola — w tym tokeny `PUSH_ID(nazwa_strumienia, N)`, które mówią: „weź N-te pole z bufora wejściowego o nazwie `nazwa_strumienia`". Gdy substrat zostaje wchłonięty, te tokeny wciąż odnoszą się do starej, usuniętej nazwy substratu. Krok `localizeFieldOffsets()` buduje mapę offsetów na podstawie tokenów `PUSH_STREAM` w programie — jeśli klucz z `PUSH_ID` nie pasuje do żadnego wpisu w mapie, domyślnie przyjmuje offset 0.
+
+### Scenariusz błędu przy niezerowym offsecie
+
+Rozważmy zapytanie:
+
+```
+DECLARE a INTEGER STREAM s1, 1 FILE 'data1.dat'
+DECLARE b INTEGER STREAM s2, 1 FILE 'data2.dat'
+DECLARE c INTEGER STREAM s3, 1 FILE 'data3.dat'
+
+SELECT * STREAM mysum  FROM s1+s2
+SELECT * STREAM merged FROM s3+(s1+s2)
+```
+
+Kompilator tworzy substrat `STREAM_ADD_s1_s2`. Strumień `merged` ma dwa źródła: `s3` (offset 0) i substrat `STREAM_ADD_s1_s2` (offset 1, bo s3 zajmuje pozycję 0). Funkcja `buildOutputSchema` zapisuje w `merged.lSchema` tokeny:
+
+```
+PUSH_ID(STREAM_ADD_s1_s2, 0)   ← pole a ze źródła na offsecie 1
+PUSH_ID(STREAM_ADD_s1_s2, 1)   ← pole b ze źródła na offsecie 1
+```
+
+Po wchłonięciu `deduplicateSubstrats()` przepina `PUSH_STREAM` z `STREAM_ADD_s1_s2` na `mysum`. Jednak bez aktualizacji `lSchema` tokeny `PUSH_ID` wciąż noszą starą nazwę. Gdy `localizeFieldOffsets()` nie znajdzie `STREAM_ADD_s1_s2` w mapie offsetów, przyjmuje offset 0 — kolizję z polami `s3`. Efekt: pola `a` i `b` z `mysum` były odczytywane z offsetu 0 (pozycja `s3`) zamiast z offsetu 1 (pozycja `mysum`).
+
+### Poprawka: aktualizacja lSchema w deduplicateSubstrats
+
+Aby uniknąć tej rozbieżności, `deduplicateSubstrats()` po zaktualizowaniu tokenów `PUSH_STREAM` wykonuje dodatkowy przebieg przez `lSchema` wszystkich zapytań i przepisuje:
+
+- tokeny `PUSH_ID(stara_nazwa, N)` na `PUSH_ID(nowa_nazwa, N)` — to przypadek pól z `buildOutputSchema` dla `STREAM_ADD`,
+- tokeny `PUSH_ID2("stara_nazwa[N]")` na `PUSH_ID2("nowa_nazwa[N]")` — to przypadek symbolicznych nazw tworzonych przez `buildOutputSchema` dla `STREAM_TIMEMOVE`, `STREAM_HASH`, `STREAM_SUBTRACT`.
+
+Po poprawce wyjście kompilatora dla powyższego przykładu wygląda poprawnie:
+
+```
+merged(1/1)
+        :- PUSH_STREAM(mysum)
+        :- PUSH_STREAM(s3)
+        :- STREAM_ADD
+        a: INTEGER
+                PUSH_ID(merged[1])
+        b: INTEGER
+                PUSH_ID(merged[2])
+```
+
+Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` — po polu `c` ze strumienia `s3`.
+
+### Kaskadowe wchłonięcie
+
+`deduplicateSubstrats()` działa iteracyjnie (`while(changed)`), co pozwala na wielokrokowe wchłonięcia. W przykładzie:
+
+```
+SELECT * STREAM mysum   FROM s1+s2
+SELECT * STREAM shifted FROM (s1+s2)>1
+SELECT * STREAM merged  FROM s3+((s1+s2)>1)
+```
+
+w pierwszej rundzie `mysum` wchłania `STREAM_ADD_s1_s2` i przepisuje jego nazwy — również w schemacie pośredniego substratu `STREAM_TIMEMOVE_STREAM_ADD_s1_s2`. Dzięki temu w drugiej rundzie `shifted` może wchłonąć ten substrat (warunek programowy jest teraz spełniony, bo oba wskazują na `mysum`). Po dwóch rundach w planie nie pozostaje żaden substrat automatyczny, a `merged` korzysta bezpośrednio z `s3` i `shifted`.
