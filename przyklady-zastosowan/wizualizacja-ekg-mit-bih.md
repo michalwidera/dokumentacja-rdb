@@ -341,7 +341,7 @@ ciągłym. Okno `gnuplot` odświeża się przy każdej nowej paczce próbek.
 Na rysunku widoczne są trzy sygnały odpowiadające trzem polom strumienia
 `detect_out`:
 
-**[detect-out-0] linia czarna — MLII wycentrowane (mlii − 900)**
+**[detect-out-0] linia czerwona — MLII wycentrowane (mlii − 900)**
 
 Surowy sygnał EKG z odprowadzenia MLII przesunięty o punkt bazowy 900 ADC tak,
 że oś zerowa odpowiada izolinii. Dwa ostre piki (amplituda ≈ 280 ADC ≈ 1,4 mV)
