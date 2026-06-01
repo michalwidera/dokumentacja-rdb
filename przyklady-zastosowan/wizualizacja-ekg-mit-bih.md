@@ -280,7 +280,7 @@ SELECT mwi_long[0]              STREAM mwi_thr  FROM mwi_long.avg VOLATILE
 
 # Wyjście: MLII wycentrowane, V1 wycentrowane, sygnał detekcji ×5
 SELECT mlii[0]-900, v1[0]-900, (mwi[0]-mwi_thr[0]*2)*5
-  STREAM detect_out FROM mlii+v1+mwi+mwi_thr VOLATILE
+STREAM detect_out FROM mlii+v1+mwi+mwi_thr VOLATILE
 ```
 
 #### Uzasadnienie parametrów
