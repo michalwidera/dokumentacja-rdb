@@ -56,3 +56,5 @@ core1(1/5)      sensor_b.txt
 ```
 
 Symbol `*` zamienił się w cztery pola: `core0_0`, `core0_1`, `core1_2`, `core1_3`. Konwencja nazewnictwa: nazwa strumienia źródłowego + absolutna pozycja w schemacie wynikowym. Typy pól decydują o kolejności — `core0` wnosi BYTE i INTEGER na pozycje 0 i 1, `core1` wnosi INTEGER i FLOAT na pozycje 2 i 3. Odwołując się przez `merged[2]` w zapytaniu `result` dostajemy pole typu INTEGER — trzecie w kolejności, pierwsze z `core1`.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `Pattern3` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).

@@ -135,3 +135,5 @@ $ xretractor -c windows.rql -f -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
 Plan zapytania pokaże cztery niezależne gałęzie wywodzące się ze wspólnego węzła `src`. Każda gałąź realizuje inny typ okna bez wzajemnych zależności.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

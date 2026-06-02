@@ -81,3 +81,5 @@ Wywołamy następnie ponownie program swirly zobaczymy bardziej dokładny rysune
 <figure><img src="../../.gitbook/assets/schemat_kulkowy_sumy.png" alt=""><figcaption><p>Rys. 4 Schemat kulkowy - Suma, diagram zmodyfikowany</p></figcaption></figure>
 
 Na diagramie przedstawionym na rysunku Rys. 4 widać, które kulki zostały połączone i z których kulek powstały. Przypominam jednak że to obraz poprawiony ręcznie, dla celów tego opracowania – generator wbudowany w kompilator nie realizuje tej funkcjonalności.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `Pattern1`, `issue167_triarg` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

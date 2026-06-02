@@ -7,6 +7,8 @@ icon: arrows-spin
 
 Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśli zapytanie odwołuje się — bezpośrednio lub pośrednio — do własnych wyników, powstaje cykl. Kompilator wykrywa taką sytuację i kończy kompilację z błędem.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue95_loopInCompile` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 ## Przykład pętli
 
 ```

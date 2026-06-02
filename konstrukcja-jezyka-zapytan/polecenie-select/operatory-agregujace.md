@@ -66,6 +66,8 @@ SELECT win10[0] STREAM min10 FROM win10.min
 SELECT win10[0] STREAM max10 FROM win10.max
 ```
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `simple_max`, `Pattern4` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 ---
 
 ## Funkcja to_string
@@ -108,3 +110,5 @@ Rozmiar pola wynikowego: 8 (z `to_string`) + 3 (literal `_ok`) = 11 bajtów.
 ### Zastosowanie
 
 `to_string` przydaje się przy eksporcie do systemów przyjmujących dane tekstowe (Graphite, InfluxDB przez `xqry`) lub przy tworzeniu etykiet zdarzeń łączonych z wyjściem `DO DUMP`.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue121_isnull`, `issue128_numeric_to_string`, `issue128_string_to_numeric` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

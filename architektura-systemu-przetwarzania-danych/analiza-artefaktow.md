@@ -89,6 +89,8 @@ Praca z tym narzędziem przypomina pracę z klasyczną, starą bazą danych dbas
 
 Głównym celem tego narzędzia było wsparcie przy tworzeniu skryptów testowych. RetractorDB jest deterministyczny. W systemie nie występuje zjawisko wyścigu – dane, które trafią na wejście – zawsze powinny dać te same wyniki na wyjściu. Chyba że zmieszamy wyniki z danymi przypadkowymi jak w przedstawionym przykładzie.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue113_meta_xtrdb`, `issue113_meta`, `issue113_null_txtsrc`, `Pattern5` opisanych w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 Bardzo użyteczną funkcją w tym narzędziu jest funkcja `list` oraz `rlist`. Listująca początkowe elementy pliku lub końcowe elementy pliku — uwzględniając strukturę opisaną w metadanych.
 
 ```

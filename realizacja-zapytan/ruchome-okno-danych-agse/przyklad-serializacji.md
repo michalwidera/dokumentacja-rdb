@@ -101,3 +101,5 @@ Zapis realizacji eksperymentu przedstawia się następująco:
 
 <figure><img src="../../.gitbook/assets/agse-example.svg" alt=""><figcaption></figcaption></figure>
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+

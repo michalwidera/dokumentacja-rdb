@@ -89,6 +89,8 @@ Jest jeszcze jedna istotna rzecz o której należy wspomnieć w tym punkcie. Ist
 
 Dodanie zapytania o tych samych operacjach, ale innej nazwie może spowodować deduplikację substratów. Jeśli program, delta i schemat są równoważne, kompilator przepnie odwołania `PUSH_STREAM` na istniejący strumień i usunie duplikat.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue96_no_substrat_reduction`, `issue96_substrat_reference` opisanych w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 ## Redukcja substratów
 
 Kompilator realizuje optymalizację zwaną **redukcją substratów** (funkcja `deduplicateSubstrats`). Polega ona na tym, że jeśli użytkownik zdefiniował zapytanie strukturalnie identyczne z wygenerowanym substratem, substrat jest usuwany z planu, a jego odwołania zastępowane są nazwą zapytania użytkownika.
@@ -307,6 +309,8 @@ merged(1/1)
 Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` — po polu `c` ze strumienia `s3`.
 
 ### Kaskadowe wchłonięcie
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue167_dedup_cascaded`, `issue167_dedup_field_names`, `issue167_dedup_nonzero_offset`, `issue167_dedup_positive`, `issue167_triarg` opisanych w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
 `deduplicateSubstrats()` działa iteracyjnie (`while(changed)`), co pozwala na wielokrokowe wchłonięcia. W przykładzie:
 

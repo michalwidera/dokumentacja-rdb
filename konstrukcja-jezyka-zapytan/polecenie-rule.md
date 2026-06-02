@@ -9,6 +9,8 @@ icon: alarm-exclamation
 
 To polecenie to jedno z ostatnich opracowanych przeze mnie rozszerzeń systemu. Rozszerza ono funkcjonalność systemu o mechanizm alarmowania.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue42_rule` opisanych w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 Składnia polecenia RULE przedstawia się następująco:
 
 ```

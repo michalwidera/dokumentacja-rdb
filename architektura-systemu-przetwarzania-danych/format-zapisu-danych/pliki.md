@@ -186,6 +186,8 @@ Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększ
 
 Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy — informacja żyje wyłącznie w pliku `.meta`.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue113_meta_internal`, `issue113_meta_autocreate` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 ---
 
 ### Klasa metaDataStream

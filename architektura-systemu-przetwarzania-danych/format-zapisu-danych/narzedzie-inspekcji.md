@@ -2,6 +2,8 @@
 
 Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania artefaktu — bez otwierania procesu `xretractor`, bez wchodzenia w tryb interaktywny. Wystarczy wskazać ścieżkę bazową (bez rozszerzenia), a narzędzie samo znajdzie powiązane pliki: `.desc`, dane binarne, `.meta`, `.shadow`, segmenty cykliczne i pliki rotowane.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue153_storagemap_meta_cases` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 ## Cel i zastosowanie
 
 | Sytuacja | Co daje `xtrdb -s` |

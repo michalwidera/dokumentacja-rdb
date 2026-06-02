@@ -35,6 +35,8 @@ FROM A+B
 
 Tak zbudowane zapytanie zakłada że ktoś zadeklarował strumienie A i B. Operację tą mógł wykonać za pomocą słowa kluczowego DECLARE lub innego polecenia SELECT. W oparciu tylko o wiersz zawierający zapytanie nie jesteśmy w stanie stwierdzić jak szybko dane strumienia str1 napływają. Ta informacja jest wyliczana na etapie kompilacji w oparciu o strumienie A i B i wyrażenie algebraiczne w klauzuli FROM.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `simple`, `Pattern2` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 Klauzula VOLATILE - tworzy ulotną formę zapytania. Zapytanie z tą klauzulą przechowują tylko jeden rekord w pamięci - na dysku pojawia się tylko deskryptor opisujący strukturę danych.
 
 Klauzula STORAGE umożliwia wybór sposobu tworzenia i zarządzania tworzonymi artefaktami. Pełna tabela typów z opisem każdego z nich znajduje się w rozdziale [Typy STORAGE](typy-storage.md).
@@ -50,3 +52,7 @@ Strumieniowe wyrażenie algebraiczne w klauzuli `FROM` może zawierać:
 | Przesunięcie | `A > N`                                | Przesuwa okno odczytu o N próbek                                                                           |
 | Okno AGSE    | `A @ (k, w)`                           | Ruchome okno danych — patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/) |
 | Agregat      | `A.min` / `A.max` / `A.avg` / `A.sumc` | Redukuje wielopolowy rekord do jednej wartości — patrz [Operatory agregujące](operatory-agregujace.md)     |
+
+> **_NOTE:_** Operator przesunięcia `A > N` ma pokrycie w teście: `issue56_timeshift` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
+> **_NOTE:_** Propagacja wartości null przez wyrażenia SELECT ma pokrycie w teście: `issue121_null_propagation` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

@@ -50,3 +50,5 @@ core1(1/5)      sensor_b.txt
 ```
 
 `merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` — to to samo pole. Natomiast `core1[0]` — pierwsze pole schematu `core1` — trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2. A co, jeśli operację `+` zastąpimy `#`? Zachęcam do eksperymentów.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `Pattern7` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).

@@ -109,6 +109,8 @@ Dostępne flagi modyfikujące wyjście DOT:
 
 Graf pokazuje zależności między strumieniami jako krawędzie skierowane od źródeł do wyników. Substraty mają inny kolor niż strumienie jawnie zdefiniowane przez użytkownika. Patrz [Budowa drzewa zależności](budowa-drzewa-zaleznosci.md).
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue31_doc` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 ## Weryfikacja interwałów
 
 Jeśli delta strumienia wynikowego jest niespodziewana:

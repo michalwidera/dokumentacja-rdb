@@ -69,3 +69,5 @@ Substrat został oznaczony innym kolorem oraz oznaczeniem Auto znajdującym się
 
 Graf zależności musi być acyklicznym grafem skierowanym (DAG). Próba zdefiniowania strumienia odwołującego się do własnych wyników tworzy cykl i kończy się błędem kompilacji. Mechanizm wykrywania opisany jest w rozdziale [Wykrywanie pętli w kompilacji](wykrywanie-petli.md).
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `subquery` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+

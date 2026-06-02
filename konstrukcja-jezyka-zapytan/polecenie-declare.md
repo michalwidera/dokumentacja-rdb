@@ -73,6 +73,8 @@ FILE ‘plik.txt’
 
 Aby parsowanie pliku nastąpiło automatycznie, plik musi nosić rozszerzenie .txt. Na chwilę ta funkcjonalność została zaimplementowana na stałe i nie podlega parametryzacji. Planuję to zmienić w przyszłości.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `Pattern7` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 Jeśli plik danych wejściowych będzie nosić rozszerzenie .dat – plik ten zostanie potraktowany jako plik binarny a odczyt danych z niego zostanie również zapętlony. Zapętlenie polega na tym że po przeczytaniu ostatniej wartości z pliku źródłowego, pozycja odczytu pliku kierowana jest na początek. Dane z takiego pliku czytane są w nieskończonej pętli, po zakończeniu wracając do początku.
 
 Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych — szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).

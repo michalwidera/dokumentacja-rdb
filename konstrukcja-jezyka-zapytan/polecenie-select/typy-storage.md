@@ -24,6 +24,8 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 
 W przypadku `MEMORY` retencja działa w pamięci jako bufor kołowy: kolejne dopisania nadpisują najstarszy slot (`index % capacity`). Dane nie są segmentowane do plików i nie trafiają na dysk.
 
+> **_NOTE:_** Typ `MEMORY` (SUBSTRAT 'memory') ma pokrycie w testach: `issue61_tmpmem` (sekwencyjny i równoległy) opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 ## Kiedy używać
 
 Wybór zależy od wymagań środowiska:

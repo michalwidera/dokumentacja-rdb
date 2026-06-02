@@ -68,4 +68,5 @@
   * [Dalsze kierunki rozwoju](zalaczniki/dalsze-kierunki-rozwoju/README.md)
     * [Jeszcze inna matematyka](zalaczniki/dalsze-kierunki-rozwoju/jeszcze-inna-matematyka.md)
   * [Kolorowanie składni RQL](zalaczniki/kolorowanie-skladni/README.md)
+  * [Testy integracyjne](zalaczniki/testy-integracyjne.md)
 * [Literatura](literatura.md)

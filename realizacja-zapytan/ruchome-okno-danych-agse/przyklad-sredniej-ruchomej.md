@@ -94,3 +94,5 @@ sensor@(5,5)   -- tumbling: wynik co 5 sekund, bez nakładania
 sensor@(1,5)   -- sliding:  wynik co sekundę, pełne nakładanie
 sensor@(3,5)   -- częściowe nakładanie: wynik co 3 sekundy
 ```
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

@@ -83,3 +83,5 @@ Poniższe podrozdziały prezentują konkretne zastosowania operatora AgSe:
 * **Różne typy okien** — tumbling, sliding i próbkowanie na jednym strumieniu danych.
 
 Na początku rozważymy proces serializacji w operatorze Agregacji i Serializacji – AgSe.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

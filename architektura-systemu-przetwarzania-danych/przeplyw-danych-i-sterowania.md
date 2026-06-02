@@ -9,6 +9,8 @@ Dane i sterowanie w systemie RetractorDB tworzą kilka potencjalnych sposobów u
 
 Najgrubsze linie przedstawiają przepływ, który występuje zawsze w procesie przetwarzania regularnych serii czasowych. Proces xretractor aby wystartować na chwilę obecną potrzebuje pliku .rql ze sekwencją zapytań. Po przeprowadzeniu kompilacji, proces xretractor buduje drzewo planu zapytania i rozpoczyna proces przetwarzania napływających danych i tworzenia plików binarnych zawierających artefakty.
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `consistency` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+
 Aby móc sterować procesem xretractor po wystartowaniu używamy procesu xqry. Za jego pomocą możemy zatrzymać proces xretractor, pobrać statystyki lub zażądać dostępu do danych bieżących.
 
 Reszta strzałek prezentuje przepływy danych zależne od prowadzonego z użyciem RetractorDB procesu. Strzałki przerywane są typowo przeznaczone do celów diagnostycznych.

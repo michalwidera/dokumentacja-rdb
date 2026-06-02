@@ -24,3 +24,5 @@ Jeśli zajrzymy do wygenerowanego schematu tekstowego – zobaczymy że wartośc
 ```
 
 Zachęcam do dalszego eksperymentowania z tym sposobem prezentacji zdefiniowanych operacji na seriach czasowych.
+
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `operations`, `Pattern1` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).

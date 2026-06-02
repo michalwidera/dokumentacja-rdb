@@ -14,6 +14,8 @@ Substraty i Artefakty - formalnie niczym nie różnią się w systemie. Jedyna r
 
 ### Typy akcesorów składowania
 
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `txtsrc` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
 Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementację `FileInterface`:
 
 | Typ (`TYPE_PROFILE`) | Klasa implementacji                    | Zastosowanie                                                      |
