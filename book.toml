@@ -8,6 +8,7 @@ src = "."
 build-dir = "book"
 
 [output.html]
+mathjax-support = true
 no-section-label = false
 git-repository-url = "https://github.com/michalwidera/gitbook-rdb"
 edit-url-template = "https://github.com/michalwidera/gitbook-rdb/edit/main/{path}"
