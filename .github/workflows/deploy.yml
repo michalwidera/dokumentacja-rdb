@@ -26,9 +26,7 @@ jobs:
           mdbook-version: 'latest'
 
       - name: Install mdbook-mermaid
-        run: |
-          curl -sSL https://github.com/badboy/mdbook-mermaid/releases/download/v0.17.0/mdbook-mermaid-v0.17.0-x86_64-unknown-linux-gnu.tar.gz \
-            | tar xz -C /usr/local/bin
+        run: cargo install mdbook-mermaid
 
       - name: Install Pandoc and LaTeX
         run: |
@@ -48,6 +46,7 @@ jobs:
             [ -f "$f" ] && echo "$f"
           done | tr '\n' ' ')
           pandoc $FILES \
+            --from markdown+tex_math_double_backslash \
             --pdf-engine=xelatex \
             --toc --toc-depth=2 \
             --top-level-division=chapter \
