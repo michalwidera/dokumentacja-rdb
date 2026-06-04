@@ -8,22 +8,22 @@ Sytuacja nie była komfortowa. Zacząłem przeglądać literaturę. Trafiłem na
 
 Liczby całkowite Eisensteina definiujemy w postaci:
 
-$$
+\\[
 z_{C} = a + b\omega \qquad a, b \in \mathbb{Z}
-$$
+\\]
 
-$$
+\\[
 \omega = \frac{-1 + i\sqrt 3}{2} = e^{ \frac{2}{3}\pi i}
-$$
+\\]
 
 jednostka _i_ jest jednostką urojoną.
 
 Tak przedstawione liczby postanowiłem zmodyfikować w następujący sposób:
 
-$$
+\\[
 z_{W} = \frac{a}{b} + \frac{c}{d}\omega \qquad
 a, b, c, d \in \mathbb{Z}
-$$
+\\]
 
 I takie właśnie wymierne liczby zespolone użyłem do budowy algebry rozkładającej zbiór liczb naturalnych - działają.
 
