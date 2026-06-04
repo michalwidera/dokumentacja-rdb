@@ -4,9 +4,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repository Is
 
-This is a **GitBook documentation repository** for [RetractorDB](https://github.com/michalwidera/retractordb), an Edge Signal Processing Engine (ESPE) for real-time regular time series data. All content is written in **Polish**. There is no source code, build system, or test suite — the workflow is: edit Markdown → commit → GitBook auto-publishes.
+This is an **mdBook documentation repository** for [RetractorDB](https://github.com/michalwidera/retractordb), an Edge Signal Processing Engine (ESPE) for real-time regular time series data. All content is written in **Polish**.
+
+**Build system:** mdBook (not GitBook). Workflow: edit Markdown → commit → GitHub Actions builds and publishes to GitHub Pages (`https://michalwidera.github.io/gitbook-rdb/`).
 
 The table of contents is defined in [SUMMARY.md](SUMMARY.md). Images and assets live in [assets/](assets/).
+
+## Build & Preview
+
+```bash
+# Install (once)
+cargo install mdbook mdbook-mermaid
+
+# Local preview
+mdbook-mermaid install .   # copies mermaid.min.js + mermaid-init.js (gitignored)
+mdbook serve               # http://localhost:3000 with live reload
+
+# Build only
+mdbook build               # output → book/
+```
+
+## Authoring Rules
+
+- **Math:** use `$$...$$` for display math, `$...$` for inline. Do NOT convert to `\[...\]` — the Markdown parser (pulldown-cmark) would corrupt `\{`, `\}` etc. inside LaTeX. mdBook ≥ 0.4.35 handles `$$` natively via the math extension.
+- **Diagrams:** use standard ` ```mermaid ``` ` fenced blocks — rendered by `mdbook-mermaid` plugin.
+- **Callouts:** use blockquotes with bold prefix: `> **ℹ️ Info**` / `> **⚠️ Ostrzeżenie**` / `> **✅ Uwaga**`.
+- **Images:** paths relative to each `.md` file pointing to `assets/` (e.g. `../assets/foo.png` from a subdirectory).
+- No GitBook-specific syntax: no `{% hint %}`, no `{% tabs %}`, no `{% embed %}`, no YAML frontmatter.
+
+## Key Config Files
+
+| File | Purpose |
+|------|---------|
+| `book.toml` | mdBook config: title, language, MathJax, Mermaid, GitHub edit links |
+| `SUMMARY.md` | Table of contents (mdBook format) |
+| `.github/workflows/deploy.yml` | CI: installs mdBook + mdbook-mermaid, builds, deploys to GitHub Pages |
+| `.gitignore` | Excludes `book/`, `mermaid.min.js`, `mermaid-init.js` |
+| `migrate_to_mdbook.py` | One-time migration script (GitBook → mdBook); idempotent, safe to re-run |
 
 ## RetractorDB Architecture (Documentation Subject)
 
