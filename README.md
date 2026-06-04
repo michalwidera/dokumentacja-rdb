@@ -73,7 +73,7 @@ Wszystkie one traktują jednak DSP jako aproksymację albo analitykę po fakcie.
 Po nałożeniu pięciu warstw obraz staje się czytelny. Każda dziedzina dotyka jednej lub dwóch ścian problemu, ale **żadna nie zajmuje ich przecięcia**:
 
 | Dziedzina               | Beatty/Fraenkel | Dokładny DSP | Algebra strumieni / język zapytań | Twardy czas rzeczywisty |
-| ----------------------- | :-------------: | :----------: | :-------------------------------: | :---------------------: |
+| ----------------------- | :------------------: | :----------------: | :---------------------: | :------------------: |
 | Teoria liczb            |        ✔        |       –      |                 –                 |            –            |
 | Szeregowanie (pinwheel) |        ✔        |       –      |                 –                 |        częściowo        |
 | DSP wielotempowy        |        –        |       ✔      |                 –                 |            –            |

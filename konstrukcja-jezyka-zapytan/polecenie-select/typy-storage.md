@@ -5,7 +5,7 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 ## Tabela typów
 
 | Słowo kluczowe | Klasa C++                             | Retencja | Shadow | Przeznaczenie                                   |
-| -------------- | ------------------------------------- | :------: | :----: | ----------------------------------------------- |
+| -------------- | -------------------------------------------------- | :------: | :----: | ------------------------------- |
 | `DEFAULT`      | `groupFile<posixBinaryFileWithShadow>`| tak      | tak    | Domyślny tryb produkcyjny; plik `.shadow` chroni modyfikacje |
 | `DIRECT`       | `groupFile<posixBinaryFile>`          | tak      | nie    | Retencja bez ochrony shadow                     |
 | `MEMORY`       | `memoryFile`                          | tak (RAM)| nie    | Dane wyłącznie w pamięci; bufor kołowy bez zapisu na dysk |

@@ -56,8 +56,17 @@ jobs:
 
           cat > /tmp/header.tex << 'TEXEOF'
           \usepackage{caption}
+          \usepackage{amssymb}
           \captionsetup{labelformat=empty,labelsep=none}
           TEXEOF
+
+          cat > /tmp/cover.tex << COVEOF
+          \thispagestyle{empty}
+          \newgeometry{margin=0cm}
+          \includegraphics[width=\paperwidth,height=\paperheight]{${PWD}/assets/book-cover.png}
+          \restoregeometry
+          \clearpage
+          COVEOF
 
           cat > /tmp/fix_math.lua << 'LUAEOF'
           function Math(elem)
@@ -111,6 +120,7 @@ jobs:
           for filepath in sys.argv[1:]:
               d = Path(filepath).parent.resolve()
               text = Path(filepath).read_text()
+              text = text.replace('✔', '$\\checkmark$')
               text = re.sub(r'```mermaid\n(.*?)```', render_mermaid, text, flags=re.DOTALL)
               text = re.sub(r'<figure>.*?</figure>', lambda m, d=d: fix_figure(m, d), text, flags=re.DOTALL)
               def fix_img(m, d=d):
@@ -127,6 +137,7 @@ jobs:
             --from markdown+tex_math_double_backslash \
             --lua-filter /tmp/fix_math.lua \
             --include-in-header=/tmp/header.tex \
+            --include-before-body=/tmp/cover.tex \
             --pdf-engine=xelatex \
             --toc --toc-depth=2 \
             --top-level-division=chapter \

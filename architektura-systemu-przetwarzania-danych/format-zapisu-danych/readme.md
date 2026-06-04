@@ -11,7 +11,7 @@ Substraty i Artefakty - formalnie niczym nie różnią się w systemie. Jedyna r
 Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementację `FileInterface`:
 
 | Typ (`TYPE_PROFILE`) | Klasa implementacji                    | Zastosowanie                                                      |
-| -------------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| -------------------- | ------------------------------------------------------- | -------------------------------------------- |
 | `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją        |
 | `DIRECT`             | `groupFile<posixBinaryFile>`           | Zapis bezpośredni bez cienia, z retencją                          |
 | `POSIX`              | `posixBinaryFile`                      | Surowy zapis POSIX bez cienia                                     |
