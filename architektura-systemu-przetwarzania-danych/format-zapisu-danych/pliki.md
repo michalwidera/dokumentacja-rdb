@@ -1,6 +1,6 @@
 # Pliki
 
-Rozdział opisuje cztery pliki tworzące kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`) i plik cienia (`.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaDataStream` — mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi czterema plikami na poziomie operacji `append`, `update` i `read`.
+Rozdział opisuje pięć plików tworzących kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`), plik cienia danych (`.shadow`) i plik cienia indeksu (`.meta.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaDataStream` — mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi plikami na poziomie operacji `append`, `update` i `read`.
 
 Zakres rozdziału **nie obejmuje** mechanizmu rotacji plików między sesjami (→ [Rotacja](rotacja.md)) ani narzędzia inspekcji `xtrdb -s` (→ [Narzędzie inspekcji](narzedzie-inspekcji.md)).
 
@@ -244,7 +244,9 @@ Operacja I/O następuje **wyłącznie przy zmianie wzorca** — dla serii identy
 
 #### `onRecordModified(index, nullBitset)`
 
-Wywoływany przez `storage` przy aktualizacji istniejącego rekordu. Lokalizuje rekord w segmentach RLE i rozbija segment na maksymalnie trzy części: przed modyfikowanym rekordem, sam rekord, za nim.
+Wywoływany przez `storage` przy aktualizacji istniejącego rekordu. Zachowanie zależy od trybu pracy:
+
+**Tryb normalny** (brak pliku cienia danych): lokalizuje rekord w segmentach RLE i rozbija segment na maksymalnie trzy części: przed modyfikowanym rekordem, sam rekord, za nim.
 
 ```
 rekord w currentEntry_ (pamięć)?
@@ -257,6 +259,14 @@ Przykład rozbicia segmentu `[allNull × 5]` przy modyfikacji rekordu 2:
 ```
 Przed:  [allNull × 5]
 Po:     [allNull × 2] [allPresent × 1] [allNull × 2]
+```
+
+**Tryb cienia** (`shadowMode_ = true`, aktywowany przez `setShadowMode(true)`): zamiast modyfikować główny indeks, dopisuje jedno nadpisanie wzorca null do pliku `.meta.shadow`. Główny indeks `.meta` pozostaje nienaruszone i spójne z głównym plikiem danych.
+
+```
+shadowMode_?
+├─ TAK → appendShadowOverride(index, nullBitset) → wpis w .meta.shadow
+└─ NIE → applyModificationToMainIndex(index, nullBitset) → splitSegment()
 ```
 
 #### `onTransmissionGap(duration)`
@@ -350,13 +360,23 @@ sequenceDiagram
 
 | Metoda | Opis |
 | ------ | ---- |
-| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Działa zarówno dla rekordów w segmentach zatwierdzonych (dysk), jak i w segmencie bieżącym (pamięć). |
+| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. W trybie cienia najpierw sprawdza nadpisania w `shadowOverrides_` (od końca — ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
-| `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Służy do inspekcji i testów. |
+| `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Nie obejmuje nadpisań z `.meta.shadow`. Służy do inspekcji i testów. |
 | `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |
 | `isEmpty()` | Skrót: `totalRecords() == 0`. |
 | `rotate(percounter)` | Rotuje plik indeksu: przemianowuje bieżący plik `.meta` na `.meta.old<N>`, tworzy nowy pusty plik. Wywoływana przez `storage::detectStartupState()` po wykryciu rotacji pliku danych (plik danych pusty, indeks niepusty). Gdy `percounter < 0`, plik nie jest przemianowywany — wykonywany jest tylko reset indeksu. |
-| `reset()` | Czyści indeks w miejscu: zeruje liczniki, przepisuje plik z samym nagłówkiem bez zmiany jego nazwy. Wywoływany przez `storage` przy czyszczeniu bez zachowania historii (np. po `purge()`). |
+| `reset()` | Czyści indeks w miejscu: zeruje liczniki, przepisuje plik z samym nagłówkiem bez zmiany jego nazwy. Wywołuje też `discardShadow()`. Wywoływany przez `storage` przy czyszczeniu bez zachowania historii (np. po `purge()`). |
+
+### Interfejs cienia indeksu
+
+Zestaw metod zarządzających plikiem `.meta.shadow`. Wywoływane przez `storage::attachStorage()` i powiązane operacje na pliku cienia danych.
+
+| Metoda | Opis |
+| ------ | ---- |
+| `setShadowMode(enabled)` | Włącza lub wyłącza tryb cienia. Przy `enabled=true` wywołuje `loadShadow()` — wczytuje istniejące nadpisania z pliku `.meta.shadow`. |
+| `mergeShadow()` | Scala nadpisania z cienia do głównego indeksu (wywołuje `applyModificationToMainIndex()` dla każdego nadpisania w kolejności zapisu — ostatnie wygrywa), a następnie usuwa plik `.meta.shadow`. Odpowiednik `merge()` dla pliku cienia danych. |
+| `discardShadow()` | Czyści listę nadpisań w pamięci i usuwa plik `.meta.shadow`. Wywoływany przy odrzuceniu cienia danych (purge, reset, rotacja). |
 
 ### Przykład użycia — typowy scenariusz produkcyjny
 
@@ -446,9 +466,125 @@ Odczyt rekordu 2 zwróci `[999, 200]`. Odczyt rekordu 0 i 1 zwróci dane z pliku
 
 ---
 
+## Plik cienia indeksu (.meta.shadow)
+
+Plik `.meta.shadow` jest odpowiednikiem `.shadow` na poziomie indeksu null. Rejestruje nadpisania wzorców null dla poszczególnych rekordów bez modyfikowania głównego pliku `.meta`, zachowując spójność pary: `plik główny ↔ .meta` oraz `plik cienia ↔ .meta.shadow`.
+
+### Kiedy powstaje
+
+Plik `.meta.shadow` jest tworzony automatycznie przez `metaDataStream`, gdy spełnione są dwa warunki:
+
+1. Magazyn jest typu `DEFAULT` lub `POSIXSHD` — czyli taki, który trzyma modyfikacje rekordów w pliku `.shadow` (nie w pliku głównym).
+2. W danej sesji wykonana zostanie przynajmniej jedna modyfikacja istniejącego rekordu (`storage::write()` na indeks inny niż maksymalny).
+
+Warunek 1 sprawdzany jest podczas `storage::attachStorage()` — jeżeli jest spełniony, wywoływane jest `metaDataStream::setShadowMode(true)`.
+
+### Format pliku
+
+Plik `.meta.shadow` nie ma nagłówka. Jest sekwencją wpisów w tym samym formacie binarnym co wpisy w pliku `.meta`, z tą różnicą, że pole `recordCount` przechowuje **bezwzględny indeks rekordu** (nie liczbę rekordów w serii RLE):
+
+| Pole         | Rozmiar       | Znaczenie w `.meta.shadow`            |
+| ------------ | ------------- | ------------------------------------- |
+| `gapFlag`    | 1 B           | zawsze 0 (nadpisania nie są przerwami) |
+| `recordCount`| 8 B (size\_t) | bezwzględny indeks nadpisywanego rekordu |
+| `bitsetSize` | 8 B (size\_t) | liczba pól deskryptora (N)            |
+| `bitset`     | ⌈N/8⌉ B       | nowy wzorzec null dla tego rekordu    |
+
+Każde wywołanie `onRecordModified()` w trybie cienia dopisuje jeden wpis na koniec pliku. Wiele wpisów dla tej samej pozycji jest dozwolone — obowiązuje **ostatni** wpis (semantyka „last-write-wins", zgodna z plikiem `.shadow`).
+
+### Priorytety odczytu
+
+W trybie cienia `getNullBitset(i)` skanuje listę nadpisań od końca. Jeżeli znajdzie wpis dla indeksu `i`, zwraca jego wzorzec null bez sięgania do głównego indeksu:
+
+```mermaid
+flowchart TD
+    Q["getNullBitset(i)"]
+    Q --> SM{"shadowMode_?"}
+    SM -->|tak| SCAN{"shadowOverrides_\n(od końca): wpis dla i?"}
+    SCAN -->|znaleziono| RET1["Zwróć nullBitset z nadpisania\n(najnowsze wygrywa)"]
+    SCAN -->|nie znaleziono| MAIN["Wyszukaj w głównym indeksie\n(segmenty RLE na dysku)"]
+    SM -->|nie| MAIN
+    MAIN --> RET2["Zwróć wzorzec z .meta"]
+```
+
+_Rys. 15. Priorytety odczytu wzorca null — główny indeks vs. cień indeksu_
+
+### Cykl życia
+
+Plik `.meta.shadow` jest zarządzany równolegle z plikiem cienia danych:
+
+| Zdarzenie na pliku `.shadow` | Akcja na `.meta.shadow` |
+| ---------------------------- | ----------------------- |
+| Pierwsza modyfikacja rekordu | Tworzenie pliku; dołączenie pierwszego wpisu |
+| Kolejne modyfikacje | Dołączanie kolejnych wpisów |
+| `merge()` — scalenie cienia z plikiem głównym | `mergeShadow()` — nadpisania aplikowane do `.meta`; plik usuwany |
+| `purge()` / `reset()` — odrzucenie cienia | `discardShadow()` — plik usuwany bez scalania |
+| Restart procesu | `setShadowMode(true)` → `loadShadow()` — plik odczytywany; nadpisania przywrócone w pamięci |
+| Usunięcie tymczasowego magazynu (destruktor) | Plik `.meta.shadow` usuwany razem z `.meta` |
+
+### Persystencja po restarcie
+
+Po restarcie procesu nowy obiekt `metaDataStream` przywraca stan cienia przez `loadShadow()`:
+
+1. Odczytuje wszystkie wpisy z `.meta.shadow` (brak nagłówka — format bezpośredni).
+2. Ładuje je do `shadowOverrides_` w kolejności zapisu.
+3. `getNullBitset()` i kolejne `onRecordModified()` działają tak samo jak przed restartem.
+
+```mermaid
+sequenceDiagram
+    participant Proc1 as Pierwsza sesja
+    participant MS as .meta.shadow
+    participant Meta as .meta
+
+    Proc1->>Meta: onRecordAppended([F,F,F]) × 5
+    Proc1->>MS: onRecordModified(2, [T,T,T]) → dołącz wpis (index=2)
+    Note over Meta: .meta bez zmian [allNull×5]
+    Note over MS: .meta.shadow: [(index=2, [T,T,T])]
+
+    Note over Proc1: restart
+
+    participant Proc2 as Druga sesja
+    Proc2->>MS: setShadowMode(true) → loadShadow()
+    MS-->>Proc2: [(index=2, [T,T,T])]
+    Note over Proc2: getNullBitset(2) → [T,T,T]
+    Proc2->>Meta: mergeShadow() → applyModificationToMainIndex(2, [T,T,T])
+    Proc2->>MS: usuń plik .meta.shadow
+```
+
+### Przykład użycia — korekta rekordu z zachowaniem spójności
+
+```
+# 5 rekordów w strumieniu str1, 3 pola FLOAT
+# Rekord 2 ma wartość null w polu 0: nullBitset=[T,F,F]
+# Operator koryguje pole 0 rekordu 2 → zmiana wzorca na [F,F,F]
+
+# Operacje:
+storage.write(rec2_corrected, pos=2)
+  → .shadow: dołącz (position=2, data_corrected)
+  → metaDataStream.onRecordModified(2, [F,F,F])
+    → tryb cienia: .meta.shadow: dołącz (index=2, [F,F,F])
+
+# Stan plików:
+# .meta        — bez zmian: [isGap=F, count=2, [F,F,F]], [isGap=F, count=1, [T,F,F]], [isGap=F, count=2, [F,F,F]]
+# .meta.shadow — nowy wpis: [gapFlag=0, recordCount=2, bitset=[F,F,F]]
+
+# Odczyt:
+getNullBitset(2) → [F,F,F]  (z .meta.shadow)
+getNullBitset(1) → [F,F,F]  (z .meta)
+
+# Po scaleniu:
+storage.merge() → .shadow wchłonięty do pliku głównego
+metaDataStream.mergeShadow() → .meta przebudowany, .meta.shadow usunięty
+# .meta po merge: [isGap=F, count=5, [F,F,F]]  (wszystkie rekordy pełne)
+```
+
+> **_NOTE:_** Mechanizm `.meta.shadow` jest testowany w teście jednostkowym `scenariusz_cien_indeksu` (`test_metaDataStream_usage.cpp`).
+
+---
+
 ## Relacja pomiędzy plikami
 
-W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny (Rys. 11) opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, a `.shadow` gromadzi modyfikacje bez niszczenia oryginału. Poziom operacyjny (Rys. 12-14) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow`, `merge()` przenosi poprawki do pliku głównego, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
+W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, `.shadow` gromadzi modyfikacje danych bez niszczenia oryginału, a `.meta.shadow` gromadzi analogicznie nadpisania wzorców null. Poziom operacyjny (Rys. 16) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow` i `.meta.shadow`, `merge()` przenosi poprawki do pliku głównego i głównego indeksu, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
 
 ```mermaid
 graph LR
@@ -463,7 +599,7 @@ graph LR
     subgraph "Modyfikacja rekordu (update)"
         U1["storage::write(data, pos=N)"]
         U2["→ .shadow: dopisz (N, data)"]
-        U3["→ .meta: onRecordModified(N, nullBitset)"]
+        U3["→ .meta.shadow: dopisz (index=N, nullBitset)"]
         U1 --> U2
         U1 --> U3
     end
@@ -473,17 +609,21 @@ graph LR
         R2{".shadow\nma wpis N?"}
         R3["dane z .shadow"]
         R4["dane z pliku głównego"]
-        R5[".meta: nullBitset dla N"]
+        R5{".meta.shadow\nma wpis N?"}
+        R6["nullBitset z .meta.shadow"]
+        R7["nullBitset z .meta"]
         R1 --> R2
         R2 -->|tak| R3
         R2 -->|nie| R4
         R1 --> R5
+        R5 -->|tak| R6
+        R5 -->|nie| R7
     end
 ```
 
-_Rys. 14. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+_Rys. 16. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
-Rys. 14 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta` i `.shadow`.
+Rys. 16 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`.
 
 ## Punkt wyjścia — plik binarny bez metadanych
 
@@ -524,3 +664,12 @@ W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową p
 - Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
 - Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
 - Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
+
+**Plik cienia indeksu (`.meta.shadow`) — spójność metadanych przy korekcie**
+
+Korekta rekordu w pliku cienia danych musi znaleźć odzwierciedlenie w indeksie null — inaczej `getNullBitset()` zwróciłoby przestarzały wzorzec z głównego `.meta`. Plik `.meta.shadow`:
+
+- Utrzymuje spójność między parami: `plik główny ↔ .meta` oraz `.shadow ↔ .meta.shadow`.
+- Pozwala `getNullBitset()` zwrócić aktualny wzorzec null dla skorygowanego rekordu bez modyfikowania głównego indeksu.
+- Śledzi cykl życia pliku cienia danych — scalany i usuwany dokładnie razem z `.shadow`.
+- Umożliwia pełne odtworzenie stanu po restarcie: nadpisania załadowane z `.meta.shadow` są natychmiast dostępne bez ponownego skanowania pliku cienia danych.
