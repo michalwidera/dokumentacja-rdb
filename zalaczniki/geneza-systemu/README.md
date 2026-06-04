@@ -1,7 +1,3 @@
----
-description: Motywacja, czyli przyczyna dla której powstał system RetractorDB.
----
-
 # Geneza systemu
 
 Ponad dwadzieścia lat temu pracowałem w pewnym instytucie naukowym w Zabrzu. Zajmowałem się m.in. budową systemu nadzoru neonatologicznego. Stosunkowo niedawno ukończyłem studia, moja głowa nadal była wypełniona teorią dotyczącą budowy systemów opartych na centralnej bazie danych. Budując system monitorowania stwierdziłem – zrobię go tak jak sztuka każe – oparty na relacyjnej bazie danych. To nie był dobry pomysł. Trafiłem na problem ogólnej wydajności takiego rozwiązania. Rejestrowane sygnały cechowały się wysoką granulacją. Dodatkowo, dostępne systemy baz danych nie były przygotowane na ciągły i nieskończony napływ danych.

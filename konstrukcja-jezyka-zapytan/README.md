@@ -1,10 +1,3 @@
----
-description: >-
-  Podobnie jak SQL oparto na algebrze zbiorów, RQL jest oparty na algebrze
-  regularnych serii czasowych - rozdział: Podstawy matematyczne
-icon: '2'
----
-
 # Konstrukcja języka zapytań
 
 Komunikacja pomiędzy opracowanym systemem a użytkownikiem odbywa się za pomocą opracowanego, deklaratywnego języka zapytań. Konstrukcja języka oparta jest na przedstawionej w poprzednim rozdziale algebrze. Podobnie jak w przypadku systemów relacyjnych, gdzie algebra relacji tworzy podstawę dla języka SQL – w moim przypadku opracowana algebra tworzy podstawę dla języka zapytań RQL.

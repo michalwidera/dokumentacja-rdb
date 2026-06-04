@@ -1,10 +1,3 @@
----
-description: >-
-  Dyrektywami ogarniam te aspekty konfiguracyjne systemu, które są szczególne
-  dla stworzonych zapytań a nie dla całego systemu.
-icon: gears
----
-
 # Dyrektywy konfiguracyjne
 
 Na chwilę obecną opracowałem trzy dyrektywy konfiguracyjne.

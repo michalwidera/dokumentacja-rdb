@@ -1,7 +1,3 @@
----
-description: Warunek w klauzuli WHEN to wyrażenie logiczne zbudowane z operatorów porównania i spójników.
----
-
 # Warunek logiczny w RULE
 
 Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewaluowane na każdym nowym rekordzie wskazanego strumienia. Jeśli wyrażenie zwraca prawdę — uruchamiany jest proces zdefiniowany w klauzuli `DO`.

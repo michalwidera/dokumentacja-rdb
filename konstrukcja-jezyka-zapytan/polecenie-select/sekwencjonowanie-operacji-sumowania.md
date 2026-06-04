@@ -1,9 +1,3 @@
----
-description: >-
-  Na diagramy kulkowe (ang. Marble Diagrams), po przeczytaniu pierwszej wersji
-  tego dokumentu zwrócił moją uwagę mój brat, Adam - fajne to! Dzięki Adamie!
----
-
 # Sekwencjonowanie operacji sumowania
 
 Do systemu napływają i są przetwarzane w nim dane. Określenie kolejności ich napływu i przetwarzania możemy opisać terminem - sekwencjonowanie. Sposób w jakim zostaną dane połączone opisywany jest przez wyrażenie algebraiczne umieszczone w klauzuli FROM. Wyrażenia te zapisane są w formie szeregu operacji algebraicznych, podlegającym ścisłym regułom. Podobne reguły poznaliśmy w trakcie nauki w szkole podstawowej – były to reguły dotyczące operacji arytmetycznych w zbiorze liczb takich jak dodawanie, mnożenie dzielenie i odejmowanie.
@@ -27,7 +21,7 @@ Program swirly zainstalowany został z repozytorium GitHub \[[6](../../literatur
 
 Modyfikację jaką zastosowałem w moim przypadku użycia to alternatywne znaczenie pionowych linii. W moim przypadku pionowe linia oddzielają jednolite interwały czasowe – prezentujące ilość cykli o które poprosiliśmy przy wywołaniu (w tym przypadku to 3 cykle). Wygenerowany obraz przedstawia Rys. 3:
 
-<figure><img src="../../.gitbook/assets/schemat_kulkowy_operacja_sumy.png" alt=""><figcaption><p>Rys. 3 Schemat Kulkowy - Operacja sumy</p></figcaption></figure>
+<figure><img src="../../assets/schemat_kulkowy_operacja_sumy.png" alt=""><figcaption><p>Rys. 3 Schemat Kulkowy - Operacja sumy</p></figcaption></figure>
 
 W tym miejscu konieczne jest kilka słów wyjaśnienia dotyczące tego generatora oraz sposobu generacji wytycznych dla tego generatora. Wbudowałem w kompilator opcję wizualizacji realizacji sekwencji operacji. Diagramy tworzone przez program Swirly są jednym z wygodnych sposobów prezentacji zależności czasowych. Na wejściu program Swirly oczekuje pliku tekstowego z opisem diagramu. Generator symulujący wskazaną ilość cykli w argumencie i budujący plik dla Swirly został wbudowany w kompilator.
 
@@ -78,7 +72,7 @@ o:=fi
 
 Wywołamy następnie ponownie program swirly zobaczymy bardziej dokładny rysunek przedstawiający sekwencję zdarzeń występujących w systemie.
 
-<figure><img src="../../.gitbook/assets/schemat_kulkowy_sumy.png" alt=""><figcaption><p>Rys. 4 Schemat kulkowy - Suma, diagram zmodyfikowany</p></figcaption></figure>
+<figure><img src="../../assets/schemat_kulkowy_sumy.png" alt=""><figcaption><p>Rys. 4 Schemat kulkowy - Suma, diagram zmodyfikowany</p></figcaption></figure>
 
 Na diagramie przedstawionym na rysunku Rys. 4 widać, które kulki zostały połączone i z których kulek powstały. Przypominam jednak że to obraz poprawiony ręcznie, dla celów tego opracowania – generator wbudowany w kompilator nie realizuje tej funkcjonalności.
 

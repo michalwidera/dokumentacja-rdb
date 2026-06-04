@@ -1,18 +1,11 @@
----
-description: >-
-  Wcześniej przedstawiłem równania, ale poprosiłem czytelnika o zaufanie. Tutaj
-  zaufanie zastępuję dowodem. To strona dla tych, którzy chcą wiedzieć dlaczego
-  to wszystko w ogóle działa.
-icon: scroll
----
-
 # Formalne podstawy i dowody
 
 W rozdziale o [algebrze regularnych serii czasowych](algebra-regularnych-serii-czasowych.md) przedstawiłem zbiór operatorów i opisujące je równania. Świadomie pominąłem tam formalne dowody – chciałem najpierw pokazać _co_ system robi, zanim wyjaśnię _dlaczego_ wolno mu to robić. Ta strona uzupełnia tę lukę. Zebrałem tu formalny szkielet algebry: powiązanie operatorów strumieniowych z teorią układów pokrywających oraz dowody twierdzeń, na których opiera się poprawność i optymalizacja planów zapytań.
 
-{% hint style="info" %}
-Cała poniższa konstrukcja trzyma się w jednej dziedzinie – liczb wymiernych. To nie jest ozdobnik. To jest cały sens. Twierdzenie Beatty potrzebuje liczb niewymiernych, których w komputerze nie ma. Twierdzenie Fraenkela pozwala zejść do liczb wymiernych. Dowody na tej stronie pokazują, że operacje przeplotu i rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty Fraenkela – a więc są realizowalne wyłącznie na liczbach wymiernych.
-{% endhint %}
+> **ℹ️ Info**
+>
+> Cała poniższa konstrukcja trzyma się w jednej dziedzinie – liczb wymiernych. To nie jest ozdobnik. To jest cały sens. Twierdzenie Beatty potrzebuje liczb niewymiernych, których w komputerze nie ma. Twierdzenie Fraenkela pozwala zejść do liczb wymiernych. Dowody na tej stronie pokazują, że operacje przeplotu i rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty Fraenkela – a więc są realizowalne wyłącznie na liczbach wymiernych.
+
 
 ## Układy pokrywające jako fundament
 
@@ -104,9 +97,10 @@ $$
 
 ## Twierdzenie 1: przeplot zapewnia pokrycie zbiorów
 
-{% hint style="success" %}
-**Twierdzenie.** Operacja splątania (przeplotu) zapewnia sekwencyjne pokrycie obu zbiorów zawierających elementy strumieni danych będących jej argumentami.
-{% endhint %}
+> **✅ Uwaga**
+>
+> **Twierdzenie.** Operacja splątania (przeplotu) zapewnia sekwencyjne pokrycie obu zbiorów zawierających elementy strumieni danych będących jej argumentami.
+
 
 **Dowód.** Dowód rozpoczynamy od analizy pierwszego warunku (warunku równości) w równaniu przeplotu. Oznaczmy ten warunek jako (∗):
 
@@ -132,9 +126,10 @@ Po prostym uproszczeniu algebraicznym dochodzimy do tożsamości n = (n + 1) −
 
 To jest centralne twierdzenie tej strony. Dowodzi, że obie sekwencje opisujące operację rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty twierdzenia Fraenkela dla liczb wymiernych. Bez tego twierdzenia cały system pozostaje jedynie obietnicą.
 
-{% hint style="success" %}
-**Twierdzenie.** Operacja rozplątania spełnia postulaty twierdzenia Fraenkela.
-{% endhint %}
+> **✅ Uwaga**
+>
+> **Twierdzenie.** Operacja rozplątania spełnia postulaty twierdzenia Fraenkela.
+
 
 **Dowód – część pierwsza (sprowadzenie do postaci Beatty).** Poszukujemy sposobu przedstawienia sekwencji wyboru kolejnych krotek w operacji rozplątania jako sekwencji Beatty. Sekwencja opisująca wybór krotek ma postać:
 
@@ -240,9 +235,10 @@ Nie istnieją jednak dwie takie liczby, dla których nwd(a, b) = 0. Czyli dla a/
 
 Tak więc oba równania opisujące operację rozplątania są przypadkiem sekwencji Beatty spełniającym postulaty twierdzenia Fraenkela dla liczb wymiernych. ∎
 
-{% hint style="warning" %}
-Praktyczny morał z tego dowodu: w implementacji nie wolno opuszczać dziedziny liczb wymiernych nawet na chwilę. Niejawne rzutowanie wyniku pośredniego na liczbę zmiennoprzecinkową łamie założenia powyższego twierdzenia. Materializację do postaci zmiennoprzecinkowej należy odłożyć do momentu jawnego zastosowania operacji podłogi lub sufitu.
-{% endhint %}
+> **⚠️ Ostrzeżenie**
+>
+> Praktyczny morał z tego dowodu: w implementacji nie wolno opuszczać dziedziny liczb wymiernych nawet na chwilę. Niejawne rzutowanie wyniku pośredniego na liczbę zmiennoprzecinkową łamie założenia powyższego twierdzenia. Materializację do postaci zmiennoprzecinkowej należy odłożyć do momentu jawnego zastosowania operacji podłogi lub sufitu.
+
 
 ## Własności operatorów wykorzystywane w optymalizacji
 
@@ -250,9 +246,10 @@ W oparciu o przedstawioną algebrę można wykazać szereg własności strumieni
 
 ### Zaburzenie kolejności zdarzeń
 
-{% hint style="success" %}
-**Twierdzenie.** Kolejność elementów w strumieniu nie odzwierciedla faktycznej kolejności występowania elementów w świecie rzeczywistym.
-{% endhint %}
+> **✅ Uwaga**
+>
+> **Twierdzenie.** Kolejność elementów w strumieniu nie odzwierciedla faktycznej kolejności występowania elementów w świecie rzeczywistym.
+
 
 **Dowód (przez kontrprzykład).** Rozważmy dwa strumienie:
 
@@ -271,9 +268,10 @@ W strumieniu Tau krotka oznaczona literą `c` występuje po krotce oznaczonej cy
 
 ### Przemienność sumowania
 
-{% hint style="success" %}
-**Twierdzenie.** Operacja sumowania strumieni danych, z pominięciem kolejności atrybutów, jest przemienna.
-{% endhint %}
+> **✅ Uwaga**
+>
+> **Twierdzenie.** Operacja sumowania strumieni danych, z pominięciem kolejności atrybutów, jest przemienna.
+
 
 **Dowód.** Załóżmy, że C = Σ(A, B) oraz D = Σ(S, A). Korzystając ze wzoru na sumę strumieni danych, zapisujemy obie zależności i pomijamy kolejność atrybutów wynikającą z operacji połączenia krotek. Zmieniając kolejność warunków w definicji D oraz podstawiając za symbol S symbol B, otrzymujemy wzór tożsamy ze wzorem na C. Przypadek równych wartości ∆ obu strumieni jest trywialny i został pominięty. Dowodzi to przemienności operacji sumowania. ∎
 
@@ -281,9 +279,10 @@ W strumieniu Tau krotka oznaczona literą `c` występuje po krotce oznaczonej cy
 
 Operacja przeplotu nie jest przemienna (co pokazano w [rozdziale o algebrze](algebra-regularnych-serii-czasowych.md)). Istnieje jednak algebraiczna metoda umożliwiająca zmianę kolejności jej argumentów przy określonych założeniach – co jest cenne w optymalizacji planów zapytań.
 
-{% hint style="success" %}
-**Twierdzenie.** Jeśli wybierzemy dwie liczby naturalne i, k, których stosunek jest równy stosunkowi wartości ∆ strumieni łączonych przeplotem, to przeplot strumieni przesuniętych względem tych wartości tworzy strumień równy strumieniowi powstałemu przez przeplot z zamienioną kolejnością argumentów i przesunięciem o sumę tych liczb.
-{% endhint %}
+> **✅ Uwaga**
+>
+> **Twierdzenie.** Jeśli wybierzemy dwie liczby naturalne i, k, których stosunek jest równy stosunkowi wartości ∆ strumieni łączonych przeplotem, to przeplot strumieni przesuniętych względem tych wartości tworzy strumień równy strumieniowi powstałemu przez przeplot z zamienioną kolejnością argumentów i przesunięciem o sumę tych liczb.
+
 
 Formalnie:
 
@@ -327,6 +326,7 @@ Przedstawione twierdzenia nie są formalnością dla samej formalności. Każde 
 
 Dział matematyki, w którym osadzone są te równania, to teoria układów pokrywających [\[4\]](../literatura.md#4) w obszarze teorii liczb. Pełny formalizm wraz z kompletem dowodów przedstawiłem w pracy [Deterministyczna metoda przetwarzania ciągów danych](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych) [\[3\]](../literatura.md#3).
 
-{% hint style="info" %}
-Numeryczna weryfikacja powyższych równań – prototypy w języku Python operujące na liczbach wymiernych (biblioteka `Fraction`) – znajduje się na stronie [Implementacja modelu](implementacja-programowa.md) oraz w repozytorium [github.com/michalwidera/equations](https://github.com/michalwidera/equations).
-{% endhint %}
+> **ℹ️ Info**
+>
+> Numeryczna weryfikacja powyższych równań – prototypy w języku Python operujące na liczbach wymiernych (biblioteka `Fraction`) – znajduje się na stronie [Implementacja modelu](implementacja-programowa.md) oraz w repozytorium [github.com/michalwidera/equations](https://github.com/michalwidera/equations).
+

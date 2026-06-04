@@ -1,18 +1,11 @@
----
-description: >-
-  "Każde równanie umieszczone w pracy zmniejsza liczbę czytelników o połowę" -
-  Stephen Hawking. No cóż, trudno... bez ofiar się nie obejdzie - humanistów nie
-  będzie mi żal.
-icon: '1'
----
-
 # Podstawy matematyczne
 
 ## Podstawy matematyczne
 
-{% hint style="info" %}
-Czy wiesz co to jest medal Fieldsa? Jest to nagroda przyznawana wyłącznie wybitnym matematykom w wieku poniżej 40 lat. Nazywana jest matematycznym Noblem. Co ciekawe żaden matematyk nie otrzyma nagrody Nobla – zgodnie z życzeniem fundatora. Sam John Charles Fields (1863-1932) był Kanadyjskim matematykiem. John Charles Fields miał jednego doktoranta – Samuela Beatty (1881-1970).
-{% endhint %}
+> **ℹ️ Info**
+>
+> Czy wiesz co to jest medal Fieldsa? Jest to nagroda przyznawana wyłącznie wybitnym matematykom w wieku poniżej 40 lat. Nazywana jest matematycznym Noblem. Co ciekawe żaden matematyk nie otrzyma nagrody Nobla – zgodnie z życzeniem fundatora. Sam John Charles Fields (1863-1932) był Kanadyjskim matematykiem. John Charles Fields miał jednego doktoranta – Samuela Beatty (1881-1970).
+
 
 Samuel Beatty w 1926 roku opublikował następujące twierdzenie [\[1\]](../literatura.md#1):
 
@@ -41,7 +34,7 @@ $$
 
 oraz dokonują podziału zbioru dodatnich liczb całkowitych.
 
-<figure><img src="../.gitbook/assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna pojęcia zbiorów rozłącznych</p></figcaption></figure>
+<figure><img src="../assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna pojęcia zbiorów rozłącznych</p></figcaption></figure>
 
 Te dwie sekwencje dokonują podziału zbioru liczb naturalnych. Oznacza to że dysponując dwoma liczbami niewymiernymi, pomiędzy którymi wskazana w twierdzeniu zależność – będziemy mogli podzielić zbiór wszystkich liczb naturalnych na dwa rozłączne zbiory (Rys. 1).
 

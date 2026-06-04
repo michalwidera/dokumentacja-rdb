@@ -1,30 +1,25 @@
----
-description: >-
-  Przypomnę że w typowym systemie relacyjnym też używamy algebry zbiorów, tylko
-  nie musimy się tym przejmować.
-icon: square-root
----
-
 # Algebra regularnych serii czasowych
 
 Algebra – rozumiana jako konstrukcja w postaci zdefiniowanego zbioru i zdefiniowanych operacji na nim, stanowi podstawę dla opracowanego deklaratywnego język zapytań. W dalszej części pracy odnosząc się do Algebry (bez dodatkowego przymiotnika) będę ją rozumiał jako Algebrę regularnych serii czasowych. Jeśli będę chciał odwołać się do Algebry Relacji – jasno wyspecyfikuję przymiotnik.
 
 Zaproponowałem \[[3](../literatura.md#3)] następującą definicje regularnej serii czasowej (tzw. Modelu danych) oraz następujące operacje i definicje.
 
-{% hint style="success" %}
-Przez strumień danych rozumiemy uporządkowaną parę S := (s<sub>n</sub>,∆) – gdzie pierwszy element to uporządkowania seria danych a drugi, oznaczony symbolem delty to regularny odstęp czasu pomiędzy kolejnymi elementami serii danych.
-{% endhint %}
+> **✅ Uwaga**
+>
+> Przez strumień danych rozumiemy uporządkowaną parę S := (s<sub>n</sub>,∆) – gdzie pierwszy element to uporządkowania seria danych a drugi, oznaczony symbolem delty to regularny odstęp czasu pomiędzy kolejnymi elementami serii danych.
+
 
 Tak zdefiniowaną serię danych w systemie określam jako strumień danych. Taki regularnie przepływający przez system zestaw danych, zazwyczaj opisany schematem danych zawiera pola różnych typów. Każdy odczyt występuje w równym odstępie czasu pomiędzy kolejnymi pomiarami. Taka konstrukcja bardziej przypomina sygnał cyfrowy niż nieregularny strumień danych – jednak oznaczenie jej jako strumień w dalszej części prac badawczych okaże się uzasadnione.
 
-{% hint style="info" %}
-Uwaga:\
-Pojęcie strumień i Seria czasowa w tej pracy używane są zamiennie i oznaczają to samo.\
-Formalnie w literaturze naukowej strumień oznaczany jest jako zbiór par (a,t) – gdzie a oznacza krotkę, a czast oznacza jej moment zarejestrowania lub wystąpienia.\
-W strumieniu dopuszczalne są krotki, których czas t pokrywa się dla różnych krotek. W przypadku serii czasowej rozróżniamy dwa typy serii – regularne i nieregularne.\
-\- W przypadku serii nieregularnych – seria to sekwencja uporządkowanych krotek w czasie – {a<sub>t</sub>,t<sub>n</sub>}, gdzie czas t<sub>n</sub> jest unikalny w zbiorze dla każdej krotki.\
-\- Natomiast seria regularnej serii czasowej może zostać opisana sekwencją krotek i regularnym odstępem czasu pomiędzy ich występowaniem – ({a<sub>t</sub>},D) – i to ta ostatnia definicja jest bazą dalszych operacji w opracowanym systemie.
-{% endhint %}
+> **ℹ️ Info**
+>
+> Uwaga:\
+> Pojęcie strumień i Seria czasowa w tej pracy używane są zamiennie i oznaczają to samo.\
+> Formalnie w literaturze naukowej strumień oznaczany jest jako zbiór par (a,t) – gdzie a oznacza krotkę, a czast oznacza jej moment zarejestrowania lub wystąpienia.\
+> W strumieniu dopuszczalne są krotki, których czas t pokrywa się dla różnych krotek. W przypadku serii czasowej rozróżniamy dwa typy serii – regularne i nieregularne.\
+> \- W przypadku serii nieregularnych – seria to sekwencja uporządkowanych krotek w czasie – {a<sub>t</sub>,t<sub>n</sub>}, gdzie czas t<sub>n</sub> jest unikalny w zbiorze dla każdej krotki.\
+> \- Natomiast seria regularnej serii czasowej może zostać opisana sekwencją krotek i regularnym odstępem czasu pomiędzy ich występowaniem – ({a<sub>t</sub>},D) – i to ta ostatnia definicja jest bazą dalszych operacji w opracowanym systemie.
+
 
 Operacje jakie możemy na takim zbiorze danych wykonać zdefiniowałem następująco:
 

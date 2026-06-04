@@ -1,8 +1,3 @@
----
-description: Licencja poetica - jestem pierwszy to sobie wymyślam nazwy. Nie mam wyjścia.
-icon: trash-can
----
-
 # Substraty
 
 O substratach, efemerydach i artefaktach wspomniałem w rozdziale dotyczącym architektury systemu. W tym przypadku przedstawię przykład.
@@ -224,11 +219,11 @@ SELECT str5[0] STREAM str5 FROM (core0+core1)>3
 
 Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`. Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 25):
 
-<figure><img src="../.gitbook/assets/dedup_przed.svg" alt=""><figcaption><p>Rys. 25. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
+<figure><img src="../assets/dedup_przed.svg" alt=""><figcaption><p>Rys. 25. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
 
 Po uruchomieniu `deduplicateSubstrats()` jeden z duplikatów jest usuwany, a wszystkie odwołania `PUSH_STREAM` przepinane są do ocalałego węzła. W grafie pozostaje jeden wspólny substrat (Rys. 26):
 
-<figure><img src="../.gitbook/assets/dedup_po.svg" alt=""><figcaption><p>Rys. 26. Graf po deduplikacji — jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
+<figure><img src="../assets/dedup_po.svg" alt=""><figcaption><p>Rys. 26. Graf po deduplikacji — jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
 
 Graf po deduplikacji to dokładnie to, co zwraca `xretractor -c -d` — kompilator zawsze prezentuje wynik po wszystkich fazach optymalizacji.
 
@@ -246,7 +241,7 @@ SELECT str4[0] STREAM str4 FROM (core0+core1)>2
 
 `extractIntermediateStreams` wyodrębnia tutaj substrat `STREAM_ADD_core0_core1` dla wyrażenia `core0+core1`. Artefakt `str4` zależy od niego (Rys. 27):
 
-<figure><img src="../.gitbook/assets/absorb_bez_mysum.svg" alt=""><figcaption><p>Rys. 27. Graf z automatycznym substratem STREAM_ADD_core0_core1</p></figcaption></figure>
+<figure><img src="../assets/absorb_bez_mysum.svg" alt=""><figcaption><p>Rys. 27. Graf z automatycznym substratem STREAM_ADD_core0_core1</p></figcaption></figure>
 
 Gdy użytkownik doda jawną deklarację strumienia będącego dokładnie tą samą sumą:
 
@@ -256,7 +251,7 @@ SELECT * STREAM mysum FROM core0+core1
 
 substrat `STREAM_ADD_core0_core1` spełnia wszystkie warunki równoważności względem `mysum` — identyczny interwał, identyczny program tokenów, identyczny schemat pól. Faza `deduplicateSubstrats()` usuwa substrat i przepina wszystkie odwołania `PUSH_STREAM` na `mysum`. Substrat znika z grafu w zupełności (Rys. 28):
 
-<figure><img src="../.gitbook/assets/absorb_z_mysum.svg" alt=""><figcaption><p>Rys. 28. Graf po dodaniu SELECT * STREAM mysum FROM core0+core1 — substrat zastąpiony przez jawny strumień</p></figcaption></figure>
+<figure><img src="../assets/absorb_z_mysum.svg" alt=""><figcaption><p>Rys. 28. Graf po dodaniu SELECT * STREAM mysum FROM core0+core1 — substrat zastąpiony przez jawny strumień</p></figcaption></figure>
 
 Efekt uboczny: `mysum` staje się węzłem wspólnym — obsługuje zarówno własnych konsumentów, jak i tych, którzy wcześniej korzystali z automatycznego substratu. Użytkownik zyskuje przy tym jawną nazwę dla wyników pośrednich i może odpytywać je przez `xqry`.
 

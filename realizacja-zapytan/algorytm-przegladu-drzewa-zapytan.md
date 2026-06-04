@@ -1,7 +1,3 @@
----
-icon: tree-deciduous
----
-
 # Algorytm przeglądu drzewa zapytań
 
 ## Przegląd ogólny

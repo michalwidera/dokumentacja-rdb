@@ -1,8 +1,3 @@
----
-description: Dotkniesz czegoś skomplikowanego, wszystko stanie się skomplikowane.
-icon: arrow-up-1-9
----
-
 # Równanie typów w górę
 
 Co się dzieje w przypadku, kiedy mnożymy dane typu BYTE z danymi typu INTEGER ? W systemie RetractorDB obowiązują ścisłe zasady równania typów w górę. Pomnożenie pola typu BYTE z wartością pola, które jest typu INTEGER spowoduje powstanie w schemacie typu pola INTEGER. To dzieje się na etapie kompilacji.

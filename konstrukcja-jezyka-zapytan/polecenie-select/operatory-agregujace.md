@@ -1,7 +1,3 @@
----
-description: MIN, MAX, AVG, SUMC i to_string — operacje redukujące okno danych do jednej wartości.
----
-
 # Operatory agregujące i funkcje wyrażeń
 
 ## Agregaty okna (MIN, MAX, AVG, SUMC)
@@ -83,9 +79,10 @@ to_string(wyrażenie)
 
 Parametr `szerokość` (liczba naturalna po dwukropku `:`) określa szerokość pola wyjściowego w bajtach. Pominięcie parametru daje domyślną szerokość 32 bajtów.
 
-{% hint style="info" %}
-Separator argumentów to dwukropek `:`, nie przecinek `,`. Przecinek jest separatorem listy SELECT — użycie przecinka w `to_string(x, n)` spowoduje błąd parsowania.
-{% endhint %}
+> **ℹ️ Info**
+>
+> Separator argumentów to dwukropek `:`, nie przecinek `,`. Przecinek jest separatorem listy SELECT — użycie przecinka w `to_string(x, n)` spowoduje błąd parsowania.
+
 
 ### Przykład
 

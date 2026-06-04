@@ -1,8 +1,3 @@
----
-description: Skąd kompilator wie, jak często liczyć wynik? Z równań algebraicznych.
-icon: stopwatch-20
----
-
 # Rozwiązywanie interwałów
 
 Każdy strumień w RetractorDB ma przypisany interwał czasowy — delta (Δ). Interwał określa, jak często produkowane są nowe wartości. Dla strumieni deklarowanych (`DECLARE`) interwał podaje użytkownik. Dla strumieni wynikowych (`SELECT`) interwał wyznacza kompilator z równań algebry strumieni.

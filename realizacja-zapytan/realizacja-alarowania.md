@@ -1,10 +1,3 @@
----
-description: >-
-  Jak system ewaluuje warunki RULE i wykonuje akcje DO SYSTEM / DO DUMP
-  w czasie rzeczywistym — krok po kroku.
-icon: bell-ring
----
-
 # Realizacja alarmowania
 
 Mechanizm alarmowania (dyrektywa `RULE`) jest nieodłączną częścią głównej pętli przetwarzania. Nie jest osobnym procesem działającym w tle — reguły są ewaluowane **synchronicznie**, w tej samej iteracji siatki czasowej co obliczenia `SELECT`. Daje to pewność, że alarm zawsze odnosi się do danych właśnie obliczonych, a nie z poprzedniego cyklu.
@@ -65,9 +58,10 @@ Kod wyjścia polecenia jest sprawdzany:
 - `≠ 0` — xretractor loguje błąd przez spdlog z kodem wyjścia.
 - Niepowodzenie `system()` (np. brak powłoki) — logowany jako błąd krytyczny.
 
-{% hint style="warning" %}
-Polecenie wykonywane jest synchronicznie. Długo trwające skrypty (np. wysyłanie dużych plików, wywołania sieciowe z timeoutem) opóźnią cały cykl przetwarzania. W takich przypadkach zaleca się uruchamianie procesu w tle: `DO SYSTEM 'mój_skrypt &'`.
-{% endhint %}
+> **⚠️ Ostrzeżenie**
+>
+> Polecenie wykonywane jest synchronicznie. Długo trwające skrypty (np. wysyłanie dużych plików, wywołania sieciowe z timeoutem) opóźnią cały cykl przetwarzania. W takich przypadkach zaleca się uruchamianie procesu w tle: `DO SYSTEM 'mój_skrypt &'`.
+
 
 ***
 

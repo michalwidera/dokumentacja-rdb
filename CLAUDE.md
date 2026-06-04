@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **GitBook documentation repository** for [RetractorDB](https://github.com/michalwidera/retractordb), an Edge Signal Processing Engine (ESPE) for real-time regular time series data. All content is written in **Polish**. There is no source code, build system, or test suite — the workflow is: edit Markdown → commit → GitBook auto-publishes.
 
-The table of contents is defined in [SUMMARY.md](SUMMARY.md). Images and assets live in [.gitbook/assets/](.gitbook/assets/).
+The table of contents is defined in [SUMMARY.md](SUMMARY.md). Images and assets live in [assets/](assets/).
 
 ## RetractorDB Architecture (Documentation Subject)
 

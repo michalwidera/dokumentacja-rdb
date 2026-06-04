@@ -1,7 +1,3 @@
----
-description: VOLATILE tworzy zapytanie, które nie zajmuje miejsca na dysku.
----
-
 # Klauzula VOLATILE
 
 Klauzula `VOLATILE` w poleceniu `SELECT` tworzy strumień przechowujący wyłącznie jeden rekord w pamięci. Na dysku pojawia się jedynie plik deskryptora `.desc` opisujący schemat danych — same dane nigdy nie są zapisywane.

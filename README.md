@@ -1,21 +1,16 @@
----
-description: >-
-  Gdzie ten projekt leży w mapie wiedzy. Z kim sąsiaduje, czego nie powtarza i
-  jaka właściwie luka pozostała do wypełnienia.
-icon: map-location-dot
----
-
 # RetractorDB
 
 Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję pięć nurtów recenzowanej literatury, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero nałożenie tych pięciu warstw na siebie pokazuje lukę, którą ten projekt wypełnia.
 
-{% hint style="success" %}
-Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów)
-{% endhint %}
+> **✅ Uwaga**
+>
+> Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów)
 
-{% hint style="info" %}
-Dlaczego umieściłem ten rozdział tak wcześnie? Bo uczciwa odpowiedź na pytanie „czy to jest potrzebne?" wymaga najpierw pokazania, co już istnieje. Większość pomysłów w informatyce została już raz pomyślana – wymyślanie koła na nowo to marnowanie cudzego wysiłku. Ten rozdział jest moją próbą udowodnienia, że akurat tego koła jeszcze nie wynaleziono.
-{% endhint %}
+
+> **ℹ️ Info**
+>
+> Dlaczego umieściłem ten rozdział tak wcześnie? Bo uczciwa odpowiedź na pytanie „czy to jest potrzebne?" wymaga najpierw pokazania, co już istnieje. Większość pomysłów w informatyce została już raz pomyślana – wymyślanie koła na nowo to marnowanie cudzego wysiłku. Ten rozdział jest moją próbą udowodnienia, że akurat tego koła jeszcze nie wynaleziono.
+
 
 ## Pięć sąsiednich dziedzin
 
@@ -84,9 +79,10 @@ Po nałożeniu pięciu warstw obraz staje się czytelny. Każda dziedzina dotyka
 
 Wkład RetractorDB nie leży w żadnym pojedynczym składniku – leży w ich **syntezie**: w użyciu układów pokrywających (wymiernych sekwencji Beatty'ego i twierdzenia Fraenkela) jako semantycznego fundamentu deklaratywnej algebry strumieni, która realizuje dokładne operatory przetwarzania sygnałów wewnątrz systemu bazodanowego, w rygorze twardego czasu rzeczywistego. Teoria liczb ma Beatty'ego i nawet szeregowanie, ale nie łączy ich z bazą ani z DSP. DSP ma multirate i wymierne banki filtrów, ale nie sięga po Fraenkela i nie ujmuje tego jako języka zapytań. DSMS ma algebry strumieni i reguły optymalizacji, ale na modelu okienkowym (s, τ), nie różnicowym (sₙ, Δ). To przecięcie jest puste.
 
-{% hint style="warning" %}
-Stąd realne ryzyko, które wprost wskazuję: społeczność szeregowania publikuje tę samą maszynerię Beatty'ego/Fraenkela w latach 2023–2026. Pomost „układy pokrywające ↔ wyrównanie strumieni i DSP" postawiłem publikacją już w 2006 roku [\[3\]](literatura.md#3), lecz w miejscu o niskiej odnajdywalności. Jeśli ten wynik nie trafi do dobrze cytowanego obiegu, ten sam pomost może zostać niezależnie postawiony i przypisany komu innemu.
-{% endhint %}
+> **⚠️ Ostrzeżenie**
+>
+> Stąd realne ryzyko, które wprost wskazuję: społeczność szeregowania publikuje tę samą maszynerię Beatty'ego/Fraenkela w latach 2023–2026. Pomost „układy pokrywające ↔ wyrównanie strumieni i DSP" postawiłem publikacją już w 2006 roku [\[3\]](literatura.md#3), lecz w miejscu o niskiej odnajdywalności. Jeśli ten wynik nie trafi do dobrze cytowanego obiegu, ten sam pomost może zostać niezależnie postawiony i przypisany komu innemu.
+
 
 ## Zastrzeżenie metodologiczne
 

@@ -1,10 +1,3 @@
----
-description: >-
-  Idąc tą ścieżką nie liczyłem się z koniecznością zdobycia umiejętności
-  opisanych w księdze smoka.
-icon: '4'
----
-
 # Kompilacja zapytań
 
 Uważny czytelnik zauważy zapewne, że w przedstawionych w poprzednim rozdziale skompilowanych planach realizacji zapytań pewne wartości nie odpowiadają temu, co zostało napisane w zapytaniu.

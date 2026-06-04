@@ -30,7 +30,7 @@ Oba okna proponuję ustawić obok siebie. Zobaczymy, że pojawianie się wartoś
 
 Zapis sesji (Rys. 8):
 
-<figure><img src="../../.gitbook/assets/alarm-example.svg" alt=""><figcaption><p>Rys. 8 Zapis sesji przykładu alarmowania</p></figcaption></figure>
+<figure><img src="../../assets/alarm-example.svg" alt=""><figcaption><p>Rys. 8 Zapis sesji przykładu alarmowania</p></figcaption></figure>
 
 ## Przykład 2: zapis kontekstu zdarzenia (DO DUMP)
 

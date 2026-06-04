@@ -1,7 +1,3 @@
----
-description: Każdy typ STORAGE to inna klasa C++ z innym zachowaniem wobec dysku i retencji.
----
-
 # Typy STORAGE
 
 Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jeden z następujących identyfikatorów. Każdy mapuje się na konkretną klasę akcesora danych w implementacji.

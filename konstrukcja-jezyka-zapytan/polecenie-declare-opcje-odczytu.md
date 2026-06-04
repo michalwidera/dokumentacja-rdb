@@ -1,7 +1,3 @@
----
-description: ONESHOT, DISPOSABLE i HOLD sterują cyklem życia źródła danych.
----
-
 # Opcje odczytu w DECLARE
 
 Polecenie `DECLARE` przyjmuje trzy opcjonalne dyrektywy wpływające na sposób odczytu i cykl życia zadeklarowanego źródła:

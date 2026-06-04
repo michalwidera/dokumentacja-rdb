@@ -1,10 +1,3 @@
----
-description: >-
-  Tak naprawdę to zaczęło się wszystko tutaj od modeli w Pythonie. Matematyka
-  powstała później ...
-icon: calculator-simple
----
-
 # Implementacja modelu
 
 Opracowane równania algebry zaimplementowano pierwotnie w języku Python. Jest to znany mi najbardziej efektywny sposób modelowania i numerycznego weryfikowania hipotez. Każdy z operatorów został zaimplementowany wewnątrz osobnej funkcji. Operacje realizowane na zmiennych wymiernych (biblioteka Fraction). Wyniki prezentowane są w postaci ograniczonych tablic. Operatory te jednak w końcowej implementacji realizują operacje na nieskończonych strukturach danych.
@@ -13,8 +6,8 @@ Opracowane równania algebry zaimplementowano pierwotnie w języku Python. Jest 
 
 Na początku zbudujmy operację przeplotu:
 
-{% tabs %}
-{% tab title="Kod źródłowy" %}
+**Kod źródłowy**
+
 ```python
 # Operacja splątania (hash) dwóch list z określonymi krokami (delta).
 from fractions import Fraction
@@ -47,9 +40,11 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-{% endtab %}
 
-{% tab title="Efekt uruchomienia" %}
+---
+
+**Efekt uruchomienia**
+
 ```
 $ python hash.py
 A: range(1, 11) deltaA: 1/2
@@ -57,8 +52,7 @@ B: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'] deltaB: 1/2
 Hash(A,B): ['a', 1, 'b', 2, 'c', 3, 'd', 4, 'e', 5] deltaHash: 1/4
 Hash(B,A): [1, 'a', 2, 'b', 3, 'c', 4, 'd', 5, 'e'] deltaHash: 1/4
 ```
-{% endtab %}
-{% endtabs %}
+
 
 Kod po uruchomieniu przedstawi dane wejściowe A oraz B - oraz wyniki operacji A#B oraz B#A. Jak widać operacja przeplotu nie jest przemienna.
 
@@ -66,8 +60,8 @@ Kod po uruchomieniu przedstawi dane wejściowe A oraz B - oraz wyniki operacji A
 
 Operacja rozplątania wymaga zaimplementowania dwóch komplementarnych operacji.
 
-{% tabs %}
-{% tab title="Kod źródłowy - even" %}
+**Kod źródłowy - even**
+
 ```python
 # Operacja rozplątania (dehash) even.
 from fractions import Fraction
@@ -107,17 +101,21 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-{% endtab %}
 
-{% tab title="wynik - even" %}
+---
+
+**wynik - even**
+
 ```
 $ python dehash_even.py
 Hash(A,B): [1, 'a', 2, 'b', 3, 'c', 4, 'd', 5, 'e'] deltaHash: 1/4
 Mod(Hash): ['a', 'b', 'c', 'd', 'e', 'f'] deltaMod: 1/2
 ```
-{% endtab %}
 
-{% tab title="Kod źródłowy - odd" %}
+---
+
+**Kod źródłowy - odd**
+
 ```python
 # Operacja rozplątania (dehash) odd.
 from fractions import Fraction
@@ -157,16 +155,17 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-{% endtab %}
 
-{% tab title="wynik - odd" %}
+---
+
+**wynik - odd**
+
 ```
 $ python dehash_odd.py
 Hash(A,B): [1, 'a', 2, 'b', 3, 'c', 4, 'd', 5, 'e']  deltaHash: 1/4
 Div(Hash): [1, 2, 3, 4, 5, 6]  deltaDiv: 1/2
 ```
-{% endtab %}
-{% endtabs %}
+
 
 Tak zbudowany kod najpierw łączy dwa strumienie a następnie wyciąga dane źródłowe.
 
@@ -174,8 +173,8 @@ Tak zbudowany kod najpierw łączy dwa strumienie a następnie wyciąga dane źr
 
 Sumowanie łączy dwa strumienie danych napływające z różną czestotliwością.
 
-{% tabs %}
-{% tab title="Kod źródłowy" %}
+**Kod źródłowy**
+
 ```python
 # operacja sumowania dwóch list z określonymi krokami (delta).
 from fractions import Fraction
@@ -205,24 +204,25 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-{% endtab %}
 
-{% tab title="wynik" %}
+---
+
+**wynik**
+
 ```
 $  python sum.py
 A: range(1, 11)  deltaA: 1/2
 B: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']  deltaB: 1
 Sum: ['1a', '2a', '3b', '4b', '5c', '6c', '7d', '8d', '9e', '10e']  deltaSum: 1/2
 ```
-{% endtab %}
-{% endtabs %}
+
 
 ### Operacja różnicy
 
 Komplementarną operacją dla sumy jest operacja różnicy.
 
-{% tabs %}
-{% tab title="Kod źródłowy" %}
+**Kod źródłowy**
+
 ```python
 # Operacja różnicy (diff) dwóch list z określonymi krokami (delta).
 from fractions import Fraction
@@ -262,16 +262,17 @@ def main():
 if __name__ == '__main__':
     main()
 ```
-{% endtab %}
 
-{% tab title="wynik" %}
+---
+
+**wynik**
+
 ```
 $ python diff.py
 Sum: ['1a', '2a', '3b', '4b', '5c', '6c', '7d', '8d', '9e', '10e']  deltaSum: 1/2
 Diff(Sum): ['1a', '2a', '3b', '4b', '5c', '6c', '7d', '8d', '9e', '10e']  deltaDiff: 1/2
 ```
-{% endtab %}
-{% endtabs %}
+
 
 ### Kody źródłowe
 
@@ -279,6 +280,6 @@ Kody źródłowe przedstawionych przykładów zjadują się w repozytorium proje
 
 Implementacja w języku javascript możliwa do przetestowania bezpośrednio na stonie:
 
-{% embed url="https://retractordb.com/assets/interlace.html" %}
+[https://retractordb.com/assets/interlace.html](https://retractordb.com/assets/interlace.html)
 
-{% embed url="https://retractordb.com/assets/sum.html" %}
+[https://retractordb.com/assets/sum.html](https://retractordb.com/assets/sum.html)

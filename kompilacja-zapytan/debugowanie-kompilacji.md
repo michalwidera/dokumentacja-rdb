@@ -1,8 +1,3 @@
----
-description: Jak obserwować, co kompilator faktycznie zrobił z zapytaniem.
-icon: bug
----
-
 # Debugowanie kompilacji
 
 Kompilator transformuje plik `.rql` w plan wykonania przez kilka etapów. Efekt każdego etapu jest widoczny przez flagi diagnostyczne `xretractor`. Opisane tutaj narzędzia pozwalają odpowiedzieć na pytania: dlaczego schemat wygląda inaczej niż napisałem? skąd ta delta? dlaczego pojawił się substrat?

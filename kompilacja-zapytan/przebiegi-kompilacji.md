@@ -1,8 +1,3 @@
----
-description: Kompilacja to nie jeden krok, lecz łańcuch kolejnych przekształceń.
-icon: shoe-prints
----
-
 # Przebiegi kompilacji
 
 Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transformuje wewnętrzną reprezentację zapytań — drzewo `qTree` — i przekazuje wynik do następnego. Kolejność jest ściśle ustalona: każdy etap zakłada, że poprzedni zakończył się sukcesem.

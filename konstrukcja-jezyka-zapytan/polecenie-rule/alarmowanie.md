@@ -33,7 +33,7 @@ dot -Tpng out.dot -o out.png
 
 Wyświetlając plik out.png zobaczymy na ekranie coś zbliżonego (Rys. 6):
 
-<figure><img src="../../.gitbook/assets/zaleznosc_obiektow_alarmowania.png" alt=""><figcaption><p>Rys. 6 Zależność obiektów w przypadku użycia alarmowania</p></figcaption></figure>
+<figure><img src="../../assets/zaleznosc_obiektow_alarmowania.png" alt=""><figcaption><p>Rys. 6 Zależność obiektów w przypadku użycia alarmowania</p></figcaption></figure>
 
 Obraz zaprezentuje jaka zachodzi zależność pomiędzy procesami odpowiedzialnymi za artefakty, alarmowanie oraz efemerydy. Równie dobrze powinno się udać podłączyć proces odpowiedzialny za alarmowanie do substratu.
 
@@ -50,6 +50,6 @@ dot -Tpng out.dot -o out.png
 
 Plik wyjściowy prezentuje się w następujący sposób (Rys. 7):
 
-<figure><img src="../../.gitbook/assets/warunek_uruchomienia_alarmowania.png" alt=""><figcaption><p>Rys. 7 Kod odpowiedzialny za warunek uruchomienia alarmowania.</p></figcaption></figure>
+<figure><img src="../../assets/warunek_uruchomienia_alarmowania.png" alt=""><figcaption><p>Rys. 7 Kod odpowiedzialny za warunek uruchomienia alarmowania.</p></figcaption></figure>
 
 Ten warunek musi zostać w ostatecznej formie wyliczony do wyrażenie reprezentującego prawdę lub fałsz.

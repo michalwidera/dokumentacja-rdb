@@ -1,8 +1,3 @@
----
-description: Graf zależności musi być acykliczny. Kompilator to sprawdza.
-icon: arrows-spin
----
-
 # Wykrywanie pętli w kompilacji
 
 Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśli zapytanie odwołuje się — bezpośrednio lub pośrednio — do własnych wyników, powstaje cykl. Kompilator wykrywa taką sytuację i kończy kompilację z błędem.

@@ -1,8 +1,3 @@
----
-description: To jest jedna z tych funkcji języka, na które się nie zwraca uwagi. Niedobrze.
-icon: rotate
----
-
 # Aliasowanie
 
 W przypadku, w którym złączymy dwa strumienie danych operatorem sumy. Pojawi się nowy schemat danych. Do kolejnych wartości tego schematu możemy odwoływać się poprzez nazwę strumienia danych indeksowanych kolejno względem początku schematu.

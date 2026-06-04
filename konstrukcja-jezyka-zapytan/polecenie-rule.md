@@ -1,10 +1,3 @@
----
-description: >-
-  Tym poleceniem możesz wytworzyć reakcje systemu na zachodzące zjawiska.
-  Alarmowanie ma szerokie zastosowanie.
-icon: alarm-exclamation
----
-
 # Polecenie RULE
 
 To polecenie to jedno z ostatnich opracowanych przeze mnie rozszerzeń systemu. Rozszerza ono funkcjonalność systemu o mechanizm alarmowania.

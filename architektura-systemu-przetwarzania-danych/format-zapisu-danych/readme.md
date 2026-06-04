@@ -1,11 +1,3 @@
----
-description: >-
-  Format zapisu danych wymaga uwzględnienia zależności czasowych w opracowanym
-  systemie. Zależności te powinny oprócz zarejestrowanych danych odtworzyć
-  kolejność ich zarejestrowania oraz przerwy w przep
-icon: line-height
----
-
 # Format zapisu danych
 
 W systemie przetwarzane są serie czasowe w trzech postaciach: **artefaktów**, **efemerydów** i **substratów**. Każdy typ ma inne przeznaczenie i inną strategię przechowywania.

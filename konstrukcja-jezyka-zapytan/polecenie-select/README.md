@@ -1,10 +1,3 @@
----
-description: >-
-  Tym poleceniem wytworzysz artefakty i substraty. Substraty stworzą się same,
-  jako efekt uboczny.
-icon: function
----
-
 # Polecenie SELECT
 
 Każde polecenie SELECT w systemie RetractorDB tworzy ciągłe zapytania. Zapytania te realizowane są od momentu pojawienia się w systemie aż do zakończenia pracy systemu.

@@ -1,10 +1,3 @@
----
-description: >-
-  W zapytaniach pojawiają się nienaturalnie połączone operacje i argumenty.
-  Tutaj znajdziesz wyjaśnienie.
-icon: sigma
----
-
 # Wyrażenia algebraiczne
 
 Zdefiniowana algebra pociąga za sobą możliwość definicji wyrażeń algebraicznych. Typowe wyrażenia algebraiczne w zbiorze liczb wymiernych to materiał przerabiany w szkole podstawowej. Wyrażenia algebraiczne w systemie RetractorDB występują w dwóch formach. Na liście pól polecenia SELECT – mamy wyrażenia typowe, znane ze szkoły podstawowej. Na liście argumentów polecenia SELECT w klauzuli FROM mamy wyrażenie algebraiczne zbudowane w oparciu o nową, zdefiniowaną algebrę.

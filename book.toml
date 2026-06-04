@@ -1,0 +1,13 @@
+[book]
+title = "RetractorDB"
+authors = ["Michal Widera"]
+language = "pl"
+src = "."
+
+[build]
+build-dir = "book"
+
+[output.html]
+no-section-label = false
+git-repository-url = "https://github.com/michalwidera/gitbook-rdb"
+edit-url-template = "https://github.com/michalwidera/gitbook-rdb/edit/main/{path}"

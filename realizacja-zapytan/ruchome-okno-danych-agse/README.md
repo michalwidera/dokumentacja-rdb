@@ -1,7 +1,3 @@
----
-icon: window-frame
----
-
 # Ruchome okno danych AGSE
 
 Ruchome okno danych to pojęcie powszechnie stosowane w systemach przetwarzających strumienie lub serie czasowe. Idea polega na grupowaniu danych w oknach czasowych, dając możliwość użytkownikowi możliwość przetwarzania w zamrożonych migawkach.

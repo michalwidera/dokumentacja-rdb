@@ -1,7 +1,3 @@
----
-icon: trash-arrow-up
----
-
 # Odtwarzanie strumienia
 
 Serie czasowe bardzo często rozumiemy jako dane oznaczone znacznikami czasowymi. Dane zachowane np. w pliku możemy dowolnie przetwarzać – zachowując ich kolejność w oparciu o zarejestrowane zależności czasowe. System RetractorDB został wyposażony w możliwość ponownego wyemitowania takiego strumienia zachowując zarejestrowane zależności czasowe, tak jakby faktycznie ponownie te dane napływały.
@@ -66,4 +62,4 @@ $ xqry -s core
 
 Nagrany przykład poniżej (Rys. 43):
 
-<figure><img src="../.gitbook/assets/adhoc-example.svg" alt=""><figcaption><p>Rys. 43 Nagrany przykład odtwarzania strumienia</p></figcaption></figure>
+<figure><img src="../assets/adhoc-example.svg" alt=""><figcaption><p>Rys. 43 Nagrany przykład odtwarzania strumienia</p></figcaption></figure>
