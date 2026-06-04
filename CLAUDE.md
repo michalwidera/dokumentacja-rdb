@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an **mdBook documentation repository** for [RetractorDB](https://github.com/michalwidera/retractordb), an Edge Signal Processing Engine (ESPE) for real-time regular time series data. All content is written in **Polish**.
 
-**Build system:** mdBook (not GitBook). Workflow: edit Markdown → commit → GitHub Actions builds and publishes to GitHub Pages (`https://michalwidera.github.io/gitbook-rdb/`).
+**Build system:** mdBook (not GitBook). Workflow: edit Markdown → commit → GitHub Actions builds and publishes to GitHub Pages.
+
+**Live site:** `https://michalwidera.github.io/gitbook-rdb/` — this is the canonical rendered version. Always verify math and diagrams against this URL after pushing, not against VS Code preview (which doesn't render MathJax or Mermaid).
 
 The table of contents is defined in [SUMMARY.md](SUMMARY.md). Images and assets live in [assets/](assets/).
 
@@ -26,7 +28,11 @@ mdbook build               # output → book/
 
 ## Authoring Rules
 
-- **Math:** use `$$...$$` for display math, `$...$` for inline. Do NOT convert to `\[...\]` — the Markdown parser (pulldown-cmark) would corrupt `\{`, `\}` etc. inside LaTeX. mdBook ≥ 0.4.35 handles `$$` natively via the math extension.
+- **Math:** use `\\[...\\]` for display math, `\\(...\\)` for inline. **Do NOT use `$$...$$`** — officially unsupported by mdBook (the docs say "The usual delimiters MathJax uses are not yet supported"). Inside `\\[...\\]` the Markdown parser still runs, so double-escape these characters:
+  - `\{` → `\\{`, `\}` → `\\}` (e.g. `\left\\{`)
+  - `\\` (array row separator) → `\\\\`
+  - `\!` → `\\!`, `\#` → `\\#`, `\&` → `\\&`, `\%` → `\\%`
+  - Alphabetic commands (`\frac`, `\left`, `\Delta`, etc.) need no extra escaping.
 - **Diagrams:** use standard ` ```mermaid ``` ` fenced blocks — rendered by `mdbook-mermaid` plugin.
 - **Callouts:** use blockquotes with bold prefix: `> **ℹ️ Info**` / `> **⚠️ Ostrzeżenie**` / `> **✅ Uwaga**`.
 - **Images:** paths relative to each `.md` file pointing to `assets/` (e.g. `../assets/foo.png` from a subdirectory).

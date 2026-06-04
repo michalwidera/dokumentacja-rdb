@@ -33,7 +33,7 @@ Każda runda rozwiązuje co najmniej jeden strumień — bo graf jest acykliczny
 SELECT ... STREAM c FROM a + b
 ```
 
-$$\Delta_c = \min(\Delta_a, \Delta_b)$$
+\\[\Delta_c = \min(\Delta_a, \Delta_b)\\]
 
 Strumień wynikowy produkuje wartości tak często, jak szybszy ze strumieni wejściowych.
 
@@ -45,7 +45,7 @@ Przykład: core0(Δ=1/10) + core1(Δ=1/5) → str1(Δ=1/10)
 SELECT ... STREAM c FROM a # b
 ```
 
-$$\Delta_c = \frac{\Delta_a \cdot \Delta_b}{\Delta_a + \Delta_b}$$
+\\[\Delta_c = \frac{\Delta_a \cdot \Delta_b}{\Delta_a + \Delta_b}\\]
 
 Wynik odpowiada średniej harmonicznej interwałów — strumień produkuje wartości tylko wtedy, gdy oba wejścia są dostępne jednocześnie.
 
@@ -57,13 +57,13 @@ Przykład: core0(Δ=1/10) # core1(Δ=1/5) → str1(Δ=1/15)
 SELECT ... STREAM c FROM a > n
 ```
 
-$$\Delta_c = \Delta_a$$
+\\[\Delta_c = \Delta_a\\]
 
 Przesunięcie nie zmienia częstotliwości strumienia — tylko przesuwa okno odczytu o n próbek.
 
 ### Agregaty okienkowe (`.max`, `.min`, `.avg`, `.sum`)
 
-$$\Delta_c = \Delta_a$$
+\\[\Delta_c = \Delta_a\\]
 
 Agregaty redukują wartości w oknie, ale interwał strumienia wyjściowego pozostaje taki sam jak źródłowego.
 
@@ -73,7 +73,7 @@ Agregaty redukują wartości w oknie, ale interwał strumienia wyjściowego pozo
 SELECT ... STREAM c FROM a @ (step, window)
 ```
 
-$$\Delta_c = \frac{\Delta_a \cdot \text{step}}{\text{windowSize}}$$
+\\[\Delta_c = \frac{\Delta_a \cdot \text{step}}{\text{windowSize}}\\]
 
 AGSE (Algorytm Generowania Serii Epizodów) generuje okna przesuwne. Interwał wynikowy zależy od kroku i rozmiaru okna względem źródła.
 
@@ -81,7 +81,7 @@ AGSE (Algorytm Generowania Serii Epizodów) generuje okna przesuwne. Interwał w
 
 Operacje odwrotne do `#` — wyznaczają, jaki interwał miał jeden ze strumieni wejściowych, znając interwał wyniku i drugiego argumentu:
 
-$$\Delta_a = \frac{\Delta_c \cdot \Delta_b}{\left|\Delta_c - \Delta_b\right|}$$
+\\[\Delta_a = \frac{\Delta_c \cdot \Delta_b}{\left|\Delta_c - \Delta_b\right|}\\]
 
 ## Dlaczego iteracja?
 

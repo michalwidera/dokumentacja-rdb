@@ -32,17 +32,17 @@ W operacji przeplotu biorą udział dwa różne strumienie danych.
 
 Definiujemy ją następująco:
 
-$$
-c_{n}=\left\{ 
+\\[
+c_{n}=\left\\{ 
 \begin{array}{cc}
 b_{n-\left\lfloor n z \right\rfloor } & \left\lfloor n z
-\right\rfloor =\left\lfloor \left( n+1\right) z \right\rfloor \\ 
+\right\rfloor =\left\lfloor \left( n+1\right) z \right\rfloor \\\\ 
 a_{\left\lfloor n z \right\rfloor } & \left\lfloor n z \right\rfloor
 \neq \left\lfloor \left( n+1\right) z \right\rfloor%
 \end{array}%
 \right. , z =\frac{\Delta _{b}}{\Delta _{a}+\Delta _{b}},\Delta _{c}=%
 \frac{\Delta _{a}\Delta _{b}}{\Delta _{a}+\Delta _{b}}
-$$
+\\]
 
 Argumentem operacji splątania (przeplotu) są dwa strumienie danych A i B, każdy z własną szybkością napływu danych. Wynikiem jest strumień wynikowy C – z nową różną od dwóch poprzednich szybkością napływu wyznaczoną wzorem powyżej.
 
@@ -52,15 +52,15 @@ Operację rozplątania definiujemy poprzez dwie operacje.
 
 1\. Rozplątanie lewostronne jako strumień A w postaci:
 
-$$
+\\[
 a_{n} = c_{n+ \left\lceil  \frac{(n+1)\Delta _{a}}{\Delta _{b}} \right\rceil },\ \Delta _{a}=\frac{\Delta _{c}\Delta _{b}}{\left\vert \Delta _{c}-\Delta _{b}\right\vert }
-$$
+\\]
 
 2. Rozplątanie prawostronne jako strumień B w postaci:
 
-$$
+\\[
 b_{n} = c_{n+\left\lfloor \frac{n\Delta _{b}}{\Delta _{a}}\right\rfloor},\ \Delta _{b}=\frac{\Delta _{c}\Delta _{a}}{\left\vert \Delta _{c}-\Delta_{a}\right\vert }
-$$
+\\]
 
 Operacje rozplątania 1 i 2 będziemy oznaczać symbolami & i %.
 
@@ -70,28 +70,28 @@ Operacje splątania i rozplątania są komplementarne. Oznacza to że przypomina
 
 Operacje sumy zdefiniowałem następująco:
 
-$$
-c_{n}=\left\{ 
+\\[
+c_{n}=\left\\{ 
 \begin{array}{cc}
 a_{n}|b_{ \left\lfloor  \frac{n\Delta _{a}}{\Delta _{b}} \right\rfloor }  & \Delta
-_{c}=\Delta _{a} \\ 
+_{c}=\Delta _{a} \\\\ 
 a_{ \left\lfloor  \frac {n\Delta _{b}}{\Delta _{a}} \right\rfloor }|b_{n} & \Delta
 _{c}=\Delta _{b}
 \end{array}
 \right. ,\Delta _{c}=\min \left( \Delta _{a},\Delta _{b}\right)
-$$
+\\]
 
 Natomiast różnicę opisuje wzór:
 
-$$
-a_{n}=\left\{ 
+\\[
+a_{n}=\left\\{ 
 \begin{array}{cc}
-c_{n} & \Delta _{b}\geqslant \Delta _{a} \\ 
+c_{n} & \Delta _{b}\geqslant \Delta _{a} \\\\ 
 c_{\left\lceil \frac{n\Delta _{a}}{\Delta _{b}}\right\rceil } & \Delta
 _{b}<\Delta _{a}
 \end{array}
 \right.
-$$
+\\]
 
 Te operacje oznaczać będziemy znakami + oraz -.
 
@@ -105,8 +105,8 @@ Operację Agse oznaczać będę znakiem @.
 
 Podsumowując, algebra będąca podstawą dla deklaratywnego języka zapytań prezentuje się następująco:
 
-$$
-A_{rql}::=((s_n,\Delta_s), (\#,\&,\%,+,-,>,@))
-$$
+\\[
+A_{rql}::=((s_n,\Delta_s), (\\#,\\&,\\%,+,-,>,@))
+\\]
 
 Gdzie pierwszy element pary definiującej algebrę to model danych (s\_n — seria danych, ∆\_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.

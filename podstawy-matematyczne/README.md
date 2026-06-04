@@ -11,26 +11,26 @@ Samuel Beatty w 1926 roku opublikował następujące twierdzenie [\[1\]](../lite
 
 Jeśli p, q są dodatnimi liczbami niewymiernymi i zachodzi pomiędzy nimi zależność
 
-$$
+\\[
 \frac{1}{p}+\frac{1}{q}=1
-$$
+\\]
 
 to sekwencje
 
-$$
-\left\{
-\left\lfloor np\right\rfloor \right\} _{n=1}^{\infty }=\left\lfloor
+\\[
+\left\\{
+\left\lfloor np\right\rfloor \right\\} _{n=1}^{\infty }=\left\lfloor
 p\right\rfloor ,\left\lfloor 2p\right\rfloor ,\left\lfloor 3p\right\rfloor
 ,\ldots
-$$
+\\]
 
 oraz
 
-$$
-\left\{ \left\lfloor nq\right\rfloor \right\}
+\\[
+\left\\{ \left\lfloor nq\right\rfloor \right\\}
 _{n=1}^{\infty }=\left\lfloor q\right\rfloor ,\left\lfloor 2q\right\rfloor
 ,\left\lfloor 3q\right\rfloor ,\ldots
-$$
+\\]
 
 oraz dokonują podziału zbioru dodatnich liczb całkowitych.
 
@@ -46,68 +46,68 @@ Przedstawił on w 1969 roku następujące twierdzenie [\[2\]](../literatura.md#2
 
 Sekwencje
 
-$$
+\\[
 \mathcal{B}(\alpha ,\alpha ^{\prime })
 :=
 \left( \left\lfloor \frac{n-\alpha^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty }
-$$
+\\]
 
 oraz
 
-$$
+\\[
 \mathcal{B}^{(c)}(\alpha ,\alpha ^{\prime }):=
 \left( \left\lceil \frac{n-\alpha ^{\prime }}{\alpha }\right\rceil \right) _{n=1}^{\infty }
-$$
+\\]
 
 dokonują podziału zbioru ℕ wtedy i tylko wtedy gdy następujące pięć warunków zostanie spełnionych:
 
 1\.
 
-$$
+\\[
 0<\alpha<1
-$$
+\\]
 
 2\.
 
-$$
+\\[
 \alpha+\beta=1
-$$
+\\]
 
 3\.
 
-$$
+\\[
 0\leq \alpha +\alpha ^{\prime }\leq 1
-$$
+\\]
 
 4. Jeśli α jest liczbą niewymierną, wtedy:
 
-$$
+\\[
 \alpha ^{\prime }+\beta ^{\prime }=0
-$$
+\\]
 
 <p align="center">i</p>
 
-$$
+\\[
 k\alpha +\alpha ^{\prime }\not\in \mathbb{Z}
-$$
+\\]
 
 <p align="center">dla</p>
 
-$$
+\\[
 2\leq k\in \mathbb{N}
-$$
+\\]
 
 5. Jeśli α jest liczbą wymierną, (niech q∈N będzie najmniejszą liczbą taką że qα∈N), wtedy
 
-$$
+\\[
 \frac{1}{q}\leq \alpha +\alpha ^{\prime }
-$$
+\\]
 
 <p align="center">i</p>
 
-$$
+\\[
 \left\lceil q\alpha ^{\prime }\right\rceil +\left\lceil q\beta ^{\prime}\right\rceil =1
-$$
+\\]
 
 No i to jest to czego potrzebujemy! Liczb niewymiernych co prawda nie mamy, ale liczby wymierne rozumiane jako stosunek dwóch liczb naturalnych to jest temat do ogarnięcia za pomocą komputera.
 

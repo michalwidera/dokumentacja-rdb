@@ -25,7 +25,7 @@ Słowa kluczowe akceptowane są zarówno małymi, jak i wielkimi literami.
 
 Agregaty nie zmieniają częstotliwości strumienia — interwał wyniku jest taki sam jak źródła:
 
-$$\Delta_{wynik} = \Delta_{strumień}$$
+\\[\Delta_{wynik} = \Delta_{strumień}\\]
 
 ### Przykład: średnia ruchoma
 

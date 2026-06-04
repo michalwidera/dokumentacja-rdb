@@ -27,7 +27,7 @@ Parametry nagrania:
 
 Wartości surowe przechowywane są jako liczby całkowite bez jednostek (tzw. wartości ADC). Przeliczenie na miliwolty:
 
-$$\text{mV} = \frac{\text{ADC} - 1024}{200}$$
+\\[\text{mV} = \frac{\text{ADC} - 1024}{200}\\]
 
 Zakres rzeczywistych wartości w pliku rec205 mieści się w przedziale 589–1315 (MLII) i 718–1106 (V1), co odpowiada amplitudzie sygnału w granicach ok. ±1,5 mV.
 
