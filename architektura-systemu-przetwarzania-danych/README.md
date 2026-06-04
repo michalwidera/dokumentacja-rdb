@@ -10,49 +10,33 @@ Kompilacja kodu systemu odbywa się ze wsparciem managera pakietów Conan \[[8](
 
 Rozdział zbudowany jest warstwowo — od widoku ogólnego do szczegółów implementacyjnych.
 
-{% stepper %}
-{% step %}
 ### [Perspektywa ogólna](schemat-architektury.md)
 
 System jako trójka współpracujących programów: `xretractor` jako singleton realizujący plan zapytań, `xqry` jako wieloinstancyjny klient danych bieżących, `xtrdb` jako narzędzie inspekcji plików binarnych. Komunikacja między procesami `xretractor` i `xqry` realizowana jest przez pamięć współdzieloną (Boost IPC). Na schemacie Rys. 9 widać granicę odpowiedzialności każdego z komponentów.
-{% endstep %}
 
-{% step %}
 ### [Przepływ danych i sterowania](przeplyw-danych-i-sterowania.md)
 
 Które ścieżki danych są zawsze aktywne (napływ danych → xretractor → artefakty), a które opcjonalne lub diagnostyczne. Opisano też mechanizm graceful shutdown — xretractor reaguje na sygnały `SIGINT`, `SIGTERM` i `SIGHUP` kończąc bieżący cykl bez ryzyka uszkodzenia plików.
-{% endstep %}
 
-{% step %}
 ### [Artefakty, substraty i efemerydy](artefakty-substraty-efemerydy.md)
 
 Kluczowy podział taksonomiczny systemu. Każdy typ strumienia ma inne przeznaczenie i inną strategię składowania: artefakty materializowane na dysku jako trwały wynik, substraty to strumienie pośrednie niezbędne podczas obliczeń, efemerydy — ulotne źródła danych, których nie można ani nie warto przechowywać.
-{% endstep %}
 
-{% step %}
 ### [Format zapisu danych](format-zapisu-danych.md)
 
 Czteroplikowa struktura artefaktu: plik binarny z danymi (stałej długości rekordy, brak nagłówka), deskryptor `.desc` opisujący schemat rekordu w gramatyce ANTLR4, plik metadanych `.meta` z indeksem wartości null i przerw w transmisji (kodowanie RLE), opcjonalny plik cienia `.shadow` do niedestruktywnej modyfikacji historycznych rekordów. Deskryptor określa strategię składowania przez pole `TYPE`.
-{% endstep %}
 
-{% step %}
 ### [Kompilacja i budowa planu](kompilacja-i-budowa-planu.md)
 
 Proces przekształcania pliku `.rql` w gotowy plan realizacji zapytania. Flaga `-c` uruchamia tryb kompilacji bez wykonania; połączona z `-d -f -s` generuje wyjście DOT, które `graphviz` zamienia w graf przepływu danych. Graf pokazuje dwie domeny: stos wyrażeń arytmetycznych (PUSH, ADD, itp.) i algebrę strumieniową. Opisano pełny zestaw flag trybu kompilacji i wykonania.
-{% endstep %}
 
-{% step %}
 ### [Przetwarzanie i dystrybucja danych](przetwarzanie-i-dystrybucja-danych.md)
 
 Kompletny walkthrough: od przygotowania pliku danych przez uruchomienie `xretractor`, przez podgląd statystyk strumieniowania (`xqry -d`), po wizualizację na żywo w gnuplot (`xqry -s str1 -p 50,50 | gnuplot`) i transmisję przez sieć za pomocą `nc`. Przykład łączy dwa źródła — plik tekstowy i `/dev/urandom` — ilustrując jak operator `+` w klauzuli FROM realizuje algebraiczne łączenie strumieni.
-{% endstep %}
 
-{% step %}
 ### [Analiza artefaktów](analiza-artefaktow.md)
 
 Narzędzie `xtrdb` — interaktywny inspektor plików binarnych wzorowany na stylu dbase. Polecenia `.open`, `.desc`, `.list`, `.rlist` i `.meta` pozwalają przeglądać zawartość artefaktów bez znajomości formatu binarnego. Narzędzie służy też do weryfikacji deterministyczności: te same dane wejściowe powinny zawsze dawać identyczne wyniki.
-{% endstep %}
-{% endstepper %}
 
 ***
 
