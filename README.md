@@ -2,6 +2,10 @@
 
 Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję pięć nurtów recenzowanej literatury, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero nałożenie tych pięciu warstw na siebie pokazuje lukę, którą ten projekt wypełnia.
 
+> **📥 Pobierz dokumentację jako PDF**
+>
+> [retractordb.pdf](retractordb.pdf) — generowany automatycznie przy każdym `git push`.
+
 > **✅ Uwaga**
 >
 > Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów)

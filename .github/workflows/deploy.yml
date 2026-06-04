@@ -30,10 +30,38 @@ jobs:
           curl -sSL https://github.com/badboy/mdbook-mermaid/releases/download/v0.17.0/mdbook-mermaid-v0.17.0-x86_64-unknown-linux-gnu.tar.gz \
             | tar xz -C /usr/local/bin
 
+      - name: Install Pandoc and LaTeX
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q pandoc \
+            texlive-xetex texlive-lang-polish texlive-latex-extra \
+            fonts-dejavu
+
       - name: Build
         run: |
           mdbook-mermaid install .
           mdbook build
+
+      - name: Generate PDF
+        run: |
+          FILES=$(grep -oE '\([^)]+\.md\)' SUMMARY.md | tr -d '()' | while read f; do
+            [ -f "$f" ] && echo "$f"
+          done | tr '\n' ' ')
+          pandoc $FILES \
+            --pdf-engine=xelatex \
+            --toc --toc-depth=2 \
+            --top-level-division=chapter \
+            --standalone \
+            -V lang=pl \
+            -V geometry:margin=2.5cm \
+            -V fontsize=11pt \
+            -V documentclass=report \
+            -V mainfont="DejaVu Serif" \
+            --metadata title="RetractorDB" \
+            --metadata subtitle="Edge Signal Processing Engine" \
+            --metadata author="Michal Widera" \
+            --metadata date="$(date +%Y-%m-%d)" \
+            -o book/retractordb.pdf
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
