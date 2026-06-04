@@ -57,7 +57,13 @@ jobs:
           cat > /tmp/header.tex << 'TEXEOF'
           \usepackage{caption}
           \usepackage{amssymb}
+          \usepackage{tcolorbox}
+          \tcbuselibrary{breakable}
           \captionsetup{labelformat=empty,labelsep=none}
+          \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
+          \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
+          \newtcolorbox{calloutOstrzezenie}{breakable,colback=orange!10,colframe=orange!70!black,fonttitle=\bfseries,title={Ostrzeżenie}}
+          \newtcolorbox{calloutNote}{breakable,colback=blue!6,colframe=blue!50!black,fonttitle=\bfseries,title={Uwaga}}
           TEXEOF
 
           cat > /tmp/cover.tex << COVEOF
@@ -78,6 +84,35 @@ jobs:
               return pandoc.Math(elem.mathtype, text)
           end
           LUAEOF
+
+          cat > /tmp/callouts.lua << 'CALLUAEOF'
+          local envs = {Uwaga="calloutUwaga", Info="calloutInfo",
+                        ["Ostrzeżenie"]="calloutOstrzezenie", NOTE="calloutNote"}
+          local function get_env(text)
+              for k, v in pairs(envs) do
+                  if text:find(k, 1, true) then return v end
+              end
+          end
+          function BlockQuote(el)
+              if #el.content == 0 then return el end
+              local first = el.content[1]
+              if first.t ~= "Para" or #first.content == 0 then return el end
+              local head = first.content[1]
+              if head.t ~= "Strong" then return el end
+              local env = get_env(pandoc.utils.stringify(head))
+              if not env then return el end
+              local body = {}
+              local rest = {}
+              for i = 2, #first.content do table.insert(rest, first.content[i]) end
+              while #rest > 0 and rest[1].t == "Space" do table.remove(rest, 1) end
+              if #rest > 0 then table.insert(body, pandoc.Para(rest)) end
+              for i = 2, #el.content do table.insert(body, el.content[i]) end
+              local out = {pandoc.RawBlock("latex", "\\begin{"..env.."}")}
+              for _, b in ipairs(body) do table.insert(out, b) end
+              table.insert(out, pandoc.RawBlock("latex", "\\end{"..env.."}"))
+              return out
+          end
+          CALLUAEOF
 
           FILES=$(grep -oE '\([^)]+\.md\)' SUMMARY.md | tr -d '()' | while read f; do
             [ -f "$f" ] && echo "$f"
@@ -135,12 +170,15 @@ jobs:
 
           pandoc /tmp/combined.md \
             --from markdown+tex_math_double_backslash \
+            --lua-filter /tmp/callouts.lua \
             --lua-filter /tmp/fix_math.lua \
             --include-in-header=/tmp/header.tex \
             --include-before-body=/tmp/cover.tex \
             --pdf-engine=xelatex \
+            --number-sections \
             --toc --toc-depth=2 \
             --top-level-division=chapter \
+            -V secnumdepth=1 \
             --standalone \
             -V lang=pl \
             -V geometry:margin=2.5cm \
