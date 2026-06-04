@@ -42,11 +42,23 @@ jobs:
 
       - name: Generate PDF
         run: |
+          cat > /tmp/fix_math.lua << 'LUAEOF'
+          function Math(elem)
+              local text = elem.text
+              -- \\X → \X: double-escaped specials written for Markdown, need single for LaTeX
+              text = text:gsub("\\\\([{}!,;:#&%%])", "\\%1")
+              -- \\\\ → \\: Markdown-escaped LaTeX line-break (array row separator)
+              text = text:gsub("\\\\\\\\", "\\\\")
+              return pandoc.Math(elem.mathtype, text)
+          end
+          LUAEOF
+
           FILES=$(grep -oE '\([^)]+\.md\)' SUMMARY.md | tr -d '()' | while read f; do
             [ -f "$f" ] && echo "$f"
           done | tr '\n' ' ')
           pandoc $FILES \
             --from markdown+tex_math_double_backslash \
+            --lua-filter /tmp/fix_math.lua \
             --pdf-engine=xelatex \
             --toc --toc-depth=2 \
             --top-level-division=chapter \
