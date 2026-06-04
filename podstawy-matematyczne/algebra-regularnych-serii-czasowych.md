@@ -73,12 +73,10 @@ Operacje sumy zdefiniowałem następująco:
 \\[
 c_{n}=\left\\{ 
 \begin{array}{cc}
-a_{n}|b_{ \left\lfloor  \frac{n\Delta _{a}}{\Delta _{b}} \right\rfloor }  & \Delta
-_{c}=\Delta _{a} \\\\ 
-a_{ \left\lfloor  \frac {n\Delta _{b}}{\Delta _{a}} \right\rfloor }|b_{n} & \Delta
-_{c}=\Delta _{b}
+a_{n}|b_{ \left\lfloor  \frac{n\Delta_{a}}{\Delta_{b}} \right\rfloor }  & \Delta_{c}=\Delta_{a} \\\\ 
+a_{ \left\lfloor  \frac {n\Delta_{b}}{\Delta_{a}} \right\rfloor }|b_{n} & \Delta_{c}=\Delta_{b}
 \end{array}
-\right. ,\Delta _{c}=\min \left( \Delta _{a},\Delta _{b}\right)
+\right. ,\Delta_{c}=\min \left( \Delta_{a},\Delta_{b}\right)
 \\]
 
 Natomiast różnicę opisuje wzór:
@@ -86,9 +84,8 @@ Natomiast różnicę opisuje wzór:
 \\[
 a_{n}=\left\\{ 
 \begin{array}{cc}
-c_{n} & \Delta _{b}\geqslant \Delta _{a} \\\\ 
-c_{\left\lceil \frac{n\Delta _{a}}{\Delta _{b}}\right\rceil } & \Delta
-_{b}<\Delta _{a}
+c_{n} & \Delta_{b}\geqslant \Delta_{a} \\\\ 
+c_{\left\lceil \frac{n\Delta_{a}}{\Delta_{b}}\right\rceil } & \Delta_{b}<\Delta_{a}
 \end{array}
 \right.
 \\]
