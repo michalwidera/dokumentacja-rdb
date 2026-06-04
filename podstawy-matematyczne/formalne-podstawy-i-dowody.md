@@ -92,7 +92,7 @@ a_{n} = c_{n+ \left\lceil \frac{(n+1)\Delta _{a}}{\Delta _{b}} \right\rceil },\ 
 \\]
 
 \\[
-b_{n} = c_{n+\left\lfloor \frac{n\Delta _{b}}{\Delta _{a}}\right\rfloor},\ \Delta _{b}=\frac{\Delta _{c}\Delta _{a}}{\left\vert \Delta _{c}-\Delta_{a}\right\vert }
+b_{n} = c_{n+\left\lfloor \frac{n\Delta_{b}}{\Delta_{a}}\right\rfloor},\ \Delta_{b}=\frac{\Delta_{c}\Delta_{a}}{\left\vert \Delta_{c}-\Delta_{a}\right\vert }
 \\]
 
 ## Twierdzenie 1: przeplot zapewnia pokrycie zbiorów
@@ -293,13 +293,13 @@ Formalnie:
 **Dowód.** Analizując lewą stronę równania i korzystając z definicji przeplotu, otrzymujemy:
 
 \\[
-\varphi \left( \tau _{i}(A), \tau _{k}(B) \right):\quad c_{n}= \left\\{ \begin{array}{cc} b_{(n-\left\lfloor n z \right\rfloor)+i } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ a_{\left\lfloor n z \right\rfloor +k} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
+\varphi \left( \tau_{i}(A), \tau_{k}(B) \right):\quad c_{n}= \left\\{ \begin{array}{cc} b_{(n-\left\lfloor n z \right\rfloor)+i } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ a_{\left\lfloor n z \right\rfloor +k} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
 \\]
 
 Analizując prawą stronę równania, otrzymujemy:
 
 \\[
-\tau _{i+k}\left( \varphi (B, A) \right):\quad c_{n}= \left\\{ \begin{array}{cc} a_{\left\lfloor (n+i+k) z \right\rfloor } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ b_{n+i+k-\left\lfloor (n+i+k) z \right\rfloor} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
+\tau_{i+k}\left( \varphi (B, A) \right):\quad c_{n}= \left\\{ \begin{array}{cc} a_{\left\lfloor (n+i+k) z \right\rfloor } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ b_{n+i+k-\left\lfloor (n+i+k) z \right\rfloor} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
 \\]
 
 Porównując warunki, dla których oba równania wybierają próbki ze strumienia B, oraz zakładając poprawność tezy, stwierdzamy, że −⌊nz⌋ = k − ⌊(n+i+k)z⌋. Jednocześnie, z założenia o stosunku liczb:
