@@ -7,7 +7,7 @@ Testy integracyjne są podzielone na dwa katalogi ze względu na wymagania dotyc
 ## Testy sekwencyjne — `IntegrationTest_serial`
 
 | Nazwa testu | Opis |
-|-------------|------|
+|:--------|:----------------------------|
 | [`agse1`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_serial/agse1) | Operator okna czasowego `@(start, length)` — warianty do przodu `@(1,4)`, wstecz `@(1,-4)`, różne długości. Patrz: *Ruchome okno danych AGSE*. |
 | [`agse2`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_serial/agse2) | Kombinacje okna `@(n,m)` na strumieniu 3-polowym, wyrównanie i rate-conversion przy proporcjach 1:1, 1:2, 2:3, 2:4. Patrz: *Ruchome okno danych AGSE*. |
 | [`agse3`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_serial/agse3) | Operator `@(n,m)` gdy output rate jest niższy niż input rate (source rate 0.1) — okna `@(3,2)`, `@(3,3)`, `@(3,-3)`. Patrz: *Ruchome okno danych AGSE*. |
@@ -38,7 +38,7 @@ Testy integracyjne są podzielone na dwa katalogi ze względu na wymagania dotyc
 ## Testy równoległe — `IntegrationTest_parallel`
 
 | Nazwa testu | Opis |
-|-------------|------|
+|:--------|:----------------------------|
 | [`dsp`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_parallel/dsp) | Regresja dla potoku filtra FIR: okno przesuwne `@(1,25)`, mnożenie tablicowe indeksem `_`, redukcja `.sumc`, złączenie sygnału i wyjścia. Patrz: *Implementacja filtru sygnałowego*. |
 | [`issue113_meta`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_parallel/issue113_meta) | Operacje `xtrdb` po dwóch `append` — lista rekordów i hexdump pliku binarnego porównywane ze wzorcem. Patrz: *Format zapisu danych — Analiza artefaktów*. |
 | [`issue113_meta_autocreate`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest_parallel/issue113_meta_autocreate) | Automatyczne tworzenie pliku sidecar `.meta` po pierwszym `append`; rozmiar >16 B; `xtrdb` raportuje poprawną ścieżkę. Patrz: *Format zapisu danych — Pliki*. |

@@ -42,6 +42,9 @@ jobs:
             texlive-xetex texlive-lang-polish texlive-latex-extra \
             fonts-dejavu librsvg2-bin imagemagick
 
+      - name: Install mermaid-cli
+        run: npm install -g @mermaid-js/mermaid-cli
+
       - name: Build
         run: |
           mdbook-mermaid install .
@@ -49,6 +52,13 @@ jobs:
 
       - name: Generate PDF
         run: |
+          printf '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' > /tmp/puppeteer.json
+
+          cat > /tmp/header.tex << 'TEXEOF'
+          \usepackage{caption}
+          \captionsetup{labelformat=empty,labelsep=none}
+          TEXEOF
+
           cat > /tmp/fix_math.lua << 'LUAEOF'
           function Math(elem)
               local text = elem.text
@@ -69,6 +79,17 @@ jobs:
           python3 - $FILES << 'PYEOF'
           import re, sys, subprocess, os
           from pathlib import Path
+          MERMAID_DIR = '/tmp/mermaid'
+          os.makedirs(MERMAID_DIR, exist_ok=True)
+          mermaid_n = [0]
+          def render_mermaid(m):
+              mermaid_n[0] += 1
+              idx = mermaid_n[0]
+              mmd = f'{MERMAID_DIR}/d{idx}.mmd'
+              png = f'{MERMAID_DIR}/d{idx}.png'
+              Path(mmd).write_text(m.group(1).strip())
+              subprocess.run(['mmdc', '-i', mmd, '-o', png, '-p', '/tmp/puppeteer.json'], capture_output=True)
+              return f'![Diagram]({png})\n' if os.path.exists(png) else m.group(0)
           def fix_figure(m, d):
               src_m = re.search(r'src="([^"]+)"', m.group(0))
               if not src_m:
@@ -76,7 +97,6 @@ jobs:
               src = src_m.group(1)
               cap_m = re.search(r'<figcaption[^>]*>(.*?)</figcaption>', m.group(0), re.DOTALL)
               cap = re.sub(r'<[^>]+>', '', cap_m.group(1)).strip() if cap_m else ''
-              cap = re.sub(r'(?i)^rys\.\s*\d+\.?\s*', '', cap)
               if not src.startswith(('http://', 'https://', '/')):
                   src = str((d / src).resolve())
               if src.lower().endswith('.gif'):
@@ -91,6 +111,7 @@ jobs:
           for filepath in sys.argv[1:]:
               d = Path(filepath).parent.resolve()
               text = Path(filepath).read_text()
+              text = re.sub(r'```mermaid\n(.*?)```', render_mermaid, text, flags=re.DOTALL)
               text = re.sub(r'<figure>.*?</figure>', lambda m, d=d: fix_figure(m, d), text, flags=re.DOTALL)
               def fix_img(m, d=d):
                   alt, src = m.group(1), m.group(2)
@@ -105,6 +126,7 @@ jobs:
           pandoc /tmp/combined.md \
             --from markdown+tex_math_double_backslash \
             --lua-filter /tmp/fix_math.lua \
+            --include-in-header=/tmp/header.tex \
             --pdf-engine=xelatex \
             --toc --toc-depth=2 \
             --top-level-division=chapter \
