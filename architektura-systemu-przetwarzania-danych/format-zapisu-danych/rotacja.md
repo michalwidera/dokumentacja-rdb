@@ -40,8 +40,8 @@ sequenceDiagram
     RQL->>M: aktualizuje indeks RLE
 
     Note over RQL: stop (Ctrl+C / SIGTERM)
-    RQL->>Old: ~posixBinaryFile: rename → <name>.oldN
-    RQL->>Old: ~posixBinaryFile: rename → <name>.shadow.oldN (jeśli istnieje)
+    RQL->>Old: ~posixBinaryFile: rename → (name).oldN
+    RQL->>Old: ~posixBinaryFile: rename → (name).shadow.oldN (jeśli istnieje)
     Note over RQL: PersistentCounter zapisuje N+1 do pliku
 ```
 
