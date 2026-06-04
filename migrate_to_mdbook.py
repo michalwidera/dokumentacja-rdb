@@ -9,8 +9,11 @@ What it does:
   3. Converts {% tabs %} / {% tab %} panels to sequential sections
   4. Converts {% embed url="..." %} to markdown links
   5. Rewrites .gitbook/assets/ paths to assets/
-  6. Converts $$ ... $$ math to \\[ ... \\] (mdBook MathJax format)
-  7. Renames .gitbook/assets/ directory to assets/
+  6. Renames .gitbook/assets/ directory to assets/
+
+Math: $$ ... $$ is kept as-is. mdBook >= 0.4.35 with mathjax-support = true
+handles $$ via pulldown-cmark's math extension (raw token, no escape processing).
+Do NOT convert to \\[...\\] — the Markdown parser would corrupt \\{ \\} etc.
 """
 
 import re
@@ -79,15 +82,6 @@ def fix_asset_paths(text: str) -> str:
     return text.replace(".gitbook/assets/", "assets/")
 
 
-def convert_math(text: str) -> str:
-    # Block math: $$\n...\n$$ → \\[\n...\\]
-    # Single-line block: $$...$$ → \\[...\\]
-    # Inline math $...$ is left as-is (not used in these docs)
-    result = re.sub(r'\$\$\n(.*?)\n\$\$', r'\\\\[\n\1\n\\\\]', text, flags=re.DOTALL)
-    result = re.sub(r'\$\$([^\n]+?)\$\$', r'\\\\[\1\\\\]', result)
-    return result
-
-
 def migrate_file(path: Path) -> bool:
     original = path.read_text(encoding="utf-8")
     text = original
@@ -96,7 +90,6 @@ def migrate_file(path: Path) -> bool:
     text = convert_tabs(text)
     text = convert_embeds(text)
     text = fix_asset_paths(text)
-    text = convert_math(text)
     if text != original:
         path.write_text(text, encoding="utf-8")
         return True
