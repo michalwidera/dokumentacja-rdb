@@ -64,22 +64,21 @@ jobs:
           # Pandoc resolves image paths relative to CWD, not to each source file.
           # Preprocess: rewrite relative image paths to absolute paths per source file.
           python3 - $FILES << 'PYEOF'
-import re, sys
-from pathlib import Path
-
-parts = []
-for filepath in sys.argv[1:]:
-    file_dir = Path(filepath).parent.resolve()
-    text = Path(filepath).read_text()
-    def fix_img(m, d=file_dir):
-        alt, src = m.group(1), m.group(2)
-        if src.startswith(('http://', 'https://', '/')):
-            return m.group(0)
-        return f'![{alt}]({(d / src).resolve()})'
-    text = re.sub(r'!\[([^\]]*)\]\(([^)\s]+)\)', fix_img, text)
-    parts.append(text)
-Path('/tmp/combined.md').write_text('\n\n'.join(parts))
-PYEOF
+          import re, sys
+          from pathlib import Path
+          parts = []
+          for filepath in sys.argv[1:]:
+              file_dir = Path(filepath).parent.resolve()
+              text = Path(filepath).read_text()
+              def fix_img(m, d=file_dir):
+                  alt, src = m.group(1), m.group(2)
+                  if src.startswith(('http://', 'https://', '/')):
+                      return m.group(0)
+                  return f'![{alt}]({(d / src).resolve()})'
+              text = re.sub(r'!\[([^\]]*)\]\(([^)\s]+)\)', fix_img, text)
+              parts.append(text)
+          Path('/tmp/combined.md').write_text('\n\n'.join(parts))
+          PYEOF
 
           pandoc /tmp/combined.md \
             --from markdown+tex_math_double_backslash \
