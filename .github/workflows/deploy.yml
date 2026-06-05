@@ -123,12 +123,12 @@ jobs:
             if #el.head.rows == 0 then return end
             local first_cell = el.head.rows[1].cells[1]
             if not first_cell then return end
-            if pandoc.utils.stringify(first_cell) ~= "Nazwa testu" then return end
+            if pandoc.utils.stringify(first_cell.content) ~= "Nazwa testu" then return end
             for _, body in ipairs(el.bodies) do
               for _, row in ipairs(body.body) do
                 if #row.cells >= 2 then
                   local cell = row.cells[2]
-                  table.insert(cell.contents, 1,
+                  cell.content:insert(1,
                     pandoc.RawBlock("latex", "\\vspace*{\\baselineskip}"))
                 end
               end
@@ -167,13 +167,9 @@ jobs:
           end
           CALLUAEOF
 
-          FILES=$(grep -oE '\([^)]+\.md\)' SUMMARY.md | tr -d '()' | while read f; do
-            [ -f "$f" ] && echo "$f"
-          done)
-
-          # <figure><img> HTML blocks are silently dropped by XeLaTeX.
-          # Convert to Markdown ![caption](abs_path) and resolve all relative paths.
-          python3 - $FILES << 'PYEOF'
+          # Parse SUMMARY.md for file order and nesting level, then demote headings
+          # so that subsections (indent 2) get # → ##, sub-subsections get # → ###, etc.
+          python3 - << 'PYEOF'
           import re, sys, subprocess, os
           from pathlib import Path
           MERMAID_DIR = '/tmp/mermaid'
@@ -204,8 +200,23 @@ jobs:
               if not src:
                   return (f'*[{cap}]*\n' if cap else '')
               return f'![{cap}]({src})\n'
+          def demote_headings(text, levels):
+              if levels == 0:
+                  return text
+              def replace(m):
+                  return '#' * min(len(m.group(1)) + levels, 6) + m.group(2)
+              return re.sub(r'^(#+)( )', replace, text, flags=re.MULTILINE)
+          summary = Path('SUMMARY.md').read_text()
+          file_entries = []
+          for line in summary.splitlines():
+              match = re.match(r'^( *)\*.*\(([^)]+\.md)\)', line)
+              if match:
+                  level = len(match.group(1)) // 2
+                  filepath = match.group(2)
+                  if Path(filepath).exists():
+                      file_entries.append((filepath, level))
           parts = []
-          for filepath in sys.argv[1:]:
+          for filepath, level in file_entries:
               d = Path(filepath).parent.resolve()
               text = Path(filepath).read_text()
               text = text.replace('✔', '$\\checkmark$')
@@ -217,6 +228,7 @@ jobs:
                       return m.group(0)
                   return f'![{alt}]({(d / src).resolve()})'
               text = re.sub(r'!\[([^\]]*)\]\(([^)\s]+)\)', fix_img, text)
+              text = demote_headings(text, level)
               parts.append(text)
           Path('/tmp/combined.md').write_text('\n\n'.join(parts))
           PYEOF
