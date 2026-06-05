@@ -206,6 +206,10 @@ jobs:
             --metadata date="$(date +%Y-%m-%d)" \
             -o book/retractordb.pdf
 
+      - name: Restore PDF from previous deployment
+        if: "contains(github.event.head_commit.message, '[skippdf]')"
+        run: curl -sL "https://michalwidera.github.io/gitbook-rdb/retractordb.pdf" -o book/retractordb.pdf || echo "Previous PDF not found, skipping."
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
