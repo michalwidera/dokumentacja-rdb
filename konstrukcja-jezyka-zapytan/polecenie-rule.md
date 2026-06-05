@@ -154,9 +154,20 @@ Powyższy przykład przechowuje 20 ostatnich zrzutów w plikach `wyniki_zdarzeni
 Do jednego strumienia można przypiąć dowolną liczbę reguł różnych typów:
 
 ```
-RULE alert_wysoki   ON pomiary WHEN pomiary[0] > 900 DO SYSTEM 'notify-send "Przekroczono prog"'
-RULE alert_niski    ON pomiary WHEN pomiary[0] < 10  DO SYSTEM 'notify-send "Zbyt niska wartosc"'
-RULE zapis_anomalii ON pomiary WHEN pomiary[0] > 900 DO DUMP -20 TO 10 RETENTION 5
+RULE alert_wysoki
+ON pomiary
+WHEN pomiary[0] > 900 
+DO SYSTEM 'notify-send "Przekroczono prog"'
+
+RULE alert_niski
+ON pomiary
+WHEN pomiary[0] < 10
+DO SYSTEM 'notify-send "Zbyt niska wartosc"'
+
+RULE zapis_anomalii
+ON pomiary
+WHEN pomiary[0] > 900
+DO DUMP -20 TO 10 RETENTION 5
 ```
 
 Wszystkie reguły danego strumienia są ewaluowane przy każdej nowej próbce.

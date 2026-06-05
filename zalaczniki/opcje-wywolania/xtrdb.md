@@ -16,7 +16,7 @@ $ xtrdb                    # tryb interaktywny (z promptem)
 $ xtrdb -n                 # tryb wsadowy (bez promptu i bez "ok")
 $ xtrdb --noprompt         # to samo co -n
 $ xtrdb noprompt           # zgodność wsteczna (legacy, argument pozycyjny)
-$ xtrdb -s plik_danych     # pokaż strukturę storage dla wskazanego pliku i zakończ
+$ xtrdb -s plik_danych     # pokaż strukturę storage dla wskazanego pliku
 $ xtrdb --storagemap plik  # to samo co -s
 $ xtrdb -h                 # help i informacje o buildzie, potem zakończ
 ```
@@ -44,7 +44,8 @@ $ xtrdb
 exit|quit|q                     exit
 quitdrop|qd                     exit & drop artifacts (data, .desc, .meta)
 open file [schema]              open or create database with schema
-                                example: .open test_db { INTEGER dane STRING name[3] }
+                                example: .open test_db { INTEGER dane 
+                                STRING name[3] }
 storage [path]                  set storage path for database
 policy [name]                   set storage policy
 dropfile [file1] [file2] ... }  remove listed file(s), end with }

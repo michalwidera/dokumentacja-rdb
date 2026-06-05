@@ -28,8 +28,8 @@ Polecenie `xtrdb -s <ścieżka>` jest jedynym narzędziem do inspekcji stanu sk�
 
 ## Porównanie podejść
 
-| Właściwość | Surowy plik binarny | Struktura RetractorDB |
-| ---------- | ------------------- | --------------------- |
+| Właściwość  | Surowy plik binarny | Struktura RetractorDB |
+| ----------- | ------------------- | --------------------- |
 | Samoopisywalność | brak — wymaga zewnętrznej dokumentacji | tak — deskryptor `.desc` przy danych |
 | Obsługa przerw w transmisji | brak — przerwy niewidoczne lub fikcyjne rekordy | tak — `.meta` rejestruje przerwy bez rozszerzania pliku danych |
 | Wartości null per pole | brak — zero = null nierozróżnialne | tak — bitset null w `.meta` |

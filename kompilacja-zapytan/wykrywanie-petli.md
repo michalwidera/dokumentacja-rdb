@@ -43,7 +43,8 @@ $ xretractor brokenQuery.rql -c 2>out.txt
 $ echo $?
 1
 $ cat out.txt
-[error] Circular dependency: stream interval resolution stalled with 1 unresolved streams
+[error] Circular dependency: stream interval resolution stalled with 1 
+>> unresolved streams
 ```
 
 Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć. Jak uruchomić kompilację i czytać komunikaty błędów — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
@@ -54,7 +55,8 @@ Etap `resolveStreamIntervals` w każdej rundzie iteracji liczy strumienie, dla k
 
 ```cpp
 if (unresolvedCount >= prevUnresolved) {
-    SPDLOG_ERROR("Circular dependency: stream interval resolution stalled with {} unresolved streams",
+    SPDLOG_ERROR("Circular dependency: stream interval resolution stalled with
+>> {} unresolved streams",
                  unresolvedCount);
     return std::string("Circular dependency in stream definitions");
 }

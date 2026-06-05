@@ -32,7 +32,8 @@ Available options:
   -v [ --verbose ]            verbose mode (show stream params)
   -x [ --xqrywait ]           wait with processing for first query
   -k [ --noanykey ]           do not wait for any key to terminate
-  -t [ --realtime ]           enable real-time scheduling (SCHED_FIFO, mlockall, absolute wakeup)
+  -t [ --realtime ]           enable real-time scheduling (SCHED_FIFO, mlockall,
+>> absolute wakeup)
   -m [ --tlimitqry ] arg (=0) query limit, 0 - no limit
 ```
 

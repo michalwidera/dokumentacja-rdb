@@ -27,7 +27,7 @@ Górna część raportu to trzyelementowa mapa poglądowa:
 Każdy wiersz mapy odpowiada jednemu segmentowi RLE lub segmentowi danych:
 
 | Kolumna | Zawartość |
-| ------- | --------- |
+| ---- | --------- |
 | `[shadow]` | Dla artefaktu bez retencji: liczba niezapisanych modyfikacji (`N updates`). Dla retencji segmentowej: etykieta segmentu `sN` z liczbą modyfikacji. |
 | `[binary data]` | Zakres indeksów rekordów w pliku binarnym (`begin-end`) lub etykieta segmentu `sN begin-end`. Wiersze z przerwą w transmisji (gap) mają puste pole. |
 | `[meta index]` | Opis segmentu RLE z pliku `.meta`: liczba rekordów i wzorzec null w formie `[====]`. |
@@ -35,7 +35,7 @@ Każdy wiersz mapy odpowiada jednemu segmentowi RLE lub segmentowi danych:
 Poniżej mapy następują kolejne sekcje:
 
 | Sekcja | Opis |
-| ------ | ---- |
+| ---- | --------- |
 | `DESCRIPTOR` | Ścieżka i rozmiar pliku `.desc`, lista pól z typami i rozmiarami, rozmiar rekordu w bajtach. |
 | `DATA` | Liczba rekordów, ścieżka do pliku danych. Przy retencji (`RETENTION`): podział na segmenty, polityka (liczba segmentów i pojemność), maksymalny dopuszczalny rozmiar bufora, lista plików `_segment_*`. |
 | `META` | Liczba segmentów RLE i rekordów w indeksie, graficzny pasek obrazujący wzorzec null w czasie. |

@@ -120,7 +120,8 @@ Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna),
 ### Cykl w grafie zależności
 
 ```
-[error] Circular dependency: stream interval resolution stalled with N unresolved streams
+[error] Circular dependency: stream interval resolution stalled with N
+>> unresolved streams
 ```
 
 Strumień odwołuje się pośrednio lub bezpośrednio do samego siebie. Wygeneruj graf przez `-d` — cykl będzie widoczny jako pętla. Patrz [Wykrywanie pętli](wykrywanie-petli.md).

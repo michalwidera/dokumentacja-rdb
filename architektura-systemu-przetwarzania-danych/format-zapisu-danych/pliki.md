@@ -368,8 +368,8 @@ _Rys. 15. Persystencja i odtwarzanie stanu po restarcie_
 
 ### Interfejs zapytań
 
-| Metoda | Opis |
-| ------ | ---- |
+| Metoda | Opis         |
+| ----   | ------------ |
 | `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. W trybie cienia najpierw sprawdza nadpisania w `shadowOverrides_` (od końca — ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
 | `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Nie obejmuje nadpisań z `.meta.shadow`. Służy do inspekcji i testów. |
@@ -382,8 +382,8 @@ _Rys. 15. Persystencja i odtwarzanie stanu po restarcie_
 
 Zestaw metod zarządzających plikiem `.meta.shadow`. Wywoływane przez `storage::attachStorage()` i powiązane operacje na pliku cienia danych.
 
-| Metoda | Opis |
-| ------ | ---- |
+| Metoda | Opis         |
+| ----   | ------------ |
 | `setShadowMode(enabled)` | Włącza lub wyłącza tryb cienia. Przy `enabled=true` wywołuje `loadShadow()` — wczytuje istniejące nadpisania z pliku `.meta.shadow`. |
 | `mergeShadow()` | Scala nadpisania z cienia do głównego indeksu (wywołuje `applyModificationToMainIndex()` dla każdego nadpisania w kolejności zapisu — ostatnie wygrywa), a następnie usuwa plik `.meta.shadow`. Odpowiednik `merge()` dla pliku cienia danych. |
 | `discardShadow()` | Czyści listę nadpisań w pamięci i usuwa plik `.meta.shadow`. Wywoływany przy odrzuceniu cienia danych (purge, reset, rotacja). |
@@ -577,7 +577,8 @@ storage.write(rec2_corrected, pos=2)
     → tryb cienia: .meta.shadow: dołącz (index=2, [F,F,F])
 
 # Stan plików:
-# .meta        — bez zmian: [isGap=F, count=2, [F,F,F]], [isGap=F, count=1, [T,F,F]], [isGap=F, count=2, [F,F,F]]
+# .meta        — bez zmian: [isGap=F, count=2, [F,F,F]], 
+# >> [isGap=F, count=1, [T,F,F]], [isGap=F, count=2, [F,F,F]]
 # .meta.shadow — nowy wpis: [gapFlag=0, recordCount=2, bitset=[F,F,F]]
 
 # Odczyt:

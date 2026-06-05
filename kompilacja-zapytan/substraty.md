@@ -217,7 +217,9 @@ SELECT str4[0] STREAM str4 FROM (core0+core1)>2
 SELECT str5[0] STREAM str5 FROM (core0+core1)>3
 ```
 
-Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`. Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 33):
+Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`.
+
+Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 33):
 
 <figure><img src="../assets/dedup_przed.svg" alt=""><figcaption><p>Rys. 33. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
 
