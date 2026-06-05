@@ -77,6 +77,8 @@ jobs:
           \setlength{\cftsecnumwidth}{3em}
           \setlength{\cftsubsecindent}{5.5em}
           \tcbuselibrary{breakable}
+          \usepackage{mdframed}
+          \surroundwithmdframed[linewidth=0.5pt,linecolor=gray!50,backgroundcolor=gray!8,innerleftmargin=8pt,innerrightmargin=8pt,innertopmargin=5pt,innerbottommargin=5pt,skipabove=6pt,skipbelow=4pt]{Shaded}
           \captionsetup{labelformat=empty,labelsep=none}
           \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
           \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
