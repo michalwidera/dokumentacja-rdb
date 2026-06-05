@@ -2,19 +2,19 @@
 
 W obszarze załączników znalazły się dokumenty, które nie są związane bezpośrednio z konstrukcją systemu, ale stanowią opis motywacji decyzji projektowych, dokumentację narzędzi oraz materiał pomocniczy dla osób wdrażających lub rozwijających system.
 
-## Geneza systemu
+**Geneza systemu**
 
 Opis historycznych okoliczności, które doprowadziły do powstania RetractorDB. Punkt wyjścia stanowi doświadczenie autora przy budowie systemu nadzoru neonatologicznego na początku XXI wieku — zderzenie z ograniczeniami relacyjnych baz danych przy rejestracji sygnałów o wysokiej granulacji, próby oparte na ówczesnych systemach strumieniowych oraz ewolucja ku dedykowanemu silnikowi przetwarzania serii czasowych. Rozdział wyjaśnia również, skąd pochodzi nazwa „Retractor" — nawiązanie do grupy narzędzi chirurgicznych rozdzielających i łączących struktury tkankowe, traktowane tu jako analogia do operacji na strumieniach danych.
 
 Pełny opis: [Geneza systemu](geneza-systemu/README.md)
 
-## Dalsze kierunki rozwoju
+**Dalsze kierunki rozwoju**
 
 Wskazanie potencjalnych rozszerzeń algebry leżącej u podstaw RQL. Głównym wątkiem jest poszukiwanie uogólnienia na liczby zespolone — próba bezpośredniego zastosowania gaussowskich liczb całkowitych okazała się nieskuteczna z powodu natury modułu (moduł liczby zesponoej o wymiernych składowych jest rzeczywisty, nie wymierny). Alternatywą są **liczby całkowite Eisensteina** — trójsymetryczny odpowiednik liczb gaussowskich, których moduł zachowuje własności wymierne. Rozdział zawiera wyprowadzenie ich definicji i wstępną analizę możliwości zastosowania w algebrze serii czasowych.
 
 Pełny opis: [Dalsze kierunki rozwoju](dalsze-kierunki-rozwoju/README.md)
 
-## Kolorowanie składni RQL
+**Kolorowanie składni RQL**
 
 Pliki zapytań RetractorDB (rozszerzenie `.rql`) mają dedykowane definicje kolorowania składni dla trzech środowisk:
 
@@ -26,7 +26,7 @@ Każde ze środowisk rozpoznaje słowa kluczowe RQL (`SELECT`, `DECLARE`, `RULE`
 
 Pełny opis: [Kolorowanie składni](kolorowanie-skladni/README.md)
 
-## Opcje wywołania
+**Opcje wywołania**
 
 Kompletna dokumentacja flag wiersza poleceń dla wszystkich trzech narzędzi systemu:
 
@@ -40,7 +40,7 @@ Każde narzędzie opisano w osobnym podrozdziale wraz z przykładami wywołań i
 
 Pełny opis: [Opcje wywołania](opcje-wywolania/README.md)
 
-## Testy integracyjne
+**Testy integracyjne**
 
 Katalog wszystkich testów integracyjnych systemu z opisem weryfikowanej funkcjonalności. Testy integracyjne uruchamiają rzeczywiste binaria (`xretractor`, `xqry`, `xtrdb`) i porównują wyniki z wzorcami — w odróżnieniu od testów jednostkowych GTest, które testują izolowane klasy bibliotek.
 
