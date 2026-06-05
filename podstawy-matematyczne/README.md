@@ -47,8 +47,7 @@ Przedstawił on w 1969 roku następujące twierdzenie [\[2\]](../literatura.md#2
 Sekwencje
 
 \\[
-\mathcal{B}(\alpha ,\alpha ^{\prime })
-:=
+\mathcal{B}(\alpha ,\alpha ^{\prime }):=
 \left( \left\lfloor \frac{n-\alpha^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty }
 \\]
 
