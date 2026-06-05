@@ -39,6 +39,10 @@ mdbook build               # output → book/
 - **Images:** paths relative to each `.md` file pointing to `assets/` (e.g. `../assets/foo.png` from a subdirectory).
 - No GitBook-specific syntax: no `{% hint %}`, no `{% tabs %}`, no `{% embed %}`, no YAML frontmatter.
 
+## Collaboration Rules
+
+**Commit and push are performed by the human only.** Claude shows the diff and waits for the human to review and decide. Never run `git commit` or `git push` autonomously.
+
 ## Key Config Files
 
 | File | Purpose |
