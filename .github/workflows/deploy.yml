@@ -37,6 +37,7 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Pandoc and LaTeX
+        if: "!contains(github.event.head_commit.message, '[skippdf]')"
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q pandoc \
@@ -44,6 +45,7 @@ jobs:
             fonts-dejavu librsvg2-bin imagemagick
 
       - name: Install mermaid-cli
+        if: "!contains(github.event.head_commit.message, '[skippdf]')"
         run: npm install -g @mermaid-js/mermaid-cli
 
       - name: Build
@@ -52,6 +54,7 @@ jobs:
           mdbook build
 
       - name: Generate PDF
+        if: "!contains(github.event.head_commit.message, '[skippdf]')"
         run: |
           printf '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' > /tmp/puppeteer.json
 
