@@ -118,6 +118,23 @@ jobs:
               }
             end
           end
+          function Table(el)
+            if not FORMAT:match("latex") then return end
+            if #el.head.rows == 0 then return end
+            local first_cell = el.head.rows[1].cells[1]
+            if not first_cell then return end
+            if pandoc.utils.stringify(first_cell) ~= "Nazwa testu" then return end
+            for _, body in ipairs(el.bodies) do
+              for _, row in ipairs(body.body) do
+                if #row.cells >= 2 then
+                  local cell = row.cells[2]
+                  table.insert(cell.contents, 1,
+                    pandoc.RawBlock("latex", "\\vspace*{\\baselineskip}"))
+                end
+              end
+            end
+            return el
+          end
           CODELUAEOF
 
           cat > /tmp/callouts.lua << 'CALLUAEOF'
