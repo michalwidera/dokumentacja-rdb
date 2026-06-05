@@ -16,3 +16,4 @@ no-section-label = false
 git-repository-url = "https://github.com/michalwidera/gitbook-rdb"
 edit-url-template = "https://github.com/michalwidera/gitbook-rdb/edit/main/{path}"
 additional-js = ["mermaid.min.js", "mermaid-init.js"]
+# additional-css = ["print-b5.css"]  # [pdfb5] odkomentuj przed drukiem do B5
