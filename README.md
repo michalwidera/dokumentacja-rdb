@@ -28,7 +28,7 @@ Problem, który rozwiązuje RetractorDB, nie należy w całości do żadnej poje
 
 Omawiam je kolejno, od fundamentu ku zastosowaniu.
 
-## 1. Teoria liczb: sekwencje Beatty'ego i układy pokrywające
+## Teoria liczb: sekwencje Beatty'ego i układy pokrywające (1)
 
 Cała algebra RetractorDB stoi na sekwencji Beatty'ego i jej uogólnieniu przez Fraenkela na liczby wymierne. Te wyniki przytaczam w [Formalnych podstawach i dowodach](podstawy-matematyczne/formalne-podstawy-i-dowody.md). Tutaj interesuje mnie szersze tło: jak ta matematyka funkcjonuje we współczesnej literaturze i czy ktoś zastosował ją już tam, gdzie ja.
 
@@ -36,7 +36,7 @@ Sekwencje Beatty'ego mają bogatą literaturę kombinatoryczną oraz udokumentow
 
 **Czego ten nurt nie dotyka:** teoria liczb bada te sekwencje jako obiekty matematyczne. Nie łączy ich z bazą danych, z modelem przetwarzania strumieni ani z przetwarzaniem sygnałów. Dostarcza cegieł, nie budowli.
 
-## 2. Szeregowanie zadań przez sekwencje Beatty'ego
+## Szeregowanie zadań przez sekwencje Beatty'ego (2)
 
 To jest nurt, który muszę omówić najuczciwiej, bo używa **tej samej maszynerii dowodowej** co moje twierdzenia – tyle że w innym celu. W problemie szeregowania okresowego (ang. _pinwheel scheduling_) zadania o różnych okresach powtarzania rozdziela się tak, że zadania o jednym czasie powtórzeń trafiają w sloty czasowe należące do pierwszej komplementarnej sekwencji Beatty'ego, a o drugim – do drugiej [\[14\]](literatura.md#14). Świeże prace (2026) prowadzą dowody na podziale Rayleigha/Beatty'ego z tożsamościami na funkcjach podłogi i sufitu typu ⌈(m+l)a⌉ − ⌈ma⌉ [\[15\]](literatura.md#15) – niemal kropka w kropkę aparat z mojego dowodu, że [rozplątanie spełnia postulaty Fraenkela](podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
@@ -44,7 +44,7 @@ Wniosek jest dla mnie podwójny. Z jednej strony – to niezależne potwierdzeni
 
 **Czego ten nurt nie dotyka:** szeregowanie traktuje sekwencje jako narzędzie przydziału slotów czasowych procesorom. Nie buduje na nich algebry danych, nie wyraża nimi operacji na sygnałach, nie tworzy języka zapytań.
 
-## 3. Cyfrowe przetwarzanie sygnałów: próbkowanie niejednorodne i banki filtrów
+## Cyfrowe przetwarzanie sygnałów: próbkowanie niejednorodne i banki filtrów (3)
 
 Operacja przeplotu i rozplątania to – w języku DSP – konwersja częstotliwości próbkowania między strumieniami o różnych Δ. Tu istnieje rozległa, dojrzała literatura. Najbliższym pomostem jest praca Samadiego, Ahmada i Swamy'ego (2004), która formułuje warunek perfekcyjnej rekonstrukcji niejednorodnych banków filtrów na podstawie odpowiedzi układu na opóźnione sygnały skoku jednostkowego [\[16\]](literatura.md#16) – wprowadza więc maszynerię funkcji skoku (a pośrednio podłogi) do dziedziny wielotempowego DSP. Szerszy nurt to próbkowanie okresowo-niejednorodne sygnałów pasmowo ograniczonych [\[17\]](literatura.md#17) oraz – bezpośrednio adekwatne – banki filtrów o **wymiernych** współczynnikach decymacji (Kovačević i Vetterli) [\[18\]](literatura.md#18).
 
@@ -52,7 +52,7 @@ Pojawiają się tam nawet konstrukcje teorioliczbowe: banki filtrów Ramanujana 
 
 **Czego ten nurt nie dotyka:** DSP operuje w dziedzinie z, dziedzinie częstotliwości, na ramkach i bazach. Nie ujmuje resamplingu jako deklaratywnego operatora algebraicznego ani nie osadza go w systemie bazodanowym. Współczynniki bywają wymierne, ale aparatem jest analiza, nie teoria liczb podziału zbioru.
 
-## 4. Strumieniowe systemy zarządzania danymi (DSMS)
+## Strumieniowe systemy zarządzania danymi (DSMS) (4)
 
 Po stronie bazodanowej kanonem jest CQL ze stanfordzkiego projektu STREAM (Arasu, Babu, Widom). W tym modelu strumień to potencjalnie nieskończony wielozbiór elementów ⟨s, τ⟩, gdzie s jest krotką, a τ stemplem czasowym [\[20\]](literatura.md#20); semantykę zapytań buduje się na oknach i odwzorowaniach strumień↔relacja. Drugim bliskim sąsiadem jest temporalna algebra Krämera i Seegera (system PIPES), zapewniająca deterministyczne wyniki zapytań ciągłych oraz bogaty zbiór reguł transformacji stanowiących podstawę optymalizacji [\[21\]](literatura.md#21).
 
@@ -60,7 +60,7 @@ To jest właściwy punkt odniesienia dla mojej algebry i moich [reguł przepisyw
 
 **Czego ten nurt nie dotyka:** DSMS celują w przybliżone, skalowalne przetwarzanie nieograniczonych strumieni z tolerancją na nieuporządkowanie czasowe. Nie dążą do dokładnych, deterministycznych operacji DSP w rygorze twardego czasu rzeczywistego i nie sięgają po teorię liczb dla semantyki resamplingu.
 
-## 5. Systemy szeregów czasowych i DSP wewnątrz bazy
+## Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy (5)
 
 To najwęższa nisza – i najbliższa właściwemu celowi RetractorDB. Kanoniczny przegląd to praca Jensena, Pedersena i Thomsena „Time Series Management Systems: A Survey" (IEEE TKDE, 2017) [\[22\]](literatura.md#22). Opisany tam system Plato jest najbliższym prawdziwym „DSP wewnątrz bazy": łączy RDBMS z metodami przetwarzania sygnałów, eliminując potrzebę eksportu danych do narzędzi zewnętrznych typu R czy SPSS [\[22\]](literatura.md#22). Pozostałe podejścia do „sygnałów w bazie" sprowadzają się do aproksymacji i kompresji – reprezentacje falkowe, słownikowe, kształtowe.
 

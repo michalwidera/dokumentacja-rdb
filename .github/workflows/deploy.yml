@@ -58,6 +58,16 @@ jobs:
           \usepackage{caption}
           \usepackage{amssymb}
           \usepackage{tcolorbox}
+          \let\origmaketitle\maketitle
+          \renewcommand{\maketitle}{\AtEndDocument{\clearpage\origmaketitle}}
+          \usepackage{titlesec}
+          \titlelabel{\thetitle.\quad}
+          \usepackage{tocloft}
+          \renewcommand{\cftchapaftersnum}{.}
+          \renewcommand{\cftsecaftersnum}{.}
+          \renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+          \cftsetpnumwidth{2.5em}
+          \cftsetrmarg{3em}
           \tcbuselibrary{breakable}
           \captionsetup{labelformat=empty,labelsep=none}
           \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
@@ -87,7 +97,8 @@ jobs:
 
           cat > /tmp/callouts.lua << 'CALLUAEOF'
           local envs = {Uwaga="calloutUwaga", Info="calloutInfo",
-                        ["Ostrzeżenie"]="calloutOstrzezenie", NOTE="calloutNote"}
+                        ["Ostrzeżenie"]="calloutOstrzezenie", NOTE="calloutNote",
+                        Pobierz="calloutInfo"}
           local function get_env(text)
               for k, v in pairs(envs) do
                   if text:find(k, 1, true) then return v end
