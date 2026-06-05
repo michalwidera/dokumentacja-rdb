@@ -233,7 +233,7 @@ jobs:
           combined = '\n\n'.join(parts)
           # Lift _Rys. N. Caption_ from after mermaid into alt text so pandoc renders proper figure caption
           combined = re.sub(
-              r'!\[Diagram\]\(([^)]+)\)\n\n_(Rys\.[^_\n]+)_',
+              r'!\[Diagram\]\(([^)]+)\)\n+_(Rys\.[^_\n]+)_',
               lambda m: f'![{m.group(2)}]({m.group(1)})',
               combined
           )

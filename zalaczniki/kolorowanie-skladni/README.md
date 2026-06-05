@@ -198,6 +198,6 @@ RULE testrule2 ON str1 WHEN str1[0] > 11 DO DUMP -5 TO 5 RETENTION 100
 RULE testrule3 ON str1 WHEN str1[0] = 13 OR str1[0] = 11 DO SYSTEM 'echo "systemcall"'
 ```
 
-Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat`.
+Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 60).
 
-<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption></figcaption></figure>
+<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 60. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>

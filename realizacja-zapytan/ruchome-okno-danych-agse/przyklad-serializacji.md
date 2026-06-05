@@ -45,9 +45,9 @@ To co widzimy to przykład serializacji. Ciekawy aspekt operatora Agse w tym prz
 $ xretractor -c qplan3.rql -f -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-W pliku out.svg zobaczymy następujący plan realizacji zapytania (Rys. 48):
+W pliku out.svg zobaczymy następujący plan realizacji zapytania (Rys. 49):
 
-<figure><img src="../../assets/plan_zapytania_agse.png" alt=""><figcaption><p>Rys. 48. Plan realizacji zapytania po kompilacji AGSE</p></figcaption></figure>
+<figure><img src="../../assets/plan_zapytania_agse.png" alt=""><figcaption><p>Rys. 49. Plan realizacji zapytania po kompilacji AGSE</p></figcaption></figure>
 
 Ze strumienia źródłowego, w którym co sekundę przychodzą dane zawierające dwa bajty – tworzony jest strumień danych w którym co pół sekundy pojawia się jeden bajt.
 
@@ -91,15 +91,15 @@ $ xqry -s str4
 
 Ten minus przy wskazaniu szerokości okna, to odbicie lustrzane. Rozmiar okna wynosi dwa, natomiast sekwencja pól jest zbudowana w odwrotnej kolejności.
 
-Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 49):
+Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 50):
 
-<figure><img src="../../assets/plan_serializacja_deserializacja.png" alt=""><figcaption><p>Rys. 49. SErializacja i DEserializacja</p></figcaption></figure>
+<figure><img src="../../assets/plan_serializacja_deserializacja.png" alt=""><figcaption><p>Rys. 50. SErializacja i DEserializacja</p></figcaption></figure>
 
 Zaprezentowano tutaj najbardziej podstawowy przykład zastosowania operatora ruchomego okna danych. Jeśli zaczniemy eksperymentować ze skokiem i rozmiarem okna, zauważymy, że jesteśmy w stanie stworzyć dowolne, przesuwające się okno nad strumieniem danych lub pominąć niektóre elementy budując skok większy od szerokości okna.
 
-Zapis realizacji eksperymentu przedstawia się następująco:
+Zapis realizacji eksperymentu (Rys. 51) przedstawia się następująco:
 
-<figure><img src="../../assets/agse-example.svg" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../assets/agse-example.svg" alt=""><figcaption><p>Rys. 51. Zapis sesji eksperymentu z serializatorem AGSE</p></figcaption></figure>
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
