@@ -207,6 +207,8 @@ Klasa przechowuje dwa stany:
 
 ### Cykl życia obiektu
 
+Diagram stanów (Rys. 12) przedstawia przejścia między fazami obiektu `metaDataStream`:
+
 ```mermaid
 stateDiagram-v2
     [*] --> Budowa : konstruktor
@@ -217,6 +219,8 @@ stateDiagram-v2
     Aktywny --> Aktywny : flushCurrentEntry()
     Aktywny --> [*] : destruktor (auto flush)
 ```
+
+_Rys. 12. Cykl życia obiektu metaDataStream_
 
 **Konstruktor** (`metaDataStream(descriptor, path)`):
 - Inicjalizuje pusty `currentEntry_` na podstawie liczby pól deskryptora.
@@ -271,7 +275,7 @@ shadowMode_?
 
 #### `onTransmissionGap(duration)`
 
-Rejestruje przerwę w transmisji o podanej długości (w jednostkach interwału strumienia). Najpierw zatwierdza bieżący segment (`flushCurrentEntry()`), następnie dołącza do pliku wpis z `isGap=true`.
+Rejestruje przerwę w transmisji o podanej długości (w jednostkach interwału strumienia). Najpierw zatwierdza bieżący segment (`flushCurrentEntry()`), następnie dołącza do pliku wpis z `isGap=true` (Rys. 13).
 
 ```mermaid
 sequenceDiagram
@@ -284,6 +288,8 @@ sequenceDiagram
     M->>F: appendEntry(isGap=true, count=5)
     Note over F: plik zawiera teraz marker przerwy
 ```
+
+_Rys. 13. Sekwencja rejestracji przerwy — onTransmissionGap_
 
 ### Mechanizm bezpieczeństwa: `flushCurrentEntry()` i nadpisywanie (tailDirty\_)
 
@@ -301,7 +307,7 @@ flushCurrentEntry() → seek na ostatni wpis, overwrite [wzorzec, count=3]
     (rozmiar pliku bez zmian)
 ```
 
-Diagram sekwencji dla typowego wzorca `storage` (append + flush po każdym rekordzie):
+Diagram sekwencji dla typowego wzorca `storage` (append + flush po każdym rekordzie) ilustruje Rys. 14:
 
 ```mermaid
 sequenceDiagram
@@ -328,11 +334,13 @@ sequenceDiagram
     M->>F: appendEntry([T,F], count=1)
 ```
 
+_Rys. 14. Mechanizm lazy overwrite — nadpisywanie ostatniego wpisu .meta_
+
 Dzięki temu plik `.meta` rośnie wyłącznie przy **zmianie wzorca null** — nie przy każdym rekordzie. Przy ciągłym napływie jednorodnych danych plik ma stały rozmiar niezależnie od liczby rekordów.
 
 ### Persystencja i odtwarzanie stanu
 
-Po restarcie procesu nowy obiekt `metaDataStream` wczytuje plik przez `loadIndex()`:
+Po restarcie procesu nowy obiekt `metaDataStream` wczytuje plik przez `loadIndex()` (sekwencja na Rys. 15):
 
 1. Odczytuje nagłówek — znacznik czasu (`creationTimeNs`), przechowywany jako `int64` nanosekund od epoki.
 2. Wczytuje wszystkie zatwierdzone wpisy z pliku.
@@ -355,6 +363,8 @@ sequenceDiagram
     Note over Proc2: gotowość do kontynuacji RLE
     Proc2->>Proc2: totalRecords() = 700
 ```
+
+_Rys. 15. Persystencja i odtwarzanie stanu po restarcie_
 
 ### Interfejs zapytań
 
@@ -425,9 +435,9 @@ flowchart TD
     MAIN --> RET2["Zwróć dane oryginalne"]
 ```
 
-_Rys. 12. Priorytety odczytu rekordu z pliku cienia_
+_Rys. 16. Priorytety odczytu rekordu z pliku cienia_
 
-Rys. 12 przedstawia logikę odczytu rekordu: system najpierw sprawdza wpis w `.shadow`, a dopiero przy jego braku odczytuje rekord z pliku głównego.
+Rys. 16 przedstawia logikę odczytu rekordu: system najpierw sprawdza wpis w `.shadow`, a dopiero przy jego braku odczytuje rekord z pliku głównego.
 
 ### Scalanie (merge)
 
@@ -447,9 +457,9 @@ sequenceDiagram
     App->>Shadow: ftruncate(0) — wyczyść plik cienia
 ```
 
-_Rys. 13. Scalanie pliku cienia z plikiem głównym_
+_Rys. 17. Scalanie pliku cienia z plikiem głównym_
 
-Rys. 13 przedstawia przebieg `merge()`: kolejne wpisy `(position, data)` z `.shadow` są zapisywane do pliku głównego, a po zakończeniu plik cienia jest czyszczony.
+Rys. 17 przedstawia przebieg `merge()`: kolejne wpisy `(position, data)` z `.shadow` są zapisywane do pliku głównego, a po zakończeniu plik cienia jest czyszczony.
 
 ### Przykład: modyfikacja rekordu
 
@@ -494,7 +504,7 @@ Każde wywołanie `onRecordModified()` w trybie cienia dopisuje jeden wpis na ko
 
 ### Priorytety odczytu
 
-W trybie cienia `getNullBitset(i)` skanuje listę nadpisań od końca. Jeżeli znajdzie wpis dla indeksu `i`, zwraca jego wzorzec null bez sięgania do głównego indeksu:
+W trybie cienia `getNullBitset(i)` skanuje listę nadpisań od końca. Jeżeli znajdzie wpis dla indeksu `i`, zwraca jego wzorzec null bez sięgania do głównego indeksu (Rys. 18):
 
 ```mermaid
 flowchart TD
@@ -507,7 +517,7 @@ flowchart TD
     MAIN --> RET2["Zwróć wzorzec z .meta"]
 ```
 
-_Rys. 15. Priorytety odczytu wzorca null — główny indeks vs. cień indeksu_
+_Rys. 18. Priorytety odczytu wzorca null — główny indeks vs. cień indeksu_
 
 ### Cykl życia
 
@@ -524,7 +534,7 @@ Plik `.meta.shadow` jest zarządzany równolegle z plikiem cienia danych:
 
 ### Persystencja po restarcie
 
-Po restarcie procesu nowy obiekt `metaDataStream` przywraca stan cienia przez `loadShadow()`:
+Po restarcie procesu nowy obiekt `metaDataStream` przywraca stan cienia przez `loadShadow()` (Rys. 19):
 
 1. Odczytuje wszystkie wpisy z `.meta.shadow` (brak nagłówka — format bezpośredni).
 2. Ładuje je do `shadowOverrides_` w kolejności zapisu.
@@ -550,6 +560,8 @@ sequenceDiagram
     Proc2->>Meta: mergeShadow() → applyModificationToMainIndex(2, [T,T,T])
     Proc2->>MS: usuń plik .meta.shadow
 ```
+
+_Rys. 19. Cień indeksu — odtwarzanie wzorców null po restarcie_
 
 ### Przykład użycia — korekta rekordu z zachowaniem spójności
 
@@ -584,7 +596,7 @@ metaDataStream.mergeShadow() → .meta przebudowany, .meta.shadow usunięty
 
 ## Relacja pomiędzy plikami
 
-W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, `.shadow` gromadzi modyfikacje danych bez niszczenia oryginału, a `.meta.shadow` gromadzi analogicznie nadpisania wzorców null. Poziom operacyjny (Rys. 16) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow` i `.meta.shadow`, `merge()` przenosi poprawki do pliku głównego i głównego indeksu, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
+W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, `.shadow` gromadzi modyfikacje danych bez niszczenia oryginału, a `.meta.shadow` gromadzi analogicznie nadpisania wzorców null. Poziom operacyjny (Rys. 20) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow` i `.meta.shadow`, `merge()` przenosi poprawki do pliku głównego i głównego indeksu, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
 
 ```mermaid
 graph LR
@@ -621,9 +633,9 @@ graph LR
     end
 ```
 
-_Rys. 16. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+_Rys. 20. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
 
-Rys. 16 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`.
+Rys. 20 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`.
 
 ## Punkt wyjścia — plik binarny bez metadanych
 

@@ -230,7 +230,14 @@ jobs:
               text = re.sub(r'!\[([^\]]*)\]\(([^)\s]+)\)', fix_img, text)
               text = demote_headings(text, level)
               parts.append(text)
-          Path('/tmp/combined.md').write_text('\n\n'.join(parts))
+          combined = '\n\n'.join(parts)
+          # Lift _Rys. N. Caption_ from after mermaid into alt text so pandoc renders proper figure caption
+          combined = re.sub(
+              r'!\[Diagram\]\(([^)]+)\)\n\n_(Rys\.[^_\n]+)_',
+              lambda m: f'![{m.group(2)}]({m.group(1)})',
+              combined
+          )
+          Path('/tmp/combined.md').write_text(combined)
           PYEOF
 
           pandoc /tmp/combined.md \

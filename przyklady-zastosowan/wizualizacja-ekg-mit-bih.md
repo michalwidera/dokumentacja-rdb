@@ -111,7 +111,7 @@ Znaczenie parametrów:
 
 Opcja `--gnuplot-rtl` jest parametrem `xqry` powodującym odwrócenie osi X gnuplota (`set xrange [720:0]`). Efekt jest taki, że najświeższe próbki pojawiają się po prawej stronie okna, a starsze przesuwają się w lewo — analogicznie do klasycznego wydruku EKG na taśmie papierowej.
 
-<figure><img src="../assets/ecg_in_retractor.png" alt="Widok okna gnuplot z przebiegiem EKG odtwarzanym w RetractorDB"><figcaption><p>Rys. 48 Widok okna gnuplot z odtwarzanym sygnałem EKG (rekord 205)</p></figcaption></figure>
+<figure><img src="../assets/ecg_in_retractor.png" alt="Widok okna gnuplot z przebiegiem EKG odtwarzanym w RetractorDB"><figcaption><p>Rys. 55. Widok okna gnuplot z odtwarzanym sygnałem EKG (rekord 205)</p></figcaption></figure>
 
 Okno prezentuje 720 próbek, czyli dokładnie 2 sekundy sygnału przy 360 Hz, co odpowiada typowej szerokości jednego paska EKG używanej w diagnostyce.
 
@@ -277,7 +277,7 @@ Skrypt `xplot.sh` uruchamia `xretractor` w tle (kompiluje i wykonuje zapytania),
 
 ### Opis rysunku — okno gnuplot
 
-<figure><img src="../assets/ninja-ecg-detect-qrs.png" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 49 Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> — rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
+<figure><img src="../assets/ninja-ecg-detect-qrs.png" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 56. Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> — rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
 
 Na rysunku widoczne są trzy sygnały odpowiadające trzem polom strumienia `detect_out`:
 
@@ -305,7 +305,7 @@ Wartość ta mieści się w zakresie odnotowanego w rekordzie 205 częstoskurczu
 
 Poniższy diagram pokazuje kompletny przepływ danych od surowego nagrania MIT-BIH do identyfikacji arytmii, ze wskazaniem miejsca, w którym RetractorDB realizuje algorytm Pan-Tompkins, oraz powiązania z klasycznymi metodami rozpoznawania arytmii:
 
-<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 50 Przepływ danych — od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
+<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 57. Przepływ danych — od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
 
 Prawa gałąź diagramu — **Identyfikacja arytmii** — reprezentuje klasyczne metody analizy po detekcji QRS, które można zbudować jako kolejne zapytania RQL nadbudowane na strumieniu `detect_out`:
 
