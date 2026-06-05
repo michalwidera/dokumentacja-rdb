@@ -72,6 +72,8 @@ jobs:
           \renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
           \cftsetpnumwidth{2.5em}
           \cftsetrmarg{3em}
+          \setlength{\cftsecnumwidth}{3em}
+          \setlength{\cftsecindent}{1.5em}
           \tcbuselibrary{breakable}
           \captionsetup{labelformat=empty,labelsep=none}
           \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
