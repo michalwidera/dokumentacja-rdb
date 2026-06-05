@@ -78,7 +78,6 @@ jobs:
           \setlength{\cftsubsecindent}{5.5em}
           \tcbuselibrary{breakable}
           \usepackage{mdframed}
-          \surroundwithmdframed[linewidth=0.5pt,linecolor=gray!50,backgroundcolor=gray!8,innerleftmargin=8pt,innerrightmargin=8pt,innertopmargin=5pt,innerbottommargin=5pt,skipabove=6pt,skipbelow=4pt]{Shaded}
           \captionsetup{labelformat=empty,labelsep=none}
           \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
           \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
@@ -104,6 +103,22 @@ jobs:
               return pandoc.Math(elem.mathtype, text)
           end
           LUAEOF
+
+          cat > /tmp/codeblock.lua << 'CODELUAEOF'
+          local box = "[linewidth=0.5pt,linecolor=gray!50,backgroundcolor=gray!8," ..
+                      "innerleftmargin=8pt,innerrightmargin=8pt," ..
+                      "innertopmargin=5pt,innerbottommargin=5pt," ..
+                      "skipabove=6pt,skipbelow=4pt]"
+          function CodeBlock(el)
+            if FORMAT:match("latex") then
+              return {
+                pandoc.RawBlock("latex", "\\begin{mdframed}" .. box),
+                el,
+                pandoc.RawBlock("latex", "\\end{mdframed}")
+              }
+            end
+          end
+          CODELUAEOF
 
           cat > /tmp/callouts.lua << 'CALLUAEOF'
           local envs = {Uwaga="calloutUwaga", Info="calloutInfo",
@@ -191,6 +206,7 @@ jobs:
 
           pandoc /tmp/combined.md \
             --from markdown+tex_math_double_backslash \
+            --lua-filter /tmp/codeblock.lua \
             --lua-filter /tmp/callouts.lua \
             --lua-filter /tmp/fix_math.lua \
             --include-in-header=/tmp/header.tex \
