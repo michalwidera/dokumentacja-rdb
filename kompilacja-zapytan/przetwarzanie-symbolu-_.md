@@ -8,8 +8,8 @@ Przykład używa kanonicznych deklaracji z całego rozdziału — `core0` ma dwa
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE ‘sensor_a.txt’
 DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE ‘sensor_b.txt’
 
-SELECT core0[_] * core1[_]
-STREAM scaled
+SELECT core0[_] * core1[_] \
+STREAM scaled \
 FROM core0 + core1
 ```
 

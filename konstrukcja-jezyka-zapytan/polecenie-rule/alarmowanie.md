@@ -12,9 +12,9 @@ Budując przykład przedstawiający zasadę działania alarmowania stwórzmy nas
 DECLARE a UINT STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str4[0] STREAM str4 FROM core0>1
 
-RULE regulation1
-ON str4
-WHEN str4[0] = 20 or str4[0] = 23
+RULE regulation1 \
+ON str4 \
+WHEN str4[0] = 20 or str4[0] = 23 \
 DO SYSTEM 'echo "test"'
 ```
 

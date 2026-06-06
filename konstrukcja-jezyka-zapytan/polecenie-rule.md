@@ -33,14 +33,14 @@ Klauzula DO SYSTEM umożliwia wywołanie zdarzenia systemowego po zajściu w war
 Przykłady deklaracji reguł w języku RQL:
 
 ```
-RULE testrule1
-ON str1
-WHEN str1[0] > 11
+RULE testrule1 \
+ON str1 \
+WHEN str1[0] > 11 \
 DO DUMP -5 TO 5 RETENTION 100
 
-RULE testrule2
-ON str1
-WHEN str1[0] = 13 OR str1[0] = 11
+RULE testrule2 \
+ON str1 \
+WHEN str1[0] = 13 OR str1[0] = 11 \
 DO SYSTEM 'echo "systemcall"'
 ```
 
@@ -93,9 +93,9 @@ WHEN NOT str1[0] = 0
 Akcja `DO SYSTEM` wykonuje podane polecenie powłoki (przez wywołanie `system(3)`) w momencie spełnienia warunku. RetractorDB loguje kod wyjścia polecenia — niezerowy kod jest raportowany jako błąd w logu.
 
 ```
-RULE alert1
-ON wyniki
-WHEN wyniki[0] > 1000
+RULE alert1 \
+ON wyniki \
+WHEN wyniki[0] > 1000 \
 DO SYSTEM 'curl -s http://monitoring/alert'
 ```
 
@@ -106,9 +106,9 @@ W poleceniu można użyć dowolnego programu dostępnego w `PATH`: skryptów pow
 Akcja `DO DUMP` zapisuje okno próbek strumienia do pliku binarnego w momencie spełnienia warunku. Pozwala zachować kontekst zdarzenia: dane przed jego wystąpieniem i dane po nim.
 
 ```
-RULE zdarzenie
-ON wyniki
-WHEN wyniki[0] > 500
+RULE zdarzenie \
+ON wyniki \
+WHEN wyniki[0] > 500 \
 DO DUMP -10 TO 5
 ```
 
@@ -141,9 +141,9 @@ Format pliku to surowe dane binarne zgodne z deskryptorem strumienia (bez nagł�
 Parametr `RETENTION <n>` ogranicza liczbę przechowywanych zrzutów — stary plik jest nadpisywany przez nowy (bufor cykliczny). Bez `RETENTION` każde wyzwolenie nadpisuje jeden plik `_dump.tmp`.
 
 ```
-RULE zdarzenie
-ON wyniki
-WHEN wyniki[0] > 500
+RULE zdarzenie \
+ON wyniki \
+WHEN wyniki[0] > 500 \
 DO DUMP -10 TO 5 RETENTION 20
 ```
 
@@ -154,19 +154,19 @@ Powyższy przykład przechowuje 20 ostatnich zrzutów w plikach `wyniki_zdarzeni
 Do jednego strumienia można przypiąć dowolną liczbę reguł różnych typów:
 
 ```
-RULE alert_wysoki
-ON pomiary
-WHEN pomiary[0] > 900 
+RULE alert_wysoki \
+ON pomiary \
+WHEN pomiary[0] > 900 \
 DO SYSTEM 'notify-send "Przekroczono prog"'
 
-RULE alert_niski
-ON pomiary
-WHEN pomiary[0] < 10
+RULE alert_niski \
+ON pomiary \
+WHEN pomiary[0] < 10 \
 DO SYSTEM 'notify-send "Zbyt niska wartosc"'
 
-RULE zapis_anomalii
-ON pomiary
-WHEN pomiary[0] > 900
+RULE zapis_anomalii \
+ON pomiary \
+WHEN pomiary[0] > 900 \
 DO DUMP -20 TO 10 RETENTION 5
 ```
 

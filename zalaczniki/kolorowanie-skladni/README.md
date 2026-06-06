@@ -108,9 +108,9 @@ DECLARE a UINT STREAM core1, 2 FILE 'datafile2.txt' ONESHOT
 
 SELECT str4[0] STREAM str4 FROM core0#core1
 
-RULE regulation1
-ON str4 
-WHEN str4[0] = 20 OR str4[0] = 23
+RULE regulation1 \
+ON str4 \
+WHEN str4[0] = 20 OR str4[0] = 23 \
 DO SYSTEM 'echo "test"'
 ```
 
@@ -199,9 +199,9 @@ SELECT str1[0] STREAM str1 FROM core0
 RULE testrule1 ON str1 WHEN str1[0] < 15 DO DUMP -5 TO 5
 RULE testrule2 ON str1 WHEN str1[0] > 11 DO DUMP -5 TO 5 RETENTION 100
 
-RULE testrule3
-ON str1
-WHEN str1[0] = 13 OR str1[0] = 11
+RULE testrule3 \
+ON str1 \
+WHEN str1[0] = 13 OR str1[0] = 11 \
 DO SYSTEM 'echo "systemcall"'
 ```
 

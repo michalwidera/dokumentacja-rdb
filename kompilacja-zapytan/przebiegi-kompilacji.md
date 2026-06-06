@@ -9,24 +9,24 @@ Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transfo
 Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
 
 ```
-DECLARE a BYTE, b INTEGER 
-STREAM core0, 0.1
+DECLARE a BYTE, b INTEGER \
+STREAM core0, 0.1 \
 FILE 'sensor_a.txt'
 
-DECLARE c INTEGER, d FLOAT
-STREAM core1, 0.2
+DECLARE c INTEGER, d FLOAT \
+STREAM core1, 0.2 \
 FILE 'sensor_b.txt'
 
-DECLARE e INTEGER
-STREAM core2, 0.3
+DECLARE e INTEGER \
+STREAM core2, 0.3 \
 FILE 'sensor_c.txt'
 
-SELECT *
-STREAM merged
+SELECT * \
+STREAM merged \
 FROM core0 + core1
 
-SELECT merged[0], merged[2], core0[0], core1[0]
-STREAM result
+SELECT merged[0], merged[2], core0[0], core1[0] \
+STREAM result \
 FROM merged
 ```
 

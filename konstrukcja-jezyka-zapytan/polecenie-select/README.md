@@ -21,8 +21,8 @@ Pierwsza różnica poza składnią to fakt że polecenia te wprowadzone do syste
 Przykładem zapytania tworzącego nowy strumień danych może być następujące polecenie w języku RQL.
 
 ```
-SELECT str1[0]*10 + str1[1]*10, str1[2]
-STREAM str1
+SELECT str1[0]*10 + str1[1]*10, str1[2] \
+STREAM str1 \
 FROM A+B
 ```
 

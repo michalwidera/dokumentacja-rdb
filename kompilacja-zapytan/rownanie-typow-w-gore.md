@@ -19,8 +19,8 @@ Typy STRING i RATIONAL wymagają jeszcze przeglądu, poprawek i pokrycia testami
 Przykład równania typów w praktyce — zapytanie `scaled` z rozdziału [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md):
 
 ```
-SELECT core0[_] * core1[_]
-STREAM scaled
+SELECT core0[_] * core1[_] \
+STREAM scaled \
 FROM core0 + core1
 ```
 

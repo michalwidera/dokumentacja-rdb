@@ -40,19 +40,19 @@ WHEN NOT strumień[0] < 0
 ## Przykłady
 
 ```
-RULE alarm_wysoki
-ON pomiary
-WHEN pomiary[0] > 100 OR pomiary[0] < -100
+RULE alarm_wysoki \
+ON pomiary \
+WHEN pomiary[0] > 100 OR pomiary[0] < -100 \
 DO DUMP -10 TO 10 RETENTION 50
 
-RULE sygnalizacja
-ON status
-WHEN status[0] = 1 AND status[1] != 0
+RULE sygnalizacja \
+ON status \
+WHEN status[0] = 1 AND status[1] != 0 \
 DO SYSTEM 'systemctl restart sensor-reader'
 
-RULE jednorazowy
-ON dane
-WHEN NOT dane[0] = 0
+RULE jednorazowy \
+ON dane \
+WHEN NOT dane[0] = 0 \
 DO DUMP -5 TO 0
 ```
 

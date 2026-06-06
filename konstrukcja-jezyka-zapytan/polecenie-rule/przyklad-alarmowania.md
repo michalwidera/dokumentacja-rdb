@@ -44,9 +44,9 @@ STORAGE 'temp'
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
-RULE zapis_anomalii
-ON str1
-WHEN str1[0] > 24
+RULE zapis_anomalii \
+ON str1 \
+WHEN str1[0] > 24 \
 DO DUMP -3 TO 3
 ```
 
@@ -87,9 +87,9 @@ STORAGE 'temp'
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
-RULE zapis_anomalii
-ON str1
-WHEN str1[0] > 24
+RULE zapis_anomalii \
+ON str1 \
+WHEN str1[0] > 24 \
 DO DUMP -3 TO 3 RETENTION 5
 ```
 
@@ -115,19 +115,19 @@ STORAGE 'temp'
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
-RULE prog_dolny
-ON str1
-WHEN str1[0] < 21
+RULE prog_dolny \
+ON str1 \
+WHEN str1[0] < 21 \
 DO SYSTEM 'echo "ALARM: wartosc ponizej progu dolnego" >> alarm.log'
 
-RULE prog_gorny
-ON str1
-WHEN str1[0] > 26
+RULE prog_gorny \
+ON str1 \
+WHEN str1[0] > 26 \
 DO SYSTEM 'echo "ALARM: wartosc powyzej progu gornego" >> alarm.log'
 
-RULE zapis_kontekstu
-ON str1
-WHEN str1[0] > 26
+RULE zapis_kontekstu \
+ON str1 \
+WHEN str1[0] > 26 \
 DO DUMP -5 TO 5 RETENTION 10
 ```
 

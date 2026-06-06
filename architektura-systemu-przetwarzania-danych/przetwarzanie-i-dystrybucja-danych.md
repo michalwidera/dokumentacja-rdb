@@ -9,16 +9,16 @@ Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych 
 Źródłowy plik danych query.rql zmienimy na następujący:
 
 ```
-DECLARE a INTEGER
-STREAM core0, 0.1
+DECLARE a INTEGER \
+STREAM core0, 0.1 \
 FILE 'datafile1.txt'
 
-DECLARE a BYTE
-STREAM core1, 0.2
+DECLARE a BYTE \
+STREAM core1, 0.2 \
 FILE '/dev/urandom'
 
-SELECT str1[0], str1[0] + str1[1]/20
-STREAM str1
+SELECT str1[0], str1[0] + str1[1]/20 \
+STREAM str1 \
 FROM core0 + core1
 ```
 

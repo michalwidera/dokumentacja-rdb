@@ -13,8 +13,8 @@ $ seq 1 12 > data.txt
 Deklaracja źródła — jeden rekord co sekundę, jedno pole:
 
 ```
-DECLARE val INTEGER
-STREAM src, 1
+DECLARE val INTEGER \
+STREAM src, 1 \
 FILE 'data.txt'
 ```
 
@@ -23,8 +23,8 @@ FILE 'data.txt'
 Skok równy rozmiarowi okna: `k = w`. Każdy element wejściowy należy dokładnie do jednego okna wyjściowego.
 
 ```
-SELECT *
-STREAM tumbling
+SELECT * \
+STREAM tumbling \
 FROM src@(4,4)
 ```
 
@@ -44,8 +44,8 @@ Zastosowania: agregacja próbek w stałych przedziałach czasu (np. minutowe, go
 Skok mniejszy od rozmiaru okna: `k < w`. Każdy element wejściowy pojawia się w kilku kolejnych oknach.
 
 ```
-SELECT *
-STREAM sliding
+SELECT * \
+STREAM sliding \
 FROM src@(1,4)
 ```
 
@@ -67,8 +67,8 @@ Zastosowania: średnia ruchoma, detekcja trendów, filtry FIR (jak w [implementa
 Skok większy od rozmiaru okna: `k > w`. Część elementów wejściowych jest pomijana.
 
 ```
-SELECT *
-STREAM sampled
+SELECT * \
+STREAM sampled \
 FROM src@(3,1)
 ```
 
@@ -89,8 +89,8 @@ Zastosowania: decimacja sygnału, redukcja częstotliwości próbkowania, diagno
 Ujemna wartość `w` odwraca kolejność pól w rekordzie wyjściowym przy zachowaniu tego samego rozmiaru okna.
 
 ```
-SELECT *
-STREAM mirrored
+SELECT * \
+STREAM mirrored \
 FROM src@(2,-2)
 ```
 
