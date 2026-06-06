@@ -83,6 +83,7 @@ jobs:
           \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
           \newtcolorbox{calloutOstrzezenie}{breakable,colback=orange!10,colframe=orange!70!black,fonttitle=\bfseries,title={Ostrzeżenie}}
           \newtcolorbox{calloutNote}{breakable,colback=blue!6,colframe=blue!50!black,fonttitle=\bfseries,title={Uwaga}}
+          \AtBeginDocument{\setkeys{Gin}{width=0.5\textwidth,keepaspectratio=true}}
           TEXEOF
 
           cat > /tmp/cover.tex << COVEOF
