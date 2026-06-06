@@ -24,6 +24,7 @@ W tym punkcie chcemy pokazać pełną sekwencję życia plików podczas jednej s
 
 
 ```mermaid
+%% pdf-width: 100%
 sequenceDiagram
     participant RQL as xretractor
     participant D as plik danych

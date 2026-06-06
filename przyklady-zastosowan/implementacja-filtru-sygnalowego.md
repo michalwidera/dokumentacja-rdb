@@ -127,7 +127,7 @@ $ xretractor -c query.rql -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 
 Ujrzymy następujący obraz (Rys. 54):
 
-<figure><img src="../assets/zaleznosc_strumieni_filtr_sygnalowy.png" alt=""><figcaption><p>Rys. 54. Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
+<figure><img src="../assets/zaleznosc_strumieni_filtr_sygnalowy.png" width="80%" alt=""><figcaption><p>Rys. 54. Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
 
 ### Uruchomienie
 
@@ -157,6 +157,6 @@ Należy pamiętać, że na ekranie komputera ten wykres przesuwa się w prawo ba
 
 Zapis ekranu w trakcie realizacji procesu przetwarzania ekranu:
 
-<figure><img src="../assets/dsp-record (1).gif" alt="Animacja przebiegu filtracji sygnału w czasie rzeczywistym"><figcaption><p>Rys. 56. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
+<figure><img src="../assets/dsp-record (1).gif" width="75%" alt=""><figcaption><p>Rys. 56. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `dsp` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).

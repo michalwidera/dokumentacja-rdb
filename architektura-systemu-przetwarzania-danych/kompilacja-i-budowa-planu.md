@@ -2,7 +2,7 @@
 
 Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor. Argument w postaci pliku z sekwencją poleceń i zapytań jest wymagany. W oparciu o przepływ przedstawiony na Rys. 10 przygotowałem opis procesu Rys. 22 realizujący proces kompilacji w trybie rozwojowym. Proces kompilacji można wywołać nawet jak już jakiś inny proces xretractor funkcjonuje. Blokowanie jednej instancji procesu przetwarzania danych odnosi się tylko do procesu realizacji planu zapytania. Wywołanie kompilacji w tym przypadku, nawet jeśli funkcjonuje już ten proces w systemie nie zgłosi błędu. Próba uruchomienia kolejnego przetwarzania – tak.
 
-<figure><img src="../assets/schemat_procesu_kompilacji.png" alt=""><figcaption><p>Rys. 22. Proces kompilacji</p></figcaption></figure>
+<figure><img src="../assets/schemat_procesu_kompilacji.png" width="100%" alt=""><figcaption><p>Rys. 22. Proces kompilacji</p></figcaption></figure>
 
 Jako przykładowy plik przeznaczony do kompilacji przyjmiemy plik query.rql o następującej zawartości:
 

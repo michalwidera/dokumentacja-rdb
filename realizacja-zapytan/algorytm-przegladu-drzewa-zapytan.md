@@ -55,7 +55,7 @@ Wejście: {1/2, 1/3}  →  Wyjście: {1/2, 1/3}
 `getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich (Rys. 40):
 
 ```mermaid
-%% pdf-width: 85%
+%% pdf-width: 100%
 timeline
     title Sloty czasowe dla delt {1/2, 1/3}
     section t = 1/3
@@ -118,7 +118,7 @@ Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98),
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
-flowchart TD
+flowchart LR
     S([processRows - inSet]) --> P1
 
     subgraph P1["Przebieg 1 — nie-deklaracje (kolejność topologiczna)"]
@@ -154,6 +154,7 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 42:
 
 ```mermaid
+%% pdf-width: 75%
 %%{init: {"markdownAutoWrap": false}}%%
 flowchart TB
     A([inSet]) --> B["printRowValue()<br/>serializuj do Boost property_tree"]
