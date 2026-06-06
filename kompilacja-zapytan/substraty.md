@@ -221,11 +221,11 @@ Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`.
 
 Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 33):
 
-<figure><img src="../assets/dedup_przed.svg" alt=""><figcaption><p>Rys. 33. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
+<figure><img src="../assets/dedup_przed.svg" width="70%" alt=""><figcaption><p>Rys. 33. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
 
 Po uruchomieniu `deduplicateSubstrats()` jeden z duplikatów jest usuwany, a wszystkie odwołania `PUSH_STREAM` przepinane są do ocalałego węzła. W grafie pozostaje jeden wspólny substrat (Rys. 34):
 
-<figure><img src="../assets/dedup_po.svg" alt=""><figcaption><p>Rys. 34. Graf po deduplikacji — jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
+<figure><img src="../assets/dedup_po.svg" width="40%" alt=""><figcaption><p>Rys. 34. Graf po deduplikacji — jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
 
 Graf po deduplikacji to dokładnie to, co zwraca `xretractor -c -d` — kompilator zawsze prezentuje wynik po wszystkich fazach optymalizacji.
 

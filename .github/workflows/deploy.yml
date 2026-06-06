@@ -185,8 +185,12 @@ jobs:
               subprocess.run(['mmdc', '-i', mmd, '-o', png, '-p', '/tmp/puppeteer.json'], capture_output=True)
               if not os.path.exists(png):
                   return m.group(0)
-              dtype = next((l for l in content.split('\n') if not l.strip().startswith('%%')), '').lower().strip()
-              width = '85%' if 'sequence' in dtype else '50%'
+              pdfw = re.search(r'^%%\s+pdf-width:\s*(\S+)', content, re.MULTILINE)
+              if pdfw:
+                  width = pdfw.group(1)
+              else:
+                  dtype = next((l for l in content.split('\n') if not l.strip().startswith('%%')), '').lower().strip()
+                  width = '85%' if any(k in dtype for k in ('sequence', 'timeline', ' lr')) else '50%'
               return f'![Diagram]({png}){{width={width}}}\n'
           def fix_figure(m, d):
               src_m = re.search(r'src="([^"]+)"', m.group(0))
@@ -204,7 +208,9 @@ jobs:
                   src = png if os.path.exists(png) else None
               if not src:
                   return (f'*[{cap}]*\n' if cap else '')
-              return f'![{cap}]({src})\n'
+              wm = re.search(r'<img[^>]+width="([^"]+)"', m.group(0))
+              wattr = f'{{width={wm.group(1)}}}' if wm else ''
+              return f'![{cap}]({src}){wattr}\n'
           def demote_headings(text, levels):
               if levels == 0:
                   return text

@@ -55,6 +55,7 @@ Wejście: {1/2, 1/3}  →  Wyjście: {1/2, 1/3}
 `getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich (Rys. 40):
 
 ```mermaid
+%% pdf-width: 85%
 timeline
     title Sloty czasowe dla delt {1/2, 1/3}
     section t = 1/3

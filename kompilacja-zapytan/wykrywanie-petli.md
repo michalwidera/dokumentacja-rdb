@@ -23,6 +23,7 @@ SELECT * STREAM broken FROM merged + broken
 Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl (Rys. 37):
 
 ```mermaid
+%% pdf-width: 85%
 graph LR
     core0 --> merged
     core1 --> merged
