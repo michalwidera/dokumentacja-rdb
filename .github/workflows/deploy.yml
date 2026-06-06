@@ -83,7 +83,6 @@ jobs:
           \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
           \newtcolorbox{calloutOstrzezenie}{breakable,colback=orange!10,colframe=orange!70!black,fonttitle=\bfseries,title={Ostrzeżenie}}
           \newtcolorbox{calloutNote}{breakable,colback=blue!6,colframe=blue!50!black,fonttitle=\bfseries,title={Uwaga}}
-          \AtBeginDocument{\setkeys{Gin}{width=0.5\textwidth,keepaspectratio=true}}
           TEXEOF
 
           cat > /tmp/cover.tex << COVEOF
@@ -181,9 +180,14 @@ jobs:
               idx = mermaid_n[0]
               mmd = f'{MERMAID_DIR}/d{idx}.mmd'
               png = f'{MERMAID_DIR}/d{idx}.png'
-              Path(mmd).write_text(m.group(1).strip())
+              content = m.group(1).strip()
+              Path(mmd).write_text(content)
               subprocess.run(['mmdc', '-i', mmd, '-o', png, '-p', '/tmp/puppeteer.json'], capture_output=True)
-              return f'![Diagram]({png})\n' if os.path.exists(png) else m.group(0)
+              if not os.path.exists(png):
+                  return m.group(0)
+              dtype = next((l for l in content.split('\n') if not l.strip().startswith('%%')), '').lower().strip()
+              width = '85%' if 'sequence' in dtype else '50%'
+              return f'![Diagram]({png}){{width={width}}}\n'
           def fix_figure(m, d):
               src_m = re.search(r'src="([^"]+)"', m.group(0))
               if not src_m:
@@ -234,8 +238,8 @@ jobs:
           combined = '\n\n'.join(parts)
           # Lift _Rys. N. Caption_ from after mermaid into alt text so pandoc renders proper figure caption
           combined = re.sub(
-              r'!\[Diagram\]\(([^)]+)\)\n+_(Rys\.[^_\n]+)_',
-              lambda m: f'![{m.group(2)}]({m.group(1)})',
+              r'!\[Diagram\]\(([^)]+)\)(\{[^}]*\})?\n+_(Rys\.[^_\n]+)_',
+              lambda m: f'![{m.group(3)}]({m.group(1)}){m.group(2) or ""}',
               combined
           )
           Path('/tmp/combined.md').write_text(combined)
