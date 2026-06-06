@@ -60,6 +60,8 @@ jobs:
 
           cat > /tmp/header.tex << 'TEXEOF'
           \usepackage{caption}
+          \usepackage{float}
+          \floatplacement{figure}{H}
           \usepackage{amssymb}
           \usepackage{tcolorbox}
           \let\origmaketitle\maketitle
