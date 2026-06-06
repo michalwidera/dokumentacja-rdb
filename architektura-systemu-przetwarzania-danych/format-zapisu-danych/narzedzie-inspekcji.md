@@ -18,10 +18,18 @@ Polecenie jest **tylko do odczytu** — nie modyfikuje żadnego pliku. Można je
 
 ## Co pokazuje mapa
 
-Górna część raportu to trzyelementowa mapa poglądowa:
+Cały raport otoczony jest ramką z znaków pseudograficznych. Górna część to trzyelementowa mapa poglądowa:
 
 ```
+┌──────────────────────────────────────────────────────────────┐
+│   Storage map: <nazwa>                                       │
+├──────────────────────────────────────────────────────────────┤
 │ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│ ...        │ ...           │ ...                             │
+├────────────┴───────────────┴─────────────────────────────────┤
+│   SEKCJA  ...                                                │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 Każdy wiersz mapy odpowiada jednemu segmentowi RLE lub segmentowi danych:
@@ -70,26 +78,29 @@ $ xtrdb -s pomiar
 ```
 
 ```
-Storage map: pomiar
-
-[shadow]   | [binary data] | [meta index]
-           | 0-100         | [====] 100 records, no nulls
-
-DESCRIPTOR  pomiar.desc                               43 B
-  INTEGER   ts                                         4 B
-  FLOAT     value                                      4 B
-  Record size:                                         8 B
-
-DATA        pomiar                                   800 B
-  Records: 100
-
-META        pomiar.meta                               26 B
-  Segments: 1   Records: 100
-  [=========================100==========================]
-  Legend: [====] data  [----] partial null
-          [~~~~] nullfill  [XXXX] gap
-
-SHADOW      pomiar.shadow (missing)                    0 B
+┌──────────────────────────────────────────────────────────────┐
+│   Storage map: pomiar                                        │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│            │ 0-100         │ [====] 100 records, no nulls    │
+├────────────┴───────────────┴─────────────────────────────────┤
+│   DESCRIPTOR  pomiar.desc                               43 B │
+│   INTEGER  ts                                            4 B │
+│   FLOAT  value                                           4 B │
+│   Record size:                                           8 B │
+├──────────────────────────────────────────────────────────────┤
+│   DATA        pomiar                                   800 B │
+│   Records: 100                                               │
+├──────────────────────────────────────────────────────────────┤
+│   META        pomiar.meta                               26 B │
+│   Segments: 1   Records: 100                                 │
+│   [==========================100===========================] │
+│   Legend: [====] data  [----] partial null                   │
+│           [~~~~] nullfill  [XXXX] gap                        │
+├──────────────────────────────────────────────────────────────┤
+│   SHADOW      pomiar.shadow (missing)                    0 B │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 Interpretacja: jeden segment RLE, brak przerw, brak null, plik cienia nieobecny. Plik binarny ma dokładnie 100 × 8 = 800 bajtów.
@@ -114,33 +125,36 @@ $ xtrdb -s czujnik
 ```
 
 ```
-Storage map: czujnik
-
-[shadow]   | [binary data] | [meta index]
-           | 0-50          | [====] 50 records, no nulls
-           |               | [XXXX] 10 records, gap
-2 updates  | 50-80         | [----] 30 records, some nulls
-
-DESCRIPTOR  czujnik.desc                              52 B
-  INTEGER   ts                                         4 B
-  FLOAT     temp                                       4 B
-  FLOAT     pressure                                   4 B
-  Record size:                                        12 B
-
-DATA        czujnik                                  960 B
-  Records: 80
-
-META        czujnik.meta                              60 B
-  Segments: 3   Records: 80
-  [========50=========][gap:10][===========30============]
-  Legend: [====] data  [----] partial null
-          [~~~~] nullfill  [XXXX] gap
-
-SHADOW      czujnik.shadow                            26 B
-  Updates: 2
+┌──────────────────────────────────────────────────────────────┐
+│   Storage map: czujnik                                       │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│            │ 0-50          │ [====] 50 records, no nulls     │
+│            │               │ [XXXX] 10 records, gap          │
+│ 2 updates  │ 50-80         │ [----] 30 records, some nulls   │
+├────────────┴───────────────┴─────────────────────────────────┤
+│   DESCRIPTOR  czujnik.desc                              52 B │
+│   INTEGER  ts                                            4 B │
+│   FLOAT  temp                                            4 B │
+│   FLOAT  pressure                                        4 B │
+│   Record size:                                          12 B │
+├──────────────────────────────────────────────────────────────┤
+│   DATA        czujnik                                  960 B │
+│   Records: 80                                                │
+├──────────────────────────────────────────────────────────────┤
+│   META        czujnik.meta                              60 B │
+│   Segments: 3   Records: 80                                  │
+│   [===========50===========][XXgap:10XX][-------30---------] │
+│   Legend: [====] data  [----] partial null                   │
+│           [~~~~] nullfill  [XXXX] gap                        │
+├──────────────────────────────────────────────────────────────┤
+│   SHADOW      czujnik.shadow                            26 B │
+│   Updates: 2                                                 │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w pliku danych), przerwa jest zakodowana wyłącznie w `.meta`. Kolumna `[binary data]` pokazuje pusty zakres dla segmentu gapowego — dane binarnych nie ma. Pole `pressure` w rekordach 50–79 ma wartości null w niektórych polach (`[----]`). Plik cienia zawiera 2 modyfikacje, które jeszcze nie zostały scalone z plikiem głównym.
+Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w pliku danych), przerwa jest zakodowana wyłącznie w `.meta`. Kolumna `[binary data]` pokazuje pusty zakres dla segmentu gapowego — danych binarnych nie ma. Pole `pressure` w rekordach 50–79 ma wartości null w niektórych polach (`[----]`). Plik cienia zawiera 2 modyfikacje, które jeszcze nie zostały scalone z plikiem głównym.
 
 ---
 
@@ -161,39 +175,42 @@ $ xtrdb -s bufor
 ```
 
 ```
-Storage map: bufor
-
-[shadow]   | [binary data] | [meta index]
-s0         | s0 0-100      | [====] 100 records, no nulls
-s1         | s1 100-200    | [====] 100 records, no nulls
-s2         | s2 200-280    | [====] 80 records, no nulls
-
-DESCRIPTOR  bufor.desc                                48 B
-  DOUBLE    value                                      8 B
-  Record size:                                         8 B
-
-DATA TOTAL  rec=280 src=0 seg=280                  2240 B
-  Records: 280
-  Source: bufor   Segments: bufor_segment_*
-  Segmented data (RETENTION): 3
-  Policy: segments=10 capacity=100
-  Retention cap records: 1000
-  Retention cap bytes: 8000
-  Total records: 280
-    current=0  segments=280
-  Total bytes: 2240
-    current=0  segments=2240
-    [0] bufor_segment_0 rec:100 range:0-100
-    [1] bufor_segment_1 rec:100 range:100-200
-    [2] bufor_segment_2 rec:80 range:200-280
-
-META        bufor.meta                                26 B
-  Segments: 1   Records: 280
-  [========================280=========================]
-  Legend: [====] data  [----] partial null
-          [~~~~] nullfill  [XXXX] gap
-
-SHADOW      bufor.shadow (missing)                     0 B
+┌──────────────────────────────────────────────────────────────┐
+│   Storage map: bufor                                         │
+├──────────────────────────────────────────────────────────────┤
+│ [shadow]   │ [binary data] │ [meta index]                    │
+├────────────┼───────────────┼─────────────────────────────────┤
+│ s0         │ s0 0-100      │ [====] 100 records, no nulls    │
+│ s1         │ s1 100-200    │ [====] 100 records, no nulls    │
+│ s2         │ s2 200-280    │ [====] 80 records, no nulls     │
+├────────────┴───────────────┴─────────────────────────────────┤
+│   DESCRIPTOR  bufor.desc                                48 B │
+│   DOUBLE  value                                          8 B │
+│   Record size:                                           8 B │
+├──────────────────────────────────────────────────────────────┤
+│   DATA TOTAL  rec=280 src=0 seg=280                   2240 B │
+│   Records: 280                                               │
+│   Source: bufor   Segments: bufor_segment_*                  │
+│   Segmented data (RETENTION): 3                              │
+│   Policy: segments=10 capacity=100                           │
+│   Retention cap records: 1000                                │
+│   Retention cap bytes: 8000                                  │
+│   Total records: 280                                         │
+│     current=0  segments=280                                  │
+│   Total bytes: 2240                                          │
+│     current=0  segments=2240                                 │
+│     [0] bufor_segment_0 rec:100 range:0-100                  │
+│     [1] bufor_segment_1 rec:100 range:100-200                │
+│     [2] bufor_segment_2 rec:80 range:200-280                 │
+├──────────────────────────────────────────────────────────────┤
+│   META        bufor.meta                                26 B │
+│   Segments: 1   Records: 280                                 │
+│   [=========================280===========================]  │
+│   Legend: [====] data  [----] partial null                   │
+│           [~~~~] nullfill  [XXXX] gap                        │
+├──────────────────────────────────────────────────────────────┤
+│   SHADOW      bufor.shadow (missing)                    0 B │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 Interpretacja: kolumna `[binary data]` pokazuje każdy segment z etykietą `sN` i zakresem indeksów globalnych. Sekcja DATA TOTAL zawiera pełne zestawienie: `src=0` (brak rekordów poza segmentami), `seg=280` (wszystkie rekordy w segmentach). Przy wypełnieniu bufora (10 segmentów × 100 = 1000 rekordów) najstarszy segment zostanie usunięty, a nowy dopisany.
