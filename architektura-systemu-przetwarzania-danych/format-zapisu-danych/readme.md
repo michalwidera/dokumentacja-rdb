@@ -35,6 +35,7 @@ Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie czt
 | Plik cienia           | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
 
 ```mermaid
+%% pdf-width: 70%
 graph TD
   D[".desc: deskryptor (schemat rekordu)"]
   B["Plik danych binarnych (rekordy N×R bajtów)"]

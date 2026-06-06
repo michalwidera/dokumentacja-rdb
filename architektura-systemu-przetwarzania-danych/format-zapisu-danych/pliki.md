@@ -210,6 +210,7 @@ Klasa przechowuje dwa stany:
 Diagram stanów (Rys. 12) przedstawia przejścia między fazami obiektu `metaDataStream`:
 
 ```mermaid
+%% pdf-width: 30%
 stateDiagram-v2
     [*] --> Budowa : konstruktor
     Budowa --> Aktywny : loadIndex()
