@@ -10,7 +10,7 @@ Program xretractor tworzy główny proces systemu RetractorDB. Program xqry twor
 
 Poniżej przedstawiona jest na Rys. 9 schematycznie architektura systemu RetractorDB. Uwzględniono wszystkie istniejące aktualnie komponenty. Obszary ujęte w prostokątach z nagłówkami wypełnionymi poleceniami systemowymi odpowiadają istniejącym komponentom. Obszar zapisu artefaktów to symboliczna reprezentacja systemu plików.
 
-<figure><img src="../assets/schemat_architektury_retractordb.png" alt=""><figcaption><p>Rys. 9 Schemat przepływu danych pomiędzy procesami RetractorDB</p></figcaption></figure>
+<figure><img src="../assets/schemat_architektury_retractordb.svg" alt=""><figcaption><p>Rys. 9 Schemat przepływu danych pomiędzy procesami RetractorDB</p></figcaption></figure>
 
 Na Rys. 9 widzimy procesy realizowane przez programy xretractor, xtrdb oraz xqry. Na rysunku schematycznie przedstawiono sposób komunikacji pomiędzy procesami w systemie RetractorDB. Rysunek pokazuje części wspólne opracowanych narzędzi.
 

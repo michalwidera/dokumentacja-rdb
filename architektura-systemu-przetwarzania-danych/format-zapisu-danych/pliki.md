@@ -428,7 +428,7 @@ Priorytety odczytu to reguła rozstrzygania, z którego źródła system ma zwr�
 
 
 ```mermaid
-%% pdf-width: 70%
+%% pdf-width: 100%
 flowchart LR
     Q["Odczyt rekordu na pozycji P"]
     Q --> SH{"Szukaj P w .shadow\n(od końca)"}
