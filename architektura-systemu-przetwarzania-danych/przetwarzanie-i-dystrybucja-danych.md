@@ -124,4 +124,4 @@ Po wydaniu tego polecenia proces xretractor zakończy swoje działanie i przerwi
 
 Zapis procesu prezentowany na ekranie (Rys. 27) przedstawia się następująco:
 
-<figure><img src="../assets/simple-record.gif" width="70%" alt=""><figcaption><p>Rys. 27. Zapis procesu przetwarzania danych w czasie rzeczywistym</p></figcaption></figure>
+<figure><img src="../assets/simple-record.gif" width="100%" alt=""><figcaption><p>Rys. 27. Zapis procesu przetwarzania danych w czasie rzeczywistym</p></figcaption></figure>
