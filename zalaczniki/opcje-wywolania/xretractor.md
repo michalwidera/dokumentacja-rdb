@@ -39,18 +39,18 @@ Available options:
 
 ### Opcje trybu przetwarzania
 
-<table data-header-hidden><thead><tr><th width="150" valign="top">Opcja</th><th valign="top">Znaczenie</th></tr></thead><tbody>
-<tr><td valign="top"><code>help</code></td><td valign="top">Wyświetlenie tekstu podpowiedzi. Lista różni się w zależności od trybu (z <code>-c</code> lub bez).</td></tr>
-<tr><td valign="top"><code>onlycompile</code></td><td valign="top">Przełączenie narzędzia w tryb „tylko kompilacja". Pętla realizacji zapytań nie jest uruchamiana.</td></tr>
-<tr><td valign="top"><code>queryfile</code></td><td valign="top">Nazwa pliku z zapytaniami do kompilacji i uruchomienia.</td></tr>
-<tr><td valign="top"><code>quiet</code></td><td valign="top">Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany.</td></tr>
-<tr><td valign="top"><code>status</code></td><td valign="top">Sprawdzenie, czy inny proces <code>xretractor</code> jest uruchomiony lub pozostawił pliki blokujące wielokrotne uruchomienie.</td></tr>
-<tr><td valign="top"><code>verbose</code></td><td valign="top">Tryb zwiększonej komunikatywności — wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana.</td></tr>
-<tr><td valign="top"><code>xqrywait</code></td><td valign="top">Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu <code>xqry</code>. Wymagane przy jednoczesnym użyciu <code>-m N</code> w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie <code>xqry</code> aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od <code>xqry</code> (np. <code>-d</code> lub <code>-s</code>) odblokowuje pętlę przetwarzania.</td></tr>
-<tr><td valign="top"><code>noanykey</code></td><td valign="top">Dowolny klawisz nie przerywa pętli przetwarzania. Bez tej opcji naciśnięcie dowolnego klawisza zatrzymuje system.</td></tr>
-<tr><td valign="top"><code>realtime</code></td><td valign="top">Włącza szeregowanie czasu rzeczywistego: <code>SCHED_FIFO</code>, <code>mlockall</code> i absolutne uśpienie wątku przetwarzającego. Wymaga uprawnień <code>CAP_SYS_NICE</code> i <code>CAP_IPC_LOCK</code> (lub root). Zalecane w środowisku produkcyjnym przy wymogu deterministycznego czasu reakcji.</td></tr>
-<tr><td valign="top"><code>tlimitqry</code></td><td valign="top">Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość <code>0</code> oznacza brak limitu.</td></tr>
-</tbody></table>
+| Opcja | Znaczenie |
+| ----- | --------- |
+| `help` | Wyświetlenie tekstu podpowiedzi. Lista różni się w zależności od trybu (z `-c` lub bez). |
+| `onlycompile` | Przełączenie narzędzia w tryb „tylko kompilacja". Pętla realizacji zapytań nie jest uruchamiana. |
+| `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
+| `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
+| `status` | Sprawdzenie, czy inny proces `xretractor` jest uruchomiony lub pozostawił pliki blokujące wielokrotne uruchomienie. |
+| `verbose` | Tryb zwiększonej komunikatywności — wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana. |
+| `xqrywait` | Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu `xqry`. Wymagane przy jednoczesnym użyciu `-m N` w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie `xqry` aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od `xqry` (np. `-d` lub `-s`) odblokowuje pętlę przetwarzania. |
+| `noanykey` | Dowolny klawisz nie przerywa pętli przetwarzania. Bez tej opcji naciśnięcie dowolnego klawisza zatrzymuje system. |
+| `realtime` | Włącza szeregowanie czasu rzeczywistego: `SCHED_FIFO`, `mlockall` i absolutne uśpienie wątku przetwarzającego. Wymaga uprawnień `CAP_SYS_NICE` i `CAP_IPC_LOCK` (lub root). Zalecane w środowisku produkcyjnym przy wymogu deterministycznego czasu reakcji. |
+| `tlimitqry` | Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość `0` oznacza brak limitu. |
 
 ---
 
@@ -82,21 +82,21 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 
 ### Opcje wizualizacji i diagnostyki
 
-<table data-header-hidden><thead><tr><th width="150" valign="top">Opcja</th><th valign="top">Znaczenie</th></tr></thead><tbody>
-<tr><td valign="top"><code>help</code></td><td valign="top">Wyświetlenie tekstu podpowiedzi (identycznie jak w trybie przetwarzania, lista różni się w zależności od trybu).</td></tr>
-<tr><td valign="top"><code>onlycompile</code></td><td valign="top">Włączony — w tej tabeli opisano opcje obowiązujące przy aktywnej fladze <code>-c</code>.</td></tr>
-<tr><td valign="top"><code>queryfile</code></td><td valign="top">Nazwa pliku z zapytaniami do kompilacji.</td></tr>
-<tr><td valign="top"><code>quiet</code></td><td valign="top">Testowanie samego procesu kompilacji bez prezentowania wyników. Pozostałe opcje prezentacji nie są uruchamiane. Opcja dołączona na potrzeby rozwojowe.</td></tr>
-<tr><td valign="top"><code>dot</code></td><td valign="top">Tworzy plik tekstowy w formacie DOT opisujący hierarchiczne struktury wytworzone przez kompilator. Plik można przekazać do narzędzia Graphviz w celu wygenerowania graficznego opisu zależności.</td></tr>
-<tr><td valign="top"><code>csv</code></td><td valign="top">Eksportuje hierarchiczne struktury danych do pliku CSV (wartości oddzielone przecinkami).</td></tr>
-<tr><td valign="top"><code>fields</code></td><td valign="top">Dołącza do wykresu DOT pola i ich typy dla każdego strumienia danych.</td></tr>
-<tr><td valign="top"><code>tags</code></td><td valign="top">Dołącza do wykresu DOT programy wewnętrznego języka systemu, które tworzą pola poszczególnych zapytań. Musi być wywołana razem z <code>fields</code> — wizualnie łączy pola z ich programami.</td></tr>
-<tr><td valign="top"><code>streamprogs</code></td><td valign="top">Dołącza do wykresu DOT programy algebry strumieniowej tworzące poszczególne strumienie zapytań.</td></tr>
-<tr><td valign="top"><code>rules</code></td><td valign="top">Dołącza reguły alarmowania do wykresu.</td></tr>
-<tr><td valign="top"><code>hideruleprog</code></td><td valign="top">Ukrywa programy opisujące warunki alarmowania (używane razem z <code>rules</code>).</td></tr>
-<tr><td valign="top"><code>transparent</code></td><td valign="top">Generuje wykres z przezroczystym tłem.</td></tr>
-<tr><td valign="top"><code>diagram</code></td><td valign="top">Generuje diagramy kulkowe. Argument w postaci <code>typ:ilość_cykli</code>: <code>typ</code> (<code>0</code> lub <code>1</code>) określa, czy diagramy prezentują znaczniki czasu; <code>ilość_cykli</code> określa liczbę cykli na diagramie.</td></tr>
-</tbody></table>
+| Opcja | Znaczenie    |
+| ----- | ------------ |
+| `help` | Wyświetlenie tekstu podpowiedzi (identycznie jak w trybie przetwarzania, lista różni się w zależności od trybu). |
+| `onlycompile` | Włączony — w tej tabeli opisano opcje obowiązujące przy aktywnej fladze `-c`. |
+| `queryfile` | Nazwa pliku z zapytaniami do kompilacji. |
+| `quiet` | Testowanie samego procesu kompilacji bez prezentowania wyników. Pozostałe opcje prezentacji nie są uruchamiane. Opcja dołączona na potrzeby rozwojowe. |
+| `dot` | Tworzy plik tekstowy w formacie DOT opisujący hierarchiczne struktury wytworzone przez kompilator. Plik można przekazać do narzędzia Graphviz w celu wygenerowania graficznego opisu zależności. |
+| `csv` | Eksportuje hierarchiczne struktury danych do pliku CSV (wartości oddzielone przecinkami). |
+| `fields` | Dołącza do wykresu DOT pola i ich typy dla każdego strumienia danych. |
+| `tags` | Dołącza do wykresu DOT programy wewnętrznego języka systemu, które tworzą pola poszczególnych zapytań. Musi być wywołana razem z `fields` — wizualnie łączy pola z ich programami. |
+| `streamprogs` | Dołącza do wykresu DOT programy algebry strumieniowej tworzące poszczególne strumienie zapytań. |
+| `rules` | Dołącza reguły alarmowania do wykresu. |
+| `hideruleprog` | Ukrywa programy opisujące warunki alarmowania (używane razem z `rules`). |
+| `transparent` | Generuje wykres z przezroczystym tłem. |
+| `diagram` | Generuje diagramy kulkowe. Argument w postaci `typ:ilość_cykli`: `typ` (`0` lub `1`) określa, czy diagramy prezentują znaczniki czasu; `ilość_cykli` określa liczbę cykli na diagramie. |
 
 ---
 
