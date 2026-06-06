@@ -203,7 +203,7 @@ Podstawiając za n + 1 liczbę naturalną n, otrzymujemy równość, którą nal
 
 **Dowód – część trzecia (analiza przypadków).** Korzystając z własności współczynnika nwd(a, b), rozważamy dwa rozłączne przypadki pokrywające całą dziedzinę.
 
-_Przypadek 1: nwd(a, b) = b, czyli a/b = c ∈ ℕ._ Dowodzone równanie przyjmuje postać:
+_Przypadek 1: nwd(a, b) = b, czyli a/b = c ∈ N._ Dowodzone równanie przyjmuje postać:
 
 \\[
 \left\lfloor \frac{(n + 1)a}{b} - \frac{b}{b} \right\rfloor + 1 = \left\lceil \frac{(n + 1)a}{b} \right\rceil

@@ -169,6 +169,7 @@ Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
+%% pdf-width: 100%
 flowchart TD
     A["Nowa próbka strumienia S"] --> R1["Reguła 1: WHEN S[0] > 100"]
     A --> R2["Reguła 2: WHEN S[0] < 10"]

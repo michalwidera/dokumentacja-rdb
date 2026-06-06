@@ -154,7 +154,7 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 42:
 
 ```mermaid
-%% pdf-width: 75%
+%% pdf-width: 50%
 %%{init: {"markdownAutoWrap": false}}%%
 flowchart TB
     A([inSet]) --> B["printRowValue()<br/>serializuj do Boost property_tree"]

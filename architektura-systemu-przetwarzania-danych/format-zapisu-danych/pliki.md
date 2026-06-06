@@ -543,6 +543,7 @@ Po restarcie procesu nowy obiekt `metaDataStream` przywraca stan cienia przez `l
 3. `getNullBitset()` i kolejne `onRecordModified()` działają tak samo jak przed restartem.
 
 ```mermaid
+%% pdf-width: 100%
 sequenceDiagram
     participant Proc1 as Pierwsza sesja
     participant MS as .meta.shadow

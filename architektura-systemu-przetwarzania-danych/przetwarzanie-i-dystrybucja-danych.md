@@ -2,7 +2,7 @@
 
 W przypadku rozpoczęcia procesu przetwarzania danych analizując przedstawiony na Rys. 10 można wydzielić następujący schemat przepływu - Rys. 24:
 
-<figure><img src="../assets/schemat_przeplywu_przetwarzanie.png" width="100%" alt=""><figcaption><p>Rys. 24. Schemat przepływu sterowania w procesie przetwarzania</p></figcaption></figure>
+<figure><img src="../assets/schemat_przeplywu_przetwarzanie.svg" width="100%" alt=""><figcaption><p>Rys. 24. Schemat przepływu sterowania w procesie przetwarzania</p></figcaption></figure>
 
 Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych i zbudowanie ciągu przetwarzającego dane. W ramach tego ciągu na wejściu użyjemy przygotowanego pliku z planem realizacji zapytania, przygotujemy plik binarny z danymi. Zbudujemy proces przetwarzający dane i prezentujący wyniki.
 
