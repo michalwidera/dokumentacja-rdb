@@ -258,6 +258,7 @@ jobs:
             -V fontsize=11pt \
             -V documentclass=report \
             -V mainfont="DejaVu Serif" \
+            -V monofont="DejaVu Sans Mono" \
             --metadata title="RetractorDB" \
             --metadata subtitle="Edge Signal Processing Engine" \
             --metadata author="Michal Widera" \
