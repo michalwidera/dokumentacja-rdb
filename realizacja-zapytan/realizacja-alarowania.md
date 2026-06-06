@@ -168,8 +168,7 @@ $ xtrdb
 Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w jednej iteracji `constructRulesAndUpdate()`, w kolejności ich deklaracji w pliku `.rql`. Każda reguła jest niezależna — spełnienie jednej nie wpływa na ewaluację pozostałych (Rys. 48).
 
 ```mermaid
-%%{init: {"markdownAutoWrap": false}}%%
-%% pdf-width: 100%
+%%{init: {"markdownAutoWrap": false, "flowchart": {"useMaxWidth": true}}}%%
 flowchart TD
     A["Nowa próbka strumienia S"] --> R1["Reguła 1: WHEN S[0] > 100"]
     A --> R2["Reguła 2: WHEN S[0] < 10"]
