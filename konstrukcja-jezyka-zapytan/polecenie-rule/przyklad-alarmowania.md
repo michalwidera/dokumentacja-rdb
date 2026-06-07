@@ -30,9 +30,9 @@ Oba okna proponuję ustawić obok siebie. Zobaczymy, że pojawianie się wartoś
 
 <div class="no-print">
 
-Zapis sesji (Rys. 8):
+Zapis sesji (Animacja poniżej):
 
-<figure><img src="../../assets/alarm-example.svg" alt=""><figcaption><p>Rys. 8 Zapis sesji przykładu alarmowania</p></figcaption></figure>
+<figure><img src="../../assets/alarm-example.svg" alt=""><figcaption><p>Animacja. Zapis sesji przykładu alarmowania</p></figcaption></figure>
 
 </div>
 

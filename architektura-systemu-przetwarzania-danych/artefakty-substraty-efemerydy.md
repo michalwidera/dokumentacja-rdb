@@ -2,7 +2,7 @@
 
 Z racji faktu, że system przeznaczony jest do pracy ciągłej i teoretycznie otrzymywane wyniki bez prowadzenia procesu retencji danych zapełniłby każdy nośnik danych wprowadzamy dodatkowe definicje związane z charakterem przetwarzanych danych.
 
-Przedstawiając opis Rys. 10 wspominano o artefaktach. Jest to jedna z definicji wymagających wyjaśnienia.
+Przedstawiając opis Rys. 9 wspominano o artefaktach. Jest to jedna z definicji wymagających wyjaśnienia.
 
 > **✅ Uwaga**
 >

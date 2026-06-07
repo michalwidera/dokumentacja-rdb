@@ -205,6 +205,6 @@ WHEN str1[0] = 13 OR str1[0] = 11 \
 DO SYSTEM 'echo "systemcall"'
 ```
 
-Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 60).
+Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 58).
 
-<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 60. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>
+<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 58. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>

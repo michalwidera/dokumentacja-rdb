@@ -8,11 +8,11 @@ System zbudowany jest w oparciu o 3 programy dostępne jako polecenia systemowe.
 
 Program xretractor tworzy główny proces systemu RetractorDB. Program xqry tworzy procesy komunikujące się z systemem RetractorDB. Komunikacja zachodzi za pomocą wspólnego obszaru w pamięci. Program xtrdb służy do analizy danych i metadanych zapisywanych w plikach bazy danych.
 
-Poniżej przedstawiona jest na Rys. 9 schematycznie architektura systemu RetractorDB. Uwzględniono wszystkie istniejące aktualnie komponenty. Obszary ujęte w prostokątach z nagłówkami wypełnionymi poleceniami systemowymi odpowiadają istniejącym komponentom. Obszar zapisu artefaktów to symboliczna reprezentacja systemu plików.
+Poniżej przedstawiona jest na Rys. 8 schematycznie architektura systemu RetractorDB. Uwzględniono wszystkie istniejące aktualnie komponenty. Obszary ujęte w prostokątach z nagłówkami wypełnionymi poleceniami systemowymi odpowiadają istniejącym komponentom. Obszar zapisu artefaktów to symboliczna reprezentacja systemu plików.
 
-<figure><img src="../assets/schemat_architektury_retractordb.svg" alt=""><figcaption><p>Rys. 9 Schemat przepływu danych pomiędzy procesami RetractorDB</p></figcaption></figure>
+<figure><img src="../assets/schemat_architektury_retractordb.svg" alt=""><figcaption><p>Rys. 8 Schemat przepływu danych pomiędzy procesami RetractorDB</p></figcaption></figure>
 
-Na Rys. 9 widzimy procesy realizowane przez programy xretractor, xtrdb oraz xqry. Na rysunku schematycznie przedstawiono sposób komunikacji pomiędzy procesami w systemie RetractorDB. Rysunek pokazuje części wspólne opracowanych narzędzi.
+Na Rys. 8 widzimy procesy realizowane przez programy xretractor, xtrdb oraz xqry. Na rysunku schematycznie przedstawiono sposób komunikacji pomiędzy procesami w systemie RetractorDB. Rysunek pokazuje części wspólne opracowanych narzędzi.
 
 Proces xretractor komunikuje się z procesami xqry poprzez obszar pamięci współdzielonej. W tej pamięci dla każdego procesu xqry tworzona jest przez xretractor kolejka danych. Dane są odbierane na bieżąco przez procesy xqry. Zadaniem procesów xqry jest wysyłka danych dalej do innych systemów lub procesów. Jeśli proces xqry ginie lub jest kończony xretractor zarządzający obszarem wspólnym zwalnia obszar dedykowany we wspólnym obszarze.
 

@@ -2,7 +2,7 @@
 
 ## Przegląd ogólny
 
-Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące komponenty: `dataModel` (logika przetwarzania) oraz `executorsm` (pętla czasowa i IPC). Przed wejściem w główną pętlę system wykonuje **krok zerowy**, po czym cyklicznie iteruje po minimalnym zbiorze interwałów czasowych (Rys. 38).
+Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące komponenty: `dataModel` (logika przetwarzania) oraz `executorsm` (pętla czasowa i IPC). Przed wejściem w główną pętlę system wykonuje **krok zerowy**, po czym cyklicznie iteruje po minimalnym zbiorze interwałów czasowych (Rys. 37).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -15,13 +15,13 @@ flowchart TD
     F["broadcast(inSet)<br/>Kolejki Boost IPC → klienci xqry"] --> C
 ```
 
-_Rys. 38. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
+_Rys. 37. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
 
 ***
 
 ## Struktura danych: qTree
 
-`qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()` (Rys. 39).
+`qTree` (`src/retractor/lib/qTree.cpp`) rozszerza `std::vector<query>` i jest **wektorem topologicznie posortowanych zapytań**. Sortowanie odbywa się przez DFS po grafie zależności budowanym z `query.getDepStream()` (Rys. 38).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -32,7 +32,7 @@ graph TD
     B --> D
 ```
 
-_Rys. 39. Przykładowy graf zależności dla qTree_
+_Rys. 38. Przykładowy graf zależności dla qTree_
 
 Po sortowaniu topologicznym kolejność w wektorze: `[A, B, C, D]`. Zapytanie C zależne od B zawsze trafi po B w iteracji — gwarantuje poprawność obliczeń.
 
@@ -52,7 +52,7 @@ Wejście: {1/2, 1/3}  →  Wyjście: {1/2, 1/3}
 (żadne nie jest wielokrotnością drugiego)
 ```
 
-`getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich (Rys. 40):
+`getNextTimeSlot()` wyznacza kolejny slot jako `min(delta × counter[delta])` po wszystkich deltach. Poniższy diagram ilustruje sloty dla delt `{1/2, 1/3}` i aktywne zapytania w każdym z nich (Rys. 39):
 
 ```mermaid
 %% pdf-width: 100%
@@ -72,7 +72,7 @@ timeline
         C (rInterval=1/2)
 ```
 
-_Rys. 40. Minimalna siatka czasowa dla delt {1/2, 1/3}_
+_Rys. 39. Minimalna siatka czasowa dla delt {1/2, 1/3}_
 
 Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlot_ / inDelta` ma mianownik równy 1 (slot jest całkowitą wielokrotnością delty zapytania).
 
@@ -114,7 +114,7 @@ Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie — podzbiór ws
 
 ### Przetwarzanie: `processRows(inSet)`
 
-Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98), co ilustruje Rys. 41:
+Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98), co ilustruje Rys. 40:
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -143,7 +143,7 @@ flowchart LR
     P2 --> E([koniec])
 ```
 
-_Rys. 41. Algorytm processRows – dwa przejścia przetwarzania_
+_Rys. 40. Algorytm processRows – dwa przejścia przetwarzania_
 
 Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania skonsumowały ich `outputPayload` w przejściu 1.
 
@@ -151,7 +151,7 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 
 ## Rozgłaszanie wyników: `broadcast()`
 
-Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 42:
+Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 41:
 
 ```mermaid
 %% pdf-width: 50%
@@ -166,7 +166,7 @@ flowchart TB
     C -->|brak| H([pomiń])
 ```
 
-_Rys. 42. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
+_Rys. 41. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 
 `printRowValue()` buduje strukturę z nazwą strumienia, liczbą pól, wartościami i bitmapą null, zapisuje jako Boost info format i wysyła przez `boost::interprocess::message_queue`.
 
@@ -174,7 +174,7 @@ _Rys. 42. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 
 ## Pełny przykład: zapytania A, B, C, D dla delt {1/2, 1/3}
 
-Rys. 43 przedstawia kompletną sekwencję wywołań dla czterech zapytań A, B, C, D rozłożonych na siatce czasowej z deltami {1/2, 1/3}.
+Rys. 42 przedstawia kompletną sekwencję wywołań dla czterech zapytań A, B, C, D rozłożonych na siatce czasowej z deltami {1/2, 1/3}.
 
 ```mermaid
 sequenceDiagram
@@ -212,7 +212,7 @@ sequenceDiagram
     ES->>IPC: broadcast({B, C, D})
 ```
 
-_Rys. 43. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}_
+_Rys. 42. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}_
 
 Drzewo zależności determinuje kolejność przejścia 1. Interwały czasowe z algebry Beatty'ego wyznaczają, które węzły drzewa są aktywne w danym slocie.
 

@@ -50,7 +50,7 @@ graph TD
     style M fill:#cdf,color:#000
 ```
 
-_Rys. 11. Zestaw plików artefaktu i ich powiązania_
+_Rys. 10. Zestaw plików artefaktu i ich powiązania_
 
 Diagram przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, a `.shadow` przechowuje opcjonalne nadpisania rekordów.
 
