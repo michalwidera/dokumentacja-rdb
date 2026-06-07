@@ -28,9 +28,13 @@ $ xqry -s str4
 
 Oba okna proponuję ustawić obok siebie. Zobaczymy, że pojawianie się wartości 20 i 23 powoduje uruchomienie akcji po stronie serwera wyświetlającej napis test. Należy pamiętać, że w systemie może pojawić się dowolne polecenie systemowe lub wywołanie dowolnego programu w zależności o tego co umieścimy w deklaracji DO SYSTEM.
 
+<div class="no-print">
+
 Zapis sesji (Rys. 8):
 
 <figure><img src="../../assets/alarm-example.svg" alt=""><figcaption><p>Rys. 8 Zapis sesji przykładu alarmowania</p></figcaption></figure>
+
+</div>
 
 ## Przykład 2: zapis kontekstu zdarzenia (DO DUMP)
 

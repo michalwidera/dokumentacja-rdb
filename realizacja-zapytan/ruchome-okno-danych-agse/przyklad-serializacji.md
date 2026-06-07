@@ -97,9 +97,13 @@ Generując obraz planu zapytania realizujący najpierw serializację a potem des
 
 Zaprezentowano tutaj najbardziej podstawowy przykład zastosowania operatora ruchomego okna danych. Jeśli zaczniemy eksperymentować ze skokiem i rozmiarem okna, zauważymy, że jesteśmy w stanie stworzyć dowolne, przesuwające się okno nad strumieniem danych lub pominąć niektóre elementy budując skok większy od szerokości okna.
 
+<div class="no-print">
+
 Zapis realizacji eksperymentu (Rys. 51) przedstawia się następująco:
 
 <figure><img src="../../assets/agse-example.svg" alt=""><figcaption><p>Rys. 51. Zapis sesji eksperymentu z serializatorem AGSE</p></figcaption></figure>
+
+</div>
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `agse1`, `agse2`, `agse3`, `Pattern6` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
