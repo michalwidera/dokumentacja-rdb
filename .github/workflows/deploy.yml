@@ -233,6 +233,7 @@ jobs:
           for filepath, level in file_entries:
               d = Path(filepath).parent.resolve()
               text = Path(filepath).read_text()
+              text = re.sub(r'<div class="no-print">.*?</div>', '', text, flags=re.DOTALL)
               text = text.replace('✔', '$\\checkmark$')
               text = re.sub(r'```mermaid\n(.*?)```', render_mermaid, text, flags=re.DOTALL)
               text = re.sub(r'<figure>.*?</figure>', lambda m, d=d: fix_figure(m, d), text, flags=re.DOTALL)
