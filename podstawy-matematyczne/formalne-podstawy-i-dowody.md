@@ -11,17 +11,13 @@ W rozdziale o [algebrze regularnych serii czasowych](algebra-regularnych-serii-c
 
 Literatura dotycząca układów pokrywających (ang. _Covering Systems_) [\[4\]](../literatura.md#4) związana jest z kombinatoryką i kryptoanalizą w obszarze teorii liczb. Rozważanym problemem jest sposób wyznaczania podziału zbioru dodatnich liczb naturalnych. Mówimy, że dwie sekwencje dokonują podziału zbioru dodatnich liczb naturalnych, jeśli zbiory powstałe z elementów tych sekwencji po operacji przecięcia tworzą zbiór pusty, a ich suma tworzy zbiór dodatnich liczb naturalnych.
 
-Podstawą rozważań jest sekwencja nazywana sekwencją Beatty. W postaci ogólnej zapisujemy ją w wariancie z funkcją podłogi:
+Podstawą rozważań jest sparametryzowana sekwencja Beatty. W postaci ogólnej zapisujemy ją z funkcją podłogi:
 
 \\[
 \mathcal{B}(\alpha ,\alpha ^{\prime }) := \left( \left\lfloor \frac{n-\alpha ^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty }
 \\]
 
-lub w wariancie z funkcją sufitu:
-
-\\[
-\mathcal{B}^{(c)}(\alpha ,\alpha ^{\prime }) := \left( \left\lceil \frac{n-\alpha ^{\prime }}{\alpha }\right\rceil \right) _{n=1}^{\infty }
-\\]
+Ta jedna definicja generuje całą rodzinę sekwencji. Wyniki o podziale zbioru dotyczą zawsze **pary** jej egzemplarzy o różnych parametrach: parę zapisujemy jako B(α, α′) i B(β, β′), przy czym drugi zapis oznacza człon dopełniający.
 
 Parametry tej sekwencji mają czytelną interpretację geometryczną:
 
@@ -30,7 +26,7 @@ Parametry tej sekwencji mają czytelną interpretację geometryczną:
 * α′ oznacza przesunięcie,
 * −α′/α oznacza y-przechwycenie (punkt przecięcia z osią rzędnych).
 
-Twierdzenie [Beatty](../literatura.md#1) gwarantuje podział zbioru dla liczb niewymiernych. Twierdzenie [Fraenkela](../literatura.md#2) jest uogólnieniem, które – co dla nas kluczowe – dopuszcza również liczby wymierne, pod warunkiem spełnienia pięciu postulatów (przytoczonych w [rozdziale wstępnym](README.md)). Przystępny dowód twierdzenia Fraenkela można odnaleźć w pracy K. O'Bryanta _„Fraenkel's partition and Brown's decomposition"_.
+Twierdzenie [Beatty](../literatura.md#1) gwarantuje podział zbioru dla liczb niewymiernych. Twierdzenie [Fraenkela](../literatura.md#2) jest uogólnieniem, które – co dla nas kluczowe – dopuszcza również liczby wymierne, pod warunkiem spełnienia pięciu postulatów (przytoczonych w [rozdziale wstępnym](README.md)). Przystępny dowód twierdzenia Fraenkela można odnaleźć w pracy K. O'Bryanta _„Fraenkel's partition and Brown's decomposition"_ [\[23\]](../literatura.md#23).
 
 Cała dalsza część tej strony sprowadza się do jednej myśli: pokazania, że operatory strumieniowe są w istocie maszynami generującymi sekwencje Beatty, które dokonują podziału (pokrycia) zbioru liczb naturalnych.
 
@@ -39,25 +35,27 @@ Cała dalsza część tej strony sprowadza się do jednej myśli: pokazania, że
 Dowody operują niemal wyłącznie na funkcjach podłogi (⌊x⌋ – część całkowita) i sufitu (⌈x⌉ – najmniejsza liczba całkowita nie mniejsza od x). Przytaczam więc najpierw zestaw tożsamości, które będą wielokrotnie wykorzystywane. Niech x ∈ ℝ, a C oznacza liczbę całkowitą:
 
 \\[
-\left\lfloor x\right\rfloor = \left\lceil x\right\rceil \iff x \in \mathbb{N}
+\left\lfloor x\right\rfloor = \left\lceil x\right\rceil \iff x \in \mathbb{Z}
 \\]
 
 \\[
-\left\lfloor x\right\rfloor + 1 = \left\lceil x\right\rceil \iff x \in \mathbb{R} - \mathbb{N}
+\left\lfloor x\right\rfloor + 1 = \left\lceil x\right\rceil \iff x \in \mathbb{R} \setminus \mathbb{Z}
 \\]
 
 \\[
-\left\lfloor x + C\right\rfloor = \left\lfloor x\right\rfloor + C \iff C \in \mathbb{N}
+\left\lfloor x + C\right\rfloor = \left\lfloor x\right\rfloor + C
 \\]
 
-Dodatkowo, w analizie residuum sekwencji rozplątania wykorzystamy zależności wiążące największy wspólny dzielnik (nwd) z dziedziną ilorazu a/b:
+(ostatnia tożsamość zachodzi dla każdego C ∈ ℤ). Dodatkowo, w analizie residuum sekwencji rozplątania wykorzystamy zależności wiążące największy wspólny dzielnik (nwd) z dziedziną ilorazu a/b. Dla a, b ∈ ℕ<sub>>0</sub>:
 
 \\[
-\operatorname{nwd}(a,b) = b \iff \frac{a}{b} = c \in \mathbb{N}
+\operatorname{nwd}(a,b) = b \iff \frac{a}{b} \in \mathbb{N}
 \\]
 
+a w przeciwnym przypadku:
+
 \\[
-1 \leq \operatorname{nwd}(a,b) \leq a \iff 0 < \frac{a}{b} < 1
+1 \leq \operatorname{nwd}(a,b) \leq \min(a,b)
 \\]
 
 Te dwa przypadki rozłącznie pokrywają całą interesującą nas dziedzinę – co pozwoli przeprowadzić dowód „przez przypadki".
@@ -99,28 +97,20 @@ b_{n} = c_{n+\left\lfloor \frac{n\Delta_{b}}{\Delta_{a}}\right\rfloor},\ \Delta_
 
 > **✅ Uwaga**
 >
-> **Twierdzenie.** Operacja splątania (przeplotu) zapewnia sekwencyjne pokrycie obu zbiorów zawierających elementy strumieni danych będących jej argumentami.
+> **Twierdzenie.** Operacja splątania (przeplotu) zapewnia sekwencyjne pokrycie obu zbiorów indeksów strumieni danych będących jej argumentami: każdy element strumienia A i każdy element strumienia B zostaje wybrany dokładnie raz, po kolei, bez przerw i bez powtórzeń.
 
 
-**Dowód.** Dowód rozpoczynamy od analizy pierwszego warunku (warunku równości) w równaniu przeplotu. Oznaczmy ten warunek jako (∗):
-
-\\[
-(\ast):\quad \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor
-\\]
-
-Dla każdego n spełniającego warunek (∗) kolejne wartości wyrażenia n − ⌊nz⌋ tworzą drugi, skojarzony ciąg liczb naturalnych, wybierający kolejne elementy z ciągu b. Oznacza to, że dla każdego n spełniającego (∗) wyrażenie x = n − ⌊nz⌋ podlega zależności xₙ = xₙ₊₁ − 1. Formalnie:
+**Dowód.** Ponieważ 0 < z < 1, przyrost
 
 \\[
-n - \left\lfloor n z \right\rfloor = (n + 1) - \left\lfloor (n + 1) z \right\rfloor - 1
+d_{n} := \left\lfloor \left( n+1\right) z \right\rfloor - \left\lfloor n z \right\rfloor
 \\]
 
-Podstawiając warunek (∗) do prawej strony otrzymujemy:
+dla każdego n ≥ 0 równy jest 0 albo 1. Równanie przeplotu wybiera element strumienia B dokładnie w tych krokach, w których d<sub>n</sub> = 0 (gałąź równości), a element strumienia A dokładnie w krokach z d<sub>n</sub> = 1.
 
-\\[
-n - \left\lfloor (n + 1) z \right\rfloor = (n + 1) - \left\lfloor (n + 1) z \right\rfloor - 1
-\\]
+Rozważmy indeks wyboru z ciągu B: x<sub>n</sub> = n − ⌊nz⌋. W jednym kroku x<sub>n+1</sub> − x<sub>n</sub> = 1 − d<sub>n</sub>: indeks rośnie o dokładnie 1 w każdym kroku wybierającym z B, a poza tym pozostaje bez zmian. Jeśli więc n < n′ są dwoma kolejnymi krokami wybierającymi z B, to x<sub>n′</sub> = x<sub>n</sub> + 1. Pierwszym krokiem wybierającym z B jest n = 0, gdyż z 0 < z < 1 wynika ⌊0⌋ = ⌊z⌋ = 0, czyli d<sub>0</sub> = 0, a przy tym x<sub>0</sub> = 0. Wybory z ciągu B używają zatem indeksów 0, 1, 2, … po kolei, bez przerw i powtórzeń.
 
-Po prostym uproszczeniu algebraicznym dochodzimy do tożsamości n = (n + 1) − 1, która jest prawdziwa. Tym samym indeksy wybierające elementy ze strumienia b następują po sobie kolejno, bez przerw i powtórzeń. Drugą część dowodu, opartą na warunku nierówności (wybór elementów ze strumienia a), prowadzi się analogicznie. ∎
+Symetrycznie: indeks wyboru z ciągu A, czyli ⌊nz⌋, rośnie o dokładnie 1 w każdym kroku wybierającym z A (d<sub>n</sub> = 1), a poza tym pozostaje bez zmian; w pierwszym takim kroku jego wartość wynosi 0 (wszystkie wcześniejsze kroki mają d = 0). Elementy ciągu A również są więc wybierane dokładnie raz każdy, po kolei. ∎
 
 ## Twierdzenie 2: rozplątanie spełnia postulaty Fraenkela
 
@@ -128,112 +118,98 @@ To jest centralne twierdzenie tej strony. Dowodzi, że obie sekwencje opisujące
 
 > **✅ Uwaga**
 >
-> **Twierdzenie.** Operacja rozplątania spełnia postulaty twierdzenia Fraenkela.
+> **Twierdzenie.** Niech a, b ∈ ℕ<sub>>0</sub> reprezentują wymierny stosunek temp strumieni składowych, ∆<sub>a</sub>/∆<sub>b</sub> = a/b. Obie sekwencje wyboru krotek opisujące operację rozplątania są – z dokładnością do wyrównania indeksów wskazanego w dowodzie – szczególnym przypadkiem sekwencji Beatty spełniającym postulaty twierdzenia Fraenkela dla parametrów wymiernych. W konsekwencji dokonują one podziału zbioru ℕ₀ := ℕ ∪ {0}, czyli zbioru indeksów strumienia splątanego, a rozplątanie dokładnie odwraca splątanie przy użyciu wyłącznie arytmetyki liczb wymiernych.
 
 
-**Dowód – część pierwsza (sprowadzenie do postaci Beatty).** Poszukujemy sposobu przedstawienia sekwencji wyboru kolejnych krotek w operacji rozplątania jako sekwencji Beatty. Sekwencja opisująca wybór krotek ma postać:
-
-\\[
-\left( n + \left\lfloor \frac{nb}{a} \right\rfloor \right) _{n=1}^{\infty }
-\\]
-
-Dla n ∈ ℕ, na mocy własności ⌊x + C⌋ = ⌊x⌋ + C, powyższe równanie można przyrównać do ogólnej postaci sekwencji Beatty:
+**Dowód – część pierwsza (sprowadzenie do postaci Beatty).** Sekwencja wyboru krotek residuum rozplątania (operator ∼Θ) ma postać:
 
 \\[
-\left( \left\lfloor \frac{n-\alpha ^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty } = \left( \left\lfloor n + \frac{nb}{a} \right\rfloor \right) _{n=1}^{\infty }
+\left( n + \left\lfloor \frac{nb}{a} \right\rfloor \right) _{n=0}^{\infty }
 \\]
 
-Upraszczając lewą stronę i grupując prawą:
+Jej wyraz początkowy (n = 0) wynosi 0; wyrazy dla n ≥ 1 tworzą część Beatty. Dla n ∈ ℕ, na mocy własności ⌊x + C⌋ = ⌊x⌋ + C, zachodzi n + ⌊nb/a⌋ = ⌊n + nb/a⌋, poszukujemy więc α, α′ takich, że:
 
 \\[
-\left( \left\lfloor n\alpha ^{-1} - \frac{\alpha ^{\prime }}{\alpha } \right\rfloor \right) _{n=1}^{\infty } = \left( \left\lfloor n\frac{a + b}{a} \right\rfloor \right) _{n=1}^{\infty }
+\left( \left\lfloor \frac{n-\alpha ^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty } = \left( \left\lfloor n\frac{a + b}{a} \right\rfloor \right) _{n=1}^{\infty }
 \\]
 
-Symbol −α′/α oznacza y-przechwycenie. Jeśli przesunięcie sekwencji α′ = 0, to α = a/(a+b), a sekwencja przyjmuje postać:
+Odczytując nachylenie i wyraz wolny: przy przesunięciu α′ = 0 otrzymujemy α = a/(a+b), a sekwencja wyboru ograniczona do n ≥ 1 to dokładnie:
 
 \\[
-\mathcal{B}\\!\left( \frac{a}{a + b}, 0 \right) := \left( \left\lfloor n\frac{a + b}{a} \right\rfloor \right) _{n=1}^{\infty }
+\mathcal{B}\\!\left( \frac{a}{a + b}, 0 \right) = \left( \left\lfloor n\frac{a + b}{a} \right\rfloor \right) _{n=1}^{\infty }
 \\]
 
-W ten sposób, poprzez kilka prostych przekształceń algebraicznych, otrzymaliśmy postać sekwencji Beatty z sekwencji opisującej wybór kolejnych krotek w operacji rozplątania.
-
-**Dowód – część druga (weryfikacja pięciu postulatów i wyznaczenie residuum).** Sprawdzamy kolejno postulaty twierdzenia Fraenkela dla wyznaczonej sekwencji:
+**Dowód – część druga (weryfikacja pięciu postulatów i wyznaczenie residuum).** Sprawdzamy kolejno postulaty twierdzenia Fraenkela dla α = a/(a+b), α′ = 0:
 
 1. Wartość α = a/(a+b) dla a, b > 0 jest większa od zera i mniejsza od jedności.
 2. Warunek α + β = 1 jest spełniony dla β = b/(a+b).
 3. Dla α′ = 0 postulat jest równoważny postulatowi 1.
-4. Rozwiązań poszukujemy w zbiorze liczb wymiernych (przypadek α wymiernego).
-5. Jeśli qα ∈ ℕ oraz q ∈ ℕ i zachodzi 1/q ≤ α + α′, to – skoro α′ = 0 – warunek ten jest prawdziwy dla q ≤ (a+b)/nwd(a,b). Wynika stąd, że ⌈((a+b)/nwd(a,b)) · β′⌉ = 1, czyli β′ = nwd(a,b)/(a+b).
+4. Postulat jest pusty, gdyż α jest liczbą wymierną.
+5. Najmniejszą liczbą q, dla której qα ∈ ℕ, jest q = (a+b)/nwd(a,b); wówczas warunek 1/q ≤ α + α′ = α jest spełniony, a warunek ⌈qα′⌉ + ⌈qβ′⌉ = 1 przy α′ = 0 wymusza ⌈qβ′⌉ = 1, czyli 0 < β′ ≤ nwd(a,b)/(a+b). Każda dopuszczalna wartość generuje tę samą sekwencję (dopełnienie sekwencji B(a/(a+b), 0) w ℕ jest jednoznaczne); przyjmujemy β′ = nwd(a,b)/(a+b).
 
-Postać ciągu residuum (ciągu dopełniającego) dla sekwencji B(a/(a+b), 0), spełniająca postulaty twierdzenia Fraenkela, przedstawia się więc następująco:
+Sekwencją dopełniającą sekwencję B(a/(a+b), 0) w sensie postulatów Fraenkela jest zatem:
 
 \\[
 \mathcal{B}\\!\left( \frac{b}{a + b}, \frac{\operatorname{nwd}(a, b)}{a + b} \right)
 \\]
 
-Przyjmujemy, że podział zbioru liczb naturalnych następuje w oparciu o tę sekwencję:
+Po przeindeksowaniu n ↦ n + 1, tak aby biegła od n = 0 – zgodnie z sekwencjami wyboru w definicji rozplątania – przyjmuje ona postać:
 
 \\[
-\mathcal{B}\\!\left( \frac{b}{a + b}, \frac{\operatorname{nwd}(a, b)}{a + b} \right) = \left( \left\lfloor \frac{(n + 1) - \frac{\operatorname{nwd}(a,b)}{a+b}}{\frac{b}{a+b}} \right\rfloor \right) _{n=1}^{\infty }
+\left( \left\lfloor \frac{(n + 1) - \frac{\operatorname{nwd}(a,b)}{a+b}}{\frac{b}{a+b}} \right\rfloor \right) _{n=0}^{\infty }
 \\]
 
-Po opuszczeniu nawiasów opisujących sekwencję i wykonaniu kilku prostych przekształceń można wykazać, że:
+Rozwijając powyższe wyrażenie:
 
 \\[
-\left\lfloor \frac{(n + 1) - \frac{\operatorname{nwd}(a,b)}{a+b}}{\frac{b}{a+b}} \right\rfloor := \left\lfloor n\frac{a}{b} + n + \frac{a}{b} + 1 - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor
+\left\lfloor \frac{(n + 1) - \frac{\operatorname{nwd}(a,b)}{a+b}}{\frac{b}{a+b}} \right\rfloor = \left\lfloor n\frac{a}{b} + n + \frac{a}{b} + 1 - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor
 \\]
 
-Poszukiwane równanie opisujące proces tworzenia sekwencji wyboru krotek przedstawia się następująco:
+Porównując to – wyraz po wyrazie dla n ≥ 0 – z sekwencją wyboru krotek strumienia odtwarzanego (operator Θ):
 
 \\[
-\left\lfloor n\frac{a}{b} + n + \frac{a}{b} + 1 - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor = n + \left\lceil \frac{(n + 1)a}{b} \right\rceil
+\left( n + \left\lceil \frac{(n + 1)a}{b} \right\rceil \right) _{n=0}^{\infty }
 \\]
 
-Stąd, po wydzieleniu części całkowitej, otrzymujemy:
+i wydzielając część całkowitą n + 1 na mocy własności ⌊x + C⌋ = ⌊x⌋ + C, teza sprowadza się (po podstawieniu n w miejsce n + 1, tak że n przebiega zbiór ℕ<sub>>0</sub>) do tożsamości:
 
 \\[
-\left\lfloor \frac{(n + 1)a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor + 1 = \left\lceil \frac{(n + 1)a}{b} \right\rceil
-\\]
-
-Podstawiając za n + 1 liczbę naturalną n, otrzymujemy równość, którą należy udowodnić:
-
-\\[
-\left\lfloor n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor + 1 = \left\lceil n\frac{a}{b} \right\rceil
+\left\lfloor n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor + 1 = \left\lceil n\frac{a}{b} \right\rceil ,\quad n \in \mathbb{N}_{>0}
 \\]
 
 **Dowód – część trzecia (analiza przypadków).** Korzystając z własności współczynnika nwd(a, b), rozważamy dwa rozłączne przypadki pokrywające całą dziedzinę.
 
-_Przypadek 1: nwd(a, b) = b, czyli a/b = c ∈ N._ Dowodzone równanie przyjmuje postać:
+_Przypadek 1: nwd(a, b) = b, czyli a/b ∈ ℕ._ Wtedy n·a/b ∈ ℕ, więc na mocy tożsamości ⌊x⌋ = ⌈x⌉ ⟺ x ∈ ℤ mamy ⌈n·a/b⌉ = ⌊n·a/b⌋, a na mocy ⌊x + C⌋ = ⌊x⌋ + C:
 
 \\[
-\left\lfloor \frac{(n + 1)a}{b} - \frac{b}{b} \right\rfloor + 1 = \left\lceil \frac{(n + 1)a}{b} \right\rceil
+\left\lfloor n\frac{a}{b} - 1 \right\rfloor + 1 = \left\lfloor n\frac{a}{b} \right\rfloor
 \\]
 
-Uwzględniając tożsamości ⌊x⌋ = ⌈x⌉ ⟺ x ∈ ℕ oraz ⌊x + C⌋ = ⌊x⌋ + C, a także dziedzinę tego przypadku, stwierdzamy, że obie sekwencje tworzą te same elementy.
+Obie strony dowodzonej tożsamości pokrywają się.
 
-_Przypadek 2: 1 ≤ nwd(a, b) ≤ a, czyli 0 < a/b < 1._ Załóżmy, że istnieją takie dwie liczby a i b, dla których dowodzone równanie nie jest prawdziwe, tzn. dla wartości n·a/b − nwd(a,b)/b oraz n·a/b należących do ℕ nie zachodzi:
+_Przypadek 2: b ∤ a, czyli 1 ≤ nwd(a, b) < b oraz 0 < nwd(a,b)/b < 1._
+
+Jeśli n·a/b ∉ ℤ, to na mocy ⌊x⌋ + 1 = ⌈x⌉ ⟺ x ∈ ℝ ∖ ℤ zachodzi ⌈n·a/b⌉ = ⌊n·a/b⌋ + 1. Część ułamkowa liczby n·a/b jest niezerową wielokrotnością nwd(a,b)/b, a więc wynosi co najmniej nwd(a,b)/b; odjęcie nwd(a,b)/b od n·a/b nie może zatem przekroczyć w dół liczby całkowitej poniżej ⌊n·a/b⌋, skąd:
 
 \\[
-\left\lfloor n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} + 1 \right\rfloor \neq \left\lceil n\frac{a}{b} \right\rceil
+\left\lfloor n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor = \left\lfloor n\frac{a}{b} \right\rfloor
 \\]
 
-Korzystając z własności podłogi i sufitu, poszukujemy takich a i b, że:
+i dowodzona tożsamość zachodzi.
+
+Jeśli n·a/b ∈ ℤ, to ⌈n·a/b⌉ = n·a/b, a ponieważ 0 < nwd(a,b)/b < 1:
 
 \\[
-n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} + 1 \neq n\frac{a}{b}
+\left\lfloor n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \right\rfloor = n\frac{a}{b} - 1
 \\]
 
-Równanie to jest spełnione jedynie dla nwd(a, b) = b, a w rozważanej dziedzinie 1 ≤ nwd(a, b) ≤ a nie ma ono rozwiązań. Nie istnieją zatem takie a i b należące do tej dziedziny, które przeczyłyby dowodzonemu równaniu.
+co ponownie daje dowodzoną tożsamość.
 
-Rozpatrzmy jeszcze drugą własność (⌊x⌋ + 1 = ⌈x⌉ ⟺ x ∈ ℝ − ℕ). Załóżmy, że istnieją dwie liczby a i b, dla których równanie nie jest spełnione, czyli dla n·a/b − nwd(a,b)/b oraz n·a/b należących do ℝ − ℕ powinna zawsze zachodzić zależność:
+Obie sekwencje wyboru opisujące operację rozplątania są więc – z dokładnością do jednostkowego przeindeksowania z części drugiej – sekwencjami Beatty spełniającymi postulaty Fraenkela dla parametrów wymiernych: para B(a/(a+b), 0) i B(b/(a+b), nwd(a,b)/(a+b)) dokonuje podziału zbioru ℕ, a wraz z początkowym wyrazem residuum 0 z części pierwszej – podziału zbioru ℕ₀, pełnego zbioru indeksów strumienia splątanego. Strumień odtworzony i residuum są zatem dokładne. ∎
 
-\\[
-n\frac{a}{b} - \frac{\operatorname{nwd}(a, b)}{b} \neq n\frac{a}{b}
-\\]
-
-Nie istnieją jednak dwie takie liczby, dla których nwd(a, b) = 0. Czyli dla a/b ∈ ℝ − ℕ równanie to jest zawsze prawdziwe.
-
-Tak więc oba równania opisujące operację rozplątania są przypadkiem sekwencji Beatty spełniającym postulaty twierdzenia Fraenkela dla liczb wymiernych. ∎
+> **✅ Uwaga**
+>
+> **Wniosek (dokładna odwracalność na liczbach wymiernych).** Dla strumieni o tempach wymiernych operatory Θ i ∼Θ odtwarzają strumienie składowe φ(A, B) dokładnie (bit w bit): żadna krotka nie ginie, nie dubluje się ani nie zmienia kolejności względem swojego strumienia składowego. Para (φ; Θ, ∼Θ) zachowuje się więc jak mnożenie i dzielenie, a para (Σ; δ) jak dodawanie i odejmowanie w zbiorze regularnych serii czasowych.
 
 > **⚠️ Ostrzeżenie**
 >
@@ -273,48 +249,60 @@ W strumieniu Tau krotka oznaczona literą `c` występuje po krotce oznaczonej cy
 > **Twierdzenie.** Operacja sumowania strumieni danych, z pominięciem kolejności atrybutów, jest przemienna.
 
 
-**Dowód.** Załóżmy, że C = Σ(A, B) oraz D = Σ(S, A). Korzystając ze wzoru na sumę strumieni danych, zapisujemy obie zależności i pomijamy kolejność atrybutów wynikającą z operacji połączenia krotek. Zmieniając kolejność warunków w definicji D oraz podstawiając za symbol S symbol B, otrzymujemy wzór tożsamy ze wzorem na C. Przypadek równych wartości ∆ obu strumieni jest trywialny i został pominięty. Dowodzi to przemienności operacji sumowania. ∎
+**Dowód.** Załóżmy ∆<sub>a</sub> ≤ ∆<sub>b</sub>; przypadek przeciwny jest symetryczny. Pierwszy przypadek definicji sumy daje jako n-ty element strumienia Σ(A, B) krotkę:
+
+\\[
+c_{n} = \left( a_{n},\ b_{\left\lfloor n\Delta_{a}/\Delta_{b} \right\rfloor} \right)
+\\]
+
+natomiast dla Σ(B, A) role argumentów są zamienione i zastosowanie ma jej drugi (a przy ∆<sub>a</sub> = ∆<sub>b</sub> – pierwszy) przypadek, co daje n-ty element:
+
+\\[
+c_{n} = \left( b_{\left\lfloor n\Delta_{a}/\Delta_{b} \right\rfloor},\ a_{n} \right)
+\\]
+
+Oba strumienie niosą ∆<sub>c</sub> = ∆<sub>a</sub>. Pokrywają się więc z dokładnością do kolejności sklejonych atrybutów. ∎
 
 ### Metoda dopasowania przeplotu
 
-Operacja przeplotu nie jest przemienna (co pokazano w [rozdziale o algebrze](algebra-regularnych-serii-czasowych.md)). Istnieje jednak algebraiczna metoda umożliwiająca zmianę kolejności jej argumentów przy określonych założeniach – co jest cenne w optymalizacji planów zapytań.
+Operacja przeplotu nie jest w ogólności przemienna: ponieważ 0 < z < 1, w punkcie n = 0 zawsze zachodzi gałąź równości w definicji przeplotu, więc strumień φ(A, B) zaczyna się od elementu b₀, a strumień φ(B, A) – od elementu a₀. Przeplot jest jednak ekwiwariantny względem przesunięć czasowych dopasowanych do temp strumieni – co jest cenne w optymalizacji planów zapytań.
 
 > **✅ Uwaga**
 >
-> **Twierdzenie.** Jeśli wybierzemy dwie liczby naturalne i, k, których stosunek jest równy stosunkowi wartości ∆ strumieni łączonych przeplotem, to przeplot strumieni przesuniętych względem tych wartości tworzy strumień równy strumieniowi powstałemu przez przeplot z zamienioną kolejnością argumentów i przesunięciem o sumę tych liczb.
+> **Twierdzenie.** Jeśli liczby i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty przesunięte o ten sam czas), to przeplot strumieni przesuniętych jest równy przeplotowi strumieni pierwotnych przesuniętemu o sumę tych liczb.
 
 
 Formalnie:
 
 \\[
-\varphi \left( \tau _{i}(A), \tau _{k}(B) \right) = \tau _{i+k}\left( \varphi (B, A) \right), \quad \frac{i}{k} = \frac{\Delta _{a}}{\Delta _{b}}, \quad i, k \in \mathbb{N}
+\varphi \left( \tau_{i}(A), \tau_{k}(B) \right) = \tau_{i+k}\left( \varphi (A, B) \right), \quad i\Delta_{a} = k\Delta_{b}, \quad i, k \in \mathbb{N}
 \\]
 
-**Dowód.** Analizując lewą stronę równania i korzystając z definicji przeplotu, otrzymujemy:
+**Dowód.** Obie strony niosą interwał ∆<sub>c</sub> z definicji przeplotu, wystarczy więc porównać elementy. Z założenia i·∆<sub>a</sub> = k·∆<sub>b</sub>:
 
 \\[
-\varphi \left( \tau_{i}(A), \tau_{k}(B) \right):\quad c_{n}= \left\\{ \begin{array}{cc} b_{(n-\left\lfloor n z \right\rfloor)+i } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ a_{\left\lfloor n z \right\rfloor +k} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
+(i+k) z = (i+k) \frac{\Delta_{b}}{\Delta_{a}+\Delta_{b}} = \frac{i\Delta_{b} + i\Delta_{a}}{\Delta_{a}+\Delta_{b}} = i \in \mathbb{N}
 \\]
 
-Analizując prawą stronę równania, otrzymujemy:
+a stąd, na mocy własności ⌊x + C⌋ = ⌊x⌋ + C, dla każdego n ≥ 0 i m := n + i + k:
 
 \\[
-\tau_{i+k}\left( \varphi (B, A) \right):\quad c_{n}= \left\\{ \begin{array}{cc} a_{\left\lfloor (n+i+k) z \right\rfloor } & \left\lfloor n z \right\rfloor = \left\lfloor \left( n+1\right) z \right\rfloor \\\\ b_{n+i+k-\left\lfloor (n+i+k) z \right\rfloor} & \left\lfloor n z \right\rfloor \neq \left\lfloor \left( n+1\right) z \right\rfloor \end{array} \right.
+\left\lfloor m z \right\rfloor = \left\lfloor n z + i \right\rfloor = \left\lfloor n z \right\rfloor + i
 \\]
 
-Porównując warunki, dla których oba równania wybierają próbki ze strumienia B, oraz zakładając poprawność tezy, stwierdzamy, że −⌊nz⌋ = k − ⌊(n+i+k)z⌋. Jednocześnie, z założenia o stosunku liczb:
+W szczególności ⌊mz⌋ = ⌊(m+1)z⌋ wtedy i tylko wtedy, gdy ⌊nz⌋ = ⌊(n+1)z⌋: pozycja n lewej strony tezy i pozycja m strumienia φ(A, B) wybierają tę samą gałąź definicji przeplotu. Na gałęzi równości prawa strona wybiera element:
 
 \\[
-i + k = \frac{\Delta _{a}}{\Delta _{b}}k + k = k\left( \frac{\Delta _{a}}{\Delta _{b}} + 1 \right) = \frac{k}{z}
+b_{m - \left\lfloor m z \right\rfloor} = b_{n+i+k - \left\lfloor n z \right\rfloor - i} = b_{(n - \left\lfloor n z \right\rfloor) + k}
 \\]
 
-Łącząc obie zależności, dochodzimy do równania:
+czyli dokładnie element (τ<sub>k</sub>(B))<sub>n−⌊nz⌋</sub> wybierany przez lewą stronę; na gałęzi nierówności wybiera:
 
 \\[
--\left\lfloor n z \right\rfloor = k - \left\lfloor k + n z \right\rfloor
+a_{\left\lfloor m z \right\rfloor} = a_{\left\lfloor n z \right\rfloor + i}
 \\]
 
-Ponieważ z założenia k ∈ ℕ, na mocy własności ⌊x + C⌋ = ⌊x⌋ + C powyższe równanie jest spełnione. Druga część dowodu, prowadzona w oparciu o warunek nierówności, jest analogiczna. ∎
+czyli element (τ<sub>i</sub>(A))<sub>⌊nz⌋</sub> – ponownie zgodnie z lewą stroną. Oba strumienie pokrywają się element po elemencie. ∎
 
 ## Dlaczego to ma znaczenie
 

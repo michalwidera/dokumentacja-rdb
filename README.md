@@ -8,7 +8,7 @@ Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedyko
 
 > **✅ Uwaga**
 >
-> Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów)
+> Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów). RetractorDB wspiera – a nie zastępuje – bazy szeregów czasowych (TSDB) i strumieniowe systemy zarządzania danymi (DSMS): pracuje blisko źródła sygnału, wstępnie przetwarza i filtruje wysokoczęstotliwościowe pomiary za pomocą deklaratywnego języka zapytań, utrzymuje częściowy, korygowalny zapis zdarzeń przeszłych i zaplanowanych przyszłych w inspekcjonowalnych artefaktach, a w górę architektury przekazuje dokładne, deterministyczne wyniki – tak, aby do centralnej architektury docierały wyłącznie zredukowane, już przetworzone strumienie.
 
 
 > **ℹ️ Info**
@@ -38,7 +38,7 @@ Sekwencje Beatty'ego mają bogatą literaturę kombinatoryczną oraz udokumentow
 
 ## Szeregowanie zadań przez sekwencje Beatty'ego (2)
 
-To jest nurt, który muszę omówić najuczciwiej, bo używa **tej samej maszynerii dowodowej** co moje twierdzenia – tyle że w innym celu. W problemie szeregowania okresowego (ang. _pinwheel scheduling_) zadania o różnych okresach powtarzania rozdziela się tak, że zadania o jednym czasie powtórzeń trafiają w sloty czasowe należące do pierwszej komplementarnej sekwencji Beatty'ego, a o drugim – do drugiej [\[14\]](literatura.md#14). Świeże prace (2026) prowadzą dowody na podziale Rayleigha/Beatty'ego z tożsamościami na funkcjach podłogi i sufitu typu ⌈(m+l)a⌉ − ⌈ma⌉ [\[15\]](literatura.md#15) – niemal kropka w kropkę aparat z mojego dowodu, że [rozplątanie spełnia postulaty Fraenkela](podstawy-matematyczne/formalne-podstawy-i-dowody.md).
+To jest nurt, który muszę omówić najuczciwiej, bo używa **tej samej maszynerii dowodowej** co moje twierdzenia – tyle że w innym celu. W problemie szeregowania okresowego (ang. _pinwheel scheduling_) zadania o różnych okresach powtarzania rozdziela się tak, że zadania o jednym czasie powtórzeń trafiają w sloty czasowe należące do pierwszej komplementarnej sekwencji Beatty'ego, a o drugim – do drugiej [\[14\]](literatura.md#14). Świeże prace (2025) prowadzą dowody na podziale Rayleigha/Beatty'ego z tożsamościami na funkcjach podłogi i sufitu typu ⌈(m+l)a⌉ − ⌈ma⌉ [\[15\]](literatura.md#15) – niemal kropka w kropkę aparat z mojego dowodu, że [rozplątanie spełnia postulaty Fraenkela](podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 Wniosek jest dla mnie podwójny. Z jednej strony – to niezależne potwierdzenie, że podejście jest poprawne i naturalne; skoro ktoś dochodzi tą samą drogą do działającego szeregowania, fundament jest solidny. Z drugiej – to zawęża to, co mogę nazwać nowością. „Sekwencje Beatty'ego do szeregowania" już istnieją i są aktywnie publikowane. Co ciekawe, mój system używa tej matematyki **wewnętrznie** właśnie do szeregowania zadań (patrz [Realizacja zapytań](realizacja-zapytan/)) – ale to nie tu leży wkład oryginalny.
 
@@ -58,7 +58,9 @@ Po stronie bazodanowej kanonem jest CQL ze stanfordzkiego projektu STREAM (Arasu
 
 To jest właściwy punkt odniesienia dla mojej algebry i moich [reguł przepisywania wyrażeń](podstawy-matematyczne/formalne-podstawy-i-dowody.md). Różnica jest jednak fundamentalna i dotyczy samego modelu danych. CQL i PIPES budują semantykę na modelu (s, τ) – każda krotka nosi własny stempel czasowy, a operatory działają przez okna. Ja przyjmuję model różnicowy (sₙ, Δ) z wymierną, stałą wartością Δ na strumień, a operatory wyrównujące strumienie o różnych Δ wyprowadzam z teorii liczb. To nie jest kosmetyczna różnica w składni – to inny model danych, prowadzący do innej klasy operatorów (przeplot, rozplątanie) i innej metody optymalizacji.
 
-**Czego ten nurt nie dotyka:** DSMS celują w przybliżone, skalowalne przetwarzanie nieograniczonych strumieni z tolerancją na nieuporządkowanie czasowe. Nie dążą do dokładnych, deterministycznych operacji DSP w rygorze twardego czasu rzeczywistego i nie sięgają po teorię liczb dla semantyki resamplingu.
+W kategoriach wdrożeniowych relacja jest przy tym komplementarna, nie konkurencyjna: RetractorDB działa jako brzegowy stopień wstępnego przetwarzania i buforowania, którego dokładne, deterministyczne wyniki mogą zasilać okienkowy DSMS.
+
+**Czego ten nurt nie dotyka:** DSMS celują w przybliżone, skalowalne przetwarzanie nieograniczonych strumieni z tolerancją na nieuporządkowanie czasowe. Nie dążą do dokładnych, deterministycznych operacji DSP w ścisłej dyscyplinie czasowej i nie sięgają po teorię liczb dla semantyki resamplingu.
 
 ## Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy (5)
 
@@ -72,7 +74,7 @@ Wszystkie one traktują jednak DSP jako aproksymację albo analitykę po fakcie.
 
 Po nałożeniu pięciu warstw obraz staje się czytelny. Każda dziedzina dotyka jednej lub dwóch ścian problemu, ale **żadna nie zajmuje ich przecięcia**:
 
-| Dziedzina               | Beatty/Fraenkel | Dokładny DSP | Algebra strumieni / język zapytań | Twardy czas rzeczywisty |
+| Dziedzina               | Beatty/Fraenkel | Dokładny DSP | Algebra strumieni / język zapytań | Deterministyczna dyscyplina czasowa |
 | ----------------------- | :------------------: | :----------------: | :---------------------: | :------------------: |
 | Teoria liczb            |        ✔        |       –      |                 –                 |            –            |
 | Szeregowanie (pinwheel) |        ✔        |       –      |                 –                 |        częściowo        |
@@ -81,13 +83,13 @@ Po nałożeniu pięciu warstw obraz staje się czytelny. Każda dziedzina dotyka
 | TSMS / DSP-w-bazie      |        –        |   częściowo  |             częściowo             |            –            |
 | **RetractorDB**         |      **✔**      |     **✔**    |               **✔**               |          **✔**          |
 
-Wkład RetractorDB nie leży w żadnym pojedynczym składniku – leży w ich **syntezie**: w użyciu układów pokrywających (wymiernych sekwencji Beatty'ego i twierdzenia Fraenkela) jako semantycznego fundamentu deklaratywnej algebry strumieni, która realizuje dokładne operatory przetwarzania sygnałów wewnątrz systemu bazodanowego, w rygorze twardego czasu rzeczywistego. Teoria liczb ma Beatty'ego i nawet szeregowanie, ale nie łączy ich z bazą ani z DSP. DSP ma multirate i wymierne banki filtrów, ale nie sięga po Fraenkela i nie ujmuje tego jako języka zapytań. DSMS ma algebry strumieni i reguły optymalizacji, ale na modelu okienkowym (s, τ), nie różnicowym (sₙ, Δ). To przecięcie jest puste.
+Wkład RetractorDB nie leży w żadnym pojedynczym składniku – leży w ich **syntezie**: w użyciu układów pokrywających (wymiernych sekwencji Beatty'ego i twierdzenia Fraenkela) jako semantycznego fundamentu deklaratywnej algebry strumieni, która realizuje dokładne operatory przetwarzania sygnałów wewnątrz systemu bazodanowego, w deterministycznej dyscyplinie czasowej. Doprecyzowanie jest tu istotne: system gwarantuje deterministyczną **semantykę** wykonania (identyczne wejścia dają identyczne wyniki w identycznej kolejności) oraz przewidywalny, sekwencyjny model wykonania – świadomie nie roszczę sobie natomiast gwarancji twardego czasu rzeczywistego, bo te wymagają analizy najgorszego czasu wykonania na systemie operacyjnym czasu rzeczywistego i pozostają pracą przyszłą. Teoria liczb ma Beatty'ego i nawet szeregowanie, ale nie łączy ich z bazą ani z DSP. DSP ma multirate i wymierne banki filtrów, ale nie sięga po Fraenkela i nie ujmuje tego jako języka zapytań. DSMS ma algebry strumieni i reguły optymalizacji, ale na modelu okienkowym (s, τ), nie różnicowym (sₙ, Δ). To przecięcie jest puste.
 
 > **⚠️ Ostrzeżenie**
 >
-> Stąd realne ryzyko, które wprost wskazuję: społeczność szeregowania publikuje tę samą maszynerię Beatty'ego/Fraenkela w latach 2023–2026. Pomost „układy pokrywające ↔ wyrównanie strumieni i DSP" postawiłem publikacją już w 2006 roku [\[3\]](literatura.md#3), lecz w miejscu o niskiej odnajdywalności. Jeśli ten wynik nie trafi do dobrze cytowanego obiegu, ten sam pomost może zostać niezależnie postawiony i przypisany komu innemu.
+> Stąd realne ryzyko, które wprost wskazuję: społeczność szeregowania publikuje tę samą maszynerię Beatty'ego/Fraenkela w latach 2023–2025. Sam problem – wraz z potrzebą deklaratywnej algebry strumieni i ciągłego języka zapytań – został sformułowany już w latach 2003–2005 w kontekście komputerowo wspomaganego monitorowania płodu [\[25\]](literatura.md#25); pomost „układy pokrywające ↔ wyrównanie strumieni i DSP" postawiłem publikacją w 2006 roku [\[3\]](literatura.md#3), lecz w miejscu o niskiej odnajdywalności. Jeśli ten wynik nie trafi do dobrze cytowanego obiegu, ten sam pomost może zostać niezależnie postawiony i przypisany komu innemu.
 
 
 ## Zastrzeżenie metodologiczne
 
-To przegląd ukierunkowany, nie systematyczny – oparty na wyszukiwaniu w pięciu nurtach, nie na pełnej analizie cytowań. Do pełnej, recenzowanej publikacji wymaga domknięcia o przegląd cytowań „w przód" prac Samadiego [\[16\]](literatura.md#16) i nurtu szeregowania [\[14\]](literatura.md#14), a także o weryfikację, czy ktokolwiek użył wprost twierdzenia Fraenkela w kontekście wielotempowego DSP. Z mojego przeszukania – nie znalazłem takiej pracy. Jeśli istnieje, zmienia to zakres roszczenia o nowość i należy ją tu uwzględnić.
+To przegląd ukierunkowany, nie systematyczny – oparty na wyszukiwaniu w pięciu nurtach, nie na pełnej analizie cytowań. Przegląd cytowań „w przód" pracy Samadiego [\[16\]](literatura.md#16) potwierdza tezę: według Semantic Scholar (stan na lipiec 2026) jej jedyne odnotowane cytowania to praca o projektowaniu okien Gabora, dwie prace systemowo-teoretyczne o układach wielotempowych oraz sam pomost z 2006 roku [\[3\]](literatura.md#3) – żadna z nich nie używa sekwencji Beatty'ego ani twierdzenia Fraenkela. Najbliższym znanym mi użyciem tej maszynerii poza teorią liczb jest konstrukcja wykładniczych baz Riesza z sekwencji Beatty'ego–Fraenkela (Pfander, Revay i Walnut) [\[24\]](literatura.md#24) – należy ona jednak do czystej analizy harmonicznej i nie dotyka banków filtrów ani konwersji częstotliwości próbkowania. Do pełnego domknięcia pozostaje systematyczny przegląd nurtu szeregowania [\[14\]](literatura.md#14) oraz literatury banków filtrów w całości; jeśli istnieje użycie twierdzenia Fraenkela w wielotempowym DSP, zawęża to zakres roszczenia o nowość i należy je tu uwzględnić.

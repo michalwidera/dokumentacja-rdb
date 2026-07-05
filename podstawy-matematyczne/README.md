@@ -42,23 +42,23 @@ Twierdzenie Beaty samo w sobie jest bardzo ciekawą obserwacją – jednak w prz
 
 I tu nasza podróż gwałtownie by się skończyła gdyby nie powstało kolejne twierdzenie. Sytuacja diametralnie uległa zmianie za sprawą matematyka – Aviezri Siegmund Fraenkel (1926) specjalizującego się w kombinatorycznych aspektach teorii gier.
 
-Przedstawił on w 1969 roku następujące twierdzenie [\[2\]](../literatura.md#2):
-
-Sekwencje
+Przedstawił on w 1969 roku następujące twierdzenie [\[2\]](../literatura.md#2). Punktem wyjścia jest sparametryzowana sekwencja Beatty:
 
 \\[
 \mathcal{B}(\alpha ,\alpha ^{\prime }):=
 \left( \left\lfloor \frac{n-\alpha^{\prime }}{\alpha }\right\rfloor \right) _{n=1}^{\infty }
 \\]
 
-oraz
+Ta jedna definicja generuje całą rodzinę sekwencji. Twierdzenie dotyczy zawsze **pary** jej egzemplarzy o różnych parametrach: sekwencji
 
 \\[
-\mathcal{B}^{(c)}(\alpha ,\alpha ^{\prime }):=
-\left( \left\lceil \frac{n-\alpha ^{\prime }}{\alpha }\right\rceil \right) _{n=1}^{\infty }
+\mathcal{B}(\alpha ,\alpha ^{\prime })
+\quad\text{oraz}\quad
+\mathcal{B}(\beta ,\beta ^{\prime }):=
+\left( \left\lfloor \frac{n-\beta^{\prime }}{\beta }\right\rfloor \right) _{n=1}^{\infty }
 \\]
 
-dokonują podziału zbioru ℕ wtedy i tylko wtedy gdy następujące pięć warunków zostanie spełnionych:
+Sekwencje te dokonują podziału zbioru ℕ wtedy i tylko wtedy gdy następujące pięć warunków zostanie spełnionych:
 
 1\.
 

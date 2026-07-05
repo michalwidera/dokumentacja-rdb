@@ -4,7 +4,7 @@
 
 2\. A.S.Fraenkel, „The bracket function and complementary sets of integers" Canadian Journal of Mathematics, tom 21, pp. 6-27, 1969. ([link](https://www.cambridge.org/core/journals/canadian-journal-of-mathematics/article/bracket-function-and-complementary-sets-of-integers/923DC20720CE446932EDBED7F348DF65))
 
-3\. M. Widera, „Deterministyczna metoda przetwarzania ciagow danych" w XXI Autumn Meeting of Polish Information Processing Society, 2006. ([pdf](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych)) ([link](https://journals.umcs.pl/ai/article/view/3066/2262))
+3\. M. Widera, „Deterministic method of data sequence processing" Annales UMCS, Sectio AI Informatica, tom IV, pp. 314-331, 2006 ([link](https://journals.umcs.pl/ai/article/view/3066/2262)); wersja polska: „Deterministyczna metoda przetwarzania ciagow danych" w XXI Autumn Meeting of Polish Information Processing Society, Conference Proceedings, pp. 243-254, 2006. ([pdf](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych))
 
 4\. Z. W. Zen, „Classified publications on covering systems" updated 2006. \[Online]. Available: http://maths.nju.edu.cn/\~zwsun/. ([pdf](http://maths.nju.edu.cn/~zwsun/Cref.pdf))
 
@@ -28,7 +28,7 @@
 
 14\. D. Eppstein i in., „Aperiodic pinwheel scheduling using Beatty sequences" – omówienie problemu szeregowania okresowego w oparciu o komplementarne sekwencje Beatty'ego, 2023. ([link](https://11011110.github.io/blog/2023/11/19/aperiodic-pinwheel-scheduling.html))
 
-15\. „Pinwheel Scheduling with Real Periods" arXiv:2510.24068, 2026 – dowody oparte na podziale Rayleigha/Beatty'ego z tożsamościami na funkcjach podłogi i sufitu. ([html](https://arxiv.org/html/2510.24068))
+15\. H. Fujiwara, K. Miyagi i K. Ouchi, „Pinwheel Scheduling with Real Periods" arXiv:2510.24068, 2025 – dowody oparte na podziale Rayleigha/Beatty'ego z tożsamościami na funkcjach podłogi i sufitu. ([html](https://arxiv.org/html/2510.24068))
 
 16\. S. Samadi, M. O. Ahmad i M. N. S. Swamy, „Characterization of nonuniform perfect-reconstruction filterbanks using unit-step signal" IEEE Transactions on Signal Processing, tom 52, nr 9, pp. 2490-2499, 2004. ([link](https://ieeexplore.ieee.org/document/1323257/))
 
@@ -43,3 +43,9 @@
 21\. J. Krämer i B. Seeger, „Semantics and implementation of continuous sliding window queries over data streams" ACM Transactions on Database Systems, tom 34, nr 1, pp. 1-49, 2009 (system PIPES).
 
 22\. S. K. Jensen, T. B. Pedersen i C. Thomsen, „Time Series Management Systems: A Survey" IEEE Transactions on Knowledge and Data Engineering, tom 29, nr 11, pp. 2581-2600, 2017. ([pdf](https://arxiv.org/pdf/1710.01077))
+
+23\. K. O'Bryant, „Fraenkel's partition and Brown's decomposition" Integers: Electronic Journal of Combinatorial Number Theory, tom 3, A11, 2003.
+
+24\. G. E. Pfander, S. Revay i D. Walnut, „Exponential bases for partitions of intervals" Applied and Computational Harmonic Analysis, tom 68, art. 101607, 2024.
+
+25\. M. Widera, J. Jezewski, R. Winiarczyk, J. Wrobel, K. Horoba i A. Gacek, „Data stream processing in fetal monitoring system: I. Algebra and query language" Journal of Medical Informatics & Technologies, tom 5, pp. 83-90, 2003.

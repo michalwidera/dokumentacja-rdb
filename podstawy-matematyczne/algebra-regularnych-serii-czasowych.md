@@ -9,6 +9,8 @@ Zaproponowałem \[[3](../literatura.md#3)] następującą definicje regularnej s
 > Przez strumień danych rozumiemy uporządkowaną parę S := (s<sub>n</sub>,∆) – gdzie pierwszy element to uporządkowania seria danych a drugi, oznaczony symbolem delty to regularny odstęp czasu pomiędzy kolejnymi elementami serii danych.
 
 
+Przyjmujemy przy tym stałą konwencję indeksowania: indeksy strumienia biegną od zera, a element s<sub>n</sub> niesie domyślny (niejawny) znacznik czasu (n+1)·∆. Innymi słowy – pierwszy element strumienia pojawia się po upływie pełnego odstępu ∆ od chwili powstania strumienia. Znacznik czasu nie jest przenoszony w krotce; wynika z pozycji n i tempa ∆. To właśnie ten różnicowy model danych odróżnia system od klasycznych DSMS, w których strumień jest wielozbiorem par ⟨s,τ⟩ ze stemplem czasowym w każdej krotce.
+
 Tak zdefiniowaną serię danych w systemie określam jako strumień danych. Taki regularnie przepływający przez system zestaw danych, zazwyczaj opisany schematem danych zawiera pola różnych typów. Każdy odczyt występuje w równym odstępie czasu pomiędzy kolejnymi pomiarami. Taka konstrukcja bardziej przypomina sygnał cyfrowy niż nieregularny strumień danych – jednak oznaczenie jej jako strumień w dalszej części prac badawczych okaże się uzasadnione.
 
 > **ℹ️ Info**
@@ -73,11 +75,13 @@ Operacje sumy zdefiniowałem następująco:
 \\[
 c_{n}=\left\\{ 
 \begin{array}{cc}
-a_{n}|b_{ \left\lfloor  \frac{n\Delta_{a}}{\Delta_{b}} \right\rfloor }  & \Delta_{c}=\Delta_{a} \\\\ 
-a_{ \left\lfloor  \frac {n\Delta_{b}}{\Delta_{a}} \right\rfloor }|b_{n} & \Delta_{c}=\Delta_{b}
+a_{n}|b_{ \left\lfloor  \frac{n\Delta_{a}}{\Delta_{b}} \right\rfloor }  & \Delta_{a}\leq \Delta_{b} \\\\ 
+a_{ \left\lfloor  \frac {n\Delta_{b}}{\Delta_{a}} \right\rfloor }|b_{n} & \Delta_{a}>\Delta_{b}
 \end{array}
 \right. ,\Delta_{c}=\min \left( \Delta_{a},\Delta_{b}\right)
 \\]
+
+Szybszy strumień narzuca tempo wyniku: każdy jego element zostaje sklejony (symbol | oznacza konkatenację krotek) z elementem zajmującym współindeksowany slot strumienia wolniejszego.
 
 Natomiast różnicę opisuje wzór:
 
@@ -92,7 +96,13 @@ c_{\left\lceil \frac{n\Delta_{a}}{\Delta_{b}}\right\rceil } & \Delta_{b}<\Delta_
 
 Te operacje oznaczać będziemy znakami + oraz -.
 
-Operacja przesunięcia sekwencji zawiera argument w postaci opóźnienia dostępu do danych o daną ilość odstępów czasu pomiędzy kolejnymi elementami. I tak np. dane napływające co sekundę ze strumienia źródłowego po wykonaniu operacji przesunięcia o 3 – pojawią się jako wynik opóźnione o 3 sekundy.
+Operację przesunięcia sekwencji definiujemy formalnie następująco: dla strumienia S = (s<sub>n</sub>, ∆) oraz m ∈ ℕ
+
+\\[
+\tau_{m}(S) := \left( \left( s_{n+m}\right)_{n=0}^{\infty },\ \Delta \right)
+\\]
+
+czyli strumień przesunięty o m próbek, a więc o czas m·∆. Operacyjnie oznacza to przesunięcie dostępu do danych o daną ilość odstępów czasu pomiędzy kolejnymi elementami. I tak np. dla danych napływających co sekundę ze strumienia źródłowego operacja przesunięcia o 3 przesuwa wynik o 3 sekundy.
 
 Operację przesunięcia oznaczać będę za pomocą >.
 
