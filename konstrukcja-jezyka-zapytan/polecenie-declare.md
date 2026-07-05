@@ -13,6 +13,10 @@ FILE źródło
 [HOLD]
 ```
 
+![Diagram składni polecenia DECLARE](../assets/railroad-declare.svg)
+
+Powyższy diagram składni (railroad) został wygenerowany na podstawie reguły `declare_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Pętla powracająca przez przecinek oznacza, że deklaracji pól może być wiele; rozgałęzienie przy szybkości pokazuje, że można ją zapisać ułamkiem (licznik/mianownik) lub pojedynczą liczbą; tory omijające DISPOSABLE, ONESHOT i HOLD oznaczają, że każda z tych dyrektyw jest opcjonalna.
+
 ## Typy pól
 
 Każde pole ma nazwę i typ. Dostępne typy:

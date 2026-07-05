@@ -22,6 +22,10 @@ WHEN warunek_logiczny
 DO SYSTEM polecenie_systemu
 ```
 
+![Diagram składni polecenia RULE](../assets/railroad-rule.svg)
+
+Powyższy diagram składni (railroad) został wygenerowany na podstawie reguły `rule_statement` z gramatyki ANTLR4 systemu (`RQL.g4`) i obejmuje obie przedstawione formy polecenia jednym torem: rozgałęzienie za słowem DO prowadzi albo do wariantu DUMP (ze zrzutem okna danych i opcjonalną retencją), albo do wariantu SYSTEM (z poleceniem systemowym w apostrofach). Zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika; tory omijające znak minus i klauzulę RETENTION oznaczają ich opcjonalność.
+
 Tak zdefiniowane zdarzenia podpinają się do zdefiniowanych strumieni danych. Nazwa reguły powinna być unikalna. Strumień danych powinien zostać zdefiniowany przed pojawieniem się polecenia stworzenia reguły w pliku rql.
 
 W obu wersjach polecenia RULE tworzona jest nazwa reguły, warunek logiczny oraz nazwa strumienia do którego proces uruchamiany poleceniem DO jest podłączany. Warunek logiczny powinien odwoływać się do zmiennych dostępnych w schemacie strumienia danych występującego po klauzuli ON.
