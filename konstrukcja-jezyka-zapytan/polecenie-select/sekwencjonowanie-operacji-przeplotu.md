@@ -10,9 +10,9 @@ SELECT * STREAM str1 FROM A#B
 
 Oprócz znaku # zamiast znaku + w klauzuli from oba pliki się niczym nie różnią. Wywołajmy kompilację oraz program swirly. Plik graficzny prezentować się będzie następująco:
 
-<figure><img src="../../assets/schemat_kulkowy_przeplotu.png" alt=""><figcaption><p>Rys. 5 Schemat kulkowy - operacja przeplotu</p></figcaption></figure>
+<figure><img src="../../assets/schemat_kulkowy_przeplotu.png" alt=""><figcaption><p>Rys. 7 Schemat kulkowy - operacja przeplotu</p></figcaption></figure>
 
-Na Rys. 5 widać zmianę. Kulki strumienia str1 zostały równomiernie uporządkowane w czasie. Zdarzenia występujące w zadeklarowanych strumieniach danych wejściowych nie uległy zmianie. Uległa natomiast zmianie zasada budowy strumienia wynikowego str1.
+Na Rys. 7 widać zmianę. Kulki strumienia str1 zostały równomiernie uporządkowane w czasie. Zdarzenia występujące w zadeklarowanych strumieniach danych wejściowych nie uległy zmianie. Uległa natomiast zmianie zasada budowy strumienia wynikowego str1.
 
 Jeśli zajrzymy do wygenerowanego schematu tekstowego – zobaczymy że wartości czasowe również uległy zmianie:
 
