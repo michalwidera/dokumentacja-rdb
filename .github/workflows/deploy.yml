@@ -277,7 +277,7 @@ jobs:
             --metadata title="RetractorDB" \
             --metadata subtitle="Edge Signal Processing Engine" \
             --metadata author="Michal Widera" \
-            --metadata date="$(date +%Y-%m-%d)" \
+            --metadata date="$(date +%Y-%m-%d) · commit $(git rev-parse --short HEAD)" \
             -o book/retractordb.pdf
 
       - name: Restore PDF from previous deployment
