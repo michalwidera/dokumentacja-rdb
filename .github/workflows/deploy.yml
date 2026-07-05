@@ -26,9 +26,15 @@ jobs:
 
       - name: Install mdBook
         run: |
-          MDBOOK_TAG=$(curl -sL https://api.github.com/repos/rust-lang/mdBook/releases/latest \
+          MDBOOK_TAG=$(curl -sL -H "Authorization: Bearer ${{ github.token }}" \
+            https://api.github.com/repos/rust-lang/mdBook/releases/latest \
             | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-          curl -sL "https://github.com/rust-lang/mdBook/releases/download/${MDBOOK_TAG}/mdbook-${MDBOOK_TAG}-x86_64-unknown-linux-gnu.tar.gz" \
+          if [ -z "$MDBOOK_TAG" ]; then
+            echo "Nie udało się ustalić najnowszego tagu mdBook (API rate limit?)" >&2
+            exit 1
+          fi
+          echo "Instaluję mdBook ${MDBOOK_TAG}"
+          curl -sfL "https://github.com/rust-lang/mdBook/releases/download/${MDBOOK_TAG}/mdbook-${MDBOOK_TAG}-x86_64-unknown-linux-gnu.tar.gz" \
             | tar xz -C /usr/local/bin
 
       - name: Install mdbook-mermaid
