@@ -2,11 +2,15 @@
 
 Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję pięć nurtów recenzowanej literatury, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero nałożenie tych pięciu warstw na siebie pokazuje lukę, którą ten projekt wypełnia.
 
+<div class="no-print">
+
 > **📥 Pobierz dokumentację**
 >
 > Ta dokumentacja w całości jest kompilowana z plików w formacie markdown. Kopilowane są 3 cele. Pierwszy to strona html, którą teraz widzisz. Drugi to plik pdf, trzeci to dokument epub na czytnik. Za każdym razem po zmianie zawartości repozytorium na github gdzie przechowywane są pliki markdown uruchamiany jest proces tworzący te 3 cele. 
 > * [retractordb.pdf](retractordb.pdf) 
 > * [retractordb.epub](retractordb.epub)
+
+</div>
 
 > **✅ Uwaga**
 >
