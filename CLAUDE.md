@@ -49,7 +49,7 @@ mdbook build               # output → book/
 |------|---------|
 | `book.toml` | mdBook config: title, language, MathJax, Mermaid, GitHub edit links |
 | `SUMMARY.md` | Table of contents (mdBook format) |
-| `.github/workflows/deploy.yml` | CI: installs mdBook + mdbook-mermaid, builds, deploys to GitHub Pages |
+| `.github/workflows/deploy.yml` | CI: installs mdBook + mdbook-mermaid, builds, deploys to GitHub Pages; also renders `book/retractordb.pdf` and `book/retractordb.epub` via Pandoc from the same preprocessed `SUMMARY.md`-ordered Markdown (skip both with a `[skippdf]` commit message tag, which restores the previous deployment's copies instead) |
 | `.gitignore` | Excludes `book/`, `mermaid.min.js`, `mermaid-init.js` |
 | `migrate_to_mdbook.py` | One-time migration script (GitBook → mdBook); idempotent, safe to re-run |
 
