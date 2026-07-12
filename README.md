@@ -4,7 +4,9 @@ Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedyko
 
 > **📥 Pobierz dokumentację**
 >
-> [retractordb.pdf](retractordb.pdf) · [retractordb.epub](retractordb.epub) — generowane automatycznie przy każdym `git push`.
+> Ta dokumentacja w całości jest kompilowana z plików w formacie markdown. Kopilowane są 3 cele. Pierwszy to strona html, którą teraz widzisz. Drugi to plik pdf, trzeci to dokument epub na czytnik. Za każdym razem po zmianie zawartości repozytorium na github gdzie przechowywane są pliki markdown uruchamiany jest proces tworzący te 3 cele. 
+> * [retractordb.pdf](retractordb.pdf) 
+> * [retractordb.epub](retractordb.epub)
 
 > **✅ Uwaga**
 >
