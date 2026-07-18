@@ -8,7 +8,7 @@ This is an **mdBook documentation repository** for [RetractorDB](https://github.
 
 **Build system:** mdBook (not GitBook). Workflow: edit Markdown → commit → GitHub Actions builds and publishes to GitHub Pages.
 
-**Live site:** `https://michalwidera.github.io/gitbook-rdb/` — this is the canonical rendered version. Always verify math and diagrams against this URL after pushing, not against VS Code preview (which doesn't render MathJax or Mermaid).
+**Live site:** `https://dokumentacja.retractordb.com/` — this is the canonical rendered version. Always verify math and diagrams against this URL after pushing, not against VS Code preview (which doesn't render MathJax or Mermaid).
 
 The table of contents is defined in [SUMMARY.md](SUMMARY.md). Images and assets live in [assets/](assets/).
 
