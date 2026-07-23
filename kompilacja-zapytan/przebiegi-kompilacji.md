@@ -73,7 +73,7 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 
 #### extractIntermediateStreams
 
-Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` oraz zapisy łańcuchowe bez nawiasów (`core0+core1+core2`, `core0#core1#core2`) wymagają pośrednich strumieni. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
+Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` oraz zapisy łańcuchowe bez nawiasów (`core0+core1+core2`, `core0#core1#core2`) wymagają pośrednich strumieni. Każde zapytanie jest redukowane do punktu stałego, więc etap obsługuje również sąsiadujące podwyrażenia jednoargumentowe, np. `(core0>2)#(core1>1)`. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
 
 #### expandSchemaWildcards
 
@@ -82,6 +82,10 @@ Rozwija symbol `*` w klauzuli SELECT. Zastępuje go listą pól wynikających z 
 #### resolveStreamIntervals (← tu wykrywane są pętle)
 
 Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów algebraicznych i interwałów strumieni wejściowych. Algorytm iteracyjny — w każdej rundzie rozwiązuje tyle strumieni, ile jest możliwe. Wykrywa cykliczne zależności zatrzymując się, gdy liczba nierozwiązanych strumieni przestaje maleć — patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md) i [Wykrywanie pętli](wykrywanie-petli.md).
+
+#### factorMatchedHashTimeMoves
+
+Rozpoznaje dopasowane przesunięcia argumentów przeplotu. Gdy `i·ΔA=k·ΔB`, przepisuje `(A>i)#(B>k)` do `(A#B)>(i+k)`, redukując dwa substraty przesunięcia do jednego substratu przeplotu. Przypadki niedopasowane oraz substraty współdzielone z innymi konsumentami pozostają bez zmian — patrz [Substraty](substraty.md).
 
 #### deduplicateSubstrats
 
@@ -101,7 +105,7 @@ Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemac
 
 #### computeRequiredCapacities
 
-Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie rozmiarów schematów i wymagań okien czasowych.
+Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie rozmiarów schematów i wymagań okien czasowych. Przesunięcie `>N` odczytuje slot historii o indeksie `N`, dlatego wymaga `N+1` rekordów (slot 0 jest rekordem bieżącym).
 
 #### validateConstraints
 

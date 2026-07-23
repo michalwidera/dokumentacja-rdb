@@ -175,6 +175,40 @@ Substrat generowany jest dla każdego zapytania, którego program zawiera więce
 
 Nowo powstałemu substratowi nadawana jest nazwa zbudowana z symbolu operacji i nazw operandów, np. `STREAM_ADD_core1_core0` (funkcja `composeStreamName` w `compiler.cpp`). W programie zapytania macierzystego token operatora zastępowany jest tokenem `PUSH_STREAM` wskazującym na ten substrat.
 
+### Prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
+
+> **ℹ️ Info**
+> Polska nazwa jest świadomie opisowa i nie stanowi dosłownego tłumaczenia angielskiego terminu
+> *matched interleave-shift factorization*, pozostawionego w angielskiej wersji dokumentacji.
+
+Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje regułę algebraiczną:
+
+\\[
+(A > i) \mathbin{\\#} (B > k) \longrightarrow (A \mathbin{\\#} B) > (i+k),
+\qquad i\Delta_{a}=k\Delta_{b}
+\\]
+
+Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są przesunięte o ten sam czas fizyczny. Bez tego warunku przekształcenie nie jest równoważne i kompilator pozostawia pierwotny plan.
+
+Przed optymalizacją plan zawiera dwa substraty:
+
+```
+STREAM_TIMEMOVE_A = A > i
+STREAM_TIMEMOVE_B = B > k
+result = STREAM_TIMEMOVE_A # STREAM_TIMEMOVE_B
+```
+
+Po optymalizacji pozostaje jeden:
+
+```
+STREAM_HASH_A_B = A # B
+result = STREAM_HASH_A_B > (i + k)
+```
+
+Przebieg `factorMatchedHashTimeMoves()` nie usuwa jawnych strumieni użytkownika ani substratów używanych przez innych konsumentów. Wykonuje się przed deduplikacją, dzięki czemu ujawniony substrat `A # B` może zostać następnie współdzielony z innym równoważnym planem.
+
+Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych kopiach plikowych źródeł danych. Porównuje bajtowo artefakty `matched` i `CC`, ich metadane z pominięciem znacznika czasu utworzenia oraz pełną sekwencję z wzorcem wyprowadzonym z okresu przeplotu `B,A,A`. Ponieważ wynikowy operator `>3` odwołuje się do slotu historii o indeksie 3 (slot 0 jest rekordem bieżącym), `computeRequiredCapacities()` przydziela mu cztery rekordy, ogólnie `N+1` dla przesunięcia `>N`.
+
 ### Algorytm deduplikacji
 
 Po ekstrakcji substratów i wyznaczeniu interwałów czasowych kompilator uruchamia krok `deduplicateSubstrats()`. Algorytm działa iteracyjnie – pętla `while(changed)` powtarza przeszukiwanie aż do momentu, gdy żadna para duplikatów nie zostanie już znaleziona.
@@ -191,20 +225,23 @@ Jeśli wszystkie warunki są spełnione, substrat `it` uznawany jest za duplikat
 
 ### Miejsce w potoku kompilacji
 
-Deduplikacja jest czwartym krokiem ośmiofazowego potoku (funkcja `compiler::compile()`):
+Deduplikacja jest piątym krokiem potoku (funkcja `compiler::compile()`):
 
 ```
 1. extractIntermediateStreams   – wyodrębnienie substratów
 2. expandSchemaWildcards        – rozwinięcie symboli wieloznacznych w schematach
 3. resolveStreamIntervals       – obliczenie interwałów czasowych
-4. deduplicateSubstrats         – eliminacja duplikatów  ← ten krok
-5. resolveFieldReferences       – rozwiązanie referencji do pól
-6. expandIndexWildcards         – rozwinięcie indeksów wieloznacznych
-7. localizeFieldOffsets         – wyznaczenie przesunięć pól
-8. validateConstraints / applyCapacities
+4. factorMatchedHashTimeMoves   – prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
+5. deduplicateSubstrats         – eliminacja duplikatów  ← ten krok
+6. resolveFieldReferences       – rozwiązanie referencji do pól
+7. expandIndexWildcards         – rozwinięcie indeksów wieloznacznych
+8. localizeFieldOffsets         – wyznaczenie przesunięć pól
+9. computeRequiredCapacities    – obliczenie wymaganej historii
+10. validateConstraints         – kontrola ograniczeń operatorów
+11. applyCapacitiesToStreams    – zastosowanie pojemności
 ```
 
-Deduplikacja musi nastąpić po kroku 3, ponieważ porównanie interwałów jest jednym z kryteriów równoważności – substraty o różnych interwałach nie są identyczne nawet jeśli realizują tę samą operację algebraiczną.
+Wyniesienie wspólnego przesunięcia czasu przed przeplot i deduplikacja muszą nastąpić po kroku 3, ponieważ obie operacje porównują interwały. Deduplikacja następuje po przepisaniu algebraicznym, aby mogła scalać ujawnione przez nie substraty przeplotu.
 
 ### Efekt w grafie zależności
 
