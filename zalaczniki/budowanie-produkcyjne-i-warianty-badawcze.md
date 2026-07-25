@@ -65,7 +65,7 @@ RDB_BENCH_PROBE=OFF
 Po kompilacji skrypt wykonuje:
 
 ```bash
-build/Release/src/retractor/xretractor --optimizer-build-info
+build/Release/src/retractor/xretractor --build-info
 ```
 
 i porównuje wynik z powyższym zestawem. Brak binarki albo choć jedna inna
@@ -116,7 +116,7 @@ jest niedozwolona. Kanonizacja przemiennego dodawania jest częścią
 współdzielenia równoważnych obliczeń `SELECT`, dlatego podmenu i CMake odrzucają
 takie połączenie.
 
-Po zbudowaniu wariantu skrypt porównuje `--optimizer-build-info` z wartościami
+Po zbudowaniu wariantu skrypt porównuje `--build-info` z wartościami
 wybranymi w podmenu. Niezgodność jest błędem konfiguracji, a nie wynikiem
 badania ablacyjnego.
 
@@ -154,11 +154,14 @@ semantycznie nieinwazyjna, ale jej narzut może wpływać na mierzone czasy.
 Każdy `xretractor` udostępnia:
 
 ```bash
-ścieżka/do/xretractor --optimizer-build-info
+ścieżka/do/xretractor --build-info
 ```
 
-Polecenie wypisuje konfigurację i kończy działanie bez uruchamiania silnika.
-Przykładowy wynik wariantu produkcyjnego:
+Polecenie wypisuje konfigurację i kończy działanie bez uruchamiania silnika
+(równoważny skrót: `-b`). Jest obsługiwane przed wczytaniem i walidacją pliku
+konfiguracyjnego, więc daje poprawny wynik także wtedy, gdy konfiguracja hosta
+uniemożliwiłaby normalny start programu. Przykładowy wynik wariantu
+produkcyjnego:
 
 ```text
 RDB_OPT_DEDUP_SUBSTRATES=ON

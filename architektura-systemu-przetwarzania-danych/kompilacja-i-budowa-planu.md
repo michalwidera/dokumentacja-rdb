@@ -79,12 +79,15 @@ Flagi trybu wykonania (bez `-c`):
 
 | Flaga  | Pełna nazwa     | Znaczenie                                        |
 | ------ | --------------- | ------------------------------------------------ |
-| `-m N` | `--tlimitqry N` | uruchom N cykli przetwarzania, potem zakończ     |
+| `-m N` | `--llimitqry N` | uruchom N cykli przetwarzania, potem zakończ     |
 | `-k`   | `--noanykey`    | nie czekaj na klawisz — tryb daemon/skrypt       |
 | `-t`   | `--realtime`    | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
 | `-x`   | `--xqrywait`    | czekaj na pierwsze połączenie xqry przed startem |
 | `-s`   | `--status`      | sprawdź czy instancja xretractor już działa      |
 | `-v`   | `--verbose`     | wyświetl parametry strumieni przy starcie        |
+| `-j`   | `--service`     | tryb usługowy — dziennik na stderr (journald)    |
+| `-g F` | `--config F`    | plik konfiguracyjny TOML zamiast wyszukiwania    |
+| `-b`   | `--build-info`  | wypisz konfigurację optymalizatora i zakończ     |
 
 > **ℹ️ Info**
 >

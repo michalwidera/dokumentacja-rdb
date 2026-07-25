@@ -25,6 +25,7 @@ Usage: xretractor queryfile [option]
 
 Available options:
   -h [ --help ]               Show program options
+  -b [ --build-info ]         show optimizer build configuration
   -c [ --onlycompile ]        compile only mode
   -q [ --queryfile ] arg      query set file
   -r [ --quiet ]              no output on screen, skip presenter
@@ -32,9 +33,12 @@ Available options:
   -v [ --verbose ]            verbose mode (show stream params)
   -x [ --xqrywait ]           wait with processing for first query
   -k [ --noanykey ]           do not wait for any key to terminate
-  -t [ --realtime ]           enable real-time scheduling (SCHED_FIFO, mlockall,
->> absolute wakeup)
-  -m [ --tlimitqry ] arg (=0) query limit, 0 - no limit
+  -j [ --service ]            service mode: log to stderr (journald), no log
+                              file
+  -t [ --realtime ]           enable real-time scheduling (SCHED_FIFO,
+                              mlockall, absolute wakeup)
+  -g [ --config ] arg         config file (TOML); overrides search
+  -m [ --llimitqry ] arg (=0) loop iteration limit, 0 - no limit
 ```
 
 ### Opcje trybu przetwarzania
@@ -42,6 +46,7 @@ Available options:
 | Opcja | Znaczenie |
 | ----- | --------- |
 | `help` | Wyświetlenie tekstu podpowiedzi. Lista różni się w zależności od trybu (z `-c` lub bez). |
+| `build-info` | Wypisuje konfigurację optymalizatora, z jaką zbudowano binarkę (flagi `RDB_OPT_*` oraz `RDB_BENCH_PROBE`), i kończy działanie bez uruchamiania silnika. Obsługiwana przed wczytaniem i walidacją pliku konfiguracyjnego, więc działa także na hoście z niepoprawnym `storage.dir`. Wynik jest stabilny i przeznaczony do przetwarzania automatycznego — korzystają z niego `scripts/buildrdb.sh` oraz test `it_optimizer_ablation-build-info`. Szczegóły w załączniku o budowaniu produkcyjnym i wariantach badawczych. |
 | `onlycompile` | Przełączenie narzędzia w tryb „tylko kompilacja". Pętla realizacji zapytań nie jest uruchamiana. |
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
 | `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
@@ -49,8 +54,10 @@ Available options:
 | `verbose` | Tryb zwiększonej komunikatywności — wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana. |
 | `xqrywait` | Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu `xqry`. Wymagane przy jednoczesnym użyciu `-m N` w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie `xqry` aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od `xqry` (np. `-d` lub `-s`) odblokowuje pętlę przetwarzania. |
 | `noanykey` | Dowolny klawisz nie przerywa pętli przetwarzania. Bez tej opcji naciśnięcie dowolnego klawisza zatrzymuje system. |
+| `service` | Tryb usługowy: dziennik trafia na `stderr` (przechwytywany przez journald), bez pliku dziennika w katalogu tymczasowym, bez własnego znacznika czasu i bez kodów ANSI. Tryb można włączyć również zmienną środowiskową `XRETRACTOR_SERVICE` o dowolnej wartości poza pustą i `0` — wygodne w jednostce systemd przez `Environment=`. |
 | `realtime` | Włącza szeregowanie czasu rzeczywistego: `SCHED_FIFO`, `mlockall` i absolutne uśpienie wątku przetwarzającego. Wymaga uprawnień `CAP_SYS_NICE` i `CAP_IPC_LOCK` (lub root). Zalecane w środowisku produkcyjnym przy wymogu deterministycznego czasu reakcji. |
-| `tlimitqry` | Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość `0` oznacza brak limitu. |
+| `config` | Ścieżka do pliku konfiguracyjnego w formacie TOML. Pomija standardową kolejność wyszukiwania (`/etc/retractor/retractor.toml`, następnie `$XDG_CONFIG_HOME/retractor/retractor.toml` lub `~/.config/retractor/retractor.toml`). Brak pliku konfiguracyjnego jest stanem poprawnym — program startuje z ustawieniami domyślnymi. |
+| `llimitqry` | Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość `0` oznacza brak limitu. |
 
 ---
 
@@ -64,6 +71,7 @@ Usage: xretractor -c queryfile [option]
 
 Available options:
   -h [ --help ]          show help options
+  -b [ --build-info ]    show optimizer build configuration
   -c [ --onlycompile ]   compile only mode
   -q [ --queryfile ] arg query set file
   -r [ --quiet ]         no output on screen, skip presenter
@@ -85,6 +93,7 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 | Opcja | Znaczenie    |
 | ----- | ------------ |
 | `help` | Wyświetlenie tekstu podpowiedzi (identycznie jak w trybie przetwarzania, lista różni się w zależności od trybu). |
+| `build-info` | Znaczenie identyczne jak w trybie przetwarzania — wypisuje konfigurację optymalizatora i kończy działanie. Flaga `-c` nie ma na wynik wpływu; opcja jest dostępna w obu trybach, aby zrzut konfiguracji dał się pobrać niezależnie od sposobu wywołania. |
 | `onlycompile` | Włączony — w tej tabeli opisano opcje obowiązujące przy aktywnej fladze `-c`. |
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji. |
 | `quiet` | Testowanie samego procesu kompilacji bez prezentowania wyników. Pozostałe opcje prezentacji nie są uruchamiane. Opcja dołączona na potrzeby rozwojowe. |
