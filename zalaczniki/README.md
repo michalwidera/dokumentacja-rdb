@@ -2,6 +2,16 @@
 
 W obszarze załączników znalazły się dokumenty, które nie są związane bezpośrednio z konstrukcją systemu, ale stanowią opis motywacji decyzji projektowych, dokumentację narzędzi oraz materiał pomocniczy dla osób wdrażających lub rozwijających system.
 
+**Budowanie produkcyjne i warianty badawcze**
+
+Opis kontraktu bezpieczeństwa produkcyjnego `release` oraz izolowanych trybów
+`release-ablation` i `probe`. Rozdział przedstawia kontrolę czystości źródeł,
+jawne wartości przełączników optymalizatora, rozdzielenie katalogów CMake i
+Conan, weryfikację konfiguracji gotowej binarki oraz zasady interpretacji
+oczekiwanych błędów testów ablacyjnych.
+
+Pełny opis: [Budowanie produkcyjne i warianty badawcze](budowanie-produkcyjne-i-warianty-badawcze.md)
+
 **Geneza systemu**
 
 Opis historycznych okoliczności, które doprowadziły do powstania RetractorDB. Punkt wyjścia stanowi doświadczenie autora przy budowie systemu nadzoru neonatologicznego na początku XXI wieku — zderzenie z ograniczeniami relacyjnych baz danych przy rejestracji sygnałów o wysokiej granulacji, próby oparte na ówczesnych systemach strumieniowych oraz ewolucja ku dedykowanemu silnikowi przetwarzania serii czasowych. Rozdział wyjaśnia również, skąd pochodzi nazwa „Retractor" — nawiązanie do grupy narzędzi chirurgicznych rozdzielających i łączących struktury tkankowe, traktowane tu jako analogia do operacji na strumieniach danych.

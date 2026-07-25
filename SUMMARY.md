@@ -59,6 +59,7 @@
   * [Implementacja filtru sygnałowego](przyklady-zastosowan/implementacja-filtru-sygnalowego.md)
   * [Wizualizacja EKG i Detekcja Arytmii — baza MIT-BIH](przyklady-zastosowan/wizualizacja-ekg-mit-bih.md)
 * [Załączniki](zalaczniki/README.md)
+  * [Budowanie produkcyjne i warianty badawcze](zalaczniki/budowanie-produkcyjne-i-warianty-badawcze.md)
   * [Opcje wywołania](zalaczniki/opcje-wywolania/README.md)
     * [xretractor](zalaczniki/opcje-wywolania/xretractor.md)
     * [xqry](zalaczniki/opcje-wywolania/xqry.md)
