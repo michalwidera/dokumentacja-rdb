@@ -94,7 +94,7 @@ Kompilator realizuje optymalizację zwaną **redukcją substratów** (funkcja `d
 
 Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy spełnione są jednocześnie trzy warunki:
 
-1. **Ten sam schemat** — typy i nazwy pól wyjściowych są identyczne.
+1. **Ten sam kształt schematu** — liczba pól oraz ich typy, rozmiary w bajtach i liczności są identyczne. Nazwy pól nie są porównywane.
 2. **Ta sama delta** — częstotliwość próbkowania strumieni jest taka sama.
 3. **Te same operacje przetwarzania** — sekwencja instrukcji `PUSH_STREAM` / `STREAM_TIMEMOVE` / `STREAM_HASH` itp. jest identyczna.
 
@@ -163,7 +163,60 @@ core0(1/10)     sensor_a.txt
         b: INTEGER
 ```
 
-Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania.
+Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania. Przebieg `deduplicateSubstrats()` nie usuwa żadnego z nich. Kompilator może natomiast współdzielić ich wewnętrzne obliczenie, pozostawiając oba publiczne strumienie — opisuje to następny podrozdział.
+
+## Współdzielenie równoważnych obliczeń SELECT
+
+Przebieg `shareEquivalentSelectComputations()` wykrywa jawne zapytania `SELECT`, które wykonują ten sam program pól nad równoważnymi drzewami `FROM` zawierającymi `STREAM_ADD`. Zamiast wykonywać kosztowny program osobno dla każdego zapytania, kompilator tworzy jeden substrat `STREAM_SELECT_*`. Publiczne strumienie pozostają w planie jako lekkie projekcje tego substratu.
+
+Przykład:
+
+```rql
+SELECT a[_] * b[_] STREAM c1 FROM a+b
+SELECT a[_] * b[_] STREAM c2 FROM b+a
+```
+
+Po rozwiązaniu referencji oba programy pól pobierają te same wartości z `a` i `b`, mimo że operator strumieniowy `+` buduje wejście w innej kolejności. Plan zawiera jedno wspólne obliczenie, przykładowo `STREAM_SELECT_c1`, oraz dwa publiczne strumienie `c1` i `c2` wskazujące na jego pola.
+
+### Warunki równoważności
+
+Dwa zapytania mogą współdzielić obliczenie tylko wtedy, gdy:
+
+1. mają ten sam interwał wynikowy;
+2. mają tę samą liczbę i kolejność pól wynikowych;
+3. odpowiadające pola mają ten sam typ, rozmiar i liczność;
+4. po rozwiązaniu referencji i rozwinięciu `[_]` programy pól pobierają te same pola źródłowe oraz wykonują te same operacje w tej samej kolejności;
+5. drzewa `FROM` są równoważne z zachowaniem ich grupowania.
+
+Podpis drzewa porządkuje kanonicznie dwoje dzieci każdego pojedynczego węzła `STREAM_ADD`, dlatego `a+b` może być równoważne `b+a`. Nie spłaszcza jednak drzewa i nie korzysta z łączności operatora. Jest to istotne dla trzech źródeł o różnych interwałach:
+
+```rql
+SELECT p[_] * q[_] + r[_] STREAM x1 FROM (p+q)+r
+SELECT p[_] * q[_] + r[_] STREAM x2 FROM (q+p)+r
+SELECT p[_] * q[_] + r[_] STREAM x3 FROM (r+q)+p
+```
+
+Zapytania `x1` i `x2` mogą współdzielić obliczenie, ponieważ zamieniają tylko dzieci tego samego wewnętrznego węzła. Zapytanie `x3` ma inne grupowanie i inny substrat pośredni; jego rytm uruchomienia może być inny, dlatego pozostaje niezależne.
+
+Kolejność wejścia jest również widoczna dla pełnego skanu i kolejności projekcji. Następujących par nie wolno scalać:
+
+```rql
+SELECT * STREAM d1 FROM a+b
+SELECT * STREAM d2 FROM b+a
+
+SELECT a[0], b[1] STREAM n1 FROM a+b
+SELECT b[1], a[0] STREAM n2 FROM b+a
+```
+
+### Zachowanie publicznego kontraktu
+
+Optymalizacja współdzieli wyłącznie wewnętrzne obliczenie. Każdy jawny strumień zachowuje własną nazwę, schemat i deskryptor, reguły, retencję, politykę storage oraz artefakty. Automatyczne nazwy pól mogą zatem nadal różnić się między `c1` i `c2`, mimo że ich dane są identyczne. Nie jest to pełny alias: żaden publiczny strumień nie znika z planu, IPC ani storage.
+
+Po utworzeniu wspólnego `STREAM_SELECT_*` kompilator usuwa osierocone substraty do punktu stałego. Podczas importu ad-hoc analiza jest ograniczona do nowych identyfikatorów, aby ponowna kompilacja nie przepisała strumieni już utworzonych w aktywnym planie.
+
+Przebieg działa po `resolveFieldReferences()` i `expandIndexWildcards()`, ale przed `localizeFieldOffsets()`. Dzięki temu podpis pola porównuje tożsamość źródła i jego indeks, a nie lokalny offset zależny od kolejności argumentów `a+b` lub `b+a`.
+
+Test `select_cse_commutative_add` sprawdza kształt planu oraz wykonanie. Obejmuje równoważne projekcje indeksowane i jawne listy pól, wartości NULL i ich metadane, osobne deskryptory publiczne, `SELECT *`, zmianę kolejności pól oraz dodatni i ujemny przypadek trzech źródeł. Test porównuje bajtowo dane równoważnych par i potwierdza różnicę wyników dla kontrprzykładów — patrz [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
 ## Eliminacja duplikatów substratów
 
@@ -235,13 +288,16 @@ Deduplikacja jest piątym krokiem potoku (funkcja `compiler::compile()`):
 5. deduplicateSubstrats         – eliminacja duplikatów  ← ten krok
 6. resolveFieldReferences       – rozwiązanie referencji do pól
 7. expandIndexWildcards         – rozwinięcie indeksów wieloznacznych
-8. localizeFieldOffsets         – wyznaczenie przesunięć pól
-9. computeRequiredCapacities    – obliczenie wymaganej historii
-10. validateConstraints         – kontrola ograniczeń operatorów
-11. applyCapacitiesToStreams    – zastosowanie pojemności
+8. shareEquivalentSelectComputations – współdzielenie równoważnych obliczeń SELECT
+9. localizeFieldOffsets         – wyznaczenie przesunięć pól
+10. computeRequiredCapacities   – obliczenie wymaganej historii
+11. validateConstraints         – kontrola ograniczeń operatorów
+12. applyCapacitiesToStreams    – zastosowanie pojemności
 ```
 
 Wyniesienie wspólnego przesunięcia czasu przed przeplot i deduplikacja muszą nastąpić po kroku 3, ponieważ obie operacje porównują interwały. Deduplikacja następuje po przepisaniu algebraicznym, aby mogła scalać ujawnione przez nie substraty przeplotu.
+
+Współdzielenie obliczeń `SELECT` następuje dopiero po rozwiązaniu referencji i rozwinięciu `[_]`, ponieważ porównuje gotowe programy pól. Musi jednak poprzedzać lokalizację offsetów, aby równoważne źródła nie wyglądały na różne wyłącznie z powodu kolejności w lokalnym buforze wejściowym.
 
 ### Efekt w grafie zależności
 
