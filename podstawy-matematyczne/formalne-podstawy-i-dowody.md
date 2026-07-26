@@ -279,17 +279,43 @@ Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
 Dla przeplotu o interwale
 \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) ogon wynosi:
 
+Niech \\(\Delta_a/\Delta_b=p/q\\), gdzie \\(p,q\in\mathbb{N}_{>0}\\)
+i \\(\gcd(p,q)=1\\). W fazie drugiego argumentu o numerze \\(j\\) wymagane
+wyprzedzenie przyczynowe wynosi:
+
+\\[
+h_j
+:=\left\lceil\frac{(j+1)q}{p}\right\rceil
+-\left\lfloor\frac{jq}{p}\right\rfloor,
+\qquad 0\le j<p
+\\]
+
+Własny ogon przeplotu musi zabezpieczyć najgorszą fazę całego okresu:
+
+\\[
+H_{a,b}
+:=\max_{0\le j<p}h_j
+=\left\lceil\frac{p+q-1}{p}\right\rceil
+\\]
+
+Rozpisanie \\(q=mp+r\\) i wykorzystanie faktu, że dla względnie pierwszych
+\\(p,q\\) reszty \\(jq\bmod p\\) przebiegają wszystkie klasy reszt w jednym
+okresie, daje powyższą postać zamkniętą. W szczególności samo
+\\(\lceil\Delta_b/\Delta_a\rceil=\lceil q/p\rceil\\) zabezpiecza pierwszy
+odczyt B, lecz nie zawsze najgorszą późniejszą fazę.
+
 \\[
 W_{\varphi(A,B)}
 =\max\left(
 \operatorname{conv}(W_A,\Delta_a,\Delta_c),
 \operatorname{conv}(W_B,\Delta_b,\Delta_c)
-+\left\lceil\frac{\Delta_b}{\Delta_a}\right\rceil
++H_{a,b}
 \right)
 \\]
 
-Ostatni składnik jest własnym wyprzedzeniem przyczynowym przeplotu względem
-drugiego argumentu. Sloty ogona nie są rekordami, a przesunięcie
+Składnik \\(H_{a,b}\\) jest fazowo bezpiecznym własnym wyprzedzeniem
+przyczynowym przeplotu względem drugiego argumentu. Sloty ogona nie są
+rekordami, a przesunięcie
 \\(\tau_m\\) nie zmienia ciągu rekordów — zwiększa ogon o \\(m\\).
 
 > **✅ Uwaga**
@@ -305,8 +331,7 @@ Formalnie:
 
 **Dowód.** Przesunięcie nie zmienia emitowanego ciągu rekordów, więc obie
 strony mają ciąg określony przez definicję przeplotu i ten sam interwał
-∆<sub>c</sub>. Pozostaje porównać ogony. Niech
-\\(h=\lceil\Delta_b/\Delta_a\rceil\\). Z założenia
+∆<sub>c</sub>. Pozostaje porównać ogony. Z założenia
 i·∆<sub>a</sub> = k·∆<sub>b</sub>:
 
 \\[
@@ -323,11 +348,11 @@ wynosi:
 W_{\mathrm{LHS}}
 &=\max\left(
 \operatorname{conv}(W_A+i,\Delta_a,\Delta_c),
-\operatorname{conv}(W_B+k,\Delta_b,\Delta_c)+h
+\operatorname{conv}(W_B+k,\Delta_b,\Delta_c)+H_{a,b}
 \right)\\\\
 &=L+\max\left(
 \operatorname{conv}(W_A,\Delta_a,\Delta_c),
-\operatorname{conv}(W_B,\Delta_b,\Delta_c)+h
+\operatorname{conv}(W_B,\Delta_b,\Delta_c)+H_{a,b}
 \right)\\\\
 &=L+W_{\varphi(A,B)}
 \end{aligned}

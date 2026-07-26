@@ -143,6 +143,26 @@ i własne wyprzedzenie drugiego argumentu, suma bierze maksimum przeliczonych
 ogonów, a lewy rozplot `Theta` dodaje jeden slot. Listing planu pokazuje
 wartość jako `tail=`. Runtime nie emituje podczas ogona żadnego rekordu.
 
+Dla przeplotu kompilator redukuje stosunek
+\\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\)
+i dodaje fazowo bezpieczne własne wyprzedzenie:
+
+\\[
+H_{a,b}
+=\max_{0\le j<p}\left(
+\left\lceil\frac{(j+1)q}{p}\right\rceil
+-\left\lfloor\frac{jq}{p}\right\rfloor
+\right)
+=\left\lceil\frac{p+q-1}{p}\right\rceil
+\\]
+
+Postać zamknięta jest obliczana z 64-bitowym wynikiem pośrednim.
+Wcześniejsze \\(\lceil\Delta_b/\Delta_a\rceil=\lceil q/p\rceil\\)
+zabezpieczało tylko pierwszą fazę drugiego wejścia. Regresje obejmują między
+innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\) i \\(160/147\\), w tym
+okresowe rekordy w całości `NULL` w nieprzepisanej lewej stronie tożsamości
+R1.
+
 #### topologicalSort
 
 Bezwarunkowo przywraca końcowy porządek producent–konsument. Jest to część

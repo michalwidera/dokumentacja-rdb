@@ -243,6 +243,18 @@ Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje
 
 Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są przesunięte o ten sam czas fizyczny. Bez tego warunku przekształcenie nie jest równoważne i kompilator pozostawia pierwotny plan.
 
+Niech zredukowany stosunek \\(\Delta_a/\Delta_b\\) będzie równy \\(p/q\\).
+Własny ogon przeplotu chroni wszystkie fazy okresu, dlatego używa:
+
+\\[
+H_{a,b}
+=\max_{0\le j<p}\left(
+\left\lceil\frac{(j+1)q}{p}\right\rceil
+-\left\lfloor\frac{jq}{p}\right\rfloor
+\right)
+=\left\lceil\frac{p+q-1}{p}\right\rceil
+\\]
+
 Przesunięcie jest opóźnieniem realizacji przyczynowej: zwiększa ogon startowy
 `W`, ale nie zmienia ciągu rekordów i nie wstawia prefiksu. Dla
 \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje
@@ -255,8 +267,9 @@ dokładnie:
 \\]
 
 Dlatego przeliczone ogony obu wejść po lewej stronie rosną o `i+k` slotów
-wyjścia, dokładnie tak samo jak ogon przeplotu po prawej stronie. Reguła
-zachowuje więc nie tylko emitowany ciąg i interwał, lecz także `tail=`.
+wyjścia. Ten sam składnik \\(H_{a,b}\\) występuje po obu stronach, więc ogon
+przeplotu po prawej stronie rośnie dokładnie tak samo. Reguła zachowuje nie
+tylko emitowany ciąg i interwał, lecz także `tail=`.
 
 Przed optymalizacją plan zawiera dwa substraty:
 
@@ -283,6 +296,15 @@ z wzorcem wyprowadzonym z okresu przeplotu `B,A,A` oraz równość ogonów
 zastępczych. Osobno `computeRequiredCapacities()` przydziela źródłu cztery
 rekordy historii, ponieważ `>3` po zakończeniu ogona odczytuje indeks 3; jest
 to ogólnie `N+1` dla przesunięcia `>N` (slot 0 jest rekordem bieżącym).
+
+Test `r1_identity_nulls` sprawdza tę samą tożsamość dla stosunku
+\\(\Delta_a/\Delta_b=3/2\\), który wymaga maksimum fazowego
+\\(H_{a,b}=2\\), chociaż pierwsza faza wymaga tylko jednego slotu. Porównuje
+przepisany plan, zablokowaną przed przepisaniem lewą stronę i jawną prawą
+stronę: wszystkie mają `tail=7`, identyczny payload oraz identyczną mapę
+`NULL` w `.meta`. Niepusty, okresowy rekord w całości `NULL` chroni przed
+ukryciem błędnego ogona przez brak danych. Testy jednostkowe kompilatora
+obejmują również stosunki \\(3/5\\), \\(7/11\\) i \\(160/147\\).
 
 ### Algorytm deduplikacji
 
