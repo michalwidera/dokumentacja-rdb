@@ -2,7 +2,14 @@
 
 Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transformuje wewnętrzną reprezentację zapytań — drzewo `qTree` — i przekazuje wynik do następnego. Kolejność jest ściśle ustalona: każdy etap zakłada, że poprzedni zakończył się sukcesem.
 
-`qTree` to topologicznie posortowany `std::vector<query>` — centralna struktura danych kompilatora i executora. Każdy element wektora odpowiada jednemu zapytaniu (`SELECT` lub `DECLARE`) i przechowuje jego schemat pól, sekwencję instrukcji stosu, interwał czasowy oraz referencje do strumieni źródłowych. Sortowanie topologiczne gwarantuje, że strumień źródłowy zawsze poprzedza strumień wynikowy — etapy mogą przetwarzać `qTree` liniowo, bez nawrotów.
+`qTree` to `std::vector<query>` — centralna struktura danych kompilatora
+i executora. Każdy element wektora odpowiada jednemu zapytaniu (`SELECT` lub
+`DECLARE`) i przechowuje jego schemat pól, sekwencję instrukcji stosu,
+interwał czasowy, ogon startowy oraz referencje do strumieni źródłowych.
+Nie każdy etap utrzymuje kolejność wektora: rozwiązanie interwałów sortuje go
+według `rInterval`. Dlatego kompilacja kończy się bezwarunkowym sortowaniem
+topologicznym, które gwarantuje, że podczas wykonania producent poprzedza
+konsumenta.
 
 ## Przykład śledzący
 
@@ -87,6 +94,10 @@ Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów 
 
 Rozpoznaje dopasowane przesunięcia argumentów przeplotu. Gdy `i·ΔA=k·ΔB`, przepisuje `(A>i)#(B>k)` do `(A#B)>(i+k)`, redukując dwa substraty przesunięcia do jednego substratu przeplotu. Przypadki niedopasowane oraz substraty współdzielone z innymi konsumentami pozostają bez zmian — patrz [Substraty](substraty.md).
 
+Przesunięcie zwiększa ogon startowy, a nie wstawia rekordy prefiksu.
+Równość fizycznych przesunięć sprawia, że obie strony reguły mają ten sam
+emitowany ciąg oraz ten sam ogon po przeliczeniu na sloty wyniku.
+
 #### deduplicateSubstrats
 
 Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej (np. `core0#core1`), etap wskazuje drugie zapytanie na substrat utworzony przez pierwsze. Unika powielania obliczeń — patrz przykład w [Substraty](substraty.md).
@@ -109,7 +120,11 @@ Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemac
 
 #### computeRequiredCapacities
 
-Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie rozmiarów schematów i wymagań okien czasowych. Przesunięcie `>N` odczytuje slot historii o indeksie `N`, dlatego wymaga `N+1` rekordów (slot 0 jest rekordem bieżącym).
+Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie
+rozmiarów schematów i wymagań okien czasowych. Po zakończeniu ogona
+przesunięcie `>N` odczytuje slot historii o indeksie `N`, dlatego wymaga
+`N+1` rekordów (slot 0 jest rekordem bieżącym). Pojemność historii jest
+wymaganiem wykonawczym, a nie prefiksem wyniku.
 
 #### validateConstraints
 
@@ -117,7 +132,28 @@ Weryfikuje poprawność semantyczną skompilowanego planu: zgodność typów, ro
 
 #### applyCapacitiesToStreams
 
-Aplikuje obliczone pojemności do obiektów strumieni. Po tym etapie plan jest gotowy do wykonania przez `dataModel`.
+Aplikuje obliczone pojemności do obiektów strumieni.
+
+#### computeStartupLatency
+
+Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego
+interwału strumienia, w których wynik nie jest jeszcze zdefiniowany.
+Źródła mają ogon 0, `>N` dodaje `N`, przeplot uwzględnia ogony obu wejść
+i własne wyprzedzenie drugiego argumentu, suma bierze maksimum przeliczonych
+ogonów, a lewy rozplot `Theta` dodaje jeden slot. Listing planu pokazuje
+wartość jako `tail=`. Runtime nie emituje podczas ogona żadnego rekordu.
+
+#### topologicalSort
+
+Bezwarunkowo przywraca końcowy porządek producent–konsument. Jest to część
+poprawności wykonania, nie kosmetyka prezentacji planu: interwał wyniku `#`
+jest mniejszy od interwałów wejść, więc wcześniejsze sortowanie po interwale
+może przesunąć konsumenta przed producentów.
+
+Przebiegi przepisujące plan są dodatkowo otoczone kontrolą
+`verifyUserFieldNamesPreserved()`. Optymalizacja może zmieniać i usuwać
+substraty wewnętrzne, ale nie może zmienić nazw pól żadnego publicznego
+strumienia, ponieważ trafiają one do obserwowalnego deskryptora `.desc`.
 
 
 Każdy etap zwraca `"OK"` lub komunikat błędu — wówczas kompilacja się zatrzymuje.

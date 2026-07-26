@@ -267,6 +267,31 @@ Oba strumienie niosą ∆<sub>c</sub> = ∆<sub>a</sub>. Pokrywają się więc z
 
 Operacja przeplotu nie jest w ogólności przemienna: ponieważ 0 < z < 1, w punkcie n = 0 zawsze zachodzi gałąź równości w definicji przeplotu, więc strumień φ(A, B) zaczyna się od elementu b₀, a strumień φ(B, A) – od elementu a₀. Przeplot jest jednak ekwiwariantny względem przesunięć czasowych dopasowanych do temp strumieni – co jest cenne w optymalizacji planów zapytań.
 
+W realizacji przyczynowej strumień ma postać
+\\(\widehat{S}=((s_n,\Delta),W_S)\\), gdzie \\(W_S\\) jest ogonem startowym.
+Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
+
+\\[
+\operatorname{conv}(w,\Delta_s,\Delta_o)
+:=\left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
+\\]
+
+Dla przeplotu o interwale
+\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) ogon wynosi:
+
+\\[
+W_{\varphi(A,B)}
+=\max\left(
+\operatorname{conv}(W_A,\Delta_a,\Delta_c),
+\operatorname{conv}(W_B,\Delta_b,\Delta_c)
++\left\lceil\frac{\Delta_b}{\Delta_a}\right\rceil
+\right)
+\\]
+
+Ostatni składnik jest własnym wyprzedzeniem przyczynowym przeplotu względem
+drugiego argumentu. Sloty ogona nie są rekordami, a przesunięcie
+\\(\tau_m\\) nie zmienia ciągu rekordów — zwiększa ogon o \\(m\\).
+
 > **✅ Uwaga**
 >
 > **Twierdzenie.** Jeśli liczby i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty przesunięte o ten sam czas), to przeplot strumieni przesuniętych jest równy przeplotowi strumieni pierwotnych przesuniętemu o sumę tych liczb.
@@ -278,31 +303,40 @@ Formalnie:
 \varphi \left( \tau_{i}(A), \tau_{k}(B) \right) = \tau_{i+k}\left( \varphi (A, B) \right), \quad i\Delta_{a} = k\Delta_{b}, \quad i, k \in \mathbb{N}
 \\]
 
-**Dowód.** Obie strony niosą interwał ∆<sub>c</sub> z definicji przeplotu, wystarczy więc porównać elementy. Z założenia i·∆<sub>a</sub> = k·∆<sub>b</sub>:
+**Dowód.** Przesunięcie nie zmienia emitowanego ciągu rekordów, więc obie
+strony mają ciąg określony przez definicję przeplotu i ten sam interwał
+∆<sub>c</sub>. Pozostaje porównać ogony. Niech
+\\(h=\lceil\Delta_b/\Delta_a\rceil\\). Z założenia
+i·∆<sub>a</sub> = k·∆<sub>b</sub>:
 
 \\[
-(i+k) z = (i+k) \frac{\Delta_{b}}{\Delta_{a}+\Delta_{b}} = \frac{i\Delta_{b} + i\Delta_{a}}{\Delta_{a}+\Delta_{b}} = i \in \mathbb{N}
+\frac{i\Delta_a}{\Delta_c}
+=\frac{k\Delta_b}{\Delta_c}
+=i+k=:L\in\mathbb{N}
 \\]
 
-a stąd, na mocy własności ⌊x + C⌋ = ⌊x⌋ + C, dla każdego n ≥ 0 i m := n + i + k:
+Ponieważ dodanie całkowitego \\(L\\) komutuje z sufitem, ogon lewej strony
+wynosi:
 
 \\[
-\left\lfloor m z \right\rfloor = \left\lfloor n z + i \right\rfloor = \left\lfloor n z \right\rfloor + i
+\begin{aligned}
+W_{\mathrm{LHS}}
+&=\max\left(
+\operatorname{conv}(W_A+i,\Delta_a,\Delta_c),
+\operatorname{conv}(W_B+k,\Delta_b,\Delta_c)+h
+\right)\\\\
+&=L+\max\left(
+\operatorname{conv}(W_A,\Delta_a,\Delta_c),
+\operatorname{conv}(W_B,\Delta_b,\Delta_c)+h
+\right)\\\\
+&=L+W_{\varphi(A,B)}
+\end{aligned}
 \\]
 
-W szczególności ⌊mz⌋ = ⌊(m+1)z⌋ wtedy i tylko wtedy, gdy ⌊nz⌋ = ⌊(n+1)z⌋: pozycja n lewej strony tezy i pozycja m strumienia φ(A, B) wybierają tę samą gałąź definicji przeplotu. Na gałęzi równości prawa strona wybiera element:
-
-\\[
-b_{m - \left\lfloor m z \right\rfloor} = b_{n+i+k - \left\lfloor n z \right\rfloor - i} = b_{(n - \left\lfloor n z \right\rfloor) + k}
-\\]
-
-czyli dokładnie element (τ<sub>k</sub>(B))<sub>n−⌊nz⌋</sub> wybierany przez lewą stronę; na gałęzi nierówności wybiera:
-
-\\[
-a_{\left\lfloor m z \right\rfloor} = a_{\left\lfloor n z \right\rfloor + i}
-\\]
-
-czyli element (τ<sub>i</sub>(A))<sub>⌊nz⌋</sub> – ponownie zgodnie z lewą stroną. Oba strumienie pokrywają się element po elemencie. ∎
+Prawa strona opóźnia \\(\varphi(A,B)\\) o \\(i+k=L\\), więc ma dokładnie
+ten sam ogon. Interwał, emitowane rekordy i ogon startowy obu stron są równe.
+W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych
+strumieni, mapy wartości pustych i politykę materializacji. ∎
 
 ## Dlaczego to ma znaczenie
 
@@ -317,4 +351,3 @@ Dział matematyki, w którym osadzone są te równania, to teoria układów pokr
 > **ℹ️ Info**
 >
 > Numeryczna weryfikacja powyższych równań – prototypy w języku Python operujące na liczbach wymiernych (biblioteka `Fraction`) – znajduje się na stronie [Implementacja modelu](implementacja-programowa.md) oraz w repozytorium [github.com/michalwidera/equations](https://github.com/michalwidera/equations).
-

@@ -59,7 +59,12 @@ SELECT ... STREAM c FROM a > n
 
 \\[\Delta_c = \Delta_a\\]
 
-Przesunięcie nie zmienia częstotliwości strumienia — tylko przesuwa okno odczytu o n próbek.
+Przesunięcie nie zmienia częstotliwości ani ciągu emitowanych rekordów.
+Jest przyczynowym opóźnieniem: zwiększa ogon startowy strumienia o `n`
+slotów jego własnego interwału. Sloty ogona nie są rekordami i runtime nic
+w nich nie emituje; listing planu pokazuje wyliczony ogon jako `tail=`.
+Historia źródła nadal wymaga `n+1` rekordów, ponieważ po zakończeniu ogona
+operator odczytuje slot historii `n` (slot 0 jest rekordem bieżącym).
 
 ### Agregaty okienkowe (`.max`, `.min`, `.avg`, `.sum`)
 

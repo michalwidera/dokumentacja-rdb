@@ -176,14 +176,15 @@ binarki jest ostatecznym potwierdzeniem użytych definicji kompilatora.
 
 ## Testy w procesie ablacji
 
-Wyłączenie optymalizacji może celowo zmienić strukturę planu, prefiks wyniku
-albo zachowanie znanego przypadku wykonawczego. Taki wynik nie powinien być
-automatycznie uznawany za niezwiązaną regresję.
+Wyłączenie optymalizacji może celowo zmienić strukturę planu i dostępność
+testów wymagających konkretnego kształtu. Nie może natomiast zmienić
+obserwowalnego wyniku: interwału, ogona startowego, publicznego deskryptora,
+rekordów z mapami wartości pustych ani polityki materializacji.
 
 CTest przypisuje testom wymagającym konkretnej optymalizacji etykiety
-`requires_*` i może je wyłączyć dla niezgodnej konfiguracji. Znane, potwierdzone
-różnice zachowania otrzymują etykietę `expected_ablation_failure`; test może
-być oznaczony właściwością `WILL_FAIL`.
+`requires_*` i może je wyłączyć dla niezgodnej konfiguracji. Etykieta
+`expected_ablation_failure` opisuje wtedy oczekiwaną niedostępność testu
+kształtu planu, a nie przyzwolenie na różnicę semantyczną.
 
 Procedura oceny błędu powinna być następująca:
 
@@ -191,8 +192,7 @@ Procedura oceny błędu powinna być następująca:
 2. potwierdzić, że przechodzi z wymaganymi optymalizacjami;
 3. uruchomić go w badanym wariancie;
 4. wykazać związek błędu z wyłączonym przełącznikiem;
-5. dopiero wtedy zapisać wynik jako oczekiwaną różnicę ablacyjną albo wyłączyć
-   test dla tego wariantu;
+5. jeżeli test wymaga wyłączonego przebiegu, wyłączyć go dla tego wariantu;
 6. każdy inny błąd traktować jako regresję.
 
 Test `it_optimizer_ablation-build-info` kontroluje zgodność informacji
@@ -200,56 +200,33 @@ raportowanej przez binarkę z konfiguracją CMake. Pozostałe testy
 `it_optimizer_ablation-*` sprawdzają strukturę planów i porównania semantyczne
 między wariantami.
 
-### Macierz wyników względem konfiguracji bez ablacji
+### Nazwane profile badawcze
 
-Punktem odniesienia jest konfiguracja bez ablacji: wszystkie cztery
-optymalizacje są włączone, a sonda jest wyłączona. Dokumentacja nie zapisuje
-bezwzględnej liczby testów, ponieważ zestaw testowy może się zmieniać.
+Sonda G1 definiuje trzy profile, które należy zapisywać razem z wynikami:
 
-Skróty w tabeli oznaczają:
+| Profil | Deduplikacja | Współdzielenie `SELECT` | Przemienność `+` | Faktoryzacja R1 |
+| --- | :---: | :---: | :---: | :---: |
+| `OFF` | OFF | OFF | OFF | OFF |
+| `STRUCT` | ON | ON | OFF | OFF |
+| `ALGSTRUCT` | ON | ON | ON | ON |
 
-- `D` — deduplikację substratów;
-- `S` — współdzielenie równoważnych obliczeń `SELECT`;
-- `C` — kanonizację przemiennego dodawania;
-- `F` — faktoryzację dopasowanych przesunięć hash/czas.
+`ALGSTRUCT` odpowiada domyślnej konfiguracji optymalizatora. Profile są
+budowane przez
+`examples/experiment/results_20260726_G1/build_profiles.sh`; źródłem prawdy
+o konkretnej binarce pozostaje jej `--build-info`.
 
-Kolumna „Δ sukcesów (oczekiwane/rzeczywiste)” podaje dwie różnice względem
-konfiguracji bez ablacji:
+Po wprowadzeniu przyczynowego ogona startowego, jednej konwencji `tau`
+i końcowego sortowania topologicznego nie ma oczekiwanych rozbieżności
+semantycznych między profilami. Sonda potwierdza dla `OFF`, `STRUCT`
+i konfiguracji domyślnej zgodność wartości, map `null`, braku prefiksu
+i ogonów R1. Dwa dawne przypadki `WILL_FAIL` — inny wynik R1 bez faktoryzacji
+oraz dodatkowy rekord zerowego prefiksu — zostały usunięte wraz z ich
+przyczynami i nie są już dopuszczalnym wynikiem ablacji.
 
-- pierwsza liczba jest zmianą oczekiwaną na podstawie właściwości `DISABLED`
-  i `WILL_FAIL`;
-- druga liczba jest zmianą zaobserwowaną podczas pełnego uruchomienia CTest.
-
-Przykładowo `-2/-2` oznacza dwa oczekiwane i dwa faktycznie odnotowane sukcesy
-mniej, a `+1/+1` — jeden sukces więcej. Niezgodność, na przykład `-2/-3`,
-oznaczałaby jeden nieoczekiwany błąd. Test z właściwością `WILL_FAIL` nadal
-jest sukcesem CTest, jeżeli polecenie kończy się oczekiwanym błędem.
-
-| Aktywne | Wariant | D | S | C | F | Δ sukcesów (oczekiwane/rzeczywiste) |
-| ---: | --- | :---: | :---: | :---: | :---: | ---: |
-| 0 | `all_off` | OFF | OFF | OFF | OFF | -9/-9 |
-| 1 | `dedup_only` | ON | OFF | OFF | OFF | -4/-4 |
-| 1 | `share_only` | OFF | ON | OFF | OFF | -9/-9 |
-| 1 | `factor_only` | OFF | OFF | OFF | ON | -6/-6 |
-| 2 | `dedup_share` | ON | ON | OFF | OFF | -4/-4 |
-| 2 | `dedup_factor` | ON | OFF | OFF | ON | -1/-1 |
-| 2 | `share_comm` | OFF | ON | ON | OFF | -8/-8 |
-| 2 | `share_factor` | OFF | ON | OFF | ON | -6/-6 |
-| 3 | `dedup_share_comm` | ON | ON | ON | OFF | -3/-3 |
-| 3 | `dedup_share_factor` | ON | ON | OFF | ON | -1/-1 |
-| 3 | `share_comm_factor` | OFF | ON | ON | ON | -5/-5 |
-| 4 | `all_on` | ON | ON | ON | ON | 0/0 |
-
-Każdy zaobserwowany wynik jest zgodny z oczekiwaniem. Różnice wynikają z
-rozłącznych wymagań testów: wyłączenie `D` usuwa pięć sukcesów, wyłączenie `F`
-usuwa trzy, a brak jednocześnie aktywnych `S` i `C` usuwa jeden. Dlatego
-wartości można sumować bez odnoszenia ich do stałej liczebności zestawu
-testowego.
-
-Znane różnice wykonawcze oznaczone `WILL_FAIL` nie zmieniają liczby sukcesów:
-bez `F` oczekiwany jest odmienny wynik przypadku faktoryzacji, natomiast przy
-jednoczesnym wyłączeniu `D`, `F` i `S` oczekiwany jest dodatkowy zerowy rekord
-prefiksu.
+Ta trójka profili wystarcza do kontroli „algebra razem ze strukturą”,
+ale nie rozdziela kosztu R1 od R2. Eksperyment przypisujący efekt konkretnej
+regule powinien dodać profile pośrednie `STRUCT+R1` i `STRUCT+R2` oraz
+liczniki zastosowań każdej reguły.
 
 ## Pakowanie
 

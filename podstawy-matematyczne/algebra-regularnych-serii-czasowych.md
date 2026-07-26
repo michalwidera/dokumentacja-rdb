@@ -96,13 +96,31 @@ c_{\left\lceil \frac{n\Delta_{a}}{\Delta_{b}}\right\rceil } & \Delta_{b}<\Delta_
 
 Te operacje oznaczać będziemy znakami + oraz -.
 
-Operację przesunięcia sekwencji definiujemy formalnie następująco: dla strumienia S = (s<sub>n</sub>, ∆) oraz m ∈ ℕ
+Wykonanie przyczynowe rozszerza matematyczny strumień S = (s<sub>n</sub>, ∆)
+o **ogon startowy** W<sub>S</sub> ∈ ℕ. Jest to liczba początkowych slotów
+interwału ∆, w których wynik nie jest jeszcze zdefiniowany. Sloty ogona nie są
+rekordami: pierwszym wyemitowanym rekordem pozostaje s<sub>0</sub>; silnik nie
+wstawia ani zer, ani zastępczych rekordów all-null.
 
 \\[
-\tau_{m}(S) := \left( \left( s_{n+m}\right)_{n=0}^{\infty },\ \Delta \right)
+\widehat{S} := \left((s_n,\Delta),W_S\right)
 \\]
 
-czyli strumień przesunięty o m próbek, a więc o czas m·∆. Operacyjnie oznacza to przesunięcie dostępu do danych o daną ilość odstępów czasu pomiędzy kolejnymi elementami. I tak np. dla danych napływających co sekundę ze strumienia źródłowego operacja przesunięcia o 3 przesuwa wynik o 3 sekundy.
+Operację przesunięcia definiujemy jako **opóźnienie** realizacji przyczynowej:
+
+\\[
+\tau_{m}\left(\widehat{S}\right)
+:= \left((s_n,\Delta),W_S+m\right), \qquad m\in\mathbb{N}
+\\]
+
+Przesunięcie o m próbek odsuwa pierwszą i każdą kolejną emisję o czas m·∆,
+ale nie odrzuca elementów s<sub>0</sub>, …, s<sub>m−1</sub> i nie wytwarza
+prefiksu. Dla danych napływających co sekundę operacja przesunięcia o 3
+opóźnia zatem cały wynik o 3 sekundy.
+
+Ta definicja odpowiada operatorowi `STREAM_TIMEMOVE(N)` w silniku. Kompilator
+raportuje wynikowy ogon jako `tail=N` (powiększony o ogony operatorów
+poprzedzających), a runtime nie emituje rekordów podczas jego odliczania.
 
 Operację przesunięcia oznaczać będę za pomocą >.
 

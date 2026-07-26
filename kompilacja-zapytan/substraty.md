@@ -243,6 +243,21 @@ Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje
 
 Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są przesunięte o ten sam czas fizyczny. Bez tego warunku przekształcenie nie jest równoważne i kompilator pozostawia pierwotny plan.
 
+Przesunięcie jest opóźnieniem realizacji przyczynowej: zwiększa ogon startowy
+`W`, ale nie zmienia ciągu rekordów i nie wstawia prefiksu. Dla
+\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje
+dokładnie:
+
+\\[
+\frac{i\Delta_a}{\Delta_c}
+=\frac{k\Delta_b}{\Delta_c}
+=i+k
+\\]
+
+Dlatego przeliczone ogony obu wejść po lewej stronie rosną o `i+k` slotów
+wyjścia, dokładnie tak samo jak ogon przeplotu po prawej stronie. Reguła
+zachowuje więc nie tylko emitowany ciąg i interwał, lecz także `tail=`.
+
 Przed optymalizacją plan zawiera dwa substraty:
 
 ```
@@ -260,7 +275,14 @@ result = STREAM_HASH_A_B > (i + k)
 
 Przebieg `factorMatchedHashTimeMoves()` nie usuwa jawnych strumieni użytkownika ani substratów używanych przez innych konsumentów. Wykonuje się przed deduplikacją, dzięki czemu ujawniony substrat `A # B` może zostać następnie współdzielony z innym równoważnym planem.
 
-Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych kopiach plikowych źródeł danych. Porównuje bajtowo artefakty `matched` i `CC`, ich metadane z pominięciem znacznika czasu utworzenia oraz pełną sekwencję z wzorcem wyprowadzonym z okresu przeplotu `B,A,A`. Ponieważ wynikowy operator `>3` odwołuje się do slotu historii o indeksie 3 (slot 0 jest rekordem bieżącym), `computeRequiredCapacities()` przydziela mu cztery rekordy, ogólnie `N+1` dla przesunięcia `>N`.
+Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych
+kopiach plikowych źródeł danych. Porównuje bajtowo artefakty `matched` i `CC`,
+ich metadane z pominięciem znacznika czasu utworzenia, pełną sekwencję
+z wzorcem wyprowadzonym z okresu przeplotu `B,A,A` oraz równość ogonów
+(`tail=5` w badanym przypadku). Żadna strona nie emituje rekordów
+zastępczych. Osobno `computeRequiredCapacities()` przydziela źródłu cztery
+rekordy historii, ponieważ `>3` po zakończeniu ogona odczytuje indeks 3; jest
+to ogólnie `N+1` dla przesunięcia `>N` (slot 0 jest rekordem bieżącym).
 
 ### Algorytm deduplikacji
 
@@ -293,11 +315,21 @@ Deduplikacja jest piątym krokiem potoku (funkcja `compiler::compile()`):
 10. computeRequiredCapacities   – obliczenie wymaganej historii
 11. validateConstraints         – kontrola ograniczeń operatorów
 12. applyCapacitiesToStreams    – zastosowanie pojemności
+13. computeStartupLatency       – obliczenie ogonów startowych
+14. topologicalSort             – końcowy porządek producent–konsument
 ```
 
 Wyniesienie wspólnego przesunięcia czasu przed przeplot i deduplikacja muszą nastąpić po kroku 3, ponieważ obie operacje porównują interwały. Deduplikacja następuje po przepisaniu algebraicznym, aby mogła scalać ujawnione przez nie substraty przeplotu.
 
 Współdzielenie obliczeń `SELECT` następuje dopiero po rozwiązaniu referencji i rozwinięciu `[_]`, ponieważ porównuje gotowe programy pól. Musi jednak poprzedzać lokalizację offsetów, aby równoważne źródła nie wyglądały na różne wyłącznie z powodu kolejności w lokalnym buforze wejściowym.
+
+Każdy przebieg przepisujący (`factorMatchedHashTimeMoves`,
+`deduplicateSubstrats`, `shareEquivalentSelectComputations`) jest otoczony
+kontrolą `verifyUserFieldNamesPreserved()`. Nazwy pól publicznych strumieni
+są częścią deskryptora `.desc` i nie mogą zmienić się wskutek optymalizacji.
+Ogon jest liczony dopiero dla ostatecznego planu. Końcowe sortowanie
+topologiczne jest bezwarunkowe, ponieważ wcześniejsze sortowanie po interwale
+może umieścić szybszego konsumenta `#` przed jego producentami.
 
 ### Efekt w grafie zależności
 
