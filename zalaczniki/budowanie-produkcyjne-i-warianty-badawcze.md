@@ -149,6 +149,22 @@ przebiegów optymalizatora. Nie jest jednak instrumentacją o zerowym koszcie:
 `RDB_BENCH_CSV` wykonuje pomiary zegara i operacje plikowe. Sonda jest więc
 semantycznie nieinwazyjna, ale jej narzut może wpływać na mierzone czasy.
 
+Jeżeli binarka ma `RDB_BENCH_PROBE=ON`, a podczas kompilacji ustawiona jest
+zmienna `RDB_BENCH_PLAN`, kompilator zapisuje na standardowe wyjście błędów
+stabilny wiersz:
+
+```text
+REWRITE_APPLIED r1=<liczba> r2=<liczba>
+```
+
+Liczniki są zerowane przed każdym wywołaniem kompilatora. `r1` oznacza liczbę
+skutecznych przekształceń
+`(A > i) # (B > k) -> (A # B) > (i + k)`. `r2` oznacza liczbę unikalnych
+węzłów `STREAM_ADD`, w których kanoniczny odcisk planu rzeczywiście zamienił
+kolejność dzieci. `r2` nie jest liczbą usuniętych węzłów ani miarą
+przyspieszenia. Przy `RDB_BENCH_PROBE=OFF` kod liczników nie trafia do binarki
+i wiersz `REWRITE_APPLIED` nie jest emitowany.
+
 ## Ręczna kontrola wariantu
 
 Każdy `xretractor` udostępnia:
@@ -202,18 +218,22 @@ między wariantami.
 
 ### Nazwane profile badawcze
 
-Sonda G1 definiuje trzy profile, które należy zapisywać razem z wynikami:
+Metodyka K4 definiuje pięć profili, które należy zapisywać razem z wynikami:
 
 | Profil | Deduplikacja | Współdzielenie `SELECT` | Przemienność `+` | Faktoryzacja R1 |
 | --- | :---: | :---: | :---: | :---: |
 | `OFF` | OFF | OFF | OFF | OFF |
 | `STRUCT` | ON | ON | OFF | OFF |
+| `STRUCT+R1` | ON | ON | OFF | ON |
+| `STRUCT+R2` | ON | ON | ON | OFF |
 | `ALGSTRUCT` | ON | ON | ON | ON |
 
 `ALGSTRUCT` odpowiada domyślnej konfiguracji optymalizatora. Profile są
-budowane przez
-`examples/experiment/results_20260726_G1/build_profiles.sh`; źródłem prawdy
-o konkretnej binarce pozostaje jej `--build-info`.
+zdefiniowane w `rdb-experiment/results_20260728_K4/profiles.tsv` i budowane
+przez skrypt `build_profiles.sh` z tego samego katalogu; źródłem prawdy
+o konkretnej binarce pozostaje jej `--build-info`. Profile pośrednie zmieniają
+tylko jedną regułę względem `STRUCT`: `STRUCT+R1` włącza faktoryzację R1,
+a `STRUCT+R2` — kanonizację przemiennego `STREAM_ADD`.
 
 Po wprowadzeniu przyczynowego ogona startowego, jednej konwencji `tau`
 i końcowego sortowania topologicznego nie ma oczekiwanych rozbieżności
@@ -223,10 +243,12 @@ i ogonów R1. Dwa dawne przypadki `WILL_FAIL` — inny wynik R1 bez faktoryzacji
 oraz dodatkowy rekord zerowego prefiksu — zostały usunięte wraz z ich
 przyczynami i nie są już dopuszczalnym wynikiem ablacji.
 
-Ta trójka profili wystarcza do kontroli „algebra razem ze strukturą”,
-ale nie rozdziela kosztu R1 od R2. Eksperyment przypisujący efekt konkretnej
-regule powinien dodać profile pośrednie `STRUCT+R1` i `STRUCT+R2` oraz
-liczniki zastosowań każdej reguły.
+Kampania K4 sprawdziła po 80 istniejących plików RQL w każdym profilu:
+75 kompilowało się poprawnie, a 5 historycznych lub celowo wadliwych fixture'ów
+stanowiło jawne oczekiwane odrzucenia. R1 zastosowano 5 razy w 5 dedykowanych
+testach regresyjnych; żaden istniejący przykład go nie aktywował. R2
+zastosowano 18 razy w 13 plikach, w tym w 4 przykładach. Wynik opisuje pokrycie
+tego korpusu, nie ogólny koszt ani zysk wydajnościowy reguł.
 
 ## Pakowanie
 
