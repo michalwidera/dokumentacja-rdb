@@ -13,7 +13,9 @@ gdzie:
 * **k** — skok okna (liczba naturalna): o ile rekordów źródłowych przesuwa się okno przy każdym kroku,
 * **w** — rozmiar okna (liczba całkowita różna od zera): ile pól źródłowych zawiera jeden rekord wyjściowy.
 
-Wartość ujemna `w` oznacza **agregację lustrzaną** — pola w rekordzie wyjściowym ułożone są w odwrotnej kolejności względem napływu.
+Wartość dodatnia `w` zachowuje historyczną konwencję RetractorDB: najnowsze
+pole okna jest pierwsze. Wartość ujemna oznacza **agregację lustrzaną** —
+odwraca tę kolejność, więc pola są ułożone zgodnie z napływem.
 
 ## Jak zmienia się interwał strumienia wyjściowego
 
@@ -28,7 +30,7 @@ Jeśli strumień źródłowy ma `W` pól w rekordzie i interwał `Δ`, to strumi
 | `k < \|w\|`        | okno przesuwne (sliding) — kolejne okna zachodzą na siebie     |
 | `k > \|w\|`        | próbkowanie z przerwami — część danych jest pomijana           |
 | `k = 1, \|w\| = 1` | serializacja — wielopolowy rekord rozbijany na jednoelementowe |
-| `w < 0`            | agregacja lustrzana — kolejność pól w oknie odwrócona          |
+| `w < 0`            | agregacja lustrzana — kolejność napływu od najstarszego pola   |
 
 ## Typowe wzorce użycia
 
@@ -58,17 +60,23 @@ Dane wejściowe:   0  1  2  3  4  5  6  7  8  9  ...
                   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓
 
 @(1, 3) — sliding window, skok=1, okno=3:
-  [0,1,2]  [1,2,3]  [2,3,4]  [3,4,5]  ...
+  [2,1,0]  [3,2,1]  [4,3,2]  [5,4,3]  ...
 
 @(3, 3) — tumbling window, skok=3, okno=3:
-  [0,1,2]           [3,4,5]           ...
+  [2,1,0]           [5,4,3]           ...
 
 @(5, 1) — próbkowanie co 5 elementów:
   [0]               [5]               ...
 
 @(2,-2) — lustrzana, skok=2, okno=2:
-  [1,0]    [3,2]    [5,4]    [7,6]    ...
+  [0,1]    [2,3]    [4,5]    [6,7]    ...
 ```
+
+AGSE emituje dopiero pełne okno. Początkowe sloty, w których brakuje choć
+jednego pola, tworzą raportowany w planie `tail=` i nie są rekordami.
+Prawdziwy `NULL` obecny w danych pozostaje natomiast elementem pełnego okna.
+Formalna granica ogona i pojemności historii jest opisana w rozdziale
+[Ogony i obserwowalność operatorów](../../podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md).
 
 ## Przykłady
 

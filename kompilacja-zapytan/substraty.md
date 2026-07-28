@@ -334,10 +334,10 @@ Deduplikacja jest piątym krokiem potoku (funkcja `compiler::compile()`):
 7. expandIndexWildcards         – rozwinięcie indeksów wieloznacznych
 8. shareEquivalentSelectComputations – współdzielenie równoważnych obliczeń SELECT
 9. localizeFieldOffsets         – wyznaczenie przesunięć pól
-10. computeRequiredCapacities   – obliczenie wymaganej historii
-11. validateConstraints         – kontrola ograniczeń operatorów
-12. applyCapacitiesToStreams    – zastosowanie pojemności
-13. computeStartupLatency       – obliczenie ogonów startowych
+10. computeStartupLatency       – obliczenie ogonów startowych
+11. computeRequiredCapacities   – obliczenie wymaganej historii
+12. validateConstraints         – kontrola ograniczeń operatorów
+13. applyCapacitiesToStreams    – zastosowanie pojemności
 14. topologicalSort             – końcowy porządek producent–konsument
 ```
 

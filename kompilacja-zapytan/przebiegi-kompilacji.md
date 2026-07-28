@@ -118,6 +118,19 @@ Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FR
 
 Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemacie wynikowym (`merged[z]`). Dla ADD indeks wynika z sumy liczności pól poprzedzających strumieni; dla HASH każde pole otrzymuje indeks 0 (schemat jednoargumentowy). Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami.
 
+#### computeStartupLatency
+
+Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego
+interwału strumienia, w których wynik nie jest jeszcze zdefiniowany.
+Źródła mają ogon 0, `>N` dodaje `N`, przeplot uwzględnia ogony obu wejść
+i własne wyprzedzenie drugiego argumentu, suma bierze maksimum przeliczonych
+ogonów, lewy rozplot `Theta` dodaje jeden slot, a `SUBTRACT` i AGSE używają
+granic fazowych. Redukcje nie dodają własnego ogona. Listing planu pokazuje
+wartość jako `tail=`. Runtime nie emituje podczas ogona żadnego rekordu.
+
+Ten przebieg poprzedza obliczenie pojemności, ponieważ wymagana historia
+zależy od chwili pierwszej emisji konsumenta.
+
 #### computeRequiredCapacities
 
 Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie
@@ -133,15 +146,6 @@ Weryfikuje poprawność semantyczną skompilowanego planu: zgodność typów, ro
 #### applyCapacitiesToStreams
 
 Aplikuje obliczone pojemności do obiektów strumieni.
-
-#### computeStartupLatency
-
-Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego
-interwału strumienia, w których wynik nie jest jeszcze zdefiniowany.
-Źródła mają ogon 0, `>N` dodaje `N`, przeplot uwzględnia ogony obu wejść
-i własne wyprzedzenie drugiego argumentu, suma bierze maksimum przeliczonych
-ogonów, a lewy rozplot `Theta` dodaje jeden slot. Listing planu pokazuje
-wartość jako `tail=`. Runtime nie emituje podczas ogona żadnego rekordu.
 
 Dla przeplotu kompilator redukuje stosunek
 \\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\)
