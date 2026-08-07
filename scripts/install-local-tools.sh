@@ -29,10 +29,12 @@ Nic nie zmienia w systemie.
 
 Opcje:
   --install    instaluje narzędzia strony www:
-               1. brakujące pakiety systemowe (curl, tar) przez apt,
+               1. brakujące pakiety systemowe (curl, tar, python3) przez apt,
                2. najnowszy release mdBook z GitHuba,
                3. prebuilt binarkę mdbook-mermaid (bez instalowania Rusta),
-               4. uruchamia 'mdbook-mermaid install .' oraz 'mdbook build',
+               4. bibliotekę Pythona railroad-diagrams (generator diagramów
+                  składni — scripts/generate-railroad.sh),
+               5. uruchamia 'mdbook-mermaid install .' oraz 'mdbook build',
                   generując stronę www do katalogu book/
   --with-pdf   jak --install, plus toolchain PDF/EPUB z workflow:
                pandoc, texlive-xetex, texlive-lang-polish, texlive-latex-extra,
@@ -97,6 +99,15 @@ if [ "$DO_INSTALL" -eq 0 ]; then
   echo "Narzędzia strony www:"
   report mdbook mdbook || missing=1
   report mdbook-mermaid mdbook-mermaid || missing=1
+  echo "Generator diagramów railroad:"
+  report python3 python3 || missing=1
+  if python3 -c "import railroad" >/dev/null 2>&1; then
+    printf "  ${C_GREEN}[OK]${C_RESET}    %-14s %s\n" "railroad-diagrams" \
+      "$(python3 -c 'from importlib.metadata import version; print(version("railroad-diagrams"))' 2>/dev/null)"
+  else
+    printf "  ${C_RED}[BRAK]${C_RESET}  %s\n" "railroad-diagrams (biblioteka Pythona)"
+    missing=1
+  fi
   case ":$PATH:" in
     *":$INSTALL_DIR:"*) ;;
     *) printf "  ${C_RED}[UWAGA]${C_RESET} %s nie jest w PATH\n" "$INSTALL_DIR"; missing=1 ;;
@@ -129,8 +140,9 @@ apt_install() {
 
 # zależności bazowe
 need_pkgs=()
-command -v curl >/dev/null 2>&1 || need_pkgs+=(curl)
-command -v tar  >/dev/null 2>&1 || need_pkgs+=(tar)
+command -v curl    >/dev/null 2>&1 || need_pkgs+=(curl)
+command -v tar     >/dev/null 2>&1 || need_pkgs+=(tar)
+command -v python3 >/dev/null 2>&1 || need_pkgs+=(python3 python3-pip)
 if [ "${#need_pkgs[@]}" -gt 0 ]; then
   apt_install "${need_pkgs[@]}"
 fi
@@ -176,6 +188,24 @@ case ":$PATH:" in
   *) echo "UWAGA: $INSTALL_DIR nie jest w PATH — dodaj do ~/.bashrc: export PATH=\"$INSTALL_DIR:\$PATH\"" >&2 ;;
 esac
 
+# railroad-diagrams (biblioteka Pythona dla scripts/generate-railroad.sh)
+if python3 -c "import railroad" >/dev/null 2>&1; then
+  echo "railroad-diagrams już zainstalowany"
+else
+  python3 -m pip --version >/dev/null 2>&1 || apt_install python3-pip
+  if python3 -c "import sys; sys.exit(0 if sys.prefix != sys.base_prefix else 1)"; then
+    # aktywne środowisko wirtualne — instalujemy w nim (--user jest tam błędem)
+    python3 -m pip install railroad-diagrams
+  elif ! python3 -m pip install --user railroad-diagrams; then
+    echo "UWAGA: pip odmówił instalacji railroad-diagrams." >&2
+    echo "       W Debianie/Ubuntu z PEP 668 użyj środowiska wirtualnego:" >&2
+    echo "         python3 -m venv ~/.venv && source ~/.venv/bin/activate" >&2
+    echo "         python3 -m pip install railroad-diagrams" >&2
+    echo "       albo wymuś instalację do katalogu użytkownika:" >&2
+    echo "         python3 -m pip install --user --break-system-packages railroad-diagrams" >&2
+  fi
+fi
+
 # opcjonalnie: toolchain PDF/EPUB (kroki [skippdf] z workflow)
 if [ "$WITH_PDF" -eq 1 ]; then
   apt_install pandoc texlive-xetex texlive-lang-polish texlive-latex-extra \
@@ -197,3 +227,4 @@ mdbook build
 echo
 echo "Gotowe. Strona wyrenderowana w: $REPO_DIR/book/"
 echo "Podgląd na żywo:  mdbook serve --open   (z katalogu $REPO_DIR)"
+echo "Diagramy składni: scripts/generate-railroad.sh   (aktualizuje assets/railroad-*.svg)"
