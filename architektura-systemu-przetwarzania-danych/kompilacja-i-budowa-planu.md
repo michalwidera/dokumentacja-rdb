@@ -1,6 +1,6 @@
 # Kompilacja i budowa planu
 
-Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor. Argument w postaci pliku z sekwencją poleceń i zapytań jest wymagany. W oparciu o przepływ przedstawiony na Rys. 13 przygotowałem opis procesu Rys. 25 realizujący proces kompilacji w trybie rozwojowym. Proces kompilacji można wywołać nawet jak już jakiś inny proces xretractor funkcjonuje. Blokowanie jednej instancji procesu przetwarzania danych odnosi się tylko do procesu realizacji planu zapytania. Wywołanie kompilacji w tym przypadku, nawet jeśli funkcjonuje już ten proces w systemie nie zgłosi błędu. Próba uruchomienia kolejnego przetwarzania – tak.
+Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor, o ile podano plik z sekwencją poleceń i zapytań. Argument ten jest wymagany w trybie `-c` (tylko kompilacja) — bez niego nie ma czego kompilować; w trybie przetwarzania jego pominięcie uruchamia [tryb bezczynny](schemat-architektury.md), w którym etap kompilacji jest w całości pomijany. W oparciu o przepływ przedstawiony na Rys. 13 przygotowałem opis procesu Rys. 25 realizujący proces kompilacji w trybie rozwojowym. Proces kompilacji można wywołać nawet jak już jakiś inny proces xretractor funkcjonuje. Blokowanie jednej instancji procesu przetwarzania danych odnosi się tylko do procesu realizacji planu zapytania. Wywołanie kompilacji w tym przypadku, nawet jeśli funkcjonuje już ten proces w systemie nie zgłosi błędu. Próba uruchomienia kolejnego przetwarzania – tak.
 
 <figure><img src="../assets/schemat_procesu_kompilacji.png" width="100%" alt=""><figcaption><p>Rys. 25. Proces kompilacji</p></figcaption></figure>
 
@@ -99,4 +99,4 @@ Flagi trybu wykonania (bez `-c`):
 > Przy użyciu `-m N` w skryptach i testach zawsze dodawaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient (`xqry`) zdąży się podłączyć — klient nie otrzyma żadnych danych i będzie czekał do przekroczenia limitu czasowego. Flaga `-x` wstrzymuje przetwarzanie do nadejścia pierwszej komendy od `xqry`.
 
 
-Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/zalacznik-a-opcje-wywolania-xretractor.md).
+Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/opcje-wywolania/xretractor.md).

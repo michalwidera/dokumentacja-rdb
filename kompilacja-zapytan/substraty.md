@@ -244,16 +244,10 @@ Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje
 Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są przesunięte o ten sam czas fizyczny. Bez tego warunku przekształcenie nie jest równoważne i kompilator pozostawia pierwotny plan.
 
 Niech zredukowany stosunek \\(\Delta_a/\Delta_b\\) będzie równy \\(p/q\\).
-Własny ogon przeplotu chroni wszystkie fazy okresu, dlatego używa:
-
-\\[
-H_{a,b}
-=\max_{0\le j<p}\left(
-\left\lceil\frac{(j+1)q}{p}\right\rceil
--\left\lfloor\frac{jq}{p}\right\rfloor
-\right)
-=\left\lceil\frac{p+q-1}{p}\right\rceil
-\\]
+Ogon przeplotu chroni wszystkie fazy okresu \\(p+q\\), bo kompilator przegląda
+ten okres slot po slocie i bierze maksimum wymaganego opóźnienia — wzór
+i uzasadnienie w rozdziale [Formalne podstawy
+i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 Przesunięcie jest opóźnieniem realizacji przyczynowej: przesuwa **początek
 logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) — nie zmienia

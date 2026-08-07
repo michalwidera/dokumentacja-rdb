@@ -228,9 +228,7 @@ Metodyka K4 definiuje pięć profili, które należy zapisywać razem z wynikami
 | `STRUCT+R2` | ON | ON | ON | OFF |
 | `ALGSTRUCT` | ON | ON | ON | ON |
 
-`ALGSTRUCT` odpowiada domyślnej konfiguracji optymalizatora. Profile są
-zdefiniowane w `rdb-experiment/results_20260728_K4/profiles.tsv` i budowane
-przez skrypt `build_profiles.sh` z tego samego katalogu; źródłem prawdy
+`ALGSTRUCT` odpowiada domyślnej konfiguracji optymalizatora. Źródłem prawdy
 o konkretnej binarce pozostaje jej `--build-info`. Profile pośrednie zmieniają
 tylko jedną regułę względem `STRUCT`: `STRUCT+R1` włącza faktoryzację R1,
 a `STRUCT+R2` — kanonizację przemiennego `STREAM_ADD`.
@@ -243,12 +241,12 @@ i ogonów R1. Dwa dawne przypadki `WILL_FAIL` — inny wynik R1 bez faktoryzacji
 oraz dodatkowy rekord zerowego prefiksu — zostały usunięte wraz z ich
 przyczynami i nie są już dopuszczalnym wynikiem ablacji.
 
-Kampania K4 sprawdziła po 80 istniejących plików RQL w każdym profilu:
-75 kompilowało się poprawnie, a 5 historycznych lub celowo wadliwych fixture'ów
-stanowiło jawne oczekiwane odrzucenia. R1 zastosowano 5 razy w 5 dedykowanych
-testach regresyjnych; żaden istniejący przykład go nie aktywował. R2
-zastosowano 18 razy w 13 plikach, w tym w 4 przykładach. Wynik opisuje pokrycie
-tego korpusu, nie ogólny koszt ani zysk wydajnościowy reguł.
+Warianty ablacyjne służą wyłącznie kontroli poprawności: pozwalają sprawdzić,
+że wyłączenie pojedynczej reguły nie zmienia obserwowalnego wyniku, i że
+optymalizator nie ukrywa defektu, który ujawniłby się bez niego. Pomiary kosztu
+i zysku wydajnościowego poszczególnych reguł nie należą do tej dokumentacji —
+prowadzone są w osobnym repozytorium eksperymentalnym i raportowane w osobnej
+publikacji.
 
 ## Pakowanie
 

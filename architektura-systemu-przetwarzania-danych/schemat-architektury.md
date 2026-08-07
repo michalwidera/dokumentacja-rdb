@@ -23,4 +23,8 @@ Oprócz kierowania danych do wysyłki poprzez pamięć współdzieloną, system 
 > Przedstawiona na rysunku Baza danych to nie jest Relacyjna baza danych. Przez bazę danych na przedstawionym rysunku rozumiemy zbiór plików binarnych lub tekstowych, którymi zarządza RetractorDB. Dane pobierane są z urządzeń i zapisywane w rotujących lub nie plikach binarnych lub tekstowych. Dostęp do tych danych realizowany jest za pomocą narzędzia xtrdb lub w trakcie działania systemu przez proces xqry.
 
 
-Plik z zapytaniami i dyrektywami RQL podaje się jako wymagany, pierwszy argument polecenia uruchamiającego system. Takie zachowanie prawdopodobnie ulegnie w przyszłości zmianie – system docelowo powinien uruchomić się jako usługa i oczekiwać od operatora pliku z dyrektywami. Na chwilę obecną system jednak uruchamiamy z wkładem inicjującym. Jak chcemy coś dołożyć w trakcie pracy, odsyłam do rozdziału pt. Zapytania Ad hoc.
+Plik z zapytaniami i dyrektywami RQL podaje się jako pierwszy argument polecenia uruchamiającego system. Argument ten jest **opcjonalny**: wywołanie `xretractor` bez pliku zapytań uruchamia **tryb bezczynny (idle)** — proces wstaje, zajmuje blokadę usługi, otwiera kanał IPC i czeka, nie budując planu ani siatki czasu. Dzięki temu jednostka systemd może wstać razem z systemem operacyjnym, zanim operator dostarczy zestaw zapytań. Wyjątkiem jest tryb `--onlycompile`, gdzie brak pliku pozostaje błędem — nie ma czego kompilować.
+
+Zestaw zapytań dołącza się później dwiema drogami: poleceniem `xqry -a` (patrz rozdział [Zapytania Ad hoc](../realizacja-zapytan/zapytania-ad-hoc.md), z ograniczeniem do `SELECT`) albo przez przekazanie usłudze pliku zapytań i jej restart — ta druga droga jest jedyną, która wnosi dyrektywy `RULE`, `STORAGE` i `SUBSTRAT`.
+
+> **_NOTE:_** Tryb idle ma pokrycie w teście `service_idle` (warianty z flagą `--service` i ze zmienną `XRETRACTOR_SERVICE`).

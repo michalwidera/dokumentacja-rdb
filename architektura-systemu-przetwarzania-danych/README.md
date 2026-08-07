@@ -22,7 +22,7 @@ Które ścieżki danych są zawsze aktywne (napływ danych → xretractor → ar
 
 Kluczowy podział taksonomiczny systemu. Każdy typ strumienia ma inne przeznaczenie i inną strategię składowania: artefakty materializowane na dysku jako trwały wynik, substraty to strumienie pośrednie niezbędne podczas obliczeń, efemerydy — ulotne źródła danych, których nie można ani nie warto przechowywać.
 
-### [Format zapisu danych](format-zapisu-danych.md)
+### [Format zapisu danych](format-zapisu-danych/readme.md)
 
 Czteroplikowa struktura artefaktu: plik binarny z danymi (stałej długości rekordy, brak nagłówka), deskryptor `.desc` opisujący schemat rekordu w gramatyce ANTLR4, plik metadanych `.meta` z indeksem wartości null i przerw w transmisji (kodowanie RLE), opcjonalny plik cienia `.shadow` do niedestruktywnej modyfikacji historycznych rekordów. Deskryptor określa strategię składowania przez pole `TYPE`.
 

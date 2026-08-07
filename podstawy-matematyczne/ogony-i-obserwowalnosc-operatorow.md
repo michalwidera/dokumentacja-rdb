@@ -30,7 +30,7 @@ wyniku.
 | projekcja / `PUSH_STREAM` | bieżąca krotka | \\(O_S\\) | 0 | `ut_compiler` |
 | przesunięcie `>N` | rekord \\(n-N\\) | \\(O_S+N\\) | \\(-N\\), patrz niżej | `ut_compiler`, `ut_h10aGate` |
 | suma `+` | bieżące współindeksowane krotki | próg odwzorowania | 0 | `ut_compiler` |
-| przeplot `#` | maksimum faz \\(H_{a,b}\\) | próg odwzorowania | \\(H_{a,b}\\) | `deinterleave_roundtrip` |
+| przeplot `#` | rekord \\(j(i)\\) składowej wybranej w slocie \\(i\\) | próg odwzorowania | wzór niżej | `deinterleave_roundtrip`, `ut_h10aGate` |
 | lewy rozplot `&` (`DIV`) | \\(n+\lceil(n+1)\Delta_a/\Delta_b\rceil\\) | próg odwzorowania | 1 | `deinterleave_roundtrip` |
 | prawy rozplot `%` (`MOD`) | \\(n+\lfloor n\Delta_b/\Delta_a\rfloor\\) | próg odwzorowania | 0 | `deinterleave_roundtrip` |
 | różnica `C-Delta` | \\(\lceil n\Delta/\Delta_C\rceil\\) | próg odwzorowania | fazowy, najwyżej 1 przy \\(\Delta\ge\Delta_C\\) | `it_k19_boundaries` |
@@ -53,6 +53,31 @@ od interwału źródła \\(\Delta_C\\). Dla stosunku
 jednego slotu również w fazie całkowitej, ponieważ publikuje następny rekord
 po odczycie konsumentów w tym samym takcie.
 
+## Ogon przeplotu
+
+Przeplot jest jedynym operatorem, którego ogon nie rozkłada się na „przeliczone
+ogony producentów plus stała własna". Rekord \\(i\\) niesie treść rekordu
+\\(j(i)\\) tylko jednej ze składowych — tej, którą w slocie \\(i\\) wybiera
+definicja operatora — więc wymagane opóźnienie zależy od tego, na którą
+składową i na którą jej fazę wypada dany slot:
+
+\\[
+W_{\\#}
+=\max_{0\le i<p+q}\left(
+\left\lceil\frac{\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}}{\Delta_c}\right\rceil
+-1-i
+\right),
+\qquad \frac{\Delta_a}{\Delta_b}=\frac{p}{q},\quad \gcd(p,q)=1
+\\]
+
+Wybór składowej i faza powtarzają się z okresem \\(p+q\\), więc maksimum po
+jednym okresie jest maksimum po wszystkich rekordach; początek logiczny
+przesuwa oba indeksy o tyle samo i nie zmienia wyniku. Wzór jest dokładny.
+Poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\) chroniła najgorszą fazę
+odczytu drugiego argumentu, ale nie sprawdzała, czy ta faza wypada na rekord
+czekający najdłużej — zawyżała więc ogon o slot. Pozostaje w implementacji jako
+wariant awaryjny dla bardzo długich okresów, gdzie przegląd byłby zbyt kosztowny.
+
 ## Przesunięcie \\(\tau_N\\)
 
 Rekord \\(n\\) niesie treść rekordu \\(n-N\\) producenta. Stąd obie wielkości:
@@ -72,8 +97,7 @@ pochłania ogon producenta, gdy \\(N\ge W_S\\).
 Suma \\(O+W\\) nie jest przy tym niezmiennikiem: dla \\(N<W_S\\) wynosi
 \\(N+W_S-N=W_S\\) po lewej, a była \\(W_S+N\\) w realizacji sprzed
 rozdzielenia wielkości. Wcześniejsza realizacja zawyżała ogon o
-\\(\min(W_S,N)\\); zawyżenie zmierzono na 6,6% węzłów klasy `>N` w kampanii
-`rdb-experiment/results_20260807_K24p` i zdjęto, adresując producenta indeksem
+\\(\min(W_S,N)\\); zawyżenie zdjęto, adresując producenta indeksem
 logicznym zamiast offsetem względnym.
 
 ## Pełne okno AGSE
@@ -177,7 +201,7 @@ nieokreślone, a pojemność historii zachowuje każdy wymagany indeks. Test
 `it_k19_boundaries` rozróżnia ten przypadek od prawdziwego `NULL` znajdującego
 się wewnątrz pełnego okna.
 
-Niezależny oracle i pełne kampanie faz znajdują się w
-`rdb-experiment/results_20260728_K19` (granice operatorów) oraz
-`rdb-experiment/results_20260807_K24p` (rozdzielenie początku logicznego
-i ogona, dziewięć klas operatorów, dwa ziarna).
+Wzory operatorowe z tego rozdziału są egzekwowane przy każdym commicie: granice
+i obserwowalność przez `it_k19_boundaries`, głębokości historii przez
+`it_k24_capacity`, a zgodność początku logicznego i ogona dla klas `@` oraz `>`
+przez test jednostkowy `ut_h10aGate`.

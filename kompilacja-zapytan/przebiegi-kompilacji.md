@@ -171,23 +171,30 @@ Aplikuje obliczone pojemności do obiektów strumieni.
 
 Dla przeplotu kompilator redukuje stosunek
 \\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\)
-i dodaje fazowo bezpieczne własne wyprzedzenie:
+i przegląda **jeden pełny okres fazowy** \\(p+q\\). Dla każdego slotu
+\\(i\\) tego okresu ustala, którą składową wybiera przeplot i pod jakim
+indeksem \\(j(i)\\), po czym bierze maksimum wymaganego opóźnienia:
 
 \\[
-H_{a,b}
-=\max_{0\le j<p}\left(
-\left\lceil\frac{(j+1)q}{p}\right\rceil
--\left\lfloor\frac{jq}{p}\right\rfloor
+W_{\\#}
+=\max_{0\le i<p+q}\left(
+\left\lceil\frac{\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}}{\Delta_c}\right\rceil
+-1-i
 \right)
-=\left\lceil\frac{p+q-1}{p}\right\rceil
 \\]
 
-Postać zamknięta jest obliczana z 64-bitowym wynikiem pośrednim.
-Wcześniejsze \\(\lceil\Delta_b/\Delta_a\rceil=\lceil q/p\rceil\\)
-zabezpieczało tylko pierwszą fazę drugiego wejścia. Regresje obejmują między
-innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\) i \\(160/147\\), w tym
-okresowe rekordy w całości `NULL` w nieprzepisanej lewej stronie tożsamości
-R1.
+Wynik jest dokładny — ani nie zaniża, ani nie zawyża granicy przyczynowej.
+Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn
+\\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int`
+już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit`
+(`SOperations.hpp`) koszt przeglądu przestaje być akceptowalny i wraca
+poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\), która zawyża ogon
+o slot — wybór bezpieczny, bo zaniżenie oznaczałoby emisję rekordu przed
+określeniem jego zależności.
+
+Regresje obejmują między innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\)
+i \\(160/147\\), w tym okresowe rekordy w całości `NULL` w nieprzepisanej
+lewej stronie tożsamości R1; wzór operatorowy pilnuje test `ut_h10aGate`.
 
 #### topologicalSort
 

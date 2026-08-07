@@ -6,7 +6,9 @@ Przez rotację plików rozumiemy kontrolowane zamykanie bieżącego zestawu plik
 
 ## Domyślne zachowanie (bez dyrektywy `ROTATION`)
 
-Bez dyrektywy `ROTATION` w skrypcie RQL, `xretractor` przy każdym starcie **usuwa** pliki artefaktów (dane binarne, `.desc`, `.meta`) i zaczyna rejestrację od nowa. Pliki deklaracji (`DECLARE`) oraz efemerydy nie są usuwane — nie mają plików na dysku.
+Bez dyrektywy `ROTATION` w skrypcie RQL, `xretractor` przy każdym starcie **usuwa** pliki artefaktów (dane binarne, `.desc`, `.meta`) i zaczyna rejestrację od nowa.
+
+Rotacja i usuwanie nie dotyczą efemerydów (`DECLARE`). Nie znaczy to, że efemeryda nie ma żadnego pliku: jej źródło danych (plik tekstowy, urządzenie) jest zewnętrzne wobec systemu i nietykalne, a obok niego powstaje deskryptor `.desc` opisujący schemat odczytu — `storage::attachDescriptor()` zapisuje go dla każdego strumienia, także deklarowanego. Efemeryda nie dostaje natomiast indeksu `.meta`: fabryka `makeMetaIndex()` wstrzykuje dla źródeł deklarowanych wariant **inertny** (`metaData` z pustą ścieżką pliku), który utrzymuje wzorce null w pamięci i nie wykonuje żadnego I/O. Jest to więc brak persystencji metadanych, nie brak samego obiektu indeksu.
 
 ## Dyrektywa `ROTATION` i licznik sesji
 
@@ -33,7 +35,7 @@ sequenceDiagram
 
     Note over RQL: start sesji N, percounter = N
     RQL->>D: detectStartupState(): dane puste, meta niepusta → rotacja
-    RQL->>Old: metaDataStream::rotate(N): rename .meta → .meta.oldN
+    RQL->>Old: metaData::rotate(N): rename .meta → .meta.oldN
     RQL->>M: nowy pusty plik .meta
 
     Note over RQL: praca — zapis rekordów
@@ -48,7 +50,7 @@ sequenceDiagram
 
 _Rys. 24. Sekwencja rotacji plików — start i stop sesji_
 
-Rotacja pliku `.meta` następuje **przy starcie** sesji N — `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaDataStream::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
+Rotacja pliku `.meta` następuje **przy starcie** sesji N — `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaData::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
 
 ## Co trafia do plików `.old<N>`
 

@@ -8,6 +8,36 @@ W trakcie rozwoju systemu pojawiły się jednak dodatkowe scenariusze, zakładaj
 
 Na Rys. 47 przedstawiono opisany powyżej przepływ sterowania. Plik z zapytaniami i dyrektywami najpierw jest kierowany do procesu xretractor. Następnie poprzez pamięć współdzieloną proces xqry pobiera dane z xretractor. Tym samym procesem możemy wysłać do procesu xretractor polecenie. W tym poleceniu zawieramy tekst dodatkowego zapytania, które xretractor powinien dołączyć do przetwarzanego drzewa.
 
+### Co można dołączyć w locie
+
+Kanałem ad hoc przyjmowane jest **wyłącznie polecenie `SELECT`**. Wszystkie
+źródła danych muszą już istnieć w planie — dołożenie nowej deklaracji
+w działającym systemie nie jest obsługiwane i kończy się odpowiedzią:
+
+```
+$ xqry -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
+rcv: db Fail parse: AdHoc DECLARE not supported
+```
+
+Powód jest wykonawczy, nie składniowy: deklaracja dodana w locie nie
+otrzymuje runtime'owej bazy indeksu logicznego (pętla przetwarzania pomija
+deklaracje przy jej wyznaczaniu), więc pierwszy odczyt takiego strumienia przez
+dowolny operator byłby odczytem spoza zdefiniowanego zakresu. Ograniczenie
+zniknie, gdy ad-hoc `DECLARE` dostanie własną ścieżkę wyznaczania bazy.
+
+### Kiedy zaczyna się strumień dołożony ad hoc
+
+Plan zbudowany od początku pracy systemu numeruje rekordy od początku
+logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma
+takiej przeszłości — jego pierwszym rekordem jest **pierwszy slot, w którym
+runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy:
+skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym
+zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet
+jeśli nowe zapytanie wnosi do systemu nowe tempo.
+
+> **_NOTE:_** Zachowanie to ma pokrycie w teście `issue227_join_alignment`
+> (przypadek `adhoc-origin`).
+
 ### Przykład
 
 Przykład rozpoczniemy od przygotowania prostego zapytania:

@@ -25,14 +25,15 @@ Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementacj�
 
 ## Zestaw plików artefaktu i substratu
 
-Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie czterema plikami:
+Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie pięcioma plikami:
 
 | Plik                  | Rozszerzenie         | Cel                                                       |
 | --------------------- | -------------------- | --------------------------------------------------------- |
 | Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów — append-only                    |
 | Plik deskryptora      | `.desc`              | Schemat rekordu (pola, typy, rozmiary, typ składowania)   |
 | Plik metadanych       | `.meta`              | Indeks wartości null i przerw w transmisji (RLE)          |
-| Plik cienia           | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
+| Plik cienia danych    | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
+| Plik cienia indeksu   | `.meta.shadow`       | Nadpisania wzorców null towarzyszące `.shadow`            |
 
 ```mermaid
 %% pdf-width: 70%
@@ -40,23 +41,27 @@ graph TD
   D[".desc: deskryptor (schemat rekordu)"]
   B["Plik danych binarnych (rekordy N×R bajtów)"]
   M[".meta: metadane (indeks null i przerw)"]
-  S[".shadow: plik cienia (modyfikacje rekordów)"]
+  S[".shadow: plik cienia danych (modyfikacje rekordów)"]
+  MS[".meta.shadow: cień indeksu (nadpisania null)"]
 
     D -->|"opisuje strukturę"| B
     B -->|"towarzyszący indeks"| M
     B -->|"opcjonalne nadpisania"| S
+    S -.->|"para spójności"| MS
+    M -->|"nadpisania wzorców"| MS
 
     style S fill:#f9c,color:#000
+    style MS fill:#f9c,color:#000
     style M fill:#cdf,color:#000
 ```
 
 _Rys. 14. Zestaw plików artefaktu i ich powiązania_
 
-Diagram na Rys. 14 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, a `.shadow` przechowuje opcjonalne nadpisania rekordów.
+Diagram na Rys. 14 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, `.shadow` przechowuje opcjonalne nadpisania rekordów, a `.meta.shadow` — odpowiadające im nadpisania wzorców null. Dwa pliki cienia zawsze idą w parze.
 
-Plik cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
+Pliki cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
-Efemerydy **nie posiadają żadnych plików na dysku** — istnieją wyłącznie w pamięci operacyjnej procesu i znikają po jego zakończeniu.
+Efemerydy **nie mają własnego pliku danych** — ich źródłem jest obiekt zewnętrzny (plik tekstowy, urządzenie), którego system nie tworzy ani nie usuwa. Powstaje dla nich natomiast deskryptor `.desc` opisujący schemat odczytu. Indeks `.meta` nie powstaje: dla źródeł deklarowanych wstrzykiwany jest inertny wariant indeksu metadanych, działający wyłącznie w pamięci.
 
 ***
 

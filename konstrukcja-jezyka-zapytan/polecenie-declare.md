@@ -82,5 +82,5 @@ Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życ
 
 > **ℹ️ Info**
 >
-> Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaDataStream`.
+> Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaData`.
 

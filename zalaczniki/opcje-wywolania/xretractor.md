@@ -109,6 +109,50 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 
 ---
 
+## Plik konfiguracyjny (TOML)
+
+Opcja `--config` wskazuje plik konfiguracyjny; bez niej program przeszukuje warstwowo dwie lokalizacje, w podanej kolejności, a każda kolejna warstwa nadpisuje klucze poprzedniej:
+
+1. `/etc/retractor/retractor.toml` — warstwa systemowa,
+2. `$XDG_CONFIG_HOME/retractor/retractor.toml` (lub `~/.config/retractor/retractor.toml`) — warstwa użytkownika.
+
+Brak plików jest **stanem poprawnym** — program startuje z wartościami domyślnymi. Błąd składni TOML w warstwie wyszukiwanej powoduje ostrzeżenie i pominięcie tej warstwy; przy jawnie podanej ścieżce (`--config`) brak pliku lub błąd składni są twarde, bo stanowią jawne żądanie użytkownika. Ten sam plik czyta również `xqry` (pod skrótem `-e`), dlatego sekcje `[ipc]` i `[timing]` dotyczą obu procesów.
+
+| Klucz | Domyślnie | Znaczenie |
+| ----- | --------- | --------- |
+| `storage.dir` | _(brak)_ | Domyślny katalog artefaktów. Stosowany **tylko** gdy zestaw RQL nie zawiera dyrektywy `:STORAGE` — RQL ma pierwszeństwo. Katalog musi istnieć i być zapisywalny, inaczej program kończy się błędem `Configuration error: storage.dir …`. |
+| `ipc.queue_buffer_seconds` | `10` | Głębokość kolejki IPC wyrażona w sekundach strumienia; liczba elementów to `sekundy / interwał`. |
+| `ipc.min_queue_elements` | `100` | Dolna granica pojemności kolejki, niezależna od interwału strumienia. |
+| `ipc.client_response_max_fails` | `300` | Liczba prób odczytu odpowiedzi z pamięci współdzielonej przez `xqry`. Efektywny czas oczekiwania to iloczyn tej wartości i interwału odpytywania. |
+| `timing.server_startup_wait_s` | `30` | Maksymalny czas oczekiwania `xqry --wait-server` na gotowość serwera. |
+| `timing.server_startup_poll_ms` | `100` | Interwał odpytywania podczas oczekiwania na start serwera. |
+| `timing.query_no_data_timeout_ms` | `10000` | Czas braku danych, po którym klient `xqry` uznaje serwer za martwy. |
+| `scheduling.rt_priority` | `50` | Priorytet `SCHED_FIFO` w trybie `--realtime`; dopuszczalny zakres 1–99. |
+| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na plik blokady singletonu. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. |
+| `service.query_file` | _(wartość z konfiguracji budowania)_ | Plik zapytań nadpisywany przy przekazaniu zestawu działającej usłudze. Używany wyłącznie jako zapasowy, gdy usługa nie zaraportowała własnego `QUERYFILE` w pliku blokady. Musi być zgodny z argumentem `ExecStart` jednostki systemd — konfiguracja nie zmienia `ExecStart`. |
+
+Wartości spoza sensownego zakresu nie zatrzymują usługi: program zapisuje ostrzeżenie w dzienniku i używa wartości domyślnej. Wyjątkiem jest `storage.dir`, którego niepoprawność jest błędem twardym — wskazywałaby, że wyniki trafiłyby w niezamierzone miejsce lub nigdzie.
+
+Przykładowy plik:
+
+```toml
+[storage]
+dir = "/var/lib/retractor"
+
+[ipc]
+queue_buffer_seconds = 30
+
+[scheduling]
+rt_priority = 60
+
+[paths]
+lock_dir = "/var/run/retractor"
+```
+
+> **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir` — test integracyjny `config_storage_validation`.
+
+---
+
 ## Informacje o wersji
 
 Na końcu każdego komunikatu pomocy wyświetlana jest linia z informacjami o buildzie:

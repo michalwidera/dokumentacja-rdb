@@ -1,10 +1,10 @@
 # Podsumowanie: uzasadnienie przyjętej struktury
 
-Rozdział zbiera wnioski z wszystkich części dokumentacji formatu zapisu danych i wyjaśnia, dlaczego przyjęta struktura czterech plików jest minimalna i wystarczająca dla systemu rejestracji serii czasowych działającego w czasie rzeczywistym.
+Rozdział zbiera wnioski z wszystkich części dokumentacji formatu zapisu danych i wyjaśnia, dlaczego przyjęta struktura plików jest minimalna i wystarczająca dla systemu rejestracji serii czasowych działającego w czasie rzeczywistym.
 
 ## Zestaw plików i typy akcesorów
 
-Każdy artefakt lub substrat składa się z maksymalnie czterech plików — plik danych binarnych, deskryptor `.desc`, indeks `.meta` i plik cienia `.shadow`. Pole `TYPE` w deskryptorze wybiera implementację `FileInterface`: `DEFAULT` (dane + cień + retencja), `MEMORY` (wyłącznie RAM, efemerydy), `DEVICE` / `TEXTSOURCE` (zewnętrzne źródła tylko do odczytu) i warianty pośrednie. Wybór akcesora następuje raz przy inicjalizacji `storage` — logika zapytań RQL nie zna szczegółów składowania.
+Każdy artefakt lub substrat składa się z maksymalnie pięciu plików — plik danych binarnych, deskryptor `.desc`, indeks `.meta`, plik cienia danych `.shadow` i plik cienia indeksu `.meta.shadow`. Dwa ostatnie tworzą parę: cień danych zachowuje oryginalną zarejestrowaną treść, a cień indeksu — odpowiadające jej wzorce null, dzięki czemu korekta rekordu nie rozspójnia danych z metadanymi. Pole `TYPE` w deskryptorze wybiera implementację `FileInterface`: `DEFAULT` (dane + cień + retencja), `MEMORY` (wyłącznie RAM, efemerydy), `DEVICE` / `TEXTSOURCE` (zewnętrzne źródła tylko do odczytu) i warianty pośrednie. Wybór akcesora następuje raz przy inicjalizacji `storage` — logika zapytań RQL nie zna szczegółów składowania.
 
 ## Pliki artefaktu
 
@@ -12,9 +12,11 @@ Każdy artefakt lub substrat składa się z maksymalnie czterech plików — pli
 
 **Plik danych binarnych** to płaska sekwencja rekordów stałej długości `R` bez nagłówka. Rekord `i` leży zawsze na offsecie `i × R`. Operacja `append` dopisuje na koniec; operacja `update` — przy obecnym `.shadow` — trafia do pliku cienia, nie nadpisuje pliku głównego.
 
-**Plik metadanych (`.meta`)** przechowuje kompresowany RLE indeks wartości null i przerw w transmisji. Każdy wpis RLE opisuje ciąg kolejnych rekordów z identycznym wzorcem null: flagę `isGap`, liczbę rekordów `recordCount`, rozmiar bitset i sam bitset. Przerwa w transmisji (`gap`) istnieje wyłącznie w `.meta` — plik binarny jej nie rejestruje i pozostaje gęsty. Klasą zarządzającą jest `rdb::metaDataStream`: buforuje bieżący segment w `currentEntry_`, zapisuje segment na dysk tylko przy zmianie wzorca, a mechanizm `tailDirty_` zapewnia, że rozmiar pliku nie rośnie przy ciągłym napływie jednorodnych danych. Po restarcie `loadIndex()` odtwarza stan i przenosi ostatni niegapowy segment z powrotem do pamięci, umożliwiając kontynuację RLE.
+**Plik metadanych (`.meta`)** przechowuje kompresowany RLE indeks wartości null i przerw w transmisji. Każdy wpis RLE opisuje ciąg kolejnych rekordów z identycznym wzorcem null: flagę `isGap`, liczbę rekordów `recordCount`, rozmiar bitset i sam bitset. Przerwa w transmisji (`gap`) istnieje wyłącznie w `.meta` — plik binarny jej nie rejestruje i pozostaje gęsty. Klasą zarządzającą jest `rdb::metaData`: buforuje bieżący segment w `currentEntry_`, zapisuje segment na dysk tylko przy zmianie wzorca, a stan `DiskTailState` (leniwe nadpisanie ostatniego wpisu na dysku) zapewnia, że rozmiar pliku nie rośnie przy ciągłym napływie jednorodnych danych. Po restarcie `loadIndex()` odtwarza stan i przenosi ostatni niegapowy segment z powrotem do pamięci, umożliwiając kontynuację RLE. Samo I/O pliku realizuje `MetaIndexStore`, a wykrywanie przerw — `GapDetector`.
 
 **Plik cienia (`.shadow`)** gromadzi modyfikacje rekordów jako sekwencję wpisów `(position, data)`. Odczyt rekordu sprawdza `.shadow` od końca (najnowsza modyfikacja wygrywa), przy braku wpisu czyta z pliku głównego. Usunięcie `.shadow` w pełni przywraca stan wyjściowy. Operacja `merge()` przepisuje poprawki do pliku głównego i zeruje plik cienia.
+
+**Plik cienia indeksu (`.meta.shadow`)** jest odpowiednikiem `.shadow` na poziomie wzorców null. Powstaje dla magazynów utrzymujących cień danych: fabryka `makeMetaIndex()` wstrzykuje wtedy do `storage` obiekt `storageShadow` zamiast bazowego `metaData`, a ten kieruje aktualizacje do pola typu `metaShadow`. Bez tego pliku korekta rekordu zmieniałaby jego wzorzec null w `.meta` mimo że oryginalna treść nadal leży nietknięta w pliku głównym — para „dane ↔ metadane" rozjechałaby się przy pierwszym `merge()` lub odrzuceniu cienia.
 
 ## Mechanizm rotacji
 

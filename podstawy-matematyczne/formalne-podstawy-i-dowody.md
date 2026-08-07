@@ -276,33 +276,42 @@ Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
 :=\left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
 \\]
 
-Dla przeplotu o interwale
-\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) ogon wynosi:
+Ogon przeplotu o interwale
+\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) wyprowadza się wprost
+z definicji operatora, bez pośrednictwa jednego członu fazowego.
+
+Rekord \\(i\\) strumienia \\(\varphi(A,B)\\) niesie treść rekordu \\(j(i)\\)
+jednej ze składowych — tej, którą w slocie \\(i\\) wybiera definicja przeplotu.
+Oznaczmy przez \\(\Delta_{s(i)}\\) i \\(W_{s(i)}\\) interwał oraz ogon wybranej
+składowej. Rekord \\(j(i)\\) jest określony w chwili
+\\(\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}\\), a slot \\(i\\) konsumenta kończy
+się w chwili \\((i+1+W)\Delta_c\\). Warunek przyczynowości dla każdego \\(i\\):
+
+\\[
+W\ge
+\left\lceil\frac{\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}}{\Delta_c}\right\rceil
+-1-i
+\\]
 
 Niech \\(\Delta_a/\Delta_b=p/q\\), gdzie \\(p,q\in\mathbb{N}_{>0}\\)
-i \\(\gcd(p,q)=1\\). W fazie drugiego argumentu o numerze \\(j\\) wymagane
-wyprzedzenie przyczynowe wynosi:
+i \\(\gcd(p,q)=1\\). Zarówno wybór składowej, jak i reszta wyznaczająca
+\\(j(i)\\) powtarzają się z okresem \\(p+q\\), więc maksimum prawej strony po
+**jednym** okresie jest maksimum po wszystkich rekordach:
 
 \\[
-h_j
-:=\left\lceil\frac{(j+1)q}{p}\right\rceil
--\left\lfloor\frac{jq}{p}\right\rfloor,
-\qquad 0\le j<p
+W_{\varphi(A,B)}
+=\max_{0\le i<p+q}\left(
+\left\lceil\frac{\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}}{\Delta_c}\right\rceil
+-1-i
+\right)
 \\]
 
-Własny ogon przeplotu musi zabezpieczyć najgorszą fazę całego okresu:
+Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej dla
+żadnego węzła. Przegląd okresu zaczyna się od zera — początek logiczny przesuwa
+indeks konsumenta i indeks składowej o tę samą liczbę slotów, więc okno
+\\([0,\,p+q)\\) daje tę samą wartość co okno przesunięte.
 
-\\[
-H_{a,b}
-:=\max_{0\le j<p}h_j
-=\left\lceil\frac{p+q-1}{p}\right\rceil
-\\]
-
-Rozpisanie \\(q=mp+r\\) i wykorzystanie faktu, że dla względnie pierwszych
-\\(p,q\\) reszty \\(jq\bmod p\\) przebiegają wszystkie klasy reszt w jednym
-okresie, daje powyższą postać zamkniętą. W szczególności samo
-\\(\lceil\Delta_b/\Delta_a\rceil=\lceil q/p\rceil\\) zabezpiecza pierwszy
-odczyt B, lecz nie zawsze najgorszą późniejszą fazę.
+Wcześniejsza postać zamknięta
 
 \\[
 W_{\varphi(A,B)}
@@ -310,12 +319,18 @@ W_{\varphi(A,B)}
 \operatorname{conv}(W_A,\Delta_a,\Delta_c),
 \operatorname{conv}(W_B,\Delta_b,\Delta_c)
 +H_{a,b}
-\right)
+\right),
+\qquad
+H_{a,b}=\left\lceil\frac{p+q-1}{p}\right\rceil
 \\]
 
-Składnik \\(H_{a,b}\\) jest fazowo bezpiecznym własnym wyprzedzeniem
-przyczynowym przeplotu względem drugiego argumentu. Sloty ogona nie są
-rekordami.
+zabezpieczała najgorszą fazę odczytu drugiego argumentu, ale nie sprawdzała,
+czy ta faza w ogóle wypada na rekord czekający najdłużej — dlatego zawyżała
+ogon o slot dla części węzłów. Pozostała w implementacji jako wariant awaryjny
+dla \\(p+q\\) powyżej progu przeglądu (`kHashPhaseScanLimit` w
+`SOperations.hpp`): zawyżenie kosztuje jeden slot opóźnienia, podczas gdy
+zaniżenie oznaczałoby rekord wyemitowany przed określeniem jego zależności.
+Sloty ogona nie są rekordami.
 
 Przesunięcie \\(\tau_m\\) nie zmienia emitowanego ciągu rekordów, ale zmienia
 **indeks**, pod którym ten ciąg się pojawia: rekord \\(n\\) niesie treść rekordu
@@ -423,11 +438,11 @@ a ponieważ \\(W_{\mathrm{LHS}}\ge 0\\), zachodzi
 > część wartościową obserwacji i nigdy nie emituje rekordu przed określeniem
 > jego zależności, ale wynik jest gotowy wcześniej.
 >
-> Do 2026-08-07 obie strony miały ten sam ogon wyłącznie dlatego, że realizacja
-> \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zmierzono
-> w kampanii `rdb-experiment/results_20260807_K24p` (6,6% węzłów klasy `>N`)
-> i zdjęto, adresując producenta indeksem logicznym. Regresje strzegące tego
-> zakresu: `it_r1_identity_nulls`, `it_optimizer_ablation-factor-name-collision-semantic`.
+> Wcześniej obie strony miały ten sam ogon wyłącznie dlatego, że realizacja
+> \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zdjęto,
+> adresując producenta indeksem logicznym zamiast offsetem względnym. Regresje
+> strzegące tego zakresu: `it_r1_identity_nulls`,
+> `it_optimizer_ablation-factor-name-collision-semantic`.
 
 W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych
 strumieni, mapy wartości pustych i politykę materializacji.

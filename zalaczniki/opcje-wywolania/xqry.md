@@ -43,7 +43,7 @@ Allowed options:
 | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `-s` / `select arg`     | Odbiera dane z podanego strumienia udostępnianego przez `xretractor`.                                       |
 | `-t` / `detail arg`     | Wyświetla szczegółowe informacje o strumieniu: nazwę, delta, treść zapytania i listę pól z typami (YAML).   |
-| `-a` / `adhoc arg`      | Dołącza zapytanie do systemu w trakcie jego działania (tryb ad hoc).                                        |
+| `-a` / `adhoc arg`      | Dołącza zapytanie do systemu w trakcie jego działania (tryb ad hoc). Przyjmowane jest wyłącznie polecenie `SELECT` — `DECLARE` jest odrzucany komunikatem `Fail parse: AdHoc DECLARE not supported`. Patrz: [Zapytania Ad hoc](../../realizacja-zapytan/zapytania-ad-hoc.md). |
 | `-m` / `elimitqry arg`  | Ogranicza liczbę odebranych wyników. Wartość `0` oznacza brak limitu. Szczególnie przydatne z opcją `-k`.   |
 | `-n` / `null`           | Pomija wiersze, w których wszystkie pola mają wartość null. Przydatne przy strumieniach z lukami pomiarowymi — eliminuje szum w wyjściu bez filtrowania po stronie klienta. |
 
