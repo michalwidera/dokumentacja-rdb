@@ -109,8 +109,8 @@ wstawia ani zer, ani zastępczych rekordów all-null.
 Operację przesunięcia definiujemy jako **opóźnienie** realizacji przyczynowej:
 
 \\[
-\tau_{m}\left(\widehat{S}\right)
-:= \left((s_n,\Delta),W_S+m\right), \qquad m\in\mathbb{N}
+\tau_{m}\left(\widehat{S}\right) :=
+\left((s_n,\Delta),W_S+m\right), \qquad m\in\mathbb{N}
 \\]
 
 Przesunięcie o m próbek odsuwa pierwszą i każdą kolejną emisję o czas m·∆,

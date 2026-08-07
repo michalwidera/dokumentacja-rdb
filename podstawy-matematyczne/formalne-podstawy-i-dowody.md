@@ -272,8 +272,8 @@ W realizacji przyczynowej strumień ma postać
 Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
 
 \\[
-\operatorname{conv}(w,\Delta_s,\Delta_o)
-:=\left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
+\operatorname{conv}(w,\Delta_s,\Delta_o):=
+\left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
 \\]
 
 Ogon przeplotu o interwale
