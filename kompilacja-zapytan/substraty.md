@@ -255,8 +255,9 @@ H_{a,b}
 =\left\lceil\frac{p+q-1}{p}\right\rceil
 \\]
 
-Przesunięcie jest opóźnieniem realizacji przyczynowej: zwiększa ogon startowy
-`W`, ale nie zmienia ciągu rekordów i nie wstawia prefiksu. Dla
+Przesunięcie jest opóźnieniem realizacji przyczynowej: przesuwa **początek
+logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) — nie zmienia
+ciągu rekordów i nie wstawia prefiksu. Dla
 \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje
 dokładnie:
 
@@ -266,10 +267,20 @@ dokładnie:
 =i+k
 \\]
 
-Dlatego przeliczone ogony obu wejść po lewej stronie rosną o `i+k` slotów
-wyjścia. Ten sam składnik \\(H_{a,b}\\) występuje po obu stronach, więc ogon
-przeplotu po prawej stronie rośnie dokładnie tak samo. Reguła zachowuje nie
-tylko emitowany ciąg i interwał, lecz także `tail=`.
+Dlatego przesunięcie każdego wejścia odpowiada tej samej liczbie `i+k` slotów
+wyjścia i początek logiczny obu stron jest identyczny. **Ogony identyczne nie
+są.** Strona sfaktoryzowana czyta treść wprost z przeplotu, a strona
+niesfaktoryzowana — dopiero po własnym przesunięciu składowych, więc czeka
+dłużej:
+
+\\[
+W_{\mathrm{RHS}}=\max\left(0,\;W_{\varphi(A,B)}-(i+k)\right)\le W_{\mathrm{LHS}}
+\\]
+
+Reguła zachowuje więc emitowany ciąg, interwał i `origin=`, a `tail=` może
+**zmniejszyć**. Jest optymalizacją opóźnienia, nie przepisaniem neutralnym;
+pełny dowód i kontrprzykład: [Formalne podstawy
+i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 Przed optymalizacją plan zawiera dwa substraty:
 
@@ -289,21 +300,26 @@ result = STREAM_HASH_A_B > (i + k)
 Przebieg `factorMatchedHashTimeMoves()` nie usuwa jawnych strumieni użytkownika ani substratów używanych przez innych konsumentów. Wykonuje się przed deduplikacją, dzięki czemu ujawniony substrat `A # B` może zostać następnie współdzielony z innym równoważnym planem.
 
 Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych
-kopiach plikowych źródeł danych. Porównuje bajtowo artefakty `matched` i `CC`,
-ich metadane z pominięciem znacznika czasu utworzenia, pełną sekwencję
-z wzorcem wyprowadzonym z okresu przeplotu `B,A,A` oraz równość ogonów
-(`tail=5` w badanym przypadku). Żadna strona nie emituje rekordów
-zastępczych. Osobno `computeRequiredCapacities()` przydziela źródłu cztery
-rekordy historii, ponieważ `>3` po zakończeniu ogona odczytuje indeks 3; jest
-to ogólnie `N+1` dla przesunięcia `>N` (slot 0 jest rekordem bieżącym).
+kopiach plikowych źródeł danych. Obie strony są tu sfaktoryzowane do tej samej
+postaci, więc porównanie jest pełne: bajtowo artefakty `matched` i `CC`, ich
+metadane z pominięciem znacznika czasu utworzenia, pełna sekwencja wobec wzorca
+wyprowadzonego z okresu przeplotu `B,A,A` oraz równość deklaracji
+(`origin=3` przy zerowym ogonie — \\(\tau_3\\) nad przeplotem o ogonie 2
+pochłania go w całości). Żadna strona nie emituje rekordów zastępczych.
+Osobno `computeRequiredCapacities()` przydziela źródłu deklarowanemu
+`N+1+2` rekordów historii: `N+1` na sam zakres odczytu oraz dwa na wyprzedzenie
+czoła deklaracji, którego adresowanie indeksem logicznym nie skraca.
 
 Test `r1_identity_nulls` sprawdza tę samą tożsamość dla stosunku
 \\(\Delta_a/\Delta_b=3/2\\), który wymaga maksimum fazowego
 \\(H_{a,b}=2\\), chociaż pierwsza faza wymaga tylko jednego slotu. Porównuje
 przepisany plan, zablokowaną przed przepisaniem lewą stronę i jawną prawą
-stronę: wszystkie mają `tail=7`, identyczny payload oraz identyczną mapę
-`NULL` w `.meta`. Niepusty, okresowy rekord w całości `NULL` chroni przed
-ukryciem błędnego ogona przez brak danych. Testy jednostkowe kompilatora
+stronę. Plan przepisany i jawna prawa strona są równe w pełni. Lewa strona
+**zablokowana** przed przepisaniem ma ten sam początek logiczny i tę samą treść,
+ale ogon ściśle większy — porównanie obejmuje wspólny prefiks payloadu i mapy
+`NULL`, a osobna asercja wymaga, żeby strona sfaktoryzowana była ściśle dłuższa.
+Niepusty, okresowy rekord w całości `NULL` chroni przed ukryciem błędnego ogona
+przez brak danych. Testy jednostkowe kompilatora
 obejmują również stosunki \\(3/5\\), \\(7/11\\) i \\(160/147\\).
 
 ### Algorytm deduplikacji

@@ -94,9 +94,14 @@ Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów 
 
 Rozpoznaje dopasowane przesunięcia argumentów przeplotu. Gdy `i·ΔA=k·ΔB`, przepisuje `(A>i)#(B>k)` do `(A#B)>(i+k)`, redukując dwa substraty przesunięcia do jednego substratu przeplotu. Przypadki niedopasowane oraz substraty współdzielone z innymi konsumentami pozostają bez zmian — patrz [Substraty](substraty.md).
 
-Przesunięcie zwiększa ogon startowy, a nie wstawia rekordy prefiksu.
-Równość fizycznych przesunięć sprawia, że obie strony reguły mają ten sam
-emitowany ciąg oraz ten sam ogon po przeliczeniu na sloty wyniku.
+Przesunięcie przenosi milczenie do początku logicznego, a nie wstawia rekordy
+prefiksu. Równość fizycznych przesunięć sprawia, że obie strony reguły mają ten
+sam emitowany ciąg i ten sam początek logiczny. **Ogony równe nie są**: strona
+sfaktoryzowana czyta treść wprost z przeplotu, więc jest gotowa nie później,
+a zwykle wcześniej niż strona czytająca składowe po ich własnym przesunięciu.
+Reguła jest zatem optymalizacją opóźnienia, nie przepisaniem neutralnym —
+zakres twierdzenia R1 i kontrprzykład: [Formalne podstawy
+i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 #### deduplicateSubstrats
 
@@ -118,18 +123,35 @@ Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FR
 
 Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemacie wynikowym (`merged[z]`). Dla ADD indeks wynika z sumy liczności pól poprzedzających strumieni; dla HASH każde pole otrzymuje indeks 0 (schemat jednoargumentowy). Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami.
 
+#### computeLogicalOrigin
+
+Oblicza `query::logicalOrigin`, czyli indeks pierwszego rekordu, który **w ogóle
+istnieje**. Różnica wobec ogona jest jakościowa: ogon mówi „jeszcze nie teraz",
+origin mówi „ten rekord nie ma definicji". Źródłem początku logicznego jest okno
+`@(k,L)` stemplowane końcem przedziału — jego wczesne rekordy sięgałyby przed
+początek źródła — oraz przesunięcie `>N`, którego rekord `n` niesie rekord `n-N`.
+Pozostałe operatory origin wyłącznie przenoszą, tym samym odwzorowaniem indeksu,
+którym czytają dane.
+
+Dla `@` i `>N` postać jest zamknięta; dla `+`, `#`, `-`, `Theta` i `~Theta`
+przebieg **szuka** najmniejszego indeksu osiągającego próg składowej, połowiąc
+po niemalejącym odwzorowaniu. Listing planu pokazuje wartość jako `origin=`.
+
 #### computeStartupLatency
 
 Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego
-interwału strumienia, w których wynik nie jest jeszcze zdefiniowany.
-Źródła mają ogon 0, `>N` dodaje `N`, przeplot uwzględnia ogony obu wejść
-i własne wyprzedzenie drugiego argumentu, suma bierze maksimum przeliczonych
-ogonów, lewy rozplot `Theta` dodaje jeden slot, a `SUBTRACT` i AGSE używają
-granic fazowych. Redukcje nie dodają własnego ogona. Listing planu pokazuje
-wartość jako `tail=`. Runtime nie emituje podczas ogona żadnego rekordu.
+interwału strumienia, w których istniejący wynik nie jest jeszcze gotowy.
+Źródła mają ogon 0; `>N` daje `max(0, W_src − N)`, bo czyta rekord starszy od
+bieżącego; przeplot uwzględnia ogony obu wejść i własne wyprzedzenie drugiego
+argumentu; suma bierze maksimum przeliczonych ogonów; lewy rozplot `Theta`
+dodaje jeden slot; `SUBTRACT` i AGSE używają granic fazowych. Redukcje nie
+dodają własnego ogona. Listing planu pokazuje wartość jako `tail=`; runtime nie
+emituje podczas ogona żadnego rekordu. Liczba slotów milczenia wynosi
+`origin + tail`.
 
-Ten przebieg poprzedza obliczenie pojemności, ponieważ wymagana historia
-zależy od chwili pierwszej emisji konsumenta.
+Ten przebieg biegnie po `computeLogicalOrigin` i przed obliczeniem pojemności:
+ogon zależy od tego, które sloty są rekordami, a wymagana historia — od chwili
+pierwszej emisji konsumenta.
 
 #### computeRequiredCapacities
 

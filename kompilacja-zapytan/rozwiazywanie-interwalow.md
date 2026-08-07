@@ -59,12 +59,19 @@ SELECT ... STREAM c FROM a > n
 
 \\[\Delta_c = \Delta_a\\]
 
-Przesunięcie nie zmienia częstotliwości ani ciągu emitowanych rekordów.
-Jest przyczynowym opóźnieniem: zwiększa ogon startowy strumienia o `n`
-slotów jego własnego interwału. Sloty ogona nie są rekordami i runtime nic
-w nich nie emituje; listing planu pokazuje wyliczony ogon jako `tail=`.
-Historia źródła nadal wymaga `n+1` rekordów, ponieważ po zakończeniu ogona
-operator odczytuje slot historii `n` (slot 0 jest rekordem bieżącym).
+Przesunięcie nie zmienia częstotliwości ani ciągu emitowanych rekordów, zmienia
+natomiast indeks, pod którym ten ciąg się pojawia: rekord `m` niesie treść
+rekordu `m-n`. Jest przyczynowym opóźnieniem, ale jego nośnikiem jest **początek
+logiczny**, a nie ogon — rekordy o indeksie mniejszym od `n` nie mają definicji.
+Własny ogon operatora jest niedodatni: wynosi `max(0, W_src − n)`, bo rekord
+`m-n` jest starszy od bieżącego i tym bardziej dostępny. Listing planu pokazuje
+obie wielkości jako `origin=` i `tail=`; sloty milczenia to ich suma i runtime
+nic w nich nie emituje.
+
+Historia źródła wymaga `n+1` rekordów na sam zakres odczytu, a dla źródła
+deklarowanego dodatkowo dwóch na wyprzedzenie czoła (rekord uzbrojony przy
+otwarciu storage i zerowy prefetch), którego adresowanie indeksem logicznym nie
+skraca.
 
 ### Agregaty okienkowe (`.max`, `.min`, `.avg`, `.sum`)
 

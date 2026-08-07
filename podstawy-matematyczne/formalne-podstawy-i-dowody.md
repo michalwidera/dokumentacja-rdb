@@ -315,53 +315,122 @@ W_{\varphi(A,B)}
 
 Składnik \\(H_{a,b}\\) jest fazowo bezpiecznym własnym wyprzedzeniem
 przyczynowym przeplotu względem drugiego argumentu. Sloty ogona nie są
-rekordami, a przesunięcie
-\\(\tau_m\\) nie zmienia ciągu rekordów — zwiększa ogon o \\(m\\).
+rekordami.
+
+Przesunięcie \\(\tau_m\\) nie zmienia emitowanego ciągu rekordów, ale zmienia
+**indeks**, pod którym ten ciąg się pojawia: rekord \\(n\\) niesie treść rekordu
+\\(n-m\\). Rekordy o indeksie mniejszym od \\(O_S+m\\) nie mają definicji, więc
+
+\\[
+O_{\tau_m(S)}=O_S+m,
+\qquad
+W_{\tau_m(S)}=\max\left(0,\;W_S-m\right)
+\\]
+
+Ogon **maleje**: rekord \\(n-m\\) jest starszy od bieżącego, więc dostępny tym
+bardziej — deficyt slotu wynosi \\(W_S-m\\) i jest stały. Szczegóły i pomiar:
+[Ogony, początki logiczne i obserwowalność
+operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 > **✅ Uwaga**
 >
-> **Twierdzenie.** Jeśli liczby i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty przesunięte o ten sam czas), to przeplot strumieni przesuniętych jest równy przeplotowi strumieni pierwotnych przesuniętemu o sumę tych liczb.
+> **Twierdzenie (R1, przemienność przesunięcia z przeplotem).** Jeśli liczby
+> i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty
+> przesunięte o ten sam czas), to przeplot strumieni przesuniętych i przeplot
+> strumieni pierwotnych przesunięty o sumę tych liczb mają **ten sam ciąg
+> rekordów, ten sam interwał i ten sam początek logiczny**. Ich ogony spełniają
+> nierówność — strona sfaktoryzowana nigdy nie jest późniejsza.
 
-
-Formalnie:
+Formalnie, dla \\(L:=i+k\\):
 
 \\[
-\varphi \left( \tau_{i}(A), \tau_{k}(B) \right) = \tau_{i+k}\left( \varphi (A, B) \right), \quad i\Delta_{a} = k\Delta_{b}, \quad i, k \in \mathbb{N}
+\operatorname{Obs}\Bigl(\varphi\bigl(\tau_{i}(A),\tau_{k}(B)\bigr)\Bigr)
+=\operatorname{Obs}\Bigl(\tau_{i+k}\bigl(\varphi(A,B)\bigr)\Bigr),
+\qquad i\Delta_{a}=k\Delta_{b},\quad i,k\in\mathbb{N}
 \\]
 
-**Dowód.** Przesunięcie nie zmienia emitowanego ciągu rekordów, więc obie
-strony mają ciąg określony przez definicję przeplotu i ten sam interwał
-∆<sub>c</sub>. Pozostaje porównać ogony. Z założenia
-i·∆<sub>a</sub> = k·∆<sub>b</sub>:
+\\[
+W_{\mathrm{RHS}}=\max\left(0,\;W_{\varphi(A,B)}-L\right)\le W_{\mathrm{LHS}}
+\\]
+
+gdzie \\(\operatorname{Obs}\\) jest częścią wartościową obserwacji (interwał,
+początek logiczny, ciąg rekordów z mapą `NULL`, deskryptor, ślad luk, polityka
+materializacji) — patrz [Ogony, początki logiczne i obserwowalność
+operatorów](ogony-i-obserwowalnosc-operatorow.md).
+
+**Dowód.**
+
+*Interwał.* Obie strony powstają z tego samego przeplotu, więc mają
+\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\).
+
+*Krok pomocniczy.* Z założenia \\(i\Delta_a=k\Delta_b\\) wynika
 
 \\[
 \frac{i\Delta_a}{\Delta_c}
-=\frac{k\Delta_b}{\Delta_c}
-=i+k=:L\in\mathbb{N}
+=\frac{i\Delta_a(\Delta_a+\Delta_b)}{\Delta_a\Delta_b}
+=\frac{i\Delta_a}{\Delta_b}+i
+=k+i
+=L\in\mathbb{N},
 \\]
 
-Ponieważ dodanie całkowitego \\(L\\) komutuje z sufitem, ogon lewej strony
-wynosi:
+i symetrycznie \\(k\Delta_b/\Delta_c=L\\). Przesunięcie każdego argumentu
+o jego własną liczbę slotów odpowiada więc **tej samej** liczbie \\(L\\) slotów
+wyniku.
+
+*Ciąg rekordów i początek logiczny.* W jednym okresie przeplot pobiera \\(i\\)
+rekordów z A i \\(k\\) rekordów z B, wypełniając dokładnie \\(L=i+k\\) slotów C.
+Przesunięcie A o \\(i\\) i B o \\(k\\) przesuwa zatem próg odwzorowania obu
+składowych o dokładnie \\(L\\) slotów wyniku, nie zmieniając ich wzajemnej fazy:
+\\(O_{\mathrm{LHS}}=O_{\varphi(A,B)}+L=O_{\mathrm{RHS}}\\). Treść rekordu
+o danym indeksie logicznym jest po obu stronach ta sama, bo wybór składowej
+zależy wyłącznie od fazy, a ta jest niezmieniona.
+
+*Ogony.* Ponieważ dodanie całkowitego \\(L\\) komutuje z sufitem,
+\\(\operatorname{conv}(W_A-i,\Delta_a,\Delta_c)=\operatorname{conv}(W_A,\Delta_a,\Delta_c)-L\\)
+i analogicznie dla B. Z \\(\max(0,W-m)\ge W-m\\) i monotoniczności
+\\(\operatorname{conv}\\) dostajemy
 
 \\[
 \begin{aligned}
 W_{\mathrm{LHS}}
 &=\max\left(
-\operatorname{conv}(W_A+i,\Delta_a,\Delta_c),
-\operatorname{conv}(W_B+k,\Delta_b,\Delta_c)+H_{a,b}
+\operatorname{conv}\bigl(\max(0,W_A-i),\Delta_a,\Delta_c\bigr),
+\operatorname{conv}\bigl(\max(0,W_B-k),\Delta_b,\Delta_c\bigr)+H_{a,b}
 \right)\\\\
-&=L+\max\left(
-\operatorname{conv}(W_A,\Delta_a,\Delta_c),
-\operatorname{conv}(W_B,\Delta_b,\Delta_c)+H_{a,b}
-\right)\\\\
-&=L+W_{\varphi(A,B)}
+&\ge\max\left(
+\operatorname{conv}(W_A,\Delta_a,\Delta_c)-L,
+\operatorname{conv}(W_B,\Delta_b,\Delta_c)+H_{a,b}-L
+\right)
+=W_{\varphi(A,B)}-L,
 \end{aligned}
 \\]
 
-Prawa strona opóźnia \\(\varphi(A,B)\\) o \\(i+k=L\\), więc ma dokładnie
-ten sam ogon. Interwał, emitowane rekordy i ogon startowy obu stron są równe.
+a ponieważ \\(W_{\mathrm{LHS}}\ge 0\\), zachodzi
+\\(W_{\mathrm{LHS}}\ge\max(0,W_{\varphi(A,B)}-L)=W_{\mathrm{RHS}}\\). ∎
+
+> **⚠️ Zakres twierdzenia**
+>
+> Równość ogonów **nie zachodzi**. Kontrprzykład: \\(\Delta_a=1/10\\),
+> \\(\Delta_b=1/5\\), \\(W_A=W_B=0\\), \\(H_{a,b}=2\\), \\(i=2\\), \\(k=1\\),
+> \\(L=3\\). Wtedy \\(W_{\mathrm{LHS}}=2\\), a \\(W_{\mathrm{RHS}}=\max(0,2-3)=0\\).
+> Strona niesfaktoryzowana czyta składowe **po** ich własnym przesunięciu, więc
+> na tę samą treść czeka dłużej; strona sfaktoryzowana czyta ją wprost
+> z przeplotu.
+>
+> Konsekwencja praktyczna: reguła przepisywania
+> \\(\varphi(\tau_i(A),\tau_k(B))\to\tau_{i+k}(\varphi(A,B))\\) jest
+> **optymalizacją opóźnienia**, a nie przepisaniem neutralnym. Zachowuje całą
+> część wartościową obserwacji i nigdy nie emituje rekordu przed określeniem
+> jego zależności, ale wynik jest gotowy wcześniej.
+>
+> Do 2026-08-07 obie strony miały ten sam ogon wyłącznie dlatego, że realizacja
+> \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zmierzono
+> w kampanii `rdb-experiment/results_20260807_K24p` (6,6% węzłów klasy `>N`)
+> i zdjęto, adresując producenta indeksem logicznym. Regresje strzegące tego
+> zakresu: `it_r1_identity_nulls`, `it_optimizer_ablation-factor-name-collision-semantic`.
+
 W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych
-strumieni, mapy wartości pustych i politykę materializacji. ∎
+strumieni, mapy wartości pustych i politykę materializacji.
 
 ## Dlaczego to ma znaczenie
 

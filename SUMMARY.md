@@ -4,7 +4,7 @@
 * [Podstawy matematyczne](podstawy-matematyczne/README.md)
   * [Algebra regularnych serii czasowych](podstawy-matematyczne/algebra-regularnych-serii-czasowych.md)
   * [Formalne podstawy i dowody](podstawy-matematyczne/formalne-podstawy-i-dowody.md)
-  * [Ogony i obserwowalność operatorów](podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md)
+  * [Ogony, początki logiczne i obserwowalność operatorów](podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md)
   * [Wyrażenia algebraiczne](podstawy-matematyczne/wyrazenia-algebraiczne.md)
   * [Implementacja modelu](podstawy-matematyczne/implementacja-programowa.md)
   * [Reprezentacja graficzna](podstawy-matematyczne/zaleznosci-pomiedzy-operatorami-algebry.md)

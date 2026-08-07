@@ -118,9 +118,13 @@ ale nie odrzuca elementów s<sub>0</sub>, …, s<sub>m−1</sub> i nie wytwarza
 prefiksu. Dla danych napływających co sekundę operacja przesunięcia o 3
 opóźnia zatem cały wynik o 3 sekundy.
 
-Ta definicja odpowiada operatorowi `STREAM_TIMEMOVE(N)` w silniku. Kompilator
-raportuje wynikowy ogon jako `tail=N` (powiększony o ogony operatorów
-poprzedzających), a runtime nie emituje rekordów podczas jego odliczania.
+Ta definicja odpowiada operatorowi `STREAM_TIMEMOVE(N)` w silniku. Realizacja
+przyczynowa niesie opóźnienie w **początku logicznym**: kompilator raportuje
+`origin=N` (powiększone o początki operatorów poprzedzających), a własny ogon
+operatora wynosi `max(0, W_src − N)` i bywa mniejszy od ogona producenta.
+Runtime nie emituje rekordów w żadnym ze slotów milczenia, których jest
+`origin + tail`. Szczegóły: [Ogony, początki logiczne i obserwowalność
+operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 Operację przesunięcia oznaczać będę za pomocą >.
 

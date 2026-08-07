@@ -72,11 +72,20 @@ Dane wejściowe:   0  1  2  3  4  5  6  7  8  9  ...
   [0,1]    [2,3]    [4,5]    [6,7]    ...
 ```
 
-AGSE emituje dopiero pełne okno. Początkowe sloty, w których brakuje choć
-jednego pola, tworzą raportowany w planie `tail=` i nie są rekordami.
-Prawdziwy `NULL` obecny w danych pozostaje natomiast elementem pełnego okna.
+Okno jest stemplowane **końcem** przedziału: rekord o indeksie logicznym `n`
+obejmuje pozycje `n·k−(|w|−1) … n·k`, więc jego najnowsze pole leży dokładnie
+w pozycji `n·k`. Dzięki temu indeks logiczny okna oznacza tę samą chwilę co
+indeks logiczny źródła i złączenie okna z jego własnym źródłem (potok FIR) nie
+wyprzedza sygnału. Ilustracja powyżej pokazuje ciąg emitowanych okien; pierwsze
+z nich nosi indeks `origin`, nie zero.
+
+AGSE emituje dopiero pełne okno. Początkowe sloty, w których okno sięgałoby
+przed początek źródła, **nie są rekordami i nie mają definicji** — tworzą
+raportowany w planie `origin=`. Sloty, w których okno jest zdefiniowane, ale
+najnowsze pole jeszcze nie powstało, tworzą `tail=`. Prawdziwy `NULL` obecny
+w danych pozostaje natomiast elementem pełnego okna.
 Formalna granica ogona i pojemności historii jest opisana w rozdziale
-[Ogony i obserwowalność operatorów](../../podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md).
+[Ogony, początki logiczne i obserwowalność operatorów](../../podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md).
 
 ## Przykłady
 
