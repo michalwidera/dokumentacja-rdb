@@ -59,3 +59,17 @@ DO DUMP -5 TO 0
 ## Dostęp do pól
 
 Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowiada pozycji w schemacie tego strumienia — tak samo jak w klauzuli `SELECT`. Aliasowanie działa identycznie jak opisano w rozdziale [Aliasowanie](../kompilacja-zapytan/aliasowanie.md).
+
+Jeżeli strumień z `ON` powstał przez przeplot `A#B`, warunek musi używać nazwy strumienia wynikowego:
+
+```
+RULE poprawna ON wynik WHEN wynik[0] > 0 DO DUMP -1 TO 0
+```
+
+Odwołanie do nazwanej składowej przeplotu jest niejednoznaczne i kończy kompilację błędem:
+
+```
+RULE bledna ON wynik WHEN A[0] > 0 DO DUMP -1 TO 0
+```
+
+Reguła obowiązuje również wtedy, gdy `#` jest ukryty w substracie złożonego wyrażenia `FROM`.

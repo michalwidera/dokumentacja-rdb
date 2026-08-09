@@ -39,6 +39,25 @@ core1(1/5)      sensor_b.txt
 
 Symbol `_` rozwinął się w dwa pola: `scaled[0] * scaled[2]` (czyli `a * c`) i `scaled[1] * scaled[3]` (czyli `b * d`). Odwołania do `core0` i `core1` zostały przetłumaczone przez aliasowanie na absolutne pozycje w schemacie złączonym. Typy wynikowe to INTEGER (`BYTE * INTEGER`) i FLOAT (`INTEGER * FLOAT`) — wynik równania typów w górę, opisanego w osobnym podrozdziale.
 
+## Symbol `_` a przeplot
+
+Aliasowanie składowych przez `A[_]` jest poprawne dla sumy `+`, ponieważ suma zachowuje osobne fragmenty schematów obu argumentów. Nie wolno stosować tej postaci do składowej osiąganej przez przeplot `#`:
+
+```
+SELECT A[_] - B[_] STREAM roznica FROM A#B
+```
+
+Po przeplocie pozycje `A[k]` i `B[k]` są tą samą pozycją wspólnego schematu, więc powyższe wyrażenie nie identyfikuje dwóch różnych wartości. Kompilator kończy taki plan błędem zamiast po cichu obliczyć `wynik[k]-wynik[k]`.
+
+Jeżeli `_` ma przetwarzać rekord przeplotu, należy najpierw nadać wynikowi nazwę, a potem odwołać się do tego wyniku:
+
+```
+SELECT * STREAM przeplot FROM A#B
+SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
+```
+
+Odzyskanie konkretnej składowej wymaga operatora rozplotu `&` albo `%`.
+
 Po pojawieniu się w formule operatora \_ w indeksie tablicy, kompilator powieli formułę dla wszystkich pól argumentów. Schematy obu argumentów muszą być równoliczne. Czyli core0 i core1 muszą mieć schematy tej samej liczności – typy zostaną wyrównane do najwyższego. O równaniu typów wspomnę za chwilę.
 
 Ta funkcjonalność ma główne zastosowanie w przypadku budowy zapytań w których budujemy algorytmy filtrów sygnałowych. Tam dochodzi do szeregu operacji matematycznych. Funkcjonalność związana z przetwarzaniem symbolu \_ nie jest wymagana w celu osiągnięcia pełnej funkcjonalności systemu RetractorDB. Jednak znacząco upraszcza budowę specyficznych zapytań w których należy połączyć operacje na dwóch schematach. Przykład zastosowania zostanie przedstawiony w trakcie prezentacji algorytmów przetwarzania sygnałów.

@@ -44,11 +44,10 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opis
 
 [**Wykrywanie pętli**](wykrywanie-petli.md) opisuje mechanizm wbudowany w etap `resolveStreamIntervals`. Jeśli liczba nierozwiązanych strumieni przestaje maleć, żaden strumień nie może uzyskać delty — znak, że graf zależności zawiera cykl. Kompilacja kończy się błędem `"Circular dependency in stream definitions"`. Rozdział zawiera przykład cyklicznego zapytania i sposób jego naprawy.
 
-[**Aliasowanie**](aliasowanie.md) opisuje etap `resolveFieldReferences`. Do pola wynikowego można odwoływać się zarówno przez indeks w schemacie sumarycznym (`str1[1]`), jak i przez nazwę strumienia źródłowego z lokalnym indeksem (`core1[0]`). Kompilator tłumaczy obie formy na tę samą pozycję w buforze wynikowym.
+[**Aliasowanie**](aliasowanie.md) opisuje etapy `resolveFieldReferences` i `localizeFieldOffsets`. Po sumie `+` do pola wynikowego można odwołać się zarówno przez indeks w schemacie sumarycznym (`str1[1]`), jak i przez nazwę strumienia źródłowego z lokalnym indeksem (`core1[0]`). Po przeplocie `#` składowe dzielą jeden schemat, dlatego nazwane odwołania do składowych są odrzucane; należy użyć nazwy strumienia wynikowego albo rozplotu `&`/`%`.
 
 [**Przetwarzanie symbolu \_**](przetwarzanie-symbolu-_.md) opisuje etap `expandIndexWildcards` — cukier syntaktyczny do równoległych operacji na parach pól. Symbol `_` w indeksie powoduje powielenie formuły dla wszystkich par pól ze schematów obu argumentów — `core0[_] * core1[_]` przy dwupólowych schematach generuje dwa pola mnożące odpowiadające pary. Zastosowanie: budowa zapytań filtrów sygnałowych.
 
 [**Równanie typów w górę**](rownanie-typow-w-gore.md) definiuje reguły promocji typów obowiązujące przez cały łańcuch kompilacji. Wynik działania `BYTE * INTEGER` ma typ `INTEGER` — kompilator wyznacza typ pola wyjściowego statycznie, zanim dane zostaną przetworzone. Opisano też kompletną hierarchię typów obsługiwanych przez RetractorDB.
 
 [**Debugowanie kompilacji**](debugowanie-kompilacji.md) zbiera w jednym miejscu narzędzia diagnostyczne: flaga `-c` do inspekcji planu, pipeline `-c -d -f -s` do wizualizacji grafu przez `graphviz`, tablicę znaczeń instrukcji planu (PUSH\_ID, PUSH\_STREAM, STREAM\_ADD, ...) oraz katalog typowych błędów kompilacji z ich przyczynami i sposobem naprawy.
-

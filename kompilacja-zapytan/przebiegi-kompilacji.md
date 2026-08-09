@@ -109,7 +109,7 @@ Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej
 
 #### resolveFieldReferences
 
-Przekształca odwołania do pól ze schematów źródłowych na indeksy w schemacie wynikowym. Obsługuje aliasowanie — `core0[0]` zamienia na `str1[0]` itp. — patrz [Aliasowanie](aliasowanie.md).
+Przekształca odwołania do pól ze schematów źródłowych na indeksy w schemacie wynikowym. Obsługuje aliasowanie po sumie — `core0[0]` zamienia na `str1[0]` itp. — oraz zapamiętuje, do którego źródła została rozwiązana goła nazwa pola. Nazwane odwołania zapisane przez użytkownika są śledzone osobno, aby późniejszy przebieg nie pomylił ich z tokenami syntetyzowanymi przez kompilator. Patrz [Aliasowanie](aliasowanie.md).
 
 #### expandIndexWildcards
 
@@ -121,7 +121,9 @@ Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FR
 
 #### localizeFieldOffsets
 
-Przelicza referencje do pól (`b[x]`, `c[y]`) na indeksy w spłaszczonym schemacie wynikowym (`merged[z]`). Dla ADD indeks wynika z sumy liczności pól poprzedzających strumieni; dla HASH każde pole otrzymuje indeks 0 (schemat jednoargumentowy). Etap uwzględnia nie tylko źródła bezpośrednie, ale także źródła przechodnie ukryte za automatycznymi substratami.
+Przelicza odwołania do pól (`b[x]`, `c[y]`) na pozycje w spłaszczonym schemacie wyniku (`merged[z]`). Dla sumy `+` offset wynika z liczby pól wcześniejszych składowych. Dla przeplotu `#` oba argumenty dzielą te same pozycje wspólnego schematu; tożsamość składowej nie jest już dostępna przez jej nazwę.
+
+Na tym etapie kompilator odrzuca napisane przez użytkownika `A[0]`, `A.pole`, `A[_]`, `A.*` i gołe nazwy pól, jeżeli wskazują składową osiąganą przez `#`. Kontrola obejmuje także warunki `RULE` oraz źródła ukryte w automatycznych substratach. Legalne pozostają odwołania przez nazwę strumienia wynikowego, niekwalifikowane `*` oraz jawne odzyskanie składowej przez `&` lub `%`.
 
 #### computeLogicalOrigin
 
