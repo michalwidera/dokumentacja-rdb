@@ -168,7 +168,7 @@ Type: Debug
 | ---------------- | -------------------------------------------------------------------------------------- |
 | `Branch`         | Nazwa odnogi repozytorium i skrót commita (hash), z którego zbudowano program          |
 | `Code compiler`  | Wersja kompilatora GCC użytego do budowy                                               |
-| `Build time`     | Data i godzina kompilacji w formacie `YYMMDDHHММ` (tu: 21 grudnia 2025, godz. 14:49)  |
+| `Build time`     | Data i godzina kompilacji w formacie `YYMMDDHHMM` (tu: 21 grudnia 2025, godz. 14:49)  |
 | `Type`           | Typ buildu: `Debug` lub `Release`                                                      |
 
 Kolejna linia wskazuje lokalizację pliku dziennika:
