@@ -66,7 +66,7 @@ To jest właściwy punkt odniesienia dla mojej algebry i moich [reguł przepisyw
 
 W kategoriach wdrożeniowych relacja jest przy tym komplementarna, nie konkurencyjna: RetractorDB działa jako brzegowy stopień wstępnego przetwarzania i buforowania, którego dokładne, deterministyczne wyniki mogą zasilać okienkowy DSMS.
 
-**Czego ten nurt nie dotyka:** DSMS celują w przybliżone, skalowalne przetwarzanie nieograniczonych strumieni z tolerancją na nieuporządkowanie czasowe. Nie dążą do dokładnych, deterministycznych operacji DSP w ścisłej dyscyplinie czasowej i nie sięgają po teorię liczb dla semantyki resamplingu.
+**Czego ten nurt nie dotyka:** DSMS obejmują zarówno semantyki deterministyczne, jak i mechanizmy skalowania, okien, tolerancji na nieuporządkowanie oraz obsługi stanu. Przywołane systemy nie definiują jednak konkretnego, bezstratnego podziału pozycji regularnych próbek opartego na sekwencjach Beatty'ego ani nie używają teorii liczb jako semantyki resamplingu.
 
 ## Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy (5)
 
@@ -78,18 +78,20 @@ Wszystkie one traktują jednak DSP jako aproksymację albo analitykę po fakcie.
 
 ## Biała plama: gdzie leży wkład
 
-Po nałożeniu pięciu warstw obraz staje się czytelny. Każda dziedzina dotyka jednej lub dwóch ścian problemu, ale **żadna nie zajmuje ich przecięcia**:
+Poniższa tabela jest jakościową mapą możliwości, a nie dowodem pierwszeństwa ani kompletności przeglądu. W ramach szerszego nurtu systemów strumieniowych wyodrębnia SDF/CSDF oraz języki synchroniczne, ponieważ są najbliższymi modelami systemowymi. „Częściowo” oznacza zdolność pokrewną, nie równoważność semantyczną.
 
-| Dziedzina               | Beatty/Fraenkel | Dokładny DSP | Algebra strumieni / język zapytań | Deterministyczna dyscyplina czasowa |
-| ----------------------- | :------------------: | :----------------: | :---------------------: | :------------------: |
-| Teoria liczb            |        ✔        |       –      |                 –                 |            –            |
-| Szeregowanie (pinwheel) |        ✔        |       –      |                 –                 |        częściowo        |
-| DSP wielotempowy        |        –        |       ✔      |                 –                 |            –            |
-| DSMS (CQL, PIPES)       |        –        |       –      |                 ✔                 |            –            |
-| TSMS / DSP-w-bazie      |        –        |   częściowo  |             częściowo             |            –            |
-| **RetractorDB**         |      **✔**      |     **✔**    |               **✔**               |          **✔**          |
+| Dziedzina | Beatty/Fraenkel | Bezstratny podział próbek | Deklaratywny przepływ danych | Artefakty / odtwarzanie |
+| --- | :---: | :---: | :---: | :---: |
+| Teoria liczb | ✔ | – | – | – |
+| Szeregowanie (pinwheel) | ✔ | – | – | częściowo |
+| SDF / CSDF | – | częściowo | ✔ | – |
+| Języki synchroniczne / rachunki zegarów | – | – | ✔ | – |
+| DSP wielotempowy | – | częściowo | częściowo | – |
+| DSMS (CQL, PIPES) | – | – | ✔ | częściowo |
+| TSMS / DSP-w-bazie | – | częściowo | częściowo | częściowo |
+| **RetractorDB** | **✔** | **✔** | **✔** | **✔** |
 
-Wkład RetractorDB nie leży w żadnym pojedynczym składniku – leży w ich **syntezie**: w użyciu układów pokrywających (wymiernych sekwencji Beatty'ego i twierdzenia Fraenkela) jako semantycznego fundamentu deklaratywnej algebry strumieni, która realizuje dokładne operatory przetwarzania sygnałów wewnątrz systemu bazodanowego, w deterministycznej dyscyplinie czasowej. Doprecyzowanie jest tu istotne: system gwarantuje deterministyczną **semantykę** wykonania (identyczne wejścia dają identyczne wyniki w identycznej kolejności) oraz przewidywalny, sekwencyjny model wykonania – świadomie nie roszczę sobie natomiast gwarancji twardego czasu rzeczywistego, bo te wymagają analizy najgorszego czasu wykonania na systemie operacyjnym czasu rzeczywistego i pozostają pracą przyszłą. Teoria liczb ma Beatty'ego i nawet szeregowanie, ale nie łączy ich z bazą ani z DSP. DSP ma multirate i wymierne banki filtrów, ale nie sięga po Fraenkela i nie ujmuje tego jako języka zapytań. DSMS ma algebry strumieni i reguły optymalizacji, ale na modelu okienkowym (s, τ), nie różnicowym (sₙ, Δ). To przecięcie jest puste.
+Najsilniejszymi sąsiadami są SDF/CSDF oraz języki synchroniczne i rachunki zegarów: zapewniają już wielotempowy deklaratywny przepływ danych, deterministyczną semantykę, statyczne harmonogramy albo wyznaczanie buforów. Zakres integracji RetractorDB jest węższy: system łączy zdefiniowany przez sekwencje Beatty'ego, dokładnie odwracalny podział pozycji próbek z kompilatorem zapytań, sekwencyjnym środowiskiem slotowym oraz trwałymi artefaktami dostępnymi do inspekcji i odtwarzania. Jest to opis architektury i semantyki systemu, nie twierdzenie, że poszczególne składniki są nowe. RetractorDB nie deklaruje gwarancji twardego czasu rzeczywistego.
 
 > **⚠️ Ostrzeżenie**
 >
