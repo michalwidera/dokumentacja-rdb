@@ -4,7 +4,7 @@ Retraktory w medycynie to cała grupa narzędzi chirurgicznych. Retraktory, znan
 
 Na zasadzie analogii postanowiłem że nazwę swoje narzędzie retraktorem. **RetractorDB** ma za zadanie rozdzielać, łączyć oraz umożliwiać realizację obliczeń na seriach czasowych w czasie rzeczywistym, w biegu operując na danych efemerycznych, artefaktach lub substratach (patrz podrozdział pt. [Artefakty, Substraty, Efemerydy](../../architektura-systemu-przetwarzania-danych/artefakty-substraty-efemerydy.md)).
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Definicja (Retrakcja i Retraktor danych): Zastosowanie aparatu numerycznego do wydobycia, przetworzenia a następnie zwrócenia danych zawartych w seriach czasowych lub sygnałach cyfrowych nazywamy retrakcją danych. Narzędzie służące do realizacji tego procesu nazywamy Retraktorem danych.
 

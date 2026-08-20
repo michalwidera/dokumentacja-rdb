@@ -2,7 +2,7 @@
 
 W rozdziale o [algebrze regularnych serii czasowych](algebra-regularnych-serii-czasowych.md) przedstawiłem zbiór operatorów i opisujące je równania. Świadomie pominąłem tam formalne dowody – chciałem najpierw pokazać _co_ system robi, zanim wyjaśnię _dlaczego_ wolno mu to robić. Ta strona uzupełnia tę lukę. Zebrałem tu formalny szkielet algebry: powiązanie operatorów strumieniowych z teorią układów pokrywających oraz dowody twierdzeń, na których opiera się poprawność i optymalizacja planów zapytań.
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Cała poniższa konstrukcja trzyma się w jednej dziedzinie – liczb wymiernych. To nie jest ozdobnik. To jest cały sens. Twierdzenie Beatty potrzebuje liczb niewymiernych, których w komputerze nie ma. Twierdzenie Fraenkela pozwala zejść do liczb wymiernych. Dowody na tej stronie pokazują, że operacje przeplotu i rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty Fraenkela – a więc są realizowalne wyłącznie na liczbach wymiernych.
 
@@ -457,6 +457,6 @@ Przedstawione twierdzenia nie są formalnością dla samej formalności. Każde 
 
 Dział matematyki, w którym osadzone są te równania, to teoria układów pokrywających [\[4\]](../literatura.md#4) w obszarze teorii liczb. Pełny formalizm wraz z kompletem dowodów przedstawiłem w pracy [Deterministyczna metoda przetwarzania ciągów danych](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych) [\[3\]](../literatura.md#3).
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Numeryczna weryfikacja powyższych równań – prototypy w języku Python operujące na liczbach wymiernych (biblioteka `Fraction`) – znajduje się na stronie [Implementacja modelu](implementacja-programowa.md) oraz w repozytorium [github.com/michalwidera/equations](https://github.com/michalwidera/equations).

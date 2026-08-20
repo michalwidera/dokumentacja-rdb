@@ -105,7 +105,7 @@ na drugim komputerze trzeba napisać:
 $ nc nazwa_serwera_lub_jego_ip 8888
 ```
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Flaga `-p` w netcat (składnia BSD) nie jest obsługiwana przez GNU netcat dostępny na współczesnych systemach Ubuntu/Debian. Poprawna składnia to `nc -l 8888` (bez `-p`).
 

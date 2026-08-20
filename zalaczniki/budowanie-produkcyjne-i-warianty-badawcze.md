@@ -72,7 +72,7 @@ build/Release/src/retractor/xretractor --build-info
 i porównuje wynik z powyższym zestawem. Brak binarki albo choć jedna inna
 wartość kończy `release` błędem.
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Kontrola czystości Git dowodzi, że budowanie nie korzysta z lokalnych,
 > niezatwierdzonych zmian. Nie dowodzi poprawności zawartości zatwierdzonego

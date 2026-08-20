@@ -270,7 +270,7 @@ t_{k} = \min_{\delta \in \mathrm{sr}} \left(\delta \cdot \mathrm{counter}[\delta
 
 gdzie `sr` to pierwotny zbiór interwałów, a \\(\mathrm{counter}[\delta]\\) zlicza dotychczasowe „trafienia" każdej delty. Pętla dwufazowa — osobno wyznaczenie minimum, osobno inkrementacja liczników — gwarantuje poprawną obsługę kolizji: kilka delt może wyznaczać ten sam slot jednocześnie.
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Komentarz `// MAGIC Warning` w źródle `CRSMath.cpp` oznacza, że algorytm jest poprawny z nieoczywistego powodu. Nie wystarczy intuicja — poprawność gwarantuje twierdzenie Fraenkela. Ponieważ `sr` zawiera wyłącznie pierwotne interwały (żaden nie jest wielokrotnością innego), liczniki poszczególnych delt nigdy nie „wychodzą przed siebie" w sposób, który pominąłby lub zdublował slot. Kolizja — gdy dwie delty wskazują na ten sam slot — jest przypadkiem legalnym i jest obsługiwana przez drugą pętlę. „Magia" polega na tym, że prosta formuła `min(δ·counter[δ])` z automatyczną inkrementacją jest równoważna pełnemu generatorowi sekwencji Beatty'ego dla całego układu pokrywającego.
 

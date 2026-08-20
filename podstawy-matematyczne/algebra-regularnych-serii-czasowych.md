@@ -13,7 +13,7 @@ Przyjmujemy przy tym stałą konwencję indeksowania: indeksy strumienia biegną
 
 Tak zdefiniowaną serię danych w systemie określam jako strumień danych. Taki regularnie przepływający przez system zestaw danych, zazwyczaj opisany schematem danych zawiera pola różnych typów. Każdy odczyt występuje w równym odstępie czasu pomiędzy kolejnymi pomiarami. Taka konstrukcja bardziej przypomina sygnał cyfrowy niż nieregularny strumień danych – jednak oznaczenie jej jako strumień w dalszej części prac badawczych okaże się uzasadnione.
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Uwaga:\
 > Pojęcie strumień i Seria czasowa w tej pracy używane są zamiennie i oznaczają to samo.\

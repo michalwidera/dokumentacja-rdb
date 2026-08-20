@@ -230,7 +230,7 @@ Nowo powstałemu substratowi nadawana jest nazwa zbudowana z symbolu operacji i 
 
 ### Prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
 
-> **ℹ️ Info**
+> **ℹ Info**
 > Polska nazwa jest świadomie opisowa i nie stanowi dosłownego tłumaczenia angielskiego terminu
 > *matched interleave-shift factorization*, pozostawionego w angielskiej wersji dokumentacji.
 

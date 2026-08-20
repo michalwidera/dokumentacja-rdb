@@ -79,7 +79,7 @@ to_string(wyrażenie)
 
 Parametr `szerokość` (liczba naturalna po dwukropku `:`) określa szerokość pola wyjściowego w bajtach. Pominięcie parametru daje domyślną szerokość 32 bajtów.
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Separator argumentów to dwukropek `:`, nie przecinek `,`. Przecinek jest separatorem listy SELECT — użycie przecinka w `to_string(x, n)` spowoduje błąd parsowania.
 

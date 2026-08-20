@@ -89,7 +89,7 @@ Flagi trybu wykonania (bez `-c`):
 | `-g F` | `--config F`    | plik konfiguracyjny TOML zamiast wyszukiwania    |
 | `-b`   | `--build-info`  | wypisz konfigurację optymalizatora i zakończ     |
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Parametr `-m N` liczy iteracje pętli głównej, nie sekundy. Dla strumieni z interwałem 0.1 s (10 Hz), `-m 10` oznacza \~1 sekundę przetwarzania.
 

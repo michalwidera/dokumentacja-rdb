@@ -11,6 +11,7 @@ REPORT_FILE="$ROOT_DIR/watermark_inspect_report.md"
 TMP_STATUS="$(mktemp)"
 DO_CLEAN=0
 DO_CLEAN_DRY_RUN=0
+DO_CLEAN_BAK=0
 
 print_help() {
   cat <<'EOF'
@@ -21,6 +22,7 @@ Options:
   -clean         Run clean_file.py --in-place for each file flagged as [YES],
                  then regenerate the report.
   -clean-dry-run Show which [YES] files would be cleaned, do not modify files.
+  -clean-bak     Remove all *.bak files recursively under ./dokumentacja-rdb.
 
 Arguments:
   report_path    Optional output path for the report (default:
@@ -53,6 +55,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -clean-dry-run)
       DO_CLEAN_DRY_RUN=1
+      shift
+      ;;
+    -clean-bak)
+      DO_CLEAN_BAK=1
       shift
       ;;
     -*)
@@ -123,7 +129,21 @@ show_yes_files_for_dry_run() {
   echo "[clean-dry-run] Total files to clean: $yes_count"
 }
 
+clean_bak_files() {
+  local bak_count=0
+  while IFS= read -r bak_file; do
+    rm -f "$bak_file"
+    echo "[clean-bak] Removed: ${bak_file#./}"
+    bak_count=$((bak_count + 1))
+  done < <(find . -type f -name '*.bak' | sort)
+  echo "[clean-bak] Total removed: $bak_count"
+}
+
 collect_statuses
+
+if [[ "$DO_CLEAN_BAK" -eq 1 ]]; then
+  clean_bak_files
+fi
 
 if [[ "$DO_CLEAN" -eq 1 ]]; then
   run_clean_for_yes_files

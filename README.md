@@ -25,7 +25,7 @@ Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedyko
 > Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów). RetractorDB wspiera – a nie zastępuje – bazy szeregów czasowych (TSDB) i strumieniowe systemy zarządzania danymi (DSMS): pracuje blisko źródła sygnału, wstępnie przetwarza i filtruje wysokoczęstotliwościowe pomiary za pomocą deklaratywnego języka zapytań, utrzymuje częściowy, korygowalny zapis zdarzeń przeszłych i zaplanowanych przyszłych w inspekcjonowalnych artefaktach, a w górę architektury przekazuje dokładne, deterministyczne wyniki – tak, aby do centralnej architektury docierały wyłącznie zredukowane, już przetworzone strumienie.
 
 
-> **ℹ️ Info**
+> **ℹ Info**
 >
 > Dlaczego umieściłem ten rozdział tak wcześnie? Bo uczciwa odpowiedź na pytanie „czy to jest potrzebne?" wymaga najpierw pokazania, co już istnieje. Większość pomysłów w informatyce została już raz pomyślana – wymyślanie koła na nowo to marnowanie cudzego wysiłku. Ten rozdział jest moją próbą udowodnienia, że akurat tego koła jeszcze nie wynaleziono.
 
