@@ -1,5 +1,13 @@
 # RetractorDB
 
+RetractorDB to brzegowy silnik przetwarzania sygnałów (ang. *Edge Signal Processing Engine*, ESPE), przeznaczony do ciągłego przetwarzania regularnych serii czasowych blisko źródła danych. Za pomocą deklaratywnego języka RQL opisuje przekształcenia, agregacje i reguły, a ich wyniki udostępnia na żywo lub materializuje w postaci artefaktów, które można później przeglądać i korygować. System wspiera centralne bazy szeregów czasowych i systemy strumieniowe, ograniczając ilość przesyłanych do nich danych, lecz ich nie zastępuje.
+
+Nazwa odzwierciedla połączenie dwóch idei. **Retractor** oznacza narzędzie, które wydobywa, rozdziela, łączy i przetwarza dane zawarte w seriach czasowych, natomiast człon **DB** wskazuje na rozwiązania znane z baz danych: deklaratywny język zapytań, opis schematu, mechanizmy dostępu oraz trwałe przechowywanie wyników. Więcej o pochodzeniu nazwy można przeczytać w rozdziale [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/geneza-systemu/dlaczego-wybrano-taka-nazwe-dla-systemu.md).
+
+Dokumentacja prowadzi od [podstaw matematycznych](podstawy-matematyczne/README.md) i [konstrukcji języka RQL](konstrukcja-jezyka-zapytan/README.md), przez [architekturę systemu](architektura-systemu-przetwarzania-danych/README.md), kompilację i realizację zapytań, aż po przykłady zastosowań oraz załączniki z opisem narzędzi. Przy pierwszym kontakcie najlepiej czytać rozdziały w kolejności podanej w spisie treści, ponieważ kolejne części korzystają z pojęć wprowadzonych wcześniej. Czytelnik szukający konkretnego rozwiązania może przejść bezpośrednio do odpowiedniego rozdziału, a następnie skorzystać z przykładów i załączników jako materiału praktycznego i referencyjnego.
+
+## RetractorDB na tle sąsiednich dziedzin
+
 Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję pięć nurtów recenzowanej literatury, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero nałożenie tych pięciu warstw na siebie pokazuje lukę, którą ten projekt wypełnia.
 
 <div class="no-print">
