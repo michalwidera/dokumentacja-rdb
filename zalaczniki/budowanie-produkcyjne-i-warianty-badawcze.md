@@ -1,13 +1,13 @@
-# Budowanie produkcyjne i warianty badawcze
+# Budowanie produkcyjne i warianty diagnostyczne
 
 Skrypt `scripts/buildrdb.sh` rozdziela budowanie produkcyjne od kompilacji
-wykorzystywanych w badaniach optymalizatora i pomiarach wydajności. Rozdzielenie
+z wyłączanymi optymalizacjami oraz włączaną instrumentacją. Rozdzielenie
 obejmuje konfigurację CMake, katalogi wynikowe, generatory Conan oraz kontrolę
 gotowej binarki.
 
 > **⚠️ Ostrzeżenie**
 >
-> Binarki z `release-ablation` i `probe` są artefaktami badawczymi. Nie należy
+> Binarki z `release-ablation` i `probe` są wariantami diagnostycznymi. Nie należy
 > ich instalować ani pakować jako wydania produkcyjne.
 
 ## Tryby budowania
@@ -16,9 +16,9 @@ gotowej binarki.
 | --- | --- | --- |
 | `scripts/buildrdb.sh release` | zweryfikowane wydanie produkcyjne | `build/Release` |
 | `scripts/buildrdb.sh release-ablation` | wybrana konfiguracja optymalizatora i sondy | `build/Release-Ablation/<konfiguracja>` |
-| `scripts/buildrdb.sh probe` | pomiary z włączoną sondą | `build/Release-Probe` |
+| `scripts/buildrdb.sh probe` | diagnostyka z włączoną sondą | `build/Release-Probe` |
 
-Tryby badawcze korzystają również z osobnych katalogów generatorów Conan:
+Tryby diagnostyczne korzystają również z osobnych katalogów generatorów Conan:
 
 - `build/Conan-Release-Ablation/<konfiguracja>`,
 - `build/Conan-Release-Probe`.
@@ -60,6 +60,7 @@ RDB_OPT_SHARE_EQUIVALENT_SELECTS=ON
 RDB_OPT_COMMUTATIVE_ADD=ON
 RDB_OPT_FACTOR_MATCHED_HASH_TIMEMOVES=ON
 RDB_BENCH_PROBE=OFF
+RDB_OPT_SIMPLIFY_EXPRESSIONS=ON
 ```
 
 Po kompilacji skrypt wykonuje:
@@ -77,7 +78,7 @@ wartość kończy `release` błędem.
 > niezatwierdzonych zmian. Nie dowodzi poprawności zawartości zatwierdzonego
 > commitu. Za tę część odpowiadają przegląd zmian, testy i CI.
 
-## Warianty ablacyjne
+## Warianty z wyłączanymi optymalizacjami
 
 Polecenie:
 
@@ -93,15 +94,16 @@ RDB_OPT_SHARE_EQUIVALENT_SELECTS
 RDB_OPT_COMMUTATIVE_ADD
 RDB_OPT_FACTOR_MATCHED_HASH_TIMEMOVES
 RDB_BENCH_PROBE
+RDB_OPT_SIMPLIFY_EXPRESSIONS
 ```
 
 Każdy wariant otrzymuje katalog opisujący pełną konfigurację, na przykład:
 
 ```text
-build/Release-Ablation/dedup-OFF_share-ON_comm-ON_factor-ON_probe-OFF
+build/Release-Ablation/dedup-OFF_share-ON_comm-ON_factor-ON_probe-OFF_simplify-ON
 ```
 
-Wartości wszystkich pięciu przełączników są przekazywane jawnie. Zapobiega to
+Wartości wszystkich sześciu przełączników są przekazywane jawnie. Zapobiega to
 dziedziczeniu wartości zapisanych przez wcześniejszą konfigurację w
 `CMakeCache.txt`.
 
@@ -117,12 +119,11 @@ współdzielenia równoważnych obliczeń `SELECT`, dlatego podmenu i CMake odrz
 takie połączenie.
 
 Po zbudowaniu wariantu skrypt porównuje `--build-info` z wartościami
-wybranymi w podmenu. Niezgodność jest błędem konfiguracji, a nie wynikiem
-badania ablacyjnego.
+wybranymi w podmenu. Niezgodność jest błędem konfiguracji.
 
 ## Sonda pomiarowa
 
-`RDB_BENCH_PROBE` jest instrumentacją pomiarową, a nie optymalizacją planu.
+`RDB_BENCH_PROBE` jest opcjonalną instrumentacją, a nie optymalizacją planu.
 Polecenie:
 
 ```bash
@@ -135,16 +136,14 @@ buduje wariant ze wszystkimi optymalizacjami włączonymi oraz:
 RDB_BENCH_PROBE=ON
 ```
 
-Binarka trafia do `build/Release-Probe`. Sonda jest przeznaczona do pomiarów
-wykonywanych na zoptymalizowanym kodzie `Release`, ale nie jest binarką
-produkcyjną.
+Binarka trafia do `build/Release-Probe`. Jest zbudowana na zoptymalizowanym
+kodzie `Release`, ale nie jest binarką produkcyjną.
 
-W `release-ablation` sondę można włączyć albo wyłączyć niezależnie od poprawnej
-konfiguracji optymalizatora. Pozwala to porównać te same warianty zarówno bez
-instrumentacji, jak i z instrumentacją.
+W `release-ablation` sondę można włączyć albo wyłączyć niezależnie od
+konfiguracji optymalizatora.
 
-Analiza kodu potwierdza, że sonda nie zmienia wyboru, kolejności ani wyniku
-przebiegów optymalizatora. Nie jest jednak instrumentacją o zerowym koszcie:
+Sonda nie uczestniczy w wyborze ani kolejności przebiegów optymalizatora. Nie
+jest jednak instrumentacją o zerowym koszcie:
 `RDB_BENCH_PLAN` dodatkowo przegląda plan i zapisuje statystyki, a
 `RDB_BENCH_CSV` wykonuje pomiary zegara i operacje plikowe. Sonda jest więc
 semantycznie nieinwazyjna, ale jej narzut może wpływać na mierzone czasy.
@@ -154,16 +153,18 @@ zmienna `RDB_BENCH_PLAN`, kompilator zapisuje na standardowe wyjście błędów
 stabilny wiersz:
 
 ```text
-REWRITE_APPLIED r1=<liczba> r2=<liczba>
+REWRITE_APPLIED r1=<liczba> r2=<liczba> r3=<liczba>
 ```
 
 Liczniki są zerowane przed każdym wywołaniem kompilatora. `r1` oznacza liczbę
 skutecznych przekształceń
 `(A > i) # (B > k) -> (A # B) > (i + k)`. `r2` oznacza liczbę unikalnych
 węzłów `STREAM_ADD`, w których kanoniczny odcisk planu rzeczywiście zamienił
-kolejność dzieci. `r2` nie jest liczbą usuniętych węzłów ani miarą
-przyspieszenia. Przy `RDB_BENCH_PROBE=OFF` kod liczników nie trafia do binarki
-i wiersz `REWRITE_APPLIED` nie jest emitowany.
+kolejność dzieci. `r3` oznacza liczbę uproszczeń programów pól i warunków
+`RULE`: zwinięć stałych, połączeń ogonów stałych i usuniętych elementów
+neutralnych. Liczniki opisują zastosowane przepisania, a nie przyspieszenie.
+Przy `RDB_BENCH_PROBE=OFF` kod liczników nie trafia do binarki i wiersz
+`REWRITE_APPLIED` nie jest emitowany.
 
 ## Ręczna kontrola wariantu
 
@@ -185,17 +186,19 @@ RDB_OPT_SHARE_EQUIVALENT_SELECTS=ON
 RDB_OPT_COMMUTATIVE_ADD=ON
 RDB_OPT_FACTOR_MATCHED_HASH_TIMEMOVES=ON
 RDB_BENCH_PROBE=OFF
+RDB_OPT_SIMPLIFY_EXPRESSIONS=ON
 ```
 
-Nazwa katalogu jest pomocna przy organizacji eksperymentów, ale informacja z
-binarki jest ostatecznym potwierdzeniem użytych definicji kompilatora.
+Nazwa katalogu jest pomocnicza; informacja z binarki jest ostatecznym
+potwierdzeniem użytych definicji kompilatora.
 
-## Testy w procesie ablacji
+## Testy wariantów
 
 Wyłączenie optymalizacji może celowo zmienić strukturę planu i dostępność
-testów wymagających konkretnego kształtu. Nie może natomiast zmienić
-obserwowalnego wyniku: interwału, ogona startowego, publicznego deskryptora,
-rekordów z mapami wartości pustych ani polityki materializacji.
+testów wymagających konkretnego kształtu. Nie może natomiast zmienić części
+wartościowej wyniku: interwału, początku logicznego, publicznego deskryptora,
+rekordów z mapami wartości pustych ani polityki materializacji. Ogon startowy
+podlega słabszej gwarancji opisanej poniżej.
 
 CTest przypisuje testom wymagającym konkretnej optymalizacji etykiety
 `requires_*` i może je wyłączyć dla niezgodnej konfiguracji. Etykieta
@@ -216,37 +219,11 @@ raportowanej przez binarkę z konfiguracją CMake. Pozostałe testy
 `it_optimizer_ablation-*` sprawdzają strukturę planów i porównania semantyczne
 między wariantami.
 
-### Nazwane profile badawcze
-
-Metodyka K4 definiuje pięć profili, które należy zapisywać razem z wynikami:
-
-| Profil | Deduplikacja | Współdzielenie `SELECT` | Przemienność `+` | Faktoryzacja R1 |
-| --- | :---: | :---: | :---: | :---: |
-| `OFF` | OFF | OFF | OFF | OFF |
-| `STRUCT` | ON | ON | OFF | OFF |
-| `STRUCT+R1` | ON | ON | OFF | ON |
-| `STRUCT+R2` | ON | ON | ON | OFF |
-| `ALGSTRUCT` | ON | ON | ON | ON |
-
-`ALGSTRUCT` odpowiada domyślnej konfiguracji optymalizatora. Źródłem prawdy
-o konkretnej binarce pozostaje jej `--build-info`. Profile pośrednie zmieniają
-tylko jedną regułę względem `STRUCT`: `STRUCT+R1` włącza faktoryzację R1,
-a `STRUCT+R2` — kanonizację przemiennego `STREAM_ADD`.
-
-Po wprowadzeniu przyczynowego ogona startowego, jednej konwencji `tau`
-i końcowego sortowania topologicznego nie ma oczekiwanych rozbieżności
-semantycznych między profilami. Sonda potwierdza dla `OFF`, `STRUCT`
-i konfiguracji domyślnej zgodność wartości, map `null`, braku prefiksu
-i ogonów R1. Dwa dawne przypadki `WILL_FAIL` — inny wynik R1 bez faktoryzacji
-oraz dodatkowy rekord zerowego prefiksu — zostały usunięte wraz z ich
-przyczynami i nie są już dopuszczalnym wynikiem ablacji.
-
-Warianty ablacyjne służą wyłącznie kontroli poprawności: pozwalają sprawdzić,
-że wyłączenie pojedynczej reguły nie zmienia obserwowalnego wyniku, i że
-optymalizator nie ukrywa defektu, który ujawniłby się bez niego. Pomiary kosztu
-i zysku wydajnościowego poszczególnych reguł nie należą do tej dokumentacji —
-prowadzone są w osobnym repozytorium eksperymentalnym i raportowane w osobnej
-publikacji.
+Wariant z wyłączoną optymalizacją może zmienić strukturę planu, ale nie może
+zmienić wartości, map `NULL`, publicznego deskryptora, początku logicznego ani
+polityki materializacji. Ogon może się skrócić po włączeniu poprawnego
+przepisania planu, lecz nie może spowodować emisji przed dostępnością danych.
+Każde inne odchylenie jest regresją, a nie dopuszczalną właściwością wariantu.
 
 ## Pakowanie
 

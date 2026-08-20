@@ -115,6 +115,17 @@ Przekształca odwołania do pól ze schematów źródłowych na indeksy w schema
 
 Rozwija symbol `_` w indeksach pól. Powielenie formuły dla wszystkich pasujących par pól ze schematów argumentów — patrz [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md).
 
+#### simplifyFieldExpressions
+
+Upraszcza programy pól `SELECT` oraz warunki `RULE` po rozwiązaniu referencji,
+ale przed współdzieleniem równoważnych obliczeń. Przebieg zwija wyrażenia
+stałe, łączy ogony stałych w arytmetyce całkowitej i wymiernej oraz usuwa
+zgodne typowo elementy neutralne (`E+0`, `E-0`, `E*1`, `E/1`).
+
+Przebieg zachowuje semantykę wartości `NULL` i promocję typów. Dlatego nie
+upraszcza `E*0`, nie reasocjuje `FLOAT` ani `DOUBLE` i pozostawia bez zmian
+programy, których typu lub działania nie potrafi bezpiecznie ustalić.
+
 #### shareEquivalentSelectComputations
 
 Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FROM` zawierających `STREAM_ADD`. Porządkuje tylko dwoje dzieci pojedynczego węzła `STREAM_ADD`, bez zmiany grupowania całego drzewa. Dla każdej klasy równoważności tworzy jeden substrat `STREAM_SELECT_*`, a publiczne zapytania pozostawia jako lekkie projekcje zachowujące własne nazwy, deskryptory, reguły i storage. Przebieg wykonuje się przed lokalizacją offsetów — patrz [Substraty](substraty.md).
@@ -144,12 +155,13 @@ po niemalejącym odwzorowaniu. Listing planu pokazuje wartość jako `origin=`.
 Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego
 interwału strumienia, w których istniejący wynik nie jest jeszcze gotowy.
 Źródła mają ogon 0; `>N` daje `max(0, W_src − N)`, bo czyta rekord starszy od
-bieżącego; przeplot uwzględnia ogony obu wejść i własne wyprzedzenie drugiego
-argumentu; suma bierze maksimum przeliczonych ogonów; lewy rozplot `Theta`
-dodaje jeden slot; `SUBTRACT` i AGSE używają granic fazowych. Redukcje nie
-dodają własnego ogona. Listing planu pokazuje wartość jako `tail=`; runtime nie
-emituje podczas ogona żadnego rekordu. Liczba slotów milczenia wynosi
-`origin + tail`.
+bieżącego; przeplot uwzględnia ogony obu wejść i fazę rzeczywiście wybieranej
+składowej; suma bierze maksimum granic dostępności obu wejść. Różnica oraz oba
+rozploty używają dokładnych granic fazowych — lewy rozplot nie dodaje
+bezwarunkowo jednego slotu. AGSE używa granicy wynikającej z najnowszego pola
+okna, a redukcje nie dodają własnego ogona. Listing planu pokazuje wartość jako
+`tail=`; runtime nie emituje podczas ogona żadnego rekordu. Liczba slotów
+milczenia wynosi `origin + tail`.
 
 Ten przebieg biegnie po `computeLogicalOrigin` i przed obliczeniem pojemności:
 ogon zależy od tego, które sloty są rekordami, a wymagana historia — od chwili
@@ -158,9 +170,11 @@ pierwszej emisji konsumenta.
 #### computeRequiredCapacities
 
 Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie
-rozmiarów schematów i wymagań okien czasowych. Po zakończeniu ogona
-przesunięcie `>N` odczytuje slot historii o indeksie `N`, dlatego wymaga
-`N+1` rekordów (slot 0 jest rekordem bieżącym). Pojemność historii jest
+odległości między czołem producenta a indeksem czytanym przez konsumenta. Dla
+przesunięcia `>N` odległość wsteczna wynosi `W_out-W_src+N`, więc podstawowa
+pojemność to `W_out-W_src+N+1`. Jeśli źródłem jest deklaracja, dochodzą dwa
+rekordy wyprzedzenia: rekord uzbrojony przy otwarciu storage i zerowy prefetch.
+Wynik jest ograniczany od dołu do jednego rekordu. Pojemność historii jest
 wymaganiem wykonawczym, a nie prefiksem wyniku.
 
 #### validateConstraints

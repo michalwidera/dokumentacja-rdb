@@ -2,15 +2,15 @@
 
 W obszarze załączników znalazły się dokumenty, które nie są związane bezpośrednio z konstrukcją systemu, ale stanowią opis motywacji decyzji projektowych, dokumentację narzędzi oraz materiał pomocniczy dla osób wdrażających lub rozwijających system.
 
-**Budowanie produkcyjne i warianty badawcze**
+**Budowanie produkcyjne i warianty diagnostyczne**
 
 Opis kontraktu bezpieczeństwa produkcyjnego `release` oraz izolowanych trybów
 `release-ablation` i `probe`. Rozdział przedstawia kontrolę czystości źródeł,
 jawne wartości przełączników optymalizatora, rozdzielenie katalogów CMake i
-Conan, weryfikację konfiguracji gotowej binarki oraz zasady interpretacji
-oczekiwanych błędów testów ablacyjnych.
+Conan, weryfikację konfiguracji gotowej binarki oraz niezmiennik zgodności
+wyniku między wariantami.
 
-Pełny opis: [Budowanie produkcyjne i warianty badawcze](budowanie-produkcyjne-i-warianty-badawcze.md)
+Pełny opis: [Budowanie produkcyjne i warianty diagnostyczne](budowanie-produkcyjne-i-warianty-badawcze.md)
 
 **Geneza systemu**
 

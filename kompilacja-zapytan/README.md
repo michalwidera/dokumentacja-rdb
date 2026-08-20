@@ -32,7 +32,7 @@ Flaga `-c` zatrzymuje `xretractor` po tym kroku i drukuje plan na standardowe wy
 
 Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opisu struktury danych i łańcucha etapów, przez poszczególne przekształcenia, aż po obsługę błędów.
 
-[**Przebiegi kompilacji**](przebiegi-kompilacji.md) opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to sekwencja dziesięciu kolejnych przekształceń wewnętrznej reprezentacji `qTree`, od sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów i offsetów pól, aż po weryfikację semantyczną i alokację buforów. Każdy etap zakłada sukces poprzedniego i zwraca komunikat błędu, gdy warunki nie są spełnione.
+[**Przebiegi kompilacji**](przebiegi-kompilacji.md) opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to uporządkowana sekwencja piętnastu etapów wewnętrznej reprezentacji `qTree`, od sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego i zwraca komunikat błędu, gdy warunki nie są spełnione.
 
 [**Budowa drzewa zależności**](budowa-drzewa-zaleznosci.md) opisuje strukturę DAG powstającego w trakcie kompilacji — fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność zapytań w pliku `.rql` ma znaczenie — odwołanie do niezdefiniowanego jeszcze strumienia kończy się błędem.
 

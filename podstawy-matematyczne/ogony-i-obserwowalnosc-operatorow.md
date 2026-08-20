@@ -31,9 +31,9 @@ wyniku.
 | przesunięcie `>N` | rekord \\(n-N\\) | \\(O_S+N\\) | \\(-N\\), patrz niżej | `ut_compiler`, `ut_h10aGate` |
 | suma `+` | bieżące współindeksowane krotki | próg odwzorowania | 0 | `ut_compiler` |
 | przeplot `#` | rekord \\(j(i)\\) składowej wybranej w slocie \\(i\\) | próg odwzorowania | wzór niżej | `deinterleave_roundtrip`, `ut_h10aGate` |
-| lewy rozplot `&` (`DIV`) | \\(n+\lceil(n+1)\Delta_a/\Delta_b\rceil\\) | próg odwzorowania | 1 | `deinterleave_roundtrip` |
-| prawy rozplot `%` (`MOD`) | \\(n+\lfloor n\Delta_b/\Delta_a\rfloor\\) | próg odwzorowania | 0 | `deinterleave_roundtrip` |
-| różnica `C-Delta` | \\(\lceil n\Delta/\Delta_C\rceil\\) | próg odwzorowania | fazowy, najwyżej 1 przy \\(\Delta\ge\Delta_C\\) | `it_k19_boundaries` |
+| lewy rozplot `&` (`DIV`) | \\(n+\lceil(n+1)\Delta_a/\Delta_b\rceil\\) | próg odwzorowania | wzór fazowy poniżej | `deinterleave_roundtrip`, `ut_h10aGate` |
+| prawy rozplot `%` (`MOD`) | \\(n+\lfloor n\Delta_b/\Delta_a\rfloor\\) | próg odwzorowania | wzór fazowy poniżej | `deinterleave_roundtrip`, `ut_h10aGate` |
+| różnica `C-Delta` | \\(\lceil n\Delta/\Delta_C\rceil\\) | próg odwzorowania | wzór fazowy poniżej | `it_k19_boundaries`, `ut_h10aGate` |
 | AGSE `@(k,L)` | pola od \\(nk-(\lvert L\rvert-1)\\) do \\(nk\\) | wzór niżej | wzór niżej | `agse1`, `agse2`, `agse3`, `it_k19_boundaries`, `ut_h10aGate` |
 | `sumc`, `avgc`, `minc`, `maxc` | bieżąca pełna krotka | \\(O_S\\) | 0 | `ut_dataModel`, `it_k19_boundaries` |
 
@@ -49,9 +49,26 @@ taki indeks istnieje i jest jednoznaczny.
 Różnica przyjmuje docelowy interwał \\(\Delta\\), który nie może być mniejszy
 od interwału źródła \\(\Delta_C\\). Dla stosunku
 \\(r=\Delta/\Delta_C=p/q\\) maksymalne wyprzedzenie fazowe indeksu
-\\(\lceil nr\rceil\\) wynosi \\((q-1)/q\\). Producent deklarowany wymaga
-jednego slotu również w fazie całkowitej, ponieważ publikuje następny rekord
-po odczycie konsumentów w tym samym takcie.
+\\(\lceil nr\rceil\\) wynosi \\((q-1)/q\\).
+
+## Ogony operatorów fazowych
+
+Różnica oraz oba rozploty używają wspólnej reguły dostępności. Niech
+\\(r=\Delta_{out}/\Delta_{src}\\), \\(W_S\\) będzie ogonem źródła, a
+\\(e_{max}\\) — największą osiąganą fazą odwzorowania indeksu. Wtedy:
+
+\\[
+W_{out}=\max\left(0,
+\left\lceil\frac{e_{max}+W_S+1}{r}\right\rceil-1
+\right)
+\\]
+
+Dla różnicy \\(e_{max}=(q-1)/q\\), gdzie \\(q\\) jest mianownikiem
+skróconego stosunku \\(r\\). Dla lewego rozplotu, przy
+\\(\Delta_{out}/\Delta_{other}=a/b\\), wartość wynosi
+\\(e_{max}=(a+b-1)/b\\). Dla prawego rozplotu \\(e_{max}=0\\). Oznacza to
+między innymi, że lewy rozplot nie dodaje bezwarunkowo jednego slotu: dla
+stosunku całkowitego jego własny ogon może wynosić zero.
 
 ## Ogon przeplotu
 
@@ -73,10 +90,9 @@ W_{\\#}
 Wybór składowej i faza powtarzają się z okresem \\(p+q\\), więc maksimum po
 jednym okresie jest maksimum po wszystkich rekordach; początek logiczny
 przesuwa oba indeksy o tyle samo i nie zmienia wyniku. Wzór jest dokładny.
-Poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\) chroniła najgorszą fazę
-odczytu drugiego argumentu, ale nie sprawdzała, czy ta faza wypada na rekord
-czekający najdłużej — zawyżała więc ogon o slot. Pozostaje w implementacji jako
-wariant awaryjny dla bardzo długich okresów, gdzie przegląd byłby zbyt kosztowny.
+Dla okresów przekraczających `kHashPhaseScanLimit` implementacja używa
+bezpiecznej postaci zamkniętej. Może ona opóźnić emisję, ale nie może dopuścić
+do emisji rekordu przed udostępnieniem jego zależności.
 
 ## Przesunięcie \\(\tau_N\\)
 
@@ -185,7 +201,7 @@ Rozdzielenie nie jest formalnością. Faktoryzacja \\(R_1\\)
 (\\(\varphi(\tau_i(A),\tau_k(B))\to\tau_{i+k}(\varphi(A,B))\\)) zachowuje całą
 część wartościową, ale **skraca** ogon: postać sfaktoryzowana czyta treść
 bezpośrednio z przeplotu, podczas gdy postać niefaktoryzowana czyta składowe
-dopiero po ich własnym przesunięciu. Dowód i pomiar: [Formalne podstawy
+dopiero po ich własnym przesunięciu. Uzasadnienie: [Formalne podstawy
 i dowody](formalne-podstawy-i-dowody.md), twierdzenie o przemienności
 przesunięcia z przeplotem. Regresje: `it_r1_identity_nulls`,
 `it_optimizer_ablation-factor-name-collision-semantic`.
@@ -203,5 +219,6 @@ się wewnątrz pełnego okna.
 
 Wzory operatorowe z tego rozdziału są egzekwowane przy każdym commicie: granice
 i obserwowalność przez `it_k19_boundaries`, głębokości historii przez
-`it_k24_capacity`, a zgodność początku logicznego i ogona dla klas `@` oraz `>`
-przez test jednostkowy `ut_h10aGate`.
+`it_k24_capacity`, a zgodność początku logicznego i ogona wszystkich
+kanonicznych klas operatorów oraz ich złożeń przez test jednostkowy
+`ut_h10aGate`.

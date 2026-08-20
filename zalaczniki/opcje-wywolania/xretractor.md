@@ -46,7 +46,7 @@ Available options:
 | Opcja | Znaczenie |
 | ----- | --------- |
 | `help` | Wyświetlenie tekstu podpowiedzi. Lista różni się w zależności od trybu (z `-c` lub bez). |
-| `build-info` | Wypisuje konfigurację optymalizatora, z jaką zbudowano binarkę (flagi `RDB_OPT_*` oraz `RDB_BENCH_PROBE`), i kończy działanie bez uruchamiania silnika. Obsługiwana przed wczytaniem i walidacją pliku konfiguracyjnego, więc działa także na hoście z niepoprawnym `storage.dir`. Wynik jest stabilny i przeznaczony do przetwarzania automatycznego — korzystają z niego `scripts/buildrdb.sh` oraz test `it_optimizer_ablation-build-info`. Szczegóły w załączniku o budowaniu produkcyjnym i wariantach badawczych. |
+| `build-info` | Wypisuje konfigurację optymalizatora, z jaką zbudowano binarkę (flagi `RDB_OPT_*` oraz `RDB_BENCH_PROBE`), i kończy działanie bez uruchamiania silnika. Obsługiwana przed wczytaniem i walidacją pliku konfiguracyjnego, więc działa także na hoście z niepoprawnym `storage.dir`. Wynik jest stabilny i przeznaczony do przetwarzania automatycznego — korzystają z niego `scripts/buildrdb.sh` oraz test `it_optimizer_ablation-build-info`. Szczegóły w załączniku o budowaniu produkcyjnym i wariantach diagnostycznych. |
 | `onlycompile` | Przełączenie narzędzia w tryb „tylko kompilacja". Pętla realizacji zapytań nie jest uruchamiana. |
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
 | `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
