@@ -240,3 +240,27 @@ scripts/buildrdb.sh release package
 Opcja `package` ponownie ustawia produkcyjne wartości przełączników i
 przebudowuje wybrany katalog przed uruchomieniem CPack. Nie należy uruchamiać
 pakowania na katalogach `Release-Ablation` ani `Release-Probe`.
+
+## Opcjonalne API klienckie
+
+Katalog `api/` jest rozwijany i testowany razem z silnikiem, ale nie należy do
+domyślnego produktu. Zwykłe cele `ninja`, `ninja install`, `ninja test` oraz
+`ninja package` pozostawiają biblioteki i testy API poza wynikiem.
+
+Jawne wejścia są rozdzielone:
+
+| Polecenie | Znaczenie |
+| --- | --- |
+| `ninja install-withapi` | Buduje i instaluje silnik oraz komponent `api`. |
+| `ninja test-api` | Buduje testowego klienta C++ i uruchamia testy z etykietą `api`. |
+| `cmake -DRDB_WITH_API=ON .` | Dołącza komponent `api` do pakietów CPack; zwykły cel `test` przestaje wtedy odfiltrowywać etykietę `api`. |
+
+Przełącznik pakowania musi być ustawiony podczas konfiguracji, ponieważ CPack
+ustala listę komponentów właśnie wtedy. Bez `RDB_WITH_API=ON` pakiety `.deb` i
+`.tar.gz` zawierają wyłącznie silnik, jednostkę systemd i przykłady konfiguracji.
+Test `it_packaging` chroni ten domyślny, minimalny zestaw.
+
+Cele C++ API są zawsze znane CMake, ale mają `EXCLUDE_FROM_ALL`. Reguły instalacji
+należą do osobnego komponentu `api`, więc samo `ninja install` ich nie wykonuje.
+Szczegóły użycia bibliotek i kontraktu JSONL zawiera rozdział
+[API monitorowania strumieni](api-monitorowania-strumieni.md).

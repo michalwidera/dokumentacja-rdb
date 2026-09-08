@@ -58,9 +58,11 @@ Proponuję uruchomić drugie okno terminala i tam kontynuować sesję. W drugim 
 
 ```
 $ xqry -d
-| str1|1/10|6912|864|             |0|
-|core0|1/10|  -1| 49|datafile1.txt|1|
-|core1| 1/5|  -1| 25| /dev/urandom|1|
+name  | duration | size | count | location      | cap
+------+----------+------+-------+---------------+----
+str1  | 1/10     | 6912 | 864   |               | 0
+core0 | 1/10     | -1   | 49    | datafile1.txt | 1
+core1 | 1/5      | -1   | 25    | /dev/urandom  | 1
 ```
 
 Powinno się pojawić coś podobnego. Oczywiście liczniki danych przy str1 powinny się różnić. Logicznym jest że za każdym odczytem otrzymamy większe wartości dotyczące rozmiaru zgromadzonego strumienia str1.
@@ -116,8 +118,6 @@ Jeśli chcemy zakończyć proces xretractor za pomocą polecenia xqry możemy wy
 
 ```
 $ xqry -k
-kill sent to server
-ok.
 ```
 
 Po wydaniu tego polecenia proces xretractor zakończy swoje działanie i przerwie przetwarzane planów realizacji zapytań.

@@ -12,7 +12,11 @@ Rozdział zbudowany jest warstwowo — od widoku ogólnego do szczegółów impl
 
 ### [Perspektywa ogólna](schemat-architektury.md)
 
-System jako trójka współpracujących programów: `xretractor` jako singleton realizujący plan zapytań, `xqry` jako wieloinstancyjny klient danych bieżących, `xtrdb` jako narzędzie inspekcji plików binarnych. Komunikacja między procesami `xretractor` i `xqry` realizowana jest przez pamięć współdzieloną (Boost IPC). Na schemacie Rys. 12 widać granicę odpowiedzialności każdego z komponentów.
+System jako trójka współpracujących programów: `xretractor` jako proces realizujący plan zapytań, `xqry` jako wieloinstancyjny klient danych bieżących, `xtrdb` jako narzędzie inspekcji plików binarnych. Na jednym hoście może działać wiele nazwanych procesów `xretractor`, każdy z własnym obszarem Boost IPC. Na schemacie Rys. 12 widać granicę odpowiedzialności komponentów dla jednej takiej instancji.
+
+### [Wiele instancji i magistrala](wiele-instancji-i-magistrala.md)
+
+Nazwy instancji, rozdzielenie obiektów IPC, rejestr `xrdbbus`, globalna ochrona nazw strumieni i plików magazynu oraz reguły automatycznego kierowania poleceń `xqry`. Rozdział opisuje również stałą tożsamość `service`, wymianę całego planu przez `xqry --reset` i znaczenie trybów pokazywanych przez `xqry --bus`.
 
 ### [Przepływ danych i sterowania](przeplyw-danych-i-sterowania.md)
 

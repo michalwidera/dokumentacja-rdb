@@ -37,12 +37,11 @@ Zobaczymy ciąg zer …
 W kolejnym oknie wydajemy następujące polecenie:
 
 ```
-$ xqry -a "SELECT * STREAM ping FROM core VOLATILE”
-snd: adhoc SELECT * STREAM ping FROM core VOLATILE
-rcv: db OK
+$ xqry -a "SELECT * STREAM ping FROM core VOLATILE"
 ```
 
-W tym momencie w oknie prezentującym wartości ze strumienia core pojawią się wartości core
+Kod wyjścia `0` bez komunikatu oznacza, że zapytanie zostało przyjęte. W tym momencie w
+oknie prezentującym wartości ze strumienia core pojawią się wartości core.
 
 ```
 $ xqry -s core

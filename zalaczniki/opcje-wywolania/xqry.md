@@ -1,131 +1,220 @@
 # xqry
 
-Program `xqry` jest integralną częścią systemu RetractorDB. Dzieli z `xretractor` wspólny obszar w pamięci (Boost IPC) używany do komunikacji. Służy do odpytywania działającego procesu przetwarzania, odbioru wyników z pętli zapytań oraz sterowania pracą serwera.
-
-W odróżnieniu od `xretractor`, `xqry` może być uruchomiony w wielu instancjach jednocześnie.
+Program `xqry` komunikuje się z działającym procesem `xretractor` przez Boost IPC.
+Odczytuje bieżące rekordy, pokazuje plan i schematy, dołącza pojedyncze polecenia RQL,
+wymienia cały plan oraz zatrzymuje wskazaną instancję. Wiele procesów `xqry` może działać
+równocześnie, także wobec różnych serwerów.
 
 ## Uruchomienie
 
-```
+```text
 $ xqry -h
 xqry - data query tool.
 
 Usage: xqry [option]
 
 Allowed options:
-  -s [ --select ] arg         show this stream
-  -t [ --detail ] arg         show details of this stream
-  -a [ --adhoc ] arg          adhoc query mode
-  -m [ --elimitqry ] arg (=0) limit of elements, 0 - no limit
-  -n [ --null ]               if null row appear - skip it in output
-  -l [ --hello ]              diagnostic - hello db world
-  -k [ --kill ]               kill xretractor server
-  -d [ --dir ]                list of queries
-  -y [ --diryaml ]            list of queries in yaml format
-  -r [ --raw ]                raw output mode (default)
-  -g [ --graphite ]           graphite output mode
-  -f [ --influxdb ]           influxDB output mode
-  -p [ --gnuplot ] arg        x,y - gnuplot output mode
-  -z [ --gnuplot-rtl ]        gnuplot output: newest samples on the right
-                              (right-to-left scroll)
-  -e [ --config ] arg         config file (TOML); overrides search
-  -h [ --help ]               produce help message
-  -c [ --needctrlc ]          force ctl+c for stop this tool
-  -w [ --wait-server ]        poll until xretractor server is available before
-                              executing command
+  -s [ --select ] arg            show this stream
+  -t [ --detail ] arg            show details of this stream
+  -a [ --adhoc ] arg             adhoc query mode
+  -q [ --reset ] arg             replace the whole plan of the target instance
+                                 with this RQL file
+  -m [ --elimitqry ] arg (=0)    limit of elements, 0 - no limit
+  -n [ --null ]                  if null row appear - skip it in output
+  -l [ --hello ]                 diagnostic - hello db world
+  -k [ --kill ]                  kill xretractor server
+  -d [ --dir ]                   list of queries
+  -y [ --yaml ]                  yaml output format for --dir, --detail and
+                                 --bus
+  -j [ --jsonl ]                 versioned JSON Lines API output
+  -i [ --idle-timeout ] arg (=0) JSONL idle timeout in ms; 0 disables
+  -r [ --raw ]                   raw output mode (default)
+  -g [ --graphite ]              graphite output mode
+  -f [ --influxdb ]              influxDB output mode
+  -p [ --gnuplot ] arg           x,y - gnuplot output mode
+  -z [ --gnuplot-rtl ]           gnuplot output: newest samples on the right
+  -e [ --config ] arg            config file (TOML); overrides search
+  -h [ --help ]                  produce help message
+  -c [ --needctrlc ]             force ctl+c for stop this tool
+  -w [ --wait-server ]           poll until xretractor server is available
+  -x [ --server ] arg            target xretractor instance name
+  -b [ --bus ]                   list live xretractor instances and their streams
 ```
 
----
+## Wybór instancji
 
-## Odbiór danych ze strumieni
+Jawne `--server nazwa` wybiera instancję bez korzystania z automatycznego routingu:
 
-| Opcja                   | Znaczenie                                                                                                   |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `-s` / `select arg`     | Odbiera dane z podanego strumienia udostępnianego przez `xretractor`.                                       |
-| `-t` / `detail arg`     | Wyświetla szczegółowe informacje o strumieniu: nazwę, delta, treść zapytania i listę pól z typami (YAML).   |
-| `-a` / `adhoc arg`      | Dołącza zapytanie do systemu w trakcie jego działania (tryb ad hoc). Przyjmowane jest wyłącznie polecenie `SELECT` — `DECLARE` jest odrzucany komunikatem `Fail parse: AdHoc DECLARE not supported`. Patrz: [Zapytania Ad hoc](../../realizacja-zapytan/zapytania-ad-hoc.md). |
-| `-m` / `elimitqry arg`  | Ogranicza liczbę odebranych wyników. Wartość `0` oznacza brak limitu. Szczególnie przydatne z opcją `-k`.   |
-| `-n` / `null`           | Pomija wiersze, w których wszystkie pola mają wartość null. Przydatne przy strumieniach z lukami pomiarowymi — eliminuje szum w wyjściu bez filtrowania po stronie klienta. |
+```bash
+xqry --server pomiary --dir
+xqry --server pomiary --select temperatura
+xqry --server pomiary --kill
+```
 
-Przykładowa odpowiedź opcji `detail`:
+Bez tej opcji klient czyta magistralę `xrdbbus`. Przy jednej żywej instancji wybiera ją
+automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela
+podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`,
+`--reset`) są niejednoznaczne i wymagają `--server`.
+
+Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą
+należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach
+również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są
+odrzucane przed wysłaniem polecenia.
+
+## Lista instancji: `--bus`
+
+`xqry --bus` odczytuje magistralę bez kontaktowania się z serwerami. Wiersze są sortowane
+po nazwie, a `(unnamed)` oznacza zgodną wstecz instancję uruchomioną bez nazwy.
+
+```text
+$ xqry --bus
+SERVER | PID    | MODE | QUERY              | STREAMS
+-------+--------+------+--------------------+-----------
+alfa   | 249247 | N    | .../plans/alfa.rql | srca, dsta
+beta   | 249248 | FS   | .../plans/beta.rql | srcb, dstb
+MODE: N=normal, R=realtime, F=no-clock, U=until-eof, M=llimitqry, X=xqrywait, S=service
+```
+
+Ścieżka w tabeli jest skracana dla czytelności. `--bus --yaml` zachowuje pełną ścieżkę:
 
 ```yaml
 ---
 apiVersion: xqry/v1
-stream:
-  name: str4
-  delta: 1
-  query: SELECT (str4[0]+1)*2 STREAM str4 FROM core0>1
-  fields:
-    str4.str4_0:
-      type: INTEGER
+servers:
+  - name: alfa
+    pid: 249247
+    modes: N
+    query: "/home/user/plans/alfa.rql"
+    streams:
+      - srca
+      - dsta
 ```
 
----
+Pusta magistrala daje poprawny dokument `servers: []` w YAML. Informacja diagnostyczna o
+braku instancji trafia na `stderr`.
 
-## Diagnostyka i sterowanie serwerem
+## Lista i szczegóły strumieni
 
-| Opcja              | Znaczenie                                                                              |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| `-l` / `hello`          | Weryfikacja działania kanału komunikacyjnego z `xretractor` (ping diagnostyczny).      |
-| `-k` / `kill`           | Żądanie zatrzymania procesu `xretractor`.                                              |
-| `-d` / `dir`            | Wylistowanie wszystkich zapytań realizowanych przez `xretractor` w formacie tekstowym. |
-| `-y` / `diryaml`        | Wylistowanie wszystkich zapytań w formacie YAML.                                       |
-| `-w` / `wait-server`    | Odpytuje co 100 ms czy `xretractor` jest dostępny (maks. 30 s), a po potwierdzeniu wykonuje żądane polecenie. Umożliwia niezawodne uruchamianie `xqry` w skryptach startowych i kontenerach, gdy kolejność startu procesów nie jest gwarantowana. Sprawdza wyłącznie dostępność IPC — nie wysyła żadnej komendy do serwera i nie wyzwala przetwarzania danych. |
+`--dir` wypisuje wyrównaną tabelę:
 
----
-
-## Formaty wyjścia
-
-`xqry` obsługuje cztery formaty prezentacji danych. Format wybiera się flagą — można go łączyć z opcją `select`.
-
-| Opcja              | Format         | Zastosowanie                                                                 |
-| ------------------ | -------------- | ---------------------------------------------------------------------------- |
-| `-r` / `raw`       | Tekstowy       | Domyślny. Dane bez dekoracji — przydatny do skryptów i potokowania.          |
-| `-g` / `graphite`  | Graphite       | Format `metryka wartość znacznik_czasu` — gotowy do wysłania do Graphite.    |
-| `-f` / `influxdb`  | InfluxDB       | Line protocol InfluxDB — gotowy do importu do bazy szeregów czasowych.       |
-| `-p` / `gnuplot x,y` lub `x,ymin,ymax` | Gnuplot | Agregaty dla bezpośredniego zasilania `gnuplot`. Argument `x,y` podaje oś czasu i wartość; `x,ymin,ymax` dodatkowo ogranicza zakres osi Y. Separatorem może być `,` lub `:`. |
-| `-z` / `gnuplot-rtl` | Gnuplot      | Modyfikator formatu gnuplot: najnowsze próbki po prawej stronie (przewijanie prawo-do-lewa). Wymaga jednoczesnego użycia `-p`/`--gnuplot` — samodzielne wywołanie jest zgłaszane jako błąd. |
-
----
-
-## Sterowanie trybem odbioru
-
-| Opcja              | Znaczenie                                                                                          |
-| ------------------ | -------------------------------------------------------------------------------------------------- |
-| `-h` / `help`      | Wyświetlenie tekstu pomocy.                                                                        |
-| `-c` / `needctrlc` | W normalnym trybie dowolny klawisz zatrzymuje odbiór danych. Ta opcja wymaga użycia `Ctrl+C`.      |
-| `-e` / `config arg` | Ścieżka do pliku konfiguracyjnego TOML; pomija standardową kolejność wyszukiwania. Znaczenie identyczne jak w `xretractor`, ale pod innym skrótem: w `xretractor` jest to `-g`, które w `xqry` zajmuje `--graphite`. |
-
----
-
----
-
-## Wzorzec uruchamiania w skryptach
-
-Przy użyciu `xretractor -m N` (ograniczona liczba cykli) istnieje ryzyko wyścigu: serwer może przetworzyć wszystkie dane zanim klient zdąży się podłączyć. Gwarantowany wzorzec:
-
-```sh
-# Strona serwera: -x powoduje wstrzymanie przetwarzania do czasu
-# nadejścia pierwszej komendy od xqry
-xretractor query.rql -m 100 -k -x &
-
-# Strona klienta: -w sprawdza gotowość IPC bez wysyłania komend,
-# więc nie wyzwala przypadkowo przetwarzania
-xqry -w -s strumien -m 10
+```text
+$ xqry --server alfa --dir
+name  | duration | size | count | location      | cap
+------+----------+------+-------+---------------+----
+core0 | 1/10     | -1   | 0     | datafile2.dat | 4
+str1  | 1/30     | 0    | 0     |               | 0
 ```
 
-Flagi `-w` i `-x` są komplementarne:
+`duration` jest dokładnym interwałem strumienia, `size` rozmiarem zapisanych danych,
+`count` liczbą rekordów, `location` plikiem źródła, a `cap` pojemnością historii wyliczoną
+przez kompilator. Dla deklarowanego źródła `size` ma wartość `-1`.
 
-| Flaga             | Narzędzie     | Rola                                                                 |
-| ----------------- | ------------- | -------------------------------------------------------------------- |
-| `-w` / `wait-server` | `xqry`     | Czeka na gotowość IPC serwera przed wysłaniem komendy                |
-| `-x` / `xqrywait`   | `xretractor` | Wstrzymuje przetwarzanie do nadejścia pierwszej komendy od klienta   |
+`--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza
+`--dir`, `--detail` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym
+poleceniem. Nieznany strumień kończy działanie kodem `2`.
 
-Bez `xretractor -x` przy strumieniach plikowych (szybkich) dane mogą zostać przetworzone w całości przed połączeniem klienta — `xqry` będzie czekał na dane, które nigdy nie nadejdą.
+## Odbiór danych
 
----
+| Opcja | Znaczenie |
+| --- | --- |
+| `-s` / `--select strumień` | Subskrybuje bieżące rekordy strumienia. |
+| `-m` / `--elimitqry N` | Kończy po dokładnie N rekordach; `0` oznacza brak limitu. |
+| `-n` / `--null` | Pomija rekordy, w których wszystkie wartości są `NULL`. |
+| `-c` / `--needctrlc` | Wymaga Ctrl+C zamiast zakończenia dowolnym klawiszem. |
+
+Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu
+serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest
+wykrywana przez timeout `timing.query_no_data_timeout_ms`.
+
+### Formaty prezentacyjne
+
+| Opcja | Format |
+| --- | --- |
+| `-r` / `--raw` | Domyślny tekst bez dekoracji. |
+| `-g` / `--graphite` | Wiersze zgodne z Graphite. |
+| `-f` / `--influxdb` | Line protocol InfluxDB. |
+| `-p` / `--gnuplot x,y` | Dane i polecenia do bezpośredniego zasilenia gnuplot. |
+| `-z` / `--gnuplot-rtl` | Modyfikator gnuplot umieszczający najnowsze próbki po prawej. |
+
+Można wybrać tylko jeden format. `--gnuplot-rtl` wymaga `--gnuplot`. Surowy format
+przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
+
+## Polecenia ad hoc
+
+`--adhoc` dołącza dokładnie jedno `SELECT`, `DECLARE` albo `RULE` do aktywnego planu:
+
+```bash
+xqry --server pomiary --adhoc \
+  "SELECT AVG(value : 10) STREAM avg10 FROM sensor"
+```
+
+Dyrektywy kompilatora i kilka poleceń w jednym żądaniu są odrzucane. Szczegóły początku
+logicznego, deklaracji źródeł, reguł i roszczeń zasobów opisano w rozdziale
+[Zapytania Ad hoc](../../realizacja-zapytan/zapytania-ad-hoc.md).
+
+## Wymiana całego planu: `--reset`
+
+`--reset plik.rql` przesyła zawartość pliku i zastępuje cały plan wybranej instancji. To
+inna operacja niż ad hoc: pełny zestaw może zawierać wiele poleceń, reguły i dyrektywy
+`:STORAGE`, `:SUBSTRAT` oraz `:ROTATION`.
+
+```bash
+xqry --server service --reset plan.rql
+```
+
+Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw oraz rezerwuje jego nazwy
+strumieni, pliki magazynu i licznik rotacji. Odmowa nie zatrzymuje starego planu. Przyjęty
+plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca,
+a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik
+przełącza serwer w stan bezczynny.
+
+Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej
+pliku startowego, aby przetrwała restart procesu.
+
+## JSON Lines dla aplikacji
+
+`--jsonl` udostępnia wersjonowane wyjście maszynowe dla `--hello`, `--dir`, `--detail`
+i `--select`. Wymaga jednoznacznego serwera; aplikacje powinny zawsze podawać go jawnie.
+
+```bash
+xqry --server laboratory --jsonl --hello
+xqry --server laboratory --jsonl --dir
+xqry --server laboratory --jsonl --detail temperature
+xqry --server laboratory --jsonl --select temperature --elimitqry 10
+```
+
+Każdy wiersz stdout jest kompletnym obiektem JSON z `version: 1` i polem `event`.
+Obsługiwane zdarzenia to `pong`, `streams`, `schema`, `record`, `end` i `error`.
+Diagnostyka trafia na `stderr`. `--idle-timeout N` podaje w milisekundach dopuszczalny
+czas bez rekordu dla subskrypcji; zero wyłącza limit.
+
+Polecenia modyfikujące, `--bus`, YAML, pozostałe formaty wyjścia, `--null` i
+`--wait-server` nie łączą się z JSONL. Pełny kontrakt oraz gotowe klienty Python i C++
+opisuje [API monitorowania strumieni](../api-monitorowania-strumieni.md).
+
+## Jedno polecenie naraz
+
+`--select`, `--detail`, `--adhoc`, `--reset`, `--dir`, `--bus` i `--hello` są różnymi
+poleceniami; podanie kilku naraz kończy się kodem `22`. `--kill` może być świadomie
+połączone z `--select -m N` albo z `--adhoc`, aby zatrzymać serwer po wykonaniu operacji.
+
+## Czekanie na serwer
+
+`--wait-server` odpytuje dostępność IPC zgodnie z `timing.server_startup_wait_s` i
+`timing.server_startup_poll_ms`. Przy jawnej nazwie czeka na nią. Bez nazwy ponawia routing:
+historycznie czeka na instancję bezimienną, a po pojawieniu się jednej nazwanej instancji
+wybiera ją automatycznie. Niejednoznaczność przy wielu serwerach jest zgłaszana od razu.
+`--bus` nie wymaga serwera i ignoruje czekanie.
+
+Typowy wzorzec testowy:
+
+```bash
+xretractor query.rql --name test --llimitqry 100 --noanykey --xqrywait &
+xqry --server test --wait-server --select strumien --elimitqry 10
+```
 
 ## Informacje o wersji
 
-Informacje na dole listy pomocy są identyczne jak w przypadku `xretractor` — zawierają nazwę odnogi repozytorium, wersję kompilatora, czas budowy oraz ścieżkę do pliku dziennika (`/tmp/xqry.log`). Opis formatu znajdziesz w rozdziale [xretractor — Informacje o wersji](xretractor.md#informacje-o-wersji).
+Informacje pod listą pomocy zawierają nazwę odnogi, skrót commita, wersję kompilatora,
+czas i typ budowania oraz ścieżkę dziennika. Opis formatu znajduje się w rozdziale
+[xretractor — Informacje o wersji](xretractor.md#informacje-o-wersji).

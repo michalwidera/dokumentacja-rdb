@@ -171,6 +171,23 @@ Dla `DECLARE a INTEGER[3]` trzeba wskazać jeden kanał, na przykład `MIN(a[0] 
 `MIN(a : 5)` nie oznacza wszystkich elementów tablicy z każdego rekordu i zostaje odrzucone. Redukcję
 wszystkich elementów jednego rekordu zapisuje się osobno jako `FROM MIN(strumień)`.
 
+### Łączenie redukcji po kanałach i po czasie
+
+Obie osie można składać bez serializacji tablicy i bez ręcznego tworzenia osobnego
+strumienia dla każdego kanału:
+
+```rql
+DECLARE value INTEGER[24] STREAM sensors, 1/10 FILE 'sensors.txt'
+
+SELECT * STREAM row_min FROM MIN(sensors)
+SELECT MIN(row_min[0] : 10) STREAM interval_min FROM row_min
+```
+
+Pierwszy `MIN` redukuje 24 równoległe wartości jednego rekordu. Drugi redukuje wyniki z
+dziesięciu kolejnych rekordów, więc `interval_min` jest minimum z 240 wartości, ale zachowuje
+interwał źródła i emituje przesuwne okno po każdym rekordzie. Jeżeli potrzebny jest wynik
+rzadszy, należy rozrzedzić gotowy strumień zgodnie z następną sekcją.
+
 ### Hopping window
 
 Agregat w `SELECT` nie ma argumentu kroku. Hopping window powstaje przez rozrzedzenie

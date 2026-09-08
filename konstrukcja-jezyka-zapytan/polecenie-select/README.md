@@ -57,7 +57,24 @@ Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, 
 
 Ekspansja jest pierwszym przebiegiem kompilatora. Po niej plan jest taki sam jak plan z ręcznie rozpisanymi strumieniami `cell$0`...`cell$3`; runtime nie ma osobnego mechanizmu generatorów.
 
-> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `simple`, `Pattern2` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+Generator może obejmować kolejne stopnie tego samego potoku. Pozwala to opisać obliczenie
+raz i zastosować je niezależnie do każdego kanału wejściowego:
+
+```rql
+DECLARE sample INTEGER[8] STREAM samples, 1/1000 FILE 'samples.txt'
+
+SELECT sample[$]^2 STREAM square[8] FROM samples
+SELECT * STREAM energy[8] FROM SUMC(square[$]@(25,100))
+```
+
+Powstaje osiem par strumieni `square$N` i `energy$N`, po jednej na kanał. Symbol `$`
+wybiera numer instancji rodziny podczas rozwijania szablonu. Nie należy mylić go z `[_]`,
+które powiela wyrażenie pola wewnątrz jednego zapytania według płaskiego schematu wejścia.
+
+> **_NOTE:_** Składnię generatora, w tym użycie `[$]`, sprawdzają test integracyjny
+> `stream_generator` oraz przypadki `ut_compiler` w `test/UnitTest/test_compiler.cpp`.
+> Agregaty okien rekordów sprawdza test `window_aggregate`. Testy integracyjne opisano
+> w załączniku [Testy integracyjne](../../zalaczniki/testy-integracyjne.md).
 
 Klauzula VOLATILE - tworzy ulotną formę zapytania. Zapytanie z tą klauzulą przechowują tylko jeden rekord w pamięci - na dysku pojawia się tylko deskryptor opisujący strukturę danych.
 

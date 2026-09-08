@@ -32,15 +32,13 @@ Available options:
   -s [ --status ]             check service status
   -v [ --verbose ]            verbose mode (show stream params)
   -x [ --xqrywait ]           wait with processing for first query
+  -n [ --name ] arg           instance name; own IPC area and lock
+  -a [ --autoname ]           generate a docker-style instance name
   -k [ --noanykey ]           do not wait for any key to terminate
-  -j [ --service ]            service mode: log to stderr (journald), no log
-                              file
-  -t [ --realtime ]           enable real-time scheduling (SCHED_FIFO,
-                              mlockall, absolute wakeup)
-  -f [ --no-clock ]           offline mode: compute slots without waiting for
-                              the wall clock
-  -u [ --until-eof ]          stop when a declared source runs out of input
-                              (forces one-shot sources)
+  -j [ --service ]            service mode: log to stderr (journald)
+  -t [ --realtime ]           enable real-time scheduling
+  -f [ --no-clock ]           offline mode: compute slots without waiting
+  -u [ --until-eof ]          forces one-shot all sources
   -g [ --config ] arg         config file (TOML); overrides search
   -m [ --llimitqry ] arg (=0) loop iteration limit, 0 - no limit
 ```
@@ -54,9 +52,11 @@ Available options:
 | `onlycompile` | Przełączenie narzędzia w tryb „tylko kompilacja". Pętla realizacji zapytań nie jest uruchamiana. |
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
 | `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
-| `status` | Sprawdzenie, czy inny proces `xretractor` jest uruchomiony lub pozostawił pliki blokujące wielokrotne uruchomienie. |
+| `status` | Sprawdzenie blokady instancji wskazanej przez `--name`, `RDB_NAMESPACE` albo historyczną pustą nazwę. Wynik `Running` oznacza, że inny proces utrzymuje tę samą tożsamość. |
 | `verbose` | Tryb zwiększonej komunikatywności — wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana. |
 | `xqrywait` | Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu `xqry`. Wymagane przy jednoczesnym użyciu `-m N` w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie `xqry` aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od `xqry` (np. `-d` lub `-s`) odblokowuje pętlę przetwarzania. |
+| `name arg` | Nadaje instancji stałą nazwę. Nazwa wybiera osobny plik blokady i obszar IPC oraz pozwala kierować polecenia przez `xqry --server`. Dopuszczalne są najwyżej 32 znaki: małe litery, cyfry, `_` i `-`, przy czym pierwszy znak musi być literą. |
+| `autoname` | Generuje nazwę instancji w stylu nazw kontenerów i wypisuje ją przy starcie. Wzajemnie wyklucza się z `--name`. |
 | `noanykey` | Dowolny klawisz nie przerywa pętli przetwarzania. Bez tej opcji naciśnięcie dowolnego klawisza zatrzymuje system. |
 | `service` | Tryb usługowy: dziennik trafia na `stderr` (przechwytywany przez journald), bez pliku dziennika w katalogu tymczasowym, bez własnego znacznika czasu i bez kodów ANSI. Tryb można włączyć również zmienną środowiskową `XRETRACTOR_SERVICE` o dowolnej wartości poza pustą i `0` — wygodne w jednostce systemd przez `Environment=`. |
 | `realtime` | Włącza szeregowanie czasu rzeczywistego: `SCHED_FIFO`, `mlockall` i absolutne uśpienie wątku przetwarzającego. Wymaga uprawnień `CAP_SYS_NICE` i `CAP_IPC_LOCK` (lub root). Zalecane w środowisku produkcyjnym przy wymogu deterministycznego czasu reakcji. |
@@ -64,6 +64,25 @@ Available options:
 | `until-eof` | Przełącza deklarowane źródła plikowe w tryb bez zawijania i kończy przebieg, gdy pierwsze z nich wyczerpie dane. Źródło `DEVICE` nie ma końca pliku. |
 | `config` | Ścieżka do pliku konfiguracyjnego w formacie TOML. Pomija standardową kolejność wyszukiwania (`/etc/retractor/retractor.toml`, następnie `$XDG_CONFIG_HOME/retractor/retractor.toml` lub `~/.config/retractor/retractor.toml`). Brak pliku konfiguracyjnego jest stanem poprawnym — program startuje z ustawieniami domyślnymi. |
 | `llimitqry` | Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość `0` oznacza brak limitu. |
+
+### Wiele instancji
+
+Różne nazwane instancje mogą działać równocześnie:
+
+```bash
+xretractor pomiary.rql --name pomiary --noanykey &
+xretractor diagnostyka.rql --name diagnostyka --noanykey &
+xqry --bus
+```
+
+Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak
+plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo
+plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name`
+zachowuje historyczną instancję bezimienną.
+
+Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać
+dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział
+[Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
 
 ### Przetwarzanie wsadowe bez zegara
 
@@ -115,6 +134,7 @@ Available options:
   -i [ --hideruleprog ]  hide rule program in rules (-u) output
   -p [ --transparent ]   make dot background transparent
   -w [ --diagram ] arg   create diagram output
+  -z [ --shmbudget ]     show shared memory budget of the compiled plan
 ```
 
 W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych opisywanych szerzej w opracowaniu.
@@ -137,6 +157,7 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 | `hideruleprog` | Ukrywa programy opisujące warunki alarmowania (używane razem z `rules`). |
 | `transparent` | Generuje wykres z przezroczystym tłem. |
 | `diagram` | Generuje diagramy kulkowe. Argument w postaci `typ:ilość_cykli`: `typ` (`0` lub `1`) określa, czy diagramy prezentują znaczniki czasu; `ilość_cykli` określa liczbę cykli na diagramie. |
+| `shmbudget` | Raportuje stałą rezerwację IPC, pojemność i wolne miejsce systemu plików `shm_open` (zwykle `/dev/shm`) oraz koszt jednej kolejki klienta dla każdej delty planu. Pozwala oszacować liczbę równoczesnych subskrypcji przed uruchomieniem serwera. |
 
 ---
 
@@ -159,7 +180,8 @@ Brak plików jest **stanem poprawnym** — program startuje z wartościami domy�
 | `timing.server_startup_poll_ms` | `100` | Interwał odpytywania podczas oczekiwania na start serwera. |
 | `timing.query_no_data_timeout_ms` | `10000` | Czas braku danych, po którym klient `xqry` uznaje serwer za martwy. |
 | `scheduling.rt_priority` | `50` | Priorytet `SCHED_FIFO` w trybie `--realtime`; dopuszczalny zakres 1–99. |
-| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na plik blokady singletonu. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. |
+| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na pliki blokad instancji. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. |
+| `server.autoname` | `false` | Generuje nazwę, gdy nie podano `--name` ani `--autoname`. Jawne `--name` wygrywa. Wartość `false` zachowuje historyczną instancję bezimienną. |
 | `service.query_file` | _(wartość z konfiguracji budowania)_ | Plik zapytań nadpisywany przy przekazaniu zestawu działającej usłudze. Używany wyłącznie jako zapasowy, gdy usługa nie zaraportowała własnego `QUERYFILE` w pliku blokady. Musi być zgodny z argumentem `ExecStart` jednostki systemd — konfiguracja nie zmienia `ExecStart`. |
 
 Wartości spoza sensownego zakresu nie zatrzymują usługi: program zapisuje ostrzeżenie w dzienniku i używa wartości domyślnej. Wyjątkiem jest `storage.dir`, którego niepoprawność jest błędem twardym — wskazywałaby, że wyniki trafiłyby w niezamierzone miejsce lub nigdzie.
@@ -178,9 +200,34 @@ rt_priority = 60
 
 [paths]
 lock_dir = "/var/run/retractor"
+
+[server]
+autoname = false
 ```
 
 > **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir` — test integracyjny `config_storage_validation`.
+
+---
+
+## Usługa i wymiana planu
+
+Start bez pliku `.rql` albo z pustym plikiem tworzy bezczynną instancję z działającym IPC.
+Pierwszy lub kolejny pełny plan można załadować bez restartu:
+
+```bash
+xqry --server service --reset plan.rql
+```
+
+Serwer parsuje i kompiluje całą treść, sprawdza kolizje zasobów, rezerwuje nowy zestaw,
+a następnie przełącza plan na granicy slotu. Odmowa pozostawia poprzedni plan bez zmian.
+Pusty plik resetu przywraca stan bezczynny. W instancji usługowej zaakceptowana treść jest
+również zapisywana w pliku startowym usługi.
+
+Alternatywna ścieżka `xretractor nowy-plan.rql` wykrywa działającą jednostkę systemd,
+weryfikuje zestaw, atomowo nadpisuje jej plik startowy i wywołuje restart. Jawne wskazanie
+innej tożsamości przez `--name` albo `--autoname` oznacza zamiast tego start osobnej
+instancji. W razie krytycznego błędu plan usługowy jest opróżniany, aby systemd uruchomił
+proces ponownie w bezpiecznym stanie bezczynnym.
 
 ---
 

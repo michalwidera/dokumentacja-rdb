@@ -4,8 +4,8 @@ RetractorDB składa się z trzech narzędzi wiersza poleceń, z których każde 
 
 | Narzędzie      | Rola                                                                 |
 | -------------- | -------------------------------------------------------------------- |
-| `xretractor`   | Główny proces przetwarzania: kompiluje zapytania RQL i realizuje plan |
-| `xqry`         | Klient: odpytuje działający `xretractor` przez wspólną pamięć        |
+| `xretractor`   | Proces przetwarzania: kompiluje RQL i realizuje jeden niezależny plan |
+| `xqry`         | Klient: wyszukuje lub wskazuje instancję i komunikuje się przez jej IPC |
 | `xtrdb`        | Narzędzie inspekcji: analizuje artefakty binarne i metadane          |
 
 Każde z narzędzi opisano w osobnym podrozdziale.

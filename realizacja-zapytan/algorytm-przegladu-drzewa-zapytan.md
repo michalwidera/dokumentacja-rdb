@@ -80,7 +80,8 @@ Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlo
 
 ## Krok zerowy: `processZeroStep()`
 
-Przed wejściem w pętlę `executorsm::run()` wywołuje `processZeroStep()` (`dataModel.cpp`, linia \~85). Przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
+Przed wejściem w pętlę `executorsm::run()` wywołuje `dataModel::processZeroStep()`. Metoda
+przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
 
 ```cpp
 for (auto &q : coreInstance_) {

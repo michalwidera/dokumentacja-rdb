@@ -12,6 +12,15 @@ wyniku między wariantami.
 
 Pełny opis: [Budowanie produkcyjne i warianty diagnostyczne](budowanie-produkcyjne-i-warianty-badawcze.md)
 
+**API monitorowania strumieni**
+
+Wersjonowany kontrakt JSON Lines oraz opcjonalne biblioteki Python i C++ do
+obserwacji strumieni jawnie nazwanej instancji. Rozdział opisuje mapowanie typów,
+cykl życia subskrypcji, timeouty, ograniczone bufory, obsługę błędów oraz osobne
+cele budowania, instalowania i testowania API.
+
+Pełny opis: [API monitorowania strumieni](api-monitorowania-strumieni.md)
+
 **Geneza systemu**
 
 Opis historycznych okoliczności, które doprowadziły do powstania RetractorDB. Punkt wyjścia stanowi doświadczenie autora przy budowie systemu nadzoru neonatologicznego na początku XXI wieku — zderzenie z ograniczeniami relacyjnych baz danych przy rejestracji sygnałów o wysokiej granulacji, próby oparte na ówczesnych systemach strumieniowych oraz ewolucja ku dedykowanemu silnikowi przetwarzania serii czasowych. Rozdział wyjaśnia również, skąd pochodzi nazwa „Retractor" — nawiązanie do grupy narzędzi chirurgicznych rozdzielających i łączących struktury tkankowe, traktowane tu jako analogia do operacji na strumieniach danych.
@@ -54,10 +63,11 @@ Pełny opis: [Opcje wywołania](opcje-wywolania/README.md)
 
 Katalog wszystkich testów integracyjnych systemu z opisem weryfikowanej funkcjonalności. Testy integracyjne uruchamiają rzeczywiste binaria (`xretractor`, `xqry`, `xtrdb`) i porównują wyniki z wzorcami — w odróżnieniu od testów jednostkowych GTest, które testują izolowane klasy bibliotek.
 
-Testy dzielą się na dwa zestawy:
-
-- **`IntegrationTest_serial`** — wymagają działającego serwera IPC; uruchamiane sekwencyjnie (jeden po drugim) z powodu współdzielonego pliku blokady i segmentów pamięci Boost,
-- **`IntegrationTest_parallel`** — kompilacja zapytań i inspekcja plików bez serwera IPC; mogą działać równolegle.
+Scenariusze znajdują się we wspólnym drzewie **`test/IntegrationTest`**. Testy
+uruchamiające serwer otrzymują jedną z szesnastu przestrzeni `RDB_NAMESPACE`
+i blokadę zasobu CTest dla swojego katalogu, dzięki czemu większość z nich może
+działać równolegle bez kolizji nazw strumieni, IPC ani plików roboczych. Tylko
+scenariusze badające produkcyjną, globalną tożsamość pozostają `RUN_SERIAL`.
 
 Uruchomienie: `ninja test` lub `ctest -R <nazwa> -V` w katalogu `build/Debug/`.
 

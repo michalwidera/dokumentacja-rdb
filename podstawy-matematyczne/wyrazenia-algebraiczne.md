@@ -84,20 +84,21 @@ Wszystkie powyższe formy można łączyć w dowolnie złożone wyrażenia – j
 
 ## Pokrycie przykładów w testach integracyjnych
 
-Każda z przytoczonych form wyrażeń ma swój odpowiednik w testach integracyjnych repozytorium RetractorDB (katalogi `test/IntegrationTest_serial` i `test/IntegrationTest_parallel`), wykonywanych przy każdej kompilacji projektu:
+Każda z przytoczonych form wyrażeń ma swój odpowiednik we wspólnym katalogu
+`test/IntegrationTest` repozytorium RetractorDB, wykonywany przy każdej kompilacji projektu:
 
 | Wyrażenie z rozdziału | Forma w teście | Test integracyjny |
 |---|---|---|
-| C=A+B (suma) | `s1+s2`, `core0+core1` | `IntegrationTest_serial/issue167_dedup_positive`, `IntegrationTest_serial/Data` (all-operators) |
-| E=B#D (przeplot) | `core0#core1` | `IntegrationTest_serial/operations`, `IntegrationTest_serial/Data` (all-operators) |
-| G=E#D (przeplot kaskadowy) | `(s1#s2)#s3`, `s1#s2#s3` | `IntegrationTest_serial/issue167_triarg` |
-| H=A+B+D (suma wieloargumentowa) | `s1+s2+s3`, `s1+s2+s3+s4` | `IntegrationTest_serial/issue167_triarg` |
-| I=D+((A+B)>1) | `s3+((s1+s2)>1)` | `IntegrationTest_serial/issue167_dedup_cascaded` |
-| J=(B>1)#D oraz (B#D)>1 | `(core1>1)#core2`, `(core1#core2)>1` | `IntegrationTest_parallel/subquery` |
-| K=E&1, L=E%½ (rozplątanie) | `core0&1.5`, `core0%4` | `IntegrationTest_serial/Data` (all-operators) |
-| M=C−1 (różnica) | `core0-1/2` | `IntegrationTest_serial/Data` (all-operators) |
-| przesunięcie sumy, jak w F | `(s1+s2)>1`, `(core0+core1)>5` | `IntegrationTest_serial/issue167_dedup_field_names`, `IntegrationTest_serial/issue56_timeshift` |
-| N=A@(1,4), P=A@(1,−4), R=A@(2,2) | `core1@(1,4)`, `core1@(1,-4)`, `core1@(2,2)` | `IntegrationTest_serial/agse1` (dalsze warianty skoku i szerokości: `agse2`, `agse3`) |
-| S=(A@(2,2))@(1,1) (Agse kaskadowe) | `signalText3@(1,1)` | `IntegrationTest_serial/agse1` |
+| C=A+B (suma) | `s1+s2`, `core0+core1` | `IntegrationTest/issue167_dedup_positive`, `IntegrationTest/Data` (all-operators) |
+| E=B#D (przeplot) | `core0#core1` | `IntegrationTest/operations`, `IntegrationTest/Data` (all-operators) |
+| G=E#D (przeplot kaskadowy) | `(s1#s2)#s3`, `s1#s2#s3` | `IntegrationTest/issue167_triarg` |
+| H=A+B+D (suma wieloargumentowa) | `s1+s2+s3`, `s1+s2+s3+s4` | `IntegrationTest/issue167_triarg` |
+| I=D+((A+B)>1) | `s3+((s1+s2)>1)` | `IntegrationTest/issue167_dedup_cascaded` |
+| J=(B>1)#D oraz (B#D)>1 | `(core1>1)#core2`, `(core1#core2)>1` | `IntegrationTest/subquery` |
+| K=E&1, L=E%½ (rozplątanie) | `core0&1.5`, `core0%4` | `IntegrationTest/Data` (all-operators) |
+| M=C−1 (różnica) | `core0-1/2` | `IntegrationTest/Data` (all-operators) |
+| przesunięcie sumy, jak w F | `(s1+s2)>1`, `(core0+core1)>5` | `IntegrationTest/issue167_dedup_field_names`, `IntegrationTest/issue56_timeshift` |
+| N=A@(1,4), P=A@(1,−4), R=A@(2,2) | `core1@(1,4)`, `core1@(1,-4)`, `core1@(2,2)` | `IntegrationTest/agse1` (dalsze warianty skoku i szerokości: `agse2`, `agse3`) |
+| S=(A@(2,2))@(1,1) (Agse kaskadowe) | `signalText3@(1,1)` | `IntegrationTest/agse1` |
 
 Testy porównują wyniki wykonania zapytań z plikami wzorcowymi (pattern), więc powyższe wyrażenia są weryfikowane nie tylko składniowo, ale i co do wartości oraz szybkości strumieni wynikowych.
