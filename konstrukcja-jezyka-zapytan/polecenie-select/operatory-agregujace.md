@@ -199,7 +199,7 @@ SELECT * STREAM hopping FROM sliding - 2
 ```
 
 Argument operatora `-` jest docelowym interwałem wyniku. Dla skoku H nad źródłem o
-interwale \(\Delta\) należy podać \(H\Delta\). Rozdzielenie na dwa węzły zachowuje w każdym
+interwale \\(\Delta\\) należy podać \\(H\Delta\\). Rozdzielenie na dwa węzły zachowuje w każdym
 oknie pięć kolejnych rekordów i dopiero potem wybiera co H-ty wynik. Bezpośrednie
 `SELECT MIN(a : 5) ... FROM src - 2` nie jest skrótem tej konstrukcji i nie kompiluje się.
 

@@ -1,4 +1,4 @@
-<mxfile host="Electron" pages="10">
+<mxfile host="Electron" pages="11">
   <diagram name="Przepływ danych i sterowania" id="C0W2QoMvG6d1opmmmL35">
     <mxGraphModel dx="1116" dy="806" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -1175,6 +1175,191 @@
         </mxCell>
         <mxCell id="qrs-legend-dashed-label" parent="qrs-1" style="text;html=0;convertToSvg=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="dane pomocnicze / rozwój" vertex="1">
           <mxGeometry height="24" width="145" x="860" y="603" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Magistrala IPC - ikony" id="ipcbus-multiserver-v1">
+    <mxGraphModel dx="1116" dy="806" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="ipcbus-0" />
+        <mxCell id="ipcbus-1" parent="ipcbus-0" />
+        <mxCell id="ipcbus-bus" value="&lt;b&gt;xrdbbus&lt;/b&gt;&lt;div&gt;magistrala instancji&lt;/div&gt;&lt;div&gt;(segment w /dev/shm)&lt;/div&gt;" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;startSize=54;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="600" y="100" width="200" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-disk" value="" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="100" y="790" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-disk-ico" value="&lt;b&gt;Jeden dysk&lt;/b&gt;" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.document;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="150" y="805" width="40" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-disk-lbl" value="&lt;div&gt;jeden katalog magazynu&lt;/div&gt;&lt;div&gt;na wszystkie instancje&lt;/div&gt;&lt;div&gt;(.desc, dane binarne, .meta)&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="255" y="805" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa" value="instancja: &lt;b&gt;alfa&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="200" y="120" width="380" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-rql" value="plan_alfa.rql" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;outlineConnect=0;align=center;shape=mxgraph.office.concepts.document;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="32" y="55" width="36" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-xr" value="xretractor" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.application_generic;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="20" y="110" width="60" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-e0" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="ipcbus-swa" source="ipcbus-swa-rql" target="ipcbus-swa-xr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-frm" value="własny DAG planu (qTree)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;dashed=1;verticalAlign=top;align=center;fontStyle=2;fontSize=11;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="120" y="38" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-n-ekg" value="ekg" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="130" y="62" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-n-puls" value="puls" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="130" y="112" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-n-qrs" value="qrs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="215" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-n-alarm" value="alarm" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swa" vertex="1">
+          <mxGeometry x="295" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-de0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swa" source="ipcbus-swa-n-ekg" target="ipcbus-swa-n-qrs" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-de1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swa" source="ipcbus-swa-n-puls" target="ipcbus-swa-n-qrs" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-de2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swa" source="ipcbus-swa-n-qrs" target="ipcbus-swa-n-alarm" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-slota" value="slot: &lt;b&gt;alfa&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;zajęte nazwy strumieni:&lt;/div&gt;&lt;div&gt;ekg, puls, qrs, alarm&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="ipcbus-bus" vertex="1">
+          <mxGeometry x="15" y="68" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-claim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="ipcbus-1" source="ipcbus-swa" target="ipcbus-slota" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb" value="instancja: &lt;b&gt;beta&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="200" y="330" width="380" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-rql" value="plan_beta.rql" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;outlineConnect=0;align=center;shape=mxgraph.office.concepts.document;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="32" y="55" width="36" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-xr" value="xretractor" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.application_generic;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="20" y="110" width="60" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-e0" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="ipcbus-swb" source="ipcbus-swb-rql" target="ipcbus-swb-xr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-frm" value="własny DAG planu (qTree)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;dashed=1;verticalAlign=top;align=center;fontStyle=2;fontSize=11;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="120" y="38" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-n-temp" value="temp" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="130" y="62" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-n-wilgoc" value="wilgoć" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="130" y="112" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-n-srednia" value="średnia" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="215" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-n-trend" value="trend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swb" vertex="1">
+          <mxGeometry x="295" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-de0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swb" source="ipcbus-swb-n-temp" target="ipcbus-swb-n-srednia" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-de1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swb" source="ipcbus-swb-n-wilgoc" target="ipcbus-swb-n-srednia" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-de2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swb" source="ipcbus-swb-n-srednia" target="ipcbus-swb-n-trend" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-slotb" value="slot: &lt;b&gt;beta&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;zajęte nazwy strumieni:&lt;/div&gt;&lt;div&gt;temp, wilgoć, średnia, trend&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="ipcbus-bus" vertex="1">
+          <mxGeometry x="15" y="278" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swb-claim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="ipcbus-1" source="ipcbus-swb" target="ipcbus-slotb" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc" value="instancja: &lt;b&gt;gamma&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="200" y="540" width="380" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-rql" value="plan_gamma.rql" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;outlineConnect=0;align=center;shape=mxgraph.office.concepts.document;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="32" y="55" width="36" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-xr" value="xretractor" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.application_generic;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="20" y="110" width="60" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-e0" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="ipcbus-swc" source="ipcbus-swc-rql" target="ipcbus-swc-xr" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-frm" value="własny DAG planu (qTree)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9673a6;dashed=1;verticalAlign=top;align=center;fontStyle=2;fontSize=11;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="120" y="38" width="250" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-n-moc" value="moc" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="130" y="62" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-n-napiecie" value="napięcie" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="130" y="112" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-n-fft" value="fft" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="215" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-n-raport" value="raport" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="ipcbus-swc" vertex="1">
+          <mxGeometry x="295" y="87" width="60" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-de0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swc" source="ipcbus-swc-n-moc" target="ipcbus-swc-n-fft" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-de1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swc" source="ipcbus-swc-n-napiecie" target="ipcbus-swc-n-fft" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-de2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="ipcbus-swc" source="ipcbus-swc-n-fft" target="ipcbus-swc-n-raport" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-slotc" value="slot: &lt;b&gt;gamma&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;zajęte nazwy strumieni:&lt;/div&gt;&lt;div&gt;moc, napięcie, fft, raport&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" parent="ipcbus-bus" vertex="1">
+          <mxGeometry x="15" y="488" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swc-claim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="ipcbus-1" source="ipcbus-swc" target="ipcbus-slotc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-bus-free" value="&lt;div&gt;kolejne sloty&lt;/div&gt;&lt;div&gt;(do 32 instancji na maszynę)&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;fontColor=#7F5000;" parent="ipcbus-bus" vertex="1">
+          <mxGeometry x="15" y="592" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-claim-lbl" value="&lt;div&gt;roszczenie i sprawdzenie&lt;/div&gt;&lt;div&gt;nazw strumieni przy starcie&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="470" y="40" width="250" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-swa-io" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;startArrow=classic;startFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.143;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="ipcbus-1" source="ipcbus-swa" target="ipcbus-disk" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="212" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ipcbus-swb-io" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;startArrow=classic;startFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.321;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="ipcbus-1" source="ipcbus-swb" target="ipcbus-disk" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="145" y="422" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ipcbus-swc-io" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;startArrow=classic;startFill=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="ipcbus-1" source="ipcbus-swc" target="ipcbus-disk" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="632" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ipcbus-io-lbl" value="&lt;div&gt;odczyt i zapis artefaktów&lt;/div&gt;&lt;div&gt;— rozłączne pliki magazynu&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="250" y="735" width="200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-xqry" value="xqry" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.application_generic;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="670" y="830" width="60" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-route" value="&lt;div&gt;routing po nazwie&lt;/div&gt;&lt;div&gt;strumienia&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;startArrow=classic;startFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;verticalAlign=middle;" parent="ipcbus-1" source="ipcbus-xqry" target="ipcbus-bus" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ipcbus-note" value="&lt;b&gt;Rozłączność w skali maszyny&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;1. Każda instancja xretractor kompiluje własny plik .rql i wykonuje własny DAG planu — plany są niezależne i nie wymieniają między sobą danych.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;2. Wszystkie instancje czytają i zapisują artefakty na jednym dysku, w jednym katalogu magazynu; pliki magazynu poszczególnych instancji są rozłączne.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;3. Instancja przy starcie roszczy swoje nazwy strumieni w slocie magistrali. Nazwy strumieni są unikalne na całej magistrali — kolizja kończy start odmową wskazującą właściciela nazwy.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;4. Klient xqry nie musi wskazywać serwera: odczytuje z magistrali, która instancja jest właścicielem nazwy strumienia, i tam kieruje zapytanie.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;align=left;verticalAlign=top;spacingLeft=8;spacingRight=8;spacingTop=4;fontSize=11;" parent="ipcbus-1" vertex="1">
+          <mxGeometry x="200" y="920" width="600" height="195" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
