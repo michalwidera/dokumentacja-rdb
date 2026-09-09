@@ -42,6 +42,14 @@ Dowody operują niemal wyłącznie na funkcjach podłogi (⌊x⌋ – część c
 \left\lfloor x\right\rfloor + 1 = \left\lceil x\right\rceil \iff x \in \mathbb{R} \setminus \mathbb{Z}
 \\]
 
+Druga z tych tożsamości ma bezpośrednie przełożenie na same sekwencje Beatty. Wariant sufitowy sekwencji, B′<sub>α</sub>(n) = ⌈nα⌉, jest bowiem – dla niewymiernego α – wyłącznie przesuniętą o jeden wersją wariantu podłogowego:
+
+\\[
+B_{\alpha}^{\prime}(n) = \left\lceil n\alpha \right\rceil = \left\lfloor n\alpha \right\rfloor + 1
+\\]
+
+W prawdziwej sekwencji Beatty α musi być niewymierne, więc nα nie jest liczbą całkowitą dla żadnego n > 0 – przesłanka drugiej tożsamości jest spełniona dla każdego wyrazu, a wariant sufitowy podnosi po prostu każdy wyraz wariantu podłogowego dokładnie o 1. Dla nas jest to jednak przypadek, którego w komputerze nie ma. W dziedzinie wymiernej, dopuszczonej dopiero przez twierdzenie Fraenkela, nα bywa liczbą całkowitą i wtedy ⌈nα⌉ = ⌊nα⌋, czyli przesunięcie o 1 znika. Stałe przesunięcie między wariantem sufitowym a podłogowym przestaje więc obowiązywać globalnie i musi być rozstrzygane wyraz po wyrazie – dokładnie to robi analiza przypadków w części trzeciej dowodu twierdzenia 2 (rozplątanie spełnia postulaty Fraenkela), gdzie o tym, który z dwóch przypadków zachodzi, decyduje nwd(a, b).
+
 \\[
 \left\lfloor x + C\right\rfloor = \left\lfloor x\right\rfloor + C
 \\]
