@@ -75,6 +75,12 @@ jobs:
           \renewcommand{\maketitle}{\AtEndDocument{\clearpage\origmaketitle}}
           \usepackage{titlesec}
           \titlelabel{\thetitle.\quad}
+          \titleformat{\chapter}[display]
+            {\normalfont\sffamily\huge\bfseries}
+            {\chaptertitlename\ \thechapter.}{20pt}{\Huge}
+          \titleformat*{\section}{\normalfont\sffamily\Large\bfseries}
+          \titleformat*{\subsection}{\normalfont\sffamily\large\bfseries}
+          \titleformat*{\subsubsection}{\normalfont\sffamily\normalsize\bfseries}
           \usepackage{tocloft}
           \renewcommand{\cftchapaftersnum}{.}
           \renewcommand{\cftsecaftersnum}{.}
@@ -87,6 +93,7 @@ jobs:
           \setlength{\cftsubsecindent}{5.5em}
           \tcbuselibrary{breakable}
           \usepackage{mdframed}
+          \usepackage{needspace}
           \captionsetup{labelformat=empty,labelsep=none}
           \newtcolorbox{calloutUwaga}{breakable,colback=green!8,colframe=green!45!black,fonttitle=\bfseries,title={Uwaga}}
           \newtcolorbox{calloutInfo}{breakable,colback=cyan!6,colframe=cyan!55!black,fonttitle=\bfseries,title={Info}}
@@ -169,9 +176,55 @@ jobs:
             return result
           end
 
-          function Table(table)
+          local function customize_table_layout(element)
+            if #element.head.rows == 0 then return end
+            local first_cell = element.head.rows[1].cells[1]
+            if not first_cell then return end
+
+            local first_heading = pandoc.utils.stringify(first_cell.content)
+            local widths
+            if #element.colspecs == 5 and first_heading == "Dziedzina" then
+              widths = {0.24, 0.20, 0.18, 0.19, 0.19}
+            elseif #element.colspecs == 3 and first_heading == "Zapis w SELECT" then
+              widths = {0.30, 0.42, 0.28}
+            elseif #element.colspecs == 3 and first_heading == "Jednostka" then
+              widths = {0.31, 0.27, 0.42}
+            elseif #element.colspecs == 3 and first_heading == "Stan" then
+              widths = {0.27, 0.30, 0.43}
+            elseif #element.colspecs == 2 and first_heading == "Opcja"
+                and pandoc.utils.stringify(element):find("xqrywait", 1, true) then
+              widths = {0.23, 0.77}
+            else
+              return
+            end
+
+            for index, width in ipairs(widths) do
+              element.colspecs[index] = {element.colspecs[index][1], width}
+            end
+
+            local function pad_first_cell(row)
+              local cell = row.cells[1]
+              local block = cell and cell.content[1]
+              if block and block.content then
+                block.content:insert(1, pandoc.RawInline("latex", "\\setlength{\\leftskip}{0.5em}"))
+              end
+            end
+
+            for _, row in ipairs(element.head.rows) do pad_first_cell(row) end
+            for _, body in ipairs(element.bodies) do
+              for _, row in ipairs(body.body) do pad_first_cell(row) end
+            end
+            return first_heading == "Dziedzina"
+          end
+
+          function Table(element)
             if not FORMAT:match('latex') then return nil end
-            return table:walk({ Code = break_long_code })
+            local needs_space = customize_table_layout(element)
+            local result = element:walk({ Code = break_long_code })
+            if needs_space then
+              return {pandoc.RawBlock("latex", "\\Needspace{20\\baselineskip}"), result}
+            end
+            return result
           end
           TABLELUAEOF
 
@@ -310,6 +363,7 @@ jobs:
             -V fontsize=11pt \
             -V documentclass=report \
             -V mainfont="DejaVu Serif" \
+            -V sansfont="DejaVu Sans" \
             -V monofont="DejaVu Sans Mono" \
             --metadata title="RetractorDB" \
             --metadata subtitle="Edge Signal Processing Engine" \
