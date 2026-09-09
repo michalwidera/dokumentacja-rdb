@@ -8,7 +8,7 @@ Dokumentacja prowadzi od [podstaw matematycznych](podstawy-matematyczne/README.m
 
 ## RetractorDB na tle sąsiednich dziedzin
 
-Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję pięć nurtów recenzowanej literatury, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero nałożenie tych pięciu warstw na siebie pokazuje lukę, którą ten projekt wypełnia.
+Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję osiem nurtów literatury badawczej, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero ich zestawienie pokazuje lukę, którą ten projekt wypełnia.
 
 <div class="no-print">
 
@@ -30,15 +30,18 @@ Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedyko
 > Dlaczego umieściłem ten rozdział tak wcześnie? Bo uczciwa odpowiedź na pytanie „czy to jest potrzebne?" wymaga najpierw pokazania, co już istnieje. Większość pomysłów w informatyce została już raz pomyślana – wymyślanie koła na nowo to marnowanie cudzego wysiłku. Ten rozdział jest moją próbą udowodnienia, że akurat tego koła jeszcze nie wynaleziono.
 
 
-## Pięć sąsiednich dziedzin
+## Osiem sąsiednich dziedzin
 
-Problem, który rozwiązuje RetractorDB, nie należy w całości do żadnej pojedynczej dyscypliny. Siedzi w szczelinie między pięcioma:
+Problem, który rozwiązuje RetractorDB, nie należy w całości do żadnej pojedynczej dyscypliny. Leży na styku ośmiu nurtów:
 
 1. **Teoria liczb** – sekwencje Beatty'ego, twierdzenie Fraenkela, układy pokrywające. To dostarcza fundamentu formalnego.
 2. **Szeregowanie zadań przez sekwencje Beatty'ego** – ta sama matematyka, inne zastosowanie. Najbliższy sąsiad aplikacyjny.
-3. **Cyfrowe przetwarzanie sygnałów (DSP)** – próbkowanie niejednorodne i banki filtrów o wymiernych współczynnikach. To DSP-owy odpowiednik operacji przeplotu.
-4. **Strumieniowe systemy zarządzania danymi (DSMS)** – algebry strumieni i semantyka zapytań ciągłych. To bazodanowy punkt odniesienia.
-5. **Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy** – najwęższa, najsłabiej zaludniona nisza, najbliższa właściwemu celowi systemu.
+3. **Synchroniczny i cykliczno-statyczny przepływ danych (SDF/CSDF)** – wielotempowe grafy aktorów, statyczne harmonogramy i rozmiary buforów.
+4. **Języki synchroniczne i rachunki zegarów** – deklaratywne zależności między okresowymi strumieniami oraz kompilacyjne wyznaczanie opóźnień.
+5. **Cyfrowe przetwarzanie sygnałów (DSP)** – próbkowanie niejednorodne i banki filtrów o wymiernych współczynnikach. To DSP-owy odpowiednik operacji przeplotu.
+6. **Strumieniowe systemy zarządzania danymi (DSMS)** – algebry strumieni i semantyka zapytań ciągłych. To bazodanowy punkt odniesienia.
+7. **Współdzielenie wielu zapytań i stanu** – ponowne wykorzystanie obliczeń, indeksów i materializacji przez kilka planów.
+8. **Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy** – najwęższa nisza, najbliższa właściwemu celowi systemu.
 
 Omawiam je kolejno, od fundamentu ku zastosowaniu.
 
@@ -58,15 +61,31 @@ Wniosek jest dla mnie podwójny. Z jednej strony – to niezależne potwierdzeni
 
 **Czego ten nurt nie dotyka:** szeregowanie traktuje sekwencje jako narzędzie przydziału slotów czasowych procesorom. Nie buduje na nich algebry danych, nie wyraża nimi operacji na sygnałach, nie tworzy języka zapytań.
 
-## Cyfrowe przetwarzanie sygnałów: próbkowanie niejednorodne i banki filtrów (3)
+## Synchroniczny i cykliczno-statyczny przepływ danych (SDF/CSDF) (3)
 
-Operacja przeplotu i rozplątania to – w języku DSP – konwersja częstotliwości próbkowania między strumieniami o różnych Δ. Tu istnieje rozległa, dojrzała literatura. Najbliższym pomostem jest praca Samadiego, Ahmada i Swamy'ego (2004), która formułuje warunek perfekcyjnej rekonstrukcji niejednorodnych banków filtrów na podstawie odpowiedzi układu na opóźnione sygnały skoku jednostkowego [\[16\]](literatura.md#16) – wprowadza więc maszynerię funkcji skoku (a pośrednio podłogi) do dziedziny wielotempowego DSP. Szerszy nurt to próbkowanie okresowo-niejednorodne sygnałów pasmowo ograniczonych [\[17\]](literatura.md#17) oraz – bezpośrednio adekwatne – banki filtrów o **wymiernych** współczynnikach decymacji (Kovačević i Vetterli) [\[18\]](literatura.md#18).
+W SDF aktorzy zużywają i wytwarzają z góry znane liczby znaczników, dzięki czemu można przed uruchomieniem wyznaczyć harmonogram grafu [\[26\]](literatura.md#26). CSDF rozszerza ten model o cyklicznie zmieniające się proporcje produkcji i konsumpcji oraz pozwala wyznaczać statyczne harmonogramy i ograniczenia buforów [\[27\]](literatura.md#27). Jest to dojrzały model deklaratywnego, wielotempowego przepływu danych, więc sama analiza częstotliwości ani statyczne szeregowanie nie są cechami swoistymi RetractorDB.
+
+SDF/CSDF potrafi opisać pokrewne zachowanie wielotempowe, co uzasadnia ocenę „częściowo” przy bezstratnym podziale próbek. Podział Beatty'ego nie jest tam jednak osobnym operatorem semantycznym. RetractorDB osadza taki operator w języku zapytań i łączy go z trwałymi wynikami.
+
+**Czego ten nurt nie dotyka:** SDF/CSDF nie definiuje tej konkretnej, bezstratnej partycji pozycji próbek jako semantyki systemu zapytań ani modelu inspekcji i odtwarzania artefaktów.
+
+## Języki synchroniczne i rachunki zegarów (4)
+
+Języki synchroniczne opisują okresowe strumienie za pomocą zegarów i potrafią podczas kompilacji sprawdzać ich zgodność oraz wyznaczać potrzebne bufory i opóźnienia. W modelach n-synchronicznych relacje między zegarami mogą mieć wymierne proporcje, a część obowiązków związanych z synchronizacją przejmuje kompilator [\[28\]](literatura.md#28). To jeden z najbliższych punktów odniesienia dla deklaratywnej granicy RetractorDB.
+
+Różni się jednak przedmiot opisu: zegar zwykle określa obecność wartości w logicznych taktach programu, natomiast RetractorDB przypisuje regularnemu strumieniowi wymierny interwał i na tej podstawie tworzy jeden uporządkowany strumień z dwóch wejść.
+
+**Czego ten nurt nie dotyka:** rachunki zegarów służą przede wszystkim do kompilacji programów reaktywnych. Nie przenoszą tej semantyki do silnika zapytań z publicznymi deskryptorami oraz trwałymi, odtwarzalnymi artefaktami.
+
+## Cyfrowe przetwarzanie sygnałów: próbkowanie niejednorodne i banki filtrów (5)
+
+Przeplot i rozplątanie spotykają się z DSP w zagadnieniu pracy na strumieniach o różnych częstotliwościach próbkowania, ale nie są po prostu kolejną metodą rekonstrukcji sygnału. Najbliższym pomostem jest praca Samadiego, Ahmada i Swamy'ego (2004), która formułuje warunek perfekcyjnej rekonstrukcji niejednorodnych banków filtrów na podstawie odpowiedzi układu na opóźnione sygnały skoku jednostkowego [\[16\]](literatura.md#16). Szerszy nurt obejmuje próbkowanie okresowo-niejednorodne sygnałów pasmowo ograniczonych [\[17\]](literatura.md#17) oraz banki filtrów o **wymiernych** współczynnikach decymacji (Kovačević i Vetterli) [\[18\]](literatura.md#18).
 
 Pojawiają się tam nawet konstrukcje teorioliczbowe: banki filtrów Ramanujana wydobywają składowe okresowe sygnału [\[19\]](literatura.md#19). Ale akurat sekwencji Beatty'ego ani twierdzenia Fraenkela w tej literaturze nie znalazłem – i to jest część luki.
 
-**Czego ten nurt nie dotyka:** DSP operuje w dziedzinie z, dziedzinie częstotliwości, na ramkach i bazach. Nie ujmuje resamplingu jako deklaratywnego operatora algebraicznego ani nie osadza go w systemie bazodanowym. Współczynniki bywają wymierne, ale aparatem jest analiza, nie teoria liczb podziału zbioru.
+**Czego ten nurt nie dotyka:** przywołane metody DSP rekonstruują albo przekształcają wartości sygnału. Nie definiują konkretnego przeplotu pozycji próbek opartego na sekwencjach Beatty'ego ani nie osadzają go w silniku zapytań wytwarzającym artefakty.
 
-## Strumieniowe systemy zarządzania danymi (DSMS) (4)
+## Strumieniowe systemy zarządzania danymi (DSMS) (6)
 
 Po stronie bazodanowej kanonem jest CQL ze stanfordzkiego projektu STREAM (Arasu, Babu, Widom). W tym modelu strumień to potencjalnie nieskończony wielozbiór elementów ⟨s, τ⟩, gdzie s jest krotką, a τ stemplem czasowym [\[20\]](literatura.md#20); semantykę zapytań buduje się na oknach i odwzorowaniach strumień↔relacja. Drugim bliskim sąsiadem jest temporalna algebra Krämera i Seegera (system PIPES), zapewniająca deterministyczne wyniki zapytań ciągłych oraz bogaty zbiór reguł transformacji stanowiących podstawę optymalizacji [\[21\]](literatura.md#21).
 
@@ -76,19 +95,27 @@ W kategoriach wdrożeniowych relacja jest przy tym komplementarna, nie konkurenc
 
 **Czego ten nurt nie dotyka:** DSMS obejmują zarówno semantyki deterministyczne, jak i mechanizmy skalowania, okien, tolerancji na nieuporządkowanie oraz obsługi stanu. Przywołane systemy nie definiują jednak konkretnego, bezstratnego podziału pozycji regularnych próbek opartego na sekwencjach Beatty'ego ani nie używają teorii liczb jako semantyki resamplingu.
 
-## Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy (5)
+## Współdzielenie wielu zapytań i stanu (7)
+
+Optymalizacja wielu zapytań od dawna wykorzystuje wspólne fragmenty planów. Nowsze systemy strumieniowe współdzielą także utrzymywane indeksy i stan między równoległymi przepływami [\[29\]](literatura.md#29), a normalizacja semantyczna pozwala łączyć zapytania różniące się składnią lub strukturą planu [\[30\]](literatura.md#30). Automatyczne współdzielenie nie jest zatem samo w sobie nowym wkładem RetractorDB.
+
+W RetractorDB to zagadnienie dotyczy materializowanych strumieni pośrednich. Kompilator może je współdzielić dopiero po normalizacji planu i sprawdzeniu zgodności semantyki regularnych serii. Jest to bliskie istniejącym mechanizmom współdzielonego stanu, choć kryterium zgodności wynika tu z modelu częstotliwości strumieni.
+
+**Czego ten nurt nie dotyka:** przywołane metody nie wykorzystują wyrównania częstotliwości i podziału Beatty'ego do normalizacji planu przed decyzją o współdzieleniu. Szczegółowe granice tego porównania wykraczają poza zakres dokumentacji systemu.
+
+## Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy (8)
 
 To najwęższa nisza – i najbliższa właściwemu celowi RetractorDB. Kanoniczny przegląd to praca Jensena, Pedersena i Thomsena „Time Series Management Systems: A Survey" (IEEE TKDE, 2017) [\[22\]](literatura.md#22). Opisany tam system Plato jest najbliższym prawdziwym „DSP wewnątrz bazy": łączy RDBMS z metodami przetwarzania sygnałów, eliminując potrzebę eksportu danych do narzędzi zewnętrznych typu R czy SPSS [\[22\]](literatura.md#22). Pozostałe podejścia do „sygnałów w bazie" sprowadzają się do aproksymacji i kompresji – reprezentacje falkowe, słownikowe, kształtowe.
 
-Wszystkie one traktują jednak DSP jako aproksymację albo analitykę po fakcie. Żaden nie czyni z operacji przetwarzania sygnałów **dokładnych, deterministycznych operatorów pierwszej klasy** wewnątrz algebry zapytań. To potwierdza, że nisza jest cienka, a mój kąt natarcia – dokładność na liczbach wymiernych – jest odrębny.
+Podejścia te koncentrują się na aproksymacji, kompresji albo analizie po fakcie. Nie czynią z przeplotu pozycji próbek opartego na sekwencjach Beatty'ego operatora pierwszej klasy wewnątrz algebry zapytań. RetractorDB nie konkuruje z nimi skalą ingestii czy retencją: działa przed systemem centralnym i dostarcza mu deterministyczne wyniki oraz korygowalne artefakty.
 
 **Czego ten nurt nie dotyka:** TSMS optymalizują skalę ingestii, kompresję i retencję. DSP jest w nich obywatelem drugiej kategorii – dodatkiem analitycznym, nie rdzeniem semantyki.
 
 ## Biała plama: gdzie leży wkład
 
-Poniższa tabela jest jakościową mapą możliwości, a nie dowodem pierwszeństwa ani kompletności przeglądu. W ramach szerszego nurtu systemów strumieniowych wyodrębnia SDF/CSDF oraz języki synchroniczne, ponieważ są najbliższymi modelami systemowymi. „Częściowo” oznacza zdolność pokrewną, nie równoważność semantyczną.
+Poniższa tabela jest jakościową mapą możliwości, a nie dowodem pierwszeństwa ani kompletności przeglądu. Ostatnia kolumna dotyczy oceny opartej na inspekcjonowalnych artefaktach lub odtwarzaniu, nie samego zapisu danych. „Częściowo” oznacza zdolność pokrewną, nie równoważność semantyczną.
 
-| Dziedzina | Beatty/Fraenkel | Bezstratny podział próbek | Deklaratywny przepływ danych | Artefakty / odtwarzanie |
+| Dziedzina | Beatty/Fraenkel | Bezstratny podział próbek | Deklaratywny przepływ danych | Ocena przez artefakty / odtwarzanie |
 | --- | :---: | :---: | :---: | :---: |
 | Teoria liczb | ✔ | – | – | – |
 | Szeregowanie (pinwheel) | ✔ | – | – | częściowo |
@@ -96,10 +123,13 @@ Poniższa tabela jest jakościową mapą możliwości, a nie dowodem pierwszeńs
 | Języki synchroniczne / rachunki zegarów | – | – | ✔ | – |
 | DSP wielotempowy | – | częściowo | częściowo | – |
 | DSMS (CQL, PIPES) | – | – | ✔ | częściowo |
+| Współdzielenie wielu zapytań / stanu | – | – | ✔ | częściowo |
 | TSMS / DSP-w-bazie | – | częściowo | częściowo | częściowo |
 | **RetractorDB** | **✔** | **✔** | **✔** | **✔** |
 
-Najsilniejszymi sąsiadami są SDF/CSDF oraz języki synchroniczne i rachunki zegarów: zapewniają już wielotempowy deklaratywny przepływ danych, deterministyczną semantykę, statyczne harmonogramy albo wyznaczanie buforów. Zakres integracji RetractorDB jest węższy: system łączy zdefiniowany przez sekwencje Beatty'ego, dokładnie odwracalny podział pozycji próbek z kompilatorem zapytań, sekwencyjnym środowiskiem slotowym oraz trwałymi artefaktami dostępnymi do inspekcji i odtwarzania. Jest to opis architektury i semantyki systemu, nie twierdzenie, że poszczególne składniki są nowe. RetractorDB nie deklaruje gwarancji twardego czasu rzeczywistego.
+Najsilniejszymi sąsiadami w zakresie modelu wykonania są SDF/CSDF oraz języki synchroniczne i rachunki zegarów: zapewniają już wielotempowy deklaratywny przepływ danych, deterministyczną semantykę, statyczne harmonogramy albo wyznaczanie buforów. Nurt wielu zapytań jest równie bliski na niewidocznej w kolumnach osi: potrafi automatycznie współdzielić utrzymywany stan i formułować warunki zachowania dla poszczególnych zapytań. Wpis „częściowo” nie oddaje całej bliskości tego porównania, ponieważ tabela nie opisuje sposobu ustalania tożsamości współdzielonego obiektu.
+
+Zakres integracji RetractorDB jest węższy: system łączy zdefiniowany przez sekwencje Beatty'ego, dokładnie odwracalny podział pozycji próbek z kompilatorem zapytań, sekwencyjnym środowiskiem slotowym oraz trwałymi artefaktami dostępnymi do inspekcji i odtwarzania. Jest to opis architektury i semantyki systemu, nie twierdzenie, że poszczególne składniki są nowe. RetractorDB nie deklaruje gwarancji twardego czasu rzeczywistego.
 
 > **⚠️ Ostrzeżenie**
 >
@@ -108,4 +138,4 @@ Najsilniejszymi sąsiadami są SDF/CSDF oraz języki synchroniczne i rachunki ze
 
 ## Zastrzeżenie metodologiczne
 
-To przegląd ukierunkowany, nie systematyczny – oparty na wyszukiwaniu w pięciu nurtach, nie na pełnej analizie cytowań. Przegląd cytowań „w przód" pracy Samadiego [\[16\]](literatura.md#16) potwierdza tezę: według Semantic Scholar (stan na lipiec 2026) jej jedyne odnotowane cytowania to praca o projektowaniu okien Gabora, dwie prace systemowo-teoretyczne o układach wielotempowych oraz sam pomost z 2006 roku [\[3\]](literatura.md#3) – żadna z nich nie używa sekwencji Beatty'ego ani twierdzenia Fraenkela. Najbliższym znanym mi użyciem tej maszynerii poza teorią liczb jest konstrukcja wykładniczych baz Riesza z sekwencji Beatty'ego–Fraenkela (Pfander, Revay i Walnut) [\[24\]](literatura.md#24) – należy ona jednak do czystej analizy harmonicznej i nie dotyka banków filtrów ani konwersji częstotliwości próbkowania. Do pełnego domknięcia pozostaje systematyczny przegląd nurtu szeregowania [\[14\]](literatura.md#14) oraz literatury banków filtrów w całości; jeśli istnieje użycie twierdzenia Fraenkela w wielotempowym DSP, zawęża to zakres roszczenia o nowość i należy je tu uwzględnić.
+To przegląd ukierunkowany, nie systematyczny – oparty na wyszukiwaniu w ośmiu nurtach, nie na pełnej analizie cytowań. Przegląd cytowań „w przód" pracy Samadiego [\[16\]](literatura.md#16) potwierdza tezę: według Semantic Scholar (stan na lipiec 2026) jej jedyne odnotowane cytowania to praca o projektowaniu okien Gabora, dwie prace systemowo-teoretyczne o układach wielotempowych oraz sam pomost z 2006 roku [\[3\]](literatura.md#3) – żadna z nich nie używa sekwencji Beatty'ego ani twierdzenia Fraenkela. Najbliższym znanym mi użyciem tej maszynerii poza teorią liczb jest konstrukcja wykładniczych baz Riesza z sekwencji Beatty'ego–Fraenkela (Pfander, Revay i Walnut) [\[24\]](literatura.md#24) – należy ona jednak do czystej analizy harmonicznej i nie dotyka banków filtrów ani konwersji częstotliwości próbkowania. Do pełnego domknięcia pozostaje systematyczny przegląd nurtu szeregowania [\[14\]](literatura.md#14) oraz literatury banków filtrów w całości; wśród prac o współdzieleniu zapytań wskazano jedynie reprezentatywne mechanizmy. Jeśli istnieje użycie twierdzenia Fraenkela w wielotempowym DSP, zawęża to zakres roszczenia o nowość i należy je tu uwzględnić.
