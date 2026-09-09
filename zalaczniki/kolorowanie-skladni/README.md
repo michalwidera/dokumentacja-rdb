@@ -37,9 +37,9 @@ SELECT str[0], str[0] / 2 STREAM str1 FROM core0
 
 ![Podswietlenie - zrzut okna](../../assets/vscode-podswietlenie-rql.png)
 
-_Rys. 62. Podświetlenie składni RQL w edytorze Visual Studio Code_
+_Rys. 63. Podświetlenie składni RQL w edytorze Visual Studio Code_
 
-Jak widać na Rys. 62, słowa kluczowe (`STORAGE`, `DECLARE`, `SELECT`, `FROM`) są podświetlane jako komendy, a typy danych (`INTEGER`) jako typy. W aktualnym RQL `#` rozpoczyna komentarz tylko jako pierwszy niebiały znak całego wiersza; wewnątrz klauzuli `FROM` zawsze jest operatorem przeplotu. Komentarz kończący wiersz zaczyna się od `//`, a komentarz blokowy ma postać `/* ... */`. Definicja kolorowania powinna zachowywać to rozróżnienie.
+Jak widać na Rys. 63, słowa kluczowe (`STORAGE`, `DECLARE`, `SELECT`, `FROM`) są podświetlane jako komendy, a typy danych (`INTEGER`) jako typy. W aktualnym RQL `#` rozpoczyna komentarz tylko jako pierwszy niebiały znak całego wiersza; wewnątrz klauzuli `FROM` zawsze jest operatorem przeplotu. Komentarz kończący wiersz zaczyna się od `//`, a komentarz blokowy ma postać `/* ... */`. Definicja kolorowania powinna zachowywać to rozróżnienie.
 
 ***
 
@@ -116,11 +116,11 @@ WHEN str4[0] = 20 OR str4[0] = 23 \
 DO SYSTEM 'echo "test"'
 ```
 
-Widok tekstu w edytorze vim przedstawia Rys. 63.
+Widok tekstu w edytorze vim przedstawia Rys. 64.
 
 ![widok w edytorze vim](../../assets/vim-podswietlenie-rql.png)
 
-_Rys. 63. Podświetlenie składni RQL w edytorze vim_
+_Rys. 64. Podświetlenie składni RQL w edytorze vim_
 
 ***
 
@@ -209,6 +209,6 @@ WHEN str1[0] = 13 OR str1[0] = 11 \
 DO SYSTEM 'echo "systemcall"'
 ```
 
-Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 64).
+Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 65).
 
-<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 64. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>
+<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 65. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>

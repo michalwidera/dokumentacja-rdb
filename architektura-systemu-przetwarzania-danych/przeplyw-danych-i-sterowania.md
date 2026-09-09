@@ -1,6 +1,6 @@
 # Przepływ danych i sterowania
 
-Dane i sterowanie w systemie RetractorDB tworzą kilka potencjalnych sposobów użycia komponentów systemu. Na Rys. 13 przedstawiono schematycznie przepływ danych pomiędzy procesami systemu RetractorDB, procesami systemu Linux oraz danymi źródłowymi i rezultatami pracy poszczególnych procesów.
+Dane i sterowanie w systemie RetractorDB tworzą kilka potencjalnych sposobów użycia komponentów systemu. Na Rys. 14 przedstawiono schematycznie przepływ danych pomiędzy procesami systemu RetractorDB, procesami systemu Linux oraz danymi źródłowymi i rezultatami pracy poszczególnych procesów.
 
 Najgrubsze linie przedstawiają przepływ, który występuje zawsze w procesie przetwarzania regularnych serii czasowych. Po otrzymaniu pliku `.rql` proces xretractor kompiluje go, buduje drzewo planu i rozpoczyna przetwarzanie napływających danych oraz tworzenie plików binarnych zawierających artefakty. Bez pliku może uruchomić się w stanie bezczynnym i czekać na pełny plan przesłany przez `xqry --reset`.
 
@@ -12,7 +12,7 @@ Reszta strzałek prezentuje przepływy danych zależne od prowadzonego z użycie
 
 Każdy z procesów na schemacie został oznaczony dodatkowo liczbą utrzymywanych ciągłych procesów w systemie. Historyczne oznaczenie „1” przy xretractor opisuje jedną instancję planu przedstawioną na rysunku, a nie współczesny limit całego hosta. Nazwane instancje mogą działać równocześnie; w domyślnej przestrzeni hosta dokładnie jedna może pracować jako usługa. Magistrala `xrdbbus` egzekwuje rozłączność ich zasobów. Program xtrdb nie utrzymuje ciągłego procesu: czyta dane, zwraca wynik i kończy pracę, ewentualnie działa interaktywnie. Proces xqry oznaczony jest jako „N”, ponieważ do każdej instancji xretractor może być podłączonych wielu klientów.
 
-<figure><img src="../assets/przeplyw_danych_i_sterowania.svg" width="100%" alt=""><figcaption><p>Rys. 13. Przepływ danych i sterowania</p></figcaption></figure>
+<figure><img src="../assets/przeplyw_danych_i_sterowania.svg" width="100%" alt=""><figcaption><p>Rys. 14. Przepływ danych i sterowania</p></figcaption></figure>
 
 ## Zatrzymanie xretractor
 

@@ -22,7 +22,7 @@ Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCoun
 
 ## Przepływ sterowania w procesie rotacji
 
-W tym punkcie chcemy pokazać pełną sekwencję życia plików podczas jednej sesji i przejścia do kolejnej. Diagram (Rys. 24) ma wyjaśnić kolejność zdarzeń: wykrycie rotacji przy starcie, utworzenie nowego indeksu `.meta`, normalny zapis danych w trakcie pracy oraz archiwizację plików przy zamknięciu procesu. Kluczowy przekaz jest taki, że rotacja nie jest pojedynczą operacją, lecz procesem rozłożonym w czasie, który łączy moment startu i stopu sesji.
+W tym punkcie chcemy pokazać pełną sekwencję życia plików podczas jednej sesji i przejścia do kolejnej. Diagram (Rys. 25) ma wyjaśnić kolejność zdarzeń: wykrycie rotacji przy starcie, utworzenie nowego indeksu `.meta`, normalny zapis danych w trakcie pracy oraz archiwizację plików przy zamknięciu procesu. Kluczowy przekaz jest taki, że rotacja nie jest pojedynczą operacją, lecz procesem rozłożonym w czasie, który łączy moment startu i stopu sesji.
 
 
 ```mermaid
@@ -48,7 +48,7 @@ sequenceDiagram
     Note over RQL: PersistentCounter zapisuje N+1 do pliku
 ```
 
-_Rys. 24. Sekwencja rotacji plików — start i stop sesji_
+_Rys. 25. Sekwencja rotacji plików — start i stop sesji_
 
 Rotacja pliku `.meta` następuje **przy starcie** sesji N — `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaData::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
 

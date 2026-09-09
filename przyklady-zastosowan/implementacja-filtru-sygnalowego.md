@@ -49,9 +49,9 @@ ylabel('wzmocnienie (dB)')
 grid on
 ```
 
-Uruchomienie powyższego kodu w programie Octave zaprezentuje następującą odpowiedź w postaci graficznej (Rys. 55):
+Uruchomienie powyższego kodu w programie Octave zaprezentuje następującą odpowiedź w postaci graficznej (Rys. 56):
 
-<figure><img src="../assets/czestotliwosci.svg" alt=""><figcaption><p>Rys. 55. Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p></figcaption></figure>
+<figure><img src="../assets/czestotliwosci.svg" alt=""><figcaption><p>Rys. 56. Reprezentacja graficzna w dziedzinie częstotliwości wyznaczonego filtru cyfrowego</p></figcaption></figure>
 
 Na osi rzędnych Octave przedstawia znormalizowaną częstotliwość. Zakres prezentowanej na rysunku częstotliwości na osi rzędnych od 0 do 1 odpowiada częstotliwości od 0Hz do 25Hz. Na osi odciętych pierwszy rysunek prezentuje liniowe wzmocnienie, drugi tą samą wielkość ale w skali logarytmicznej.
 
@@ -123,9 +123,9 @@ Po rozwinięciu symbolu `[_]` plan zawiera wiele pól, więc pełny wynik kompil
 $ xretractor -c query.rql -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-Ujrzymy następujący obraz (Rys. 56):
+Ujrzymy następujący obraz (Rys. 57):
 
-<figure><img src="../assets/zaleznosc_strumieni_filtr_sygnalowy.png" width="50%" alt=""><figcaption><p>Rys. 56. Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
+<figure><img src="../assets/zaleznosc_strumieni_filtr_sygnalowy.png" width="50%" alt=""><figcaption><p>Rys. 57. Zależność przetwarzanych strumieni danych w trakcie realizacji filtru sygnałowego</p></figcaption></figure>
 
 ### Uruchomienie
 
@@ -145,16 +145,16 @@ $ xretractor query.rql
 $ xqry -s outputAll -p 50:256 | gnuplot
 ```
 
-Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 57):
+Na ekranie powinniśmy ujrzeć następujący wykres biegnący z lewa na prawo wypełniany na bieżąco danymi (Rys. 58):
 
-<figure><img src="../assets/gnuplot_filtracja_sygnalu.png" alt=""><figcaption><p>Rys. 57. Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
+<figure><img src="../assets/gnuplot_filtracja_sygnalu.png" alt=""><figcaption><p>Rys. 58. Filtracja sygnału zrealizowana wewnątrz RetractorDB</p></figcaption></figure>
 
-Na Rys. 57 widzimy dwa wykresy nałożone na siebie. Ten bardziej zróżnicowany – na ekranie komputera widoczny jako niebieska linia zawierająca dużą zmienność to wizualizacja sygnału wejściowego. Dane pobrane z generatora liczb pseudolosowych z częstotliwością 50 próbek na sekundę. Oraz drugi wykres opływający dane wejściowe – na ekranie komputera prezentowany w kolorze czerwonym, bardziej łagodny, opływający – to właśnie dane przefiltrowane opracowanym filtrem sygnałowym. Sygnał, którego pasmo przepustowe zostało ograniczone do 0-2Hz (niskich częstotliwości) i ograniczone zaporowo w obszarze (5-25Hz) w obszarze wysokich częstotliwości. Obrazowo można powiedzieć, że wyizolowaliśmy linię melodyczną dla basów.
+Na Rys. 58 widzimy dwa wykresy nałożone na siebie. Ten bardziej zróżnicowany – na ekranie komputera widoczny jako niebieska linia zawierająca dużą zmienność to wizualizacja sygnału wejściowego. Dane pobrane z generatora liczb pseudolosowych z częstotliwością 50 próbek na sekundę. Oraz drugi wykres opływający dane wejściowe – na ekranie komputera prezentowany w kolorze czerwonym, bardziej łagodny, opływający – to właśnie dane przefiltrowane opracowanym filtrem sygnałowym. Sygnał, którego pasmo przepustowe zostało ograniczone do 0-2Hz (niskich częstotliwości) i ograniczone zaporowo w obszarze (5-25Hz) w obszarze wysokich częstotliwości. Obrazowo można powiedzieć, że wyizolowaliśmy linię melodyczną dla basów.
 
 Należy pamiętać, że na ekranie komputera ten wykres przesuwa się w prawo bardzo szybko, prezentując obraz możliwości bieżącego przetwarzania danych realizowanych w systemie RetractorDB.
 
-Zapis ekranu w trakcie realizacji procesu przetwarzania przedstawia Rys. 58:
+Zapis ekranu w trakcie realizacji procesu przetwarzania przedstawia Rys. 59:
 
-<figure><img src="../assets/dsp-record (1).gif" width="75%" alt=""><figcaption><p>Rys. 58. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
+<figure><img src="../assets/dsp-record (1).gif" width="75%" alt=""><figcaption><p>Rys. 59. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `dsp` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).

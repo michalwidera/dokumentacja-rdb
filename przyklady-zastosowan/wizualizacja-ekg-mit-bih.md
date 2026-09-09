@@ -116,9 +116,9 @@ ją do wszystkich wywołań `xqry --server`. Dzięki temu kilka celów wykresowy
 równocześnie bez przejęcia cudzej instancji. Opcjonalny piąty argument pozwala podać inną
 nazwę; jeżeli jest już zajęta, skrypt kończy się przed usunięciem katalogu wynikowego.
 
-<figure><img src="../assets/ecg_in_retractor.png" alt="Widok okna gnuplot z przebiegiem EKG odtwarzanym w RetractorDB"><figcaption><p>Rys. 59. Widok okna gnuplot z odtwarzanym sygnałem EKG (rekord 205)</p></figcaption></figure>
+<figure><img src="../assets/ecg_in_retractor.png" alt="Widok okna gnuplot z przebiegiem EKG odtwarzanym w RetractorDB"><figcaption><p>Rys. 60. Widok okna gnuplot z odtwarzanym sygnałem EKG (rekord 205)</p></figcaption></figure>
 
-Okno przedstawione na Rys. 59 prezentuje 720 próbek, czyli dokładnie 2 sekundy sygnału przy 360 Hz, co odpowiada typowej szerokości jednego paska EKG używanej w diagnostyce.
+Okno przedstawione na Rys. 60 prezentuje 720 próbek, czyli dokładnie 2 sekundy sygnału przy 360 Hz, co odpowiada typowej szerokości jednego paska EKG używanej w diagnostyce.
 
 ## Detekcja QRS i identyfikacja arytmii
 
@@ -283,9 +283,9 @@ Skrypt `xplot.sh` uruchamia `xretractor` w tle (kompiluje i wykonuje zapytania),
 
 ### Opis rysunku — okno gnuplot
 
-<figure><img src="../assets/ninja-ecg-detect-qrs.png" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 60. Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> — rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
+<figure><img src="../assets/ninja-ecg-detect-qrs.png" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 61. Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> — rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
 
-Na Rys. 60 widoczne są trzy sygnały odpowiadające trzem polom strumienia `detect_out`:
+Na Rys. 61 widoczne są trzy sygnały odpowiadające trzem polom strumienia `detect_out`:
 
 **\[detect-out-0] linia czerwona — MLII wycentrowane (mlii − 900)**
 
@@ -309,9 +309,9 @@ Wartość ta mieści się w zakresie odnotowanego w rekordzie 205 częstoskurczu
 
 ### Schemat przepływu procesu
 
-Poniższy diagram (Rys. 61) pokazuje kompletny przepływ danych od surowego nagrania MIT-BIH do identyfikacji arytmii, ze wskazaniem miejsca, w którym RetractorDB realizuje algorytm Pan-Tompkins, oraz powiązania z klasycznymi metodami rozpoznawania arytmii:
+Poniższy diagram (Rys. 62) pokazuje kompletny przepływ danych od surowego nagrania MIT-BIH do identyfikacji arytmii, ze wskazaniem miejsca, w którym RetractorDB realizuje algorytm Pan-Tompkins, oraz powiązania z klasycznymi metodami rozpoznawania arytmii:
 
-<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 61. Przepływ danych — od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
+<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 62. Przepływ danych — od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
 
 Prawa gałąź diagramu — **Identyfikacja arytmii** — reprezentuje klasyczne metody analizy po detekcji QRS, które można zbudować jako kolejne zapytania RQL nadbudowane na strumieniu `detect_out`:
 

@@ -5,6 +5,13 @@ ma własną nazwę, blokadę, obszar IPC, plan i klientów. Wspólna magistrala 
 rejestruje żywe instancje, umożliwia ich wyszukiwanie przez `xqry` i pilnuje, aby dwa
 plany nie przejęły zasobów, których nie mogą bezpiecznie współdzielić.
 
+<figure><img src="../assets/wiele-instancji-magistrala.svg" width="100%" alt=""><figcaption><p>Rys. 13. Równolegle działające instancje i wspólna magistrala xrdbbus</p></figcaption></figure>
+
+Na Rys. 13 każda instancja kompiluje własny plan, ma własne obiekty IPC i własny zestaw
+nazw strumieni zgłoszony w slocie magistrali. Wspólne pozostają dwa zasoby: magistrala,
+z której `xqry` odczytuje właściciela nazwy strumienia, oraz katalog magazynu, w którym
+pliki poszczególnych instancji są rozłączne.
+
 Wyjątkiem jest tryb usługowy: w domyślnej przestrzeni hosta może działać dokładnie jedna
 instancja oznaczona jako usługa. Domyślnie otrzymuje ona stałą nazwę `service`, dzięki
 czemu skrypty mogą kierować polecenia do `--server service` bez wcześniejszego przeglądania

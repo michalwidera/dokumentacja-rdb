@@ -55,9 +55,9 @@ graph TD
     style M fill:#cdf,color:#000
 ```
 
-_Rys. 14. Zestaw plików artefaktu i ich powiązania_
+_Rys. 15. Zestaw plików artefaktu i ich powiązania_
 
-Diagram na Rys. 14 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, `.shadow` przechowuje opcjonalne nadpisania rekordów, a `.meta.shadow` — odpowiadające im nadpisania wzorców null. Dwa pliki cienia zawsze idą w parze.
+Diagram na Rys. 15 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, `.shadow` przechowuje opcjonalne nadpisania rekordów, a `.meta.shadow` — odpowiadające im nadpisania wzorców null. Dwa pliki cienia zawsze idą w parze.
 
 Pliki cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
