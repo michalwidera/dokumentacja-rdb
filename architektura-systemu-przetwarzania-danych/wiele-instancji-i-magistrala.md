@@ -7,10 +7,14 @@ plany nie przejęły zasobów, których nie mogą bezpiecznie współdzielić.
 
 <figure><img src="../assets/wiele-instancji-magistrala.svg" width="100%" alt=""><figcaption><p>Rys. 13. Równolegle działające instancje i wspólna magistrala xrdbbus</p></figcaption></figure>
 
-Na Rys. 13 każda instancja kompiluje własny plan, ma własne obiekty IPC i własny zestaw
-nazw strumieni zgłoszony w slocie magistrali. Wspólne pozostają dwa zasoby: magistrala,
-z której `xqry` odczytuje właściciela nazwy strumienia, oraz katalog magazynu, w którym
-pliki poszczególnych instancji są rozłączne.
+Na Rys. 13 każda instancja kompiluje własny plan i zgłasza własny zestaw nazw strumieni
+w slocie magistrali; ponumerowane węzły zastępują tam nazwy, bo istotne jest tylko to, że
+nie powtarzają się one między instancjami. Rozłączne są nazwy obiektów, nie obszar pamięci:
+segment magistrali i obiekty IPC wszystkich instancji leżą w tym samym `/dev/shm`,
+a odróżnia je sufiks nazwy instancji — dla instancji `alfa` są to kolejka poleceń
+`RetractorQueryQueue.alfa`, segment odpowiedzi `RetractorShmemMap.alfa`, muteks mapy
+`RetractorMapMutex.alfa` i kolejka odpowiedzi klienta `brcdbr.alfa.<pid>`. Wspólny jest
+również katalog magazynu, w którym pliki poszczególnych instancji pozostają rozłączne.
 
 Wyjątkiem jest tryb usługowy: w domyślnej przestrzeni hosta może działać dokładnie jedna
 instancja oznaczona jako usługa. Domyślnie otrzymuje ona stałą nazwę `service`, dzięki
