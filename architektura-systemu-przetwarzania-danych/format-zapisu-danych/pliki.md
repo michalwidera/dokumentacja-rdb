@@ -698,37 +698,23 @@ W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom 
 ```mermaid
 %% pdf-width: 100%
 graph LR
-    subgraph "Zapis nowego rekordu (append)"
-        A1["storage::write(data, pos=MAX)"]
-        A2["→ plik główny: dopisz na koniec"]
-        A3["→ .meta: onRecordAppended(nullBitset)"]
-        A1 --> A2
-        A1 --> A3
+    UP["update<br/>write(data, pos=N)"] -->|dopisz| CIEN
+    AP["append<br/>write(data, pos=MAX)"] -->|dopisz na koniec| GL
+
+    subgraph CIEN["warstwa cienia"]
+        direction TB
+        S[".shadow<br/>(N, data)"]
+        MS[".meta.shadow<br/>(N, nullBitset)"]
     end
 
-    subgraph "Modyfikacja rekordu (update)"
-        U1["storage::write(data, pos=N)"]
-        U2["→ .shadow: dopisz (N, data)"]
-        U3["→ .meta.shadow: dopisz (index=N, nullBitset)"]
-        U1 --> U2
-        U1 --> U3
+    subgraph GL["warstwa główna"]
+        direction TB
+        D["plik główny<br/>data"]
+        M[".meta<br/>nullBitset"]
     end
 
-    subgraph "Odczyt rekordu"
-        R1["storage::read(pos=N)"]
-        R2{".shadow\nma wpis N?"}
-        R3["dane z .shadow"]
-        R4["dane z pliku głównego"]
-        R5{".meta.shadow\nma wpis N?"}
-        R6["nullBitset z .meta.shadow"]
-        R7["nullBitset z .meta"]
-        R1 --> R2
-        R2 -->|tak| R3
-        R2 -->|nie| R4
-        R1 --> R5
-        R5 -->|tak| R6
-        R5 -->|nie| R7
-    end
+    CIEN ==>|"1. jest wpis N"| RD["read(pos=N)<br/>data + nullBitset"]
+    GL -->|"2. brak wpisu N"| RD
 ```
 
 _Rys. 24. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
