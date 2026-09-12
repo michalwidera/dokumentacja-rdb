@@ -47,7 +47,7 @@ błąd nie jest odkładany do wykonania.
 
 | Grupa | Funkcje |
 | ----- | ------- |
-| Matematyczne | `Sqrt`, `Ceil`, `Floor`, `Abs`, `round`, `trunc`, `sin`, `cos`, `tan`, `log`, `log2` |
+| Matematyczne | `Sqrt`, `Ceil`, `Floor`, `Abs`, `round`, `trunc`, `sin`, `cos`, `exp`, `tan`, `log`, `log2` |
 | Obsługa wartości | `isnull`, `null2zero`, `IsZero`, `IsNonZero`, `Length` |
 | Konwersje | `to_integer`, `to_float`, `to_double`, `to_string` |
 
@@ -86,8 +86,67 @@ STREAM converted FROM source
 ```
 
 Szerokość wyniku tekstowego jest ustalana po rozwiązaniu referencji do pól, dlatego czyste
-przepisanie `STRING[N]` i konkatenacja tekstowa zachowują poprawny deskryptor. Mechanizm ten
-nie jest ogólnym wnioskowaniem typu dowolnego wyrażenia liczbowego.
+przepisanie `STRING[N]` i konkatenacja tekstowa zachowują poprawny deskryptor. Typ całego
+wyrażenia, także liczbowego, wyznacza `compiler::inferFieldShapes()` po rozwiązaniu odwołań
+do pól; reguły opisuje rozdział [Równanie typów w górę](../../kompilacja-zapytan/rownanie-typow-w-gore.md).
+
+Zadeklarowana szerokość jest własnością **pola**, a nie skutkiem konkretnego przebiegu
+kompilacji. Obowiązuje także wtedy, gdy cały argument jest stały: `to_string(42 : 16)` daje
+`STRING[16]`, a nie `STRING[2]`. Upraszczanie wyrażeń zwija argument pod wywołaniem, ale samego
+`to_string` nie usuwa — inaczej deklaracja znikałaby razem z programem przy **ponownej**
+kompilacji planu, czyli po zapytaniu ad hoc (`xqry -a`), które kompiluje żywy plan drugi raz.
+
+### `sin`, `cos` i `exp`
+
+Wszystkie trzy funkcje przyjmują argument liczbowy i zwracają `DOUBLE`, niezależnie od typu
+argumentu. `sin` i `cos` interpretują kąt w **radianach**. Na przykład dla pola `k` typu
+`INTEGER` wyrażenia `sin(k)`, `cos(k)` i `exp(k)` dają pola typu `DOUBLE`; wynik nie traci
+części ułamkowej. `NULL` na wejściu daje `NULL`, a wynik niefinitywny (np. `exp(1000)`)
+również daje `NULL` bez zatrzymania strumienia.
+
+Wyjątkiem jest argument typu `RATIONAL`: kompilator go **odrzuca** i wymaga jawnego
+`to_double` — tak samo jak dla `Sqrt`, patrz rozdział niżej.
+
+Zmiana typu `sin` i `cos` względem starszego silnika może zmienić deskryptor `.desc` i układ
+rekordu: `INTEGER` oraz `FLOAT` zajmują 4 bajty, a `DOUBLE` 8 bajtów. Istniejący artefakt o
+starym schemacie wymaga ponownego utworzenia albo osobnego strumienia wynikowego.
+
+### Funkcje niewymierne nad wartością RATIONAL
+
+`Sqrt`, `sin`, `cos`, `exp`, `tan`, `log` i `log2` **nie przyjmują** argumentu typu `RATIONAL`
+— kompilator odrzuca taki zapis kanałem `Check result:` i podaje obejście. Dotyczy to
+w praktyce reduktorów strumieniowych, bo `MIN`/`MAX`/`AVG`/`SUMC` dają zawsze `RATIONAL`:
+
+```rql
+SELECT * STREAM m FROM AVG(src)
+SELECT Sqrt(m[0]) STREAM o FROM m              // odrzucone przy kompilacji
+SELECT Sqrt(to_double(m[0])) STREAM o FROM m   // poprawnie
+```
+
+Obowiązuje jedna reguła: **funkcja o niewymiernej przeciwdziedzinie nad wartością wymierną
+wymaga jawnego `to_double`**. Ta sama reguła obejmuje warunek reguły (`RULE ... WHEN`), który
+kompilator sprawdza osobnym przebiegiem.
+
+Dla `Sqrt`, `tan`, `log` i `log2` powodem nie jest utrata precyzji, lecz cicha **błędna
+wartość**. Te cztery liczą się przez `double` i wracają rzutem na typ argumentu, a powrót do
+`RATIONAL` przybliża wynik ułamkiem o bardzo dużym mianowniku (`Sqrt(2)` daje `19601/13860`,
+`log(2)` daje `2731/3940`). `RATIONAL` przechowuje licznik i mianownik w 32 bitach bez kontroli
+zakresu, więc dwa kolejne mnożenia przepełniają go i `Sqrt(x)*Sqrt(x)*Sqrt(x)` zwracało
+`-4,247` zamiast `+2,828` — ze złym znakiem i bez żadnego błędu.
+
+Dla `sin`, `cos` i `exp` powód jest inny: te trzy kończą na `DOUBLE` i nigdy nie wracają do
+`RATIONAL`, więc policzyłyby się poprawnie. Ich odrzucenie jest **decyzją o kontrakcie języka**,
+podjętą po to, żeby nie trzeba było pamiętać listy wyjątków — jedna reguła zamiast siedmiu
+osobnych zachowań. Ceną jest `to_double` w każdym zapytaniu liczącym np. RMS nad reduktorem.
+
+Ograniczenie nie obejmuje pozostałych funkcji ani innych typów argumentu. Zaokrąglenia `Floor`,
+`Ceil`, `round` i `trunc` nad `RATIONAL` są bezpieczne, bo ich wynik jest całkowity, czyli ma
+mianownik 1, a `Abs` liczy się wprost na wartości i mianownika nie rusza w ogóle.
+
+Bramka dotyczy **wyłącznie** pary z `RATIONAL` i nie zmienia typu wyniku żadnej funkcji. `tan`,
+`log` i `log2` nad `INTEGER` nadal dają `INTEGER`, czyli obcinają część ułamkową — to strata
+jawna i zamierzona, nie przepełnienie. Ewentualne doprowadzenie ich do `DOUBLE`, tak jak `sin`,
+`cos` i `exp`, zmieniłoby typ pola w `.desc`, więc jest osobnym zadaniem.
 
 > **_NOTE:_** Funkcje i propagację typów sprawdzają testy integracyjne `fncall_runtime_case`,
 > `string_field_passthrough`, `issue121_isnull`, `issue128_numeric_to_string` i

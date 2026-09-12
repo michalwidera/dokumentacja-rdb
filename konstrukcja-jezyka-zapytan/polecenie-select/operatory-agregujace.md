@@ -38,6 +38,17 @@ SELECT * STREAM total FROM SUMC(src@(1,5))
 
 Postać przyrostkowa `strumień.min`, `.max`, `.avg` i `.sumc` pozostaje zgodna wstecz, ale jest wygaszana. Parser emituje ostrzeżenie i zaleca postać funkcyjną. Dotychczasowy zapis `src@(1,5).sumc` jest poprawny, lecz nowe zapytania powinny używać `SUMC(src@(1,5))`.
 
+Wyniku reduktora **nie czyta się po nazwie w liście `SELECT`**. Zapis `SELECT avg STREAM o FROM
+AVG(src)` jest odrzucany przez kompilator kanałem `Check result:`, bo `avg` jest w tym miejscu
+operatorem strumieniowym, a nie polem — nie ma go czym wykonać. Wynik redukcji odczytuje się
+przez `SELECT *` albo, gdy potrzebne są dalsze obliczenia, przez zmaterializowanie reduktora
+w osobnym strumieniu:
+
+```rql
+SELECT * STREAM m FROM AVG(src)
+SELECT m[0]*2 STREAM o FROM m
+```
+
 ### Pola tablicowe i wartości NULL
 
 Liczbowa deklaracja `T[N]` jest jednym wpisem deskryptora, ale zajmuje `N` płaskich slotów
