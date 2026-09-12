@@ -10,7 +10,7 @@ Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania a
 | -------- | ------------------- |
 | Diagnoza po awarii | Widać od razu, czy plik danych jest spójny z metadanymi — różne liczby rekordów sygnalizują problem |
 | Weryfikacja retencji | Sekcja DATA TOTAL pokazuje podział na segmenty i aktualny stopień wypełnienia bufora cyklicznego |
-| Kontrola modyfikacji | Sekcja SHADOW ujawnia liczbę niezatwierdzonych zmian — `Updates: N` oznacza, że `merge()` nie był wykonany |
+| Kontrola modyfikacji | Sekcja SHADOW ujawnia liczbę niezatwierdzonych zmian — `Updates: N` to liczba wpisów w `.shadow`; w normalnej pracy to stan docelowy, bo silnik nie wywołuje `merge()` samodzielnie |
 | Analiza jakości danych | Pasek META z symbolami `=`, `-`, `~`, `X` pokazuje wzorzec null i przerwy bez parsowania pliku binarnego |
 | Audyt historii rotacji | Sekcja ROTATED FILES wymienia stare wersje pliku po kolejnych rotacjach |
 

@@ -693,17 +693,17 @@ storageShadow.mergeShadow() → .meta przebudowany, .meta.shadow usunięty
 
 ## Relacja pomiędzy plikami
 
-W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, `.shadow` gromadzi modyfikacje danych bez niszczenia oryginału, a `.meta.shadow` gromadzi analogicznie nadpisania wzorców null. Poziom operacyjny (Rys. 24) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow` i `.meta.shadow`, `merge()` przenosi poprawki do pliku głównego i głównego indeksu, a operacje `append`, `update` i `read` utrzymują spójność danych i metadanych w całym cyklu życia artefaktu.
+W tej części relacje między plikami są pokazane na dwóch poziomach. Poziom strukturalny opisuje, że plik danych jest nośnikiem rekordów, deskryptor `.desc` definiuje ich format, plik `.meta` przechowuje informację o wartościach null i przerwach transmisji, `.shadow` gromadzi modyfikacje danych bez niszczenia oryginału, a `.meta.shadow` gromadzi analogicznie nadpisania wzorców null. Poziom operacyjny (Rys. 24) pokazuje przebieg odczytu i zapisu: odczyt najpierw sprawdza `.shadow` i `.meta.shadow`, a dopiero przy braku wpisu sięga do pliku głównego i `.meta`. Operacje `append`, `update` i `read` utrzymują w ten sposób spójność danych i metadanych w całym cyklu życia artefaktu. Scalenie `merge()` / `mergeShadow()` nie należy do tego przebiegu: to osobna operacja API, której silnik nie wywołuje samodzielnie (Rys. 21).
 
 ```mermaid
 %% pdf-width: 100%
 graph LR
-    UP["update<br/>write(data, pos=N)"] -->|dopisz| CIEN
-    AP["append<br/>write(data, pos=MAX)"] -->|dopisz na koniec| GL
+    UP["update<br/>write(N), N < count"] -->|dopisz| CIEN
+    AP["append<br/>write(N), N ≥ count"] -->|dopisz na koniec| GL
 
     subgraph CIEN["warstwa cienia"]
         direction TB
-        S[".shadow<br/>(N, data)"]
+        S[".shadow<br/>(N·size, data)"]
         MS[".meta.shadow<br/>(N, nullBitset)"]
     end
 
@@ -717,9 +717,9 @@ graph LR
     GL -->|"2. brak wpisu N"| RD
 ```
 
-_Rys. 24. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu_
+_Rys. 24. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu (typy `DEFAULT` i `POSIXSHD`)_
 
-Rys. 24 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`.
+Rys. 24 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`. O rodzaju zapisu decyduje indeks rekordu: `N` równy lub większy od liczby rekordów to `append`, mniejszy to `update`. Wpis w `.shadow` jest kluczowany przesunięciem w bajtach (`N·size`, przy retencji liczonym względem segmentu), wpis w `.meta.shadow` indeksem rekordu `N`. Rekord złożony wyłącznie z wartości null poza fazą nullfill nie trafia do pliku głównego — zostaje po nim wpis przerwy w `.meta`. Warstwa cienia istnieje tylko dla typów `DEFAULT` i `POSIXSHD`; w pozostałych typach (`POSIX`, `DIRECT`, `GENERIC`, `MEMORY`) `update` nadpisuje rekord bezpośrednio w pliku głównym i w `.meta`.
 
 ## Punkt wyjścia — plik binarny bez metadanych
 
