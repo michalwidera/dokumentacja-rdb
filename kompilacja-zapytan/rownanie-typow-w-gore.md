@@ -69,17 +69,26 @@ typu dokładnego, bo `a^k` jest liczone tym samym mnożeniem, co zapisany wprost
 | Funkcje                                                                | Typ wyniku          |
 | ---------------------------------------------------------------------- | ------------------- |
 | `isnull`, `IsZero`, `IsNonZero`, `Length`                              | zawsze `INTEGER`    |
-| `sin`, `cos`, `exp`                                                     | zawsze `DOUBLE`     |
-| `Sqrt`, `Ceil`, `Floor`, `round`, `trunc`, `tan`, `log`, `log2`           | typ argumentu       |
+| `sin`, `cos`, `exp`                                                     | zawsze `DOUBLE`; nad `RATIONAL` **odrzucane** |
+| `Sqrt`, `tan`, `log`, `log2`                                            | typ argumentu; nad `RATIONAL` **odrzucane** |
+| `Ceil`, `Floor`, `round`, `trunc`                                       | typ argumentu       |
 | `Abs`, `null2zero`                                                     | typ argumentu       |
 | `to_integer`, `to_float`, `to_double`, `to_string`                     | typ docelowy        |
 
 `sin`, `cos` i `exp` liczą w `double` i **zwracają `DOUBLE`** również dla argumentów
-całkowitych i `RATIONAL`. Pozostałe funkcje matematyczne liczą przez `double` i rzutują
+całkowitych. Pozostałe funkcje matematyczne liczą przez `double` i rzutują
 wynik z powrotem na typ argumentu: `Ceil` nad polem `DOUBLE` daje `DOUBLE`, a `Sqrt` nad
 `INTEGER` daje `INTEGER`. Jawne
 konwersje wyznaczają typ swojego wyniku **także wtedy, gdy stoją w środku wyrażenia**:
 `to_float('2.5') * 2` jest `FLOAT`, a `to_integer(AVG(x : 10)) + 1` jest `INTEGER`.
+
+Siedem funkcji o niewymiernej przeciwdziedzinie — `Sqrt`, `sin`, `cos`, `exp`, `tan`,
+`log` i `log2` — **nie kompiluje się** nad argumentem typu `RATIONAL`: kompilator odrzuca
+plan i wymaga jawnego `to_double`. Ma to znaczenie praktyczne, bo reduktory `MIN`, `MAX`,
+`AVG` i `SUMC` są z definicji `RATIONAL`. Powód, komunikat błędu, zasięg bramki (obejmuje
+też warunek `RULE ... WHEN`) i wyjątek dla funkcji zaokrąglających opisuje rozdział
+[Wyrażenia pól i funkcje skalarne](../konstrukcja-jezyka-zapytan/polecenie-select/wyrazenia-pol-i-funkcje-skalarne.md);
+tutaj nie jest to powtarzane, żeby obie strony nie rozjechały się przy następnej zmianie.
 
 **Agregat okna rekordowego** bierze typ z całego programu swojego argumentu, przepuszczonego
 przez tę samą regułę, co reduktory strumieniowe: źródło arytmetyczne (`BYTE`, `INTEGER`,
