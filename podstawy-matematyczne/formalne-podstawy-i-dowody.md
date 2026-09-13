@@ -408,28 +408,48 @@ składowych o dokładnie \\(L\\) slotów wyniku, nie zmieniając ich wzajemnej f
 o danym indeksie logicznym jest po obu stronach ta sama, bo wybór składowej
 zależy wyłącznie od fazy, a ta jest niezmieniona.
 
-*Ogony.* Ponieważ dodanie całkowitego \\(L\\) komutuje z sufitem,
-\\(\operatorname{conv}(W_A-i,\Delta_a,\Delta_c)=\operatorname{conv}(W_A,\Delta_a,\Delta_c)-L\\)
-i analogicznie dla B. Z \\(\max(0,W-m)\ge W-m\\) i monotoniczności
-\\(\operatorname{conv}\\) dostajemy
+*Ogony.* Niech \\(s(n)\in\\{A,B\\}\\) oznacza składową wybraną w fazie
+\\(n\\), a \\(j(n)\\) jej indeks. Oznaczmy przesunięcia przez
+\\(t_A=i\\) i \\(t_B=k\\). Po przesunięciu ogon składowej wynosi
+\\(W_s^{\prime}=\max(0,W_s-t_s)\ge W_s-t_s\\). Nie zmieniają się interwały ani
+wybór składowej i jej indeks w danej fazie przeplotu. Niech \\(R_n\\)
+będzie wymaganiem dostępności z powyższego wzoru fazowego dla ogonów
+\\(W_A,W_B\\), a \\(R_n^{\prime}\\) wymaganiem dla \\(W_A^{\prime},W_B^{\prime}\\).
+Z kroku pomocniczego mamy \\(t_s\Delta_s/\Delta_c=L\in\mathbb{N}\\)
+dla obu składowych. Monotoniczność sufitu i jego zgodność z przesunięciem
+o całkowite \\(L\\) dają w każdej fazie:
 
 \\[
 \begin{aligned}
-W_{\mathrm{LHS}}
-&=\max\left(
-\operatorname{conv}\bigl(\max(0,W_A-i),\Delta_a,\Delta_c\bigr),
-\operatorname{conv}\bigl(\max(0,W_B-k),\Delta_b,\Delta_c\bigr)+H_{a,b}
-\right)\\\\
-&\ge\max\left(
-\operatorname{conv}(W_A,\Delta_a,\Delta_c)-L,
-\operatorname{conv}(W_B,\Delta_b,\Delta_c)+H_{a,b}-L
-\right)
-=W_{\varphi(A,B)}-L,
+R_n^{\prime}
+&=\left\lceil
+\frac{(j(n)+1+W_{s(n)}^{\prime})\Delta_{s(n)}}{\Delta_c}
+\right\rceil-1-n\\\\
+&\ge\left\lceil
+\frac{(j(n)+1+W_{s(n)}-t_{s(n)})\Delta_{s(n)}}{\Delta_c}
+\right\rceil-1-n
+=R_n-L.
 \end{aligned}
 \\]
 
-a ponieważ \\(W_{\mathrm{LHS}}\ge 0\\), zachodzi
-\\(W_{\mathrm{LHS}}\ge\max(0,W_{\varphi(A,B)}-L)=W_{\mathrm{RHS}}\\). ∎
+Maksimum bierzemy po tym samym pełnym okresie \\(p+q\\), ponieważ
+przesunięcia nie zmieniają stosunku interwałów. Korzystając dodatkowo
+z nieujemności ogonów, otrzymujemy:
+
+\\[
+W_{\mathrm{LHS}}
+\ge\max\left(0,\max_{0\le n<p+q}R_n-L\right)
+=\max\left(0,W_{\varphi(A,B)}-L\right)
+=W_{\mathrm{RHS}}.
+\\]
+
+Powyżej progu przeglądu silnik stosuje opisane wcześniej oszacowanie
+awaryjne \\(O(1)\\). Dla niego tę samą nierówność uzyskujemy przez
+monotoniczność obu członów \\(\operatorname{conv}\\): dopasowane przesunięcie
+zmniejsza każdy z nich najwyżej o \\(L\\), a składnik \\(H_{a,b}\\)
+pozostaje bez zmian. Obie strony korzystają z tego samego wariantu obliczeń,
+bo interwały się nie zmieniają. Oszacowanie awaryjne nie musi być równe
+dokładnemu maksimum fazowemu. ∎
 
 > **⚠️ Zakres twierdzenia**
 >
