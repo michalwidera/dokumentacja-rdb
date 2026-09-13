@@ -27,12 +27,6 @@ Opis historycznych okoliczności, które doprowadziły do powstania RetractorDB.
 
 Pełny opis: [Geneza systemu](geneza-systemu/README.md)
 
-**Dalsze kierunki rozwoju**
-
-Wskazanie potencjalnych rozszerzeń algebry leżącej u podstaw RQL. Głównym wątkiem jest poszukiwanie uogólnienia na liczby zespolone — próba bezpośredniego zastosowania gaussowskich liczb całkowitych okazała się nieskuteczna z powodu natury modułu (moduł liczby zesponoej o wymiernych składowych jest rzeczywisty, nie wymierny). Alternatywą są **liczby całkowite Eisensteina** — trójsymetryczny odpowiednik liczb gaussowskich, których moduł zachowuje własności wymierne. Rozdział zawiera wyprowadzenie ich definicji i wstępną analizę możliwości zastosowania w algebrze serii czasowych.
-
-Pełny opis: [Dalsze kierunki rozwoju](dalsze-kierunki-rozwoju/README.md)
-
 **Kolorowanie składni RQL**
 
 Pliki zapytań RetractorDB (rozszerzenie `.rql`) mają dedykowane definicje kolorowania składni dla trzech środowisk:
