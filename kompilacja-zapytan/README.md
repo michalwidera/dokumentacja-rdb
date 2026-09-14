@@ -32,22 +32,46 @@ Flaga `-c` zatrzymuje `xretractor` po tym kroku i drukuje plan na standardowe wy
 
 Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opisu struktury danych i łańcucha etapów, przez poszczególne przekształcenia, aż po obsługę błędów.
 
-[**Przebiegi kompilacji**](przebiegi-kompilacji.md) opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to uporządkowana sekwencja siedemnastu etapów wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego i zwraca komunikat błędu, gdy warunki nie są spełnione.
+<div class="timeline">
 
-[**Budowa drzewa zależności**](budowa-drzewa-zaleznosci.md) opisuje strukturę DAG powstającego w trakcie kompilacji — fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność zapytań w pliku `.rql` ma znaczenie — odwołanie do niezdefiniowanego jeszcze strumienia kończy się błędem.
+- **[Przebiegi kompilacji](przebiegi-kompilacji.md)**
 
-[**Substraty**](substraty.md) wyjaśnia etap `extractIntermediateStreams` — pierwszy krok po rozwinięciu generatorów. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`, `core0+core1+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania — unikając powielania obliczeń.
+  Opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to uporządkowana sekwencja siedemnastu etapów wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego i zwraca komunikat błędu, gdy warunki nie są spełnione.
 
-[**Rozwijanie symbolu \***](rozwijanie-symbolu.md) wyjaśnia etap `expandSchemaWildcards`. Symbol `*` w klauzuli SELECT zostaje zastąpiony pełną listą pól wynikających ze schematu strumienia źródłowego — w tym polami pochodzącymi z operacji sumy strumieni. Przykład pokazuje, jak typy pól decydują o tym, które pole trafia na które miejsce w schemacie wynikowym.
+- **[Budowa drzewa zależności](budowa-drzewa-zaleznosci.md)**
 
-[**Rozwiązywanie interwałów**](rozwiazywanie-interwalow.md) opisuje etap `resolveStreamIntervals`. Kompilator wyznacza deltę każdego strumienia wynikowego z równań algebry strumieniowej: dla operatora `+` delta to minimum wejść, dla `#` — średnia harmoniczna, dla `@(step, window)` — pochodna rozmiaru okna. Algorytm działa iteracyjnie — każda runda rozwiązuje co najmniej jeden strumień, aż wszystkie delty są znane.
+  Opisuje strukturę DAG powstającego w trakcie kompilacji — fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność zapytań w pliku `.rql` ma znaczenie — odwołanie do niezdefiniowanego jeszcze strumienia kończy się błędem.
 
-[**Wykrywanie pętli**](wykrywanie-petli.md) opisuje mechanizm wbudowany w etap `resolveStreamIntervals`. Jeśli liczba nierozwiązanych strumieni przestaje maleć, żaden strumień nie może uzyskać delty — znak, że graf zależności zawiera cykl. Kompilacja kończy się błędem `"Circular dependency in stream definitions"`. Rozdział zawiera przykład cyklicznego zapytania i sposób jego naprawy.
+- **[Substraty](substraty.md)**
 
-[**Aliasowanie**](aliasowanie.md) opisuje etapy `resolveFieldReferences` i `localizeFieldOffsets`. Po sumie `+` do pola wynikowego można odwołać się zarówno przez indeks w schemacie sumarycznym (`str1[1]`), jak i przez nazwę strumienia źródłowego z lokalnym indeksem (`core1[0]`). Po przeplocie `#` składowe dzielą jeden schemat, dlatego nazwane odwołania do składowych są odrzucane; należy użyć nazwy strumienia wynikowego albo rozplotu `&`/`%`.
+  Wyjaśnia etap `extractIntermediateStreams` — pierwszy krok po rozwinięciu generatorów. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`, `core0+core1+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania — unikając powielania obliczeń.
 
-[**Przetwarzanie symbolu \_**](przetwarzanie-symbolu-_.md) opisuje etap `expandIndexWildcards` — cukier syntaktyczny do równoległych operacji na parach pól. Symbol `_` w indeksie powoduje powielenie formuły dla wszystkich zgodnych slotów, które wskazany strumień wnosi do rekordu całej klauzuli `FROM`. Dlatego `src[_] * coef[_]` przy `FROM src@(1,5)+coef` generuje pięć iloczynów, mimo że sam `src` jest jednopolowy. Zastosowanie: budowa zapytań filtrów sygnałowych.
+- **[Rozwijanie symbolu \*](rozwijanie-symbolu.md)**
 
-[**Równanie typów w górę**](rownanie-typow-w-gore.md) definiuje reguły promocji typów obowiązujące przez cały łańcuch kompilacji. Wynik działania `BYTE * INTEGER` ma typ `INTEGER` — kompilator wyznacza typ pola wyjściowego statycznie, zanim dane zostaną przetworzone. Opisano też kompletną hierarchię typów obsługiwanych przez RetractorDB.
+  Wyjaśnia etap `expandSchemaWildcards`. Symbol `*` w klauzuli SELECT zostaje zastąpiony pełną listą pól wynikających ze schematu strumienia źródłowego — w tym polami pochodzącymi z operacji sumy strumieni. Przykład pokazuje, jak typy pól decydują o tym, które pole trafia na które miejsce w schemacie wynikowym.
 
-[**Debugowanie kompilacji**](debugowanie-kompilacji.md) zbiera w jednym miejscu narzędzia diagnostyczne: flaga `-c` do inspekcji planu, pipeline `-c -d -f -s` do wizualizacji grafu przez `graphviz`, tablicę znaczeń instrukcji planu (PUSH\_ID, PUSH\_STREAM, STREAM\_ADD, ...) oraz katalog typowych błędów kompilacji z ich przyczynami i sposobem naprawy.
+- **[Rozwiązywanie interwałów](rozwiazywanie-interwalow.md)**
+
+  Opisuje etap `resolveStreamIntervals`. Kompilator wyznacza deltę każdego strumienia wynikowego z równań algebry strumieniowej: dla operatora `+` delta to minimum wejść, dla `#` — średnia harmoniczna, dla `@(step, window)` — pochodna rozmiaru okna. Algorytm działa iteracyjnie — każda runda rozwiązuje co najmniej jeden strumień, aż wszystkie delty są znane.
+
+- **[Wykrywanie pętli](wykrywanie-petli.md)**
+
+  Opisuje mechanizm wbudowany w etap `resolveStreamIntervals`. Jeśli liczba nierozwiązanych strumieni przestaje maleć, żaden strumień nie może uzyskać delty — znak, że graf zależności zawiera cykl. Kompilacja kończy się błędem `"Circular dependency in stream definitions"`. Rozdział zawiera przykład cyklicznego zapytania i sposób jego naprawy.
+
+- **[Aliasowanie](aliasowanie.md)**
+
+  Opisuje etapy `resolveFieldReferences` i `localizeFieldOffsets`. Po sumie `+` do pola wynikowego można odwołać się zarówno przez indeks w schemacie sumarycznym (`str1[1]`), jak i przez nazwę strumienia źródłowego z lokalnym indeksem (`core1[0]`). Po przeplocie `#` składowe dzielą jeden schemat, dlatego nazwane odwołania do składowych są odrzucane; należy użyć nazwy strumienia wynikowego albo rozplotu `&`/`%`.
+
+- **[Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md)**
+
+  Opisuje etap `expandIndexWildcards` — cukier syntaktyczny do równoległych operacji na parach pól. Symbol `_` w indeksie powoduje powielenie formuły dla wszystkich zgodnych slotów, które wskazany strumień wnosi do rekordu całej klauzuli `FROM`. Dlatego `src[_] * coef[_]` przy `FROM src@(1,5)+coef` generuje pięć iloczynów, mimo że sam `src` jest jednopolowy. Zastosowanie: budowa zapytań filtrów sygnałowych.
+
+- **[Równanie typów w górę](rownanie-typow-w-gore.md)**
+
+  Definiuje reguły promocji typów obowiązujące przez cały łańcuch kompilacji. Wynik działania `BYTE * INTEGER` ma typ `INTEGER` — kompilator wyznacza typ pola wyjściowego statycznie, zanim dane zostaną przetworzone. Opisano też kompletną hierarchię typów obsługiwanych przez RetractorDB.
+
+- **[Debugowanie kompilacji](debugowanie-kompilacji.md)**
+
+  Zbiera w jednym miejscu narzędzia diagnostyczne: flaga `-c` do inspekcji planu, pipeline `-c -d -f -s` do wizualizacji grafu przez `graphviz`, tablicę znaczeń instrukcji planu (PUSH\_ID, PUSH\_STREAM, STREAM\_ADD, ...) oraz katalog typowych błędów kompilacji z ich przyczynami i sposobem naprawy.
+
+</div>
