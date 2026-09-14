@@ -58,7 +58,7 @@ DO DUMP -5 TO 0
 
 ## Dostęp do pól
 
-Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowiada pozycji w schemacie tego strumienia — tak samo jak w klauzuli `SELECT`. Aliasowanie działa identycznie jak opisano w rozdziale [Aliasowanie](../kompilacja-zapytan/aliasowanie.md).
+Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowiada pozycji w schemacie tego strumienia — tak samo jak w klauzuli `SELECT`. Warunek czyta rekord wyjściowy strumienia, więc indeks równy liczbie jego pól lub większy jest błędem kompilacji (zob. [Indeks poza zakresem](../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem)). Aliasowanie działa identycznie jak opisano w rozdziale [Aliasowanie](../kompilacja-zapytan/aliasowanie.md).
 
 Jeżeli strumień z `ON` powstał przez przeplot `A#B`, warunek musi używać nazwy strumienia wynikowego:
 

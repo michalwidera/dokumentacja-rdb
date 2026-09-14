@@ -69,6 +69,29 @@ SELECT merged[0], merged[2] STREAM result FROM merged
 
 Ograniczenie nie dotyczy substratów tworzonych automatycznie dla złożonej klauzuli `FROM`, np. `FROM (core0 + core1) > 1`: przez nie alias źródłowy nadal działa.
 
+## Indeks poza zakresem
+
+Indeks w zapisie `strumien[k]` musi wskazywać slot, który zapytanie rzeczywiście czyta. Kompilator odrzuca indeks poza tym zakresem, zamiast wygenerować plan czytający za końcem rekordu wejściowego. Granica zależy od tego, do czego odnosi się nazwa:
+
+| Odwołanie | Granica | Przykład poprawny | Przykład odrzucony |
+|---|---|---|---|
+| strumień z klauzuli `FROM` | liczba slotów, które ten strumień wnosi do `FROM` | `core1[1]` przy `FROM core0 + core1` | `core1[2]` |
+| strumień za oknem albo reduktorem | liczba slotów po operatorze, nie szerokość strumienia | `core0[2]` przy `FROM core0@(1,3)` | `core0[3]`; `acc[1]` przy `FROM SUMC(acc)` |
+| własna nazwa na liście `SELECT` | szerokość rekordu wejściowego `FROM` | `merged[3]` w `STREAM merged FROM core0 + core1` | `merged[4]` |
+| własna nazwa w warunku `RULE` | szerokość rekordu wyjściowego strumienia | `merged[3]` przy `SELECT * STREAM merged` | `merged[4]` |
+
+Okno i reduktor zmieniają liczbę slotów: `core0@(1,3)` wnosi trzy sloty, choć `core0` ma dwa pola, a `SUMC(acc)` wnosi jeden. Ta sama liczba wyznacza rozwinięcie `core0[_]`, więc zapis ręczny i zapis z `_` mają ten sam zakres.
+
+Przykładowe komunikaty:
+
+```
+Check result:Stream 'merged': stream 'core1' has 2 element(s) in its FROM clause, so 'core1[2]' is out of range
+Check result:Stream 'merged': the FROM record of 'merged' has 4 element(s), so 'merged[4]' is out of range
+Check result:Stream 'merged': rule 'alarm' reads the record of 'merged', which has 4 element(s), so 'merged[4]' is out of range
+```
+
+Indeks zwinięty z `$` w generatorze strumieni podlega tej samej kontroli i daje ten sam komunikat co indeks napisany ręcznie.
+
 
 Opisane wyżej aliasy źródłowe dotyczą operatora sumy `+`. Suma konkatenizuje schematy, dlatego zachowuje pozycję i tożsamość każdej składowej: `core0[0]` i `core1[0]` wskazują różne miejsca w rekordzie wynikowym.
 

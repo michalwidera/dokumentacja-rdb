@@ -53,7 +53,7 @@ W szablonie `$` może wystąpić:
 - jako wartość wyrażenia, np. `cells[0]+$`;
 - w odwołaniu do innej rodziny w klauzuli `FROM`, np. `cell[$]@(2,4)`.
 
-Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, nawiasy oraz operatory `*`, `+` i `-`. Rozmiar rodziny musi być dodatni, a szablon musi rzeczywiście używać `$`. Generator nie może mieć klauzuli `FILE`, ponieważ jedna nazwa pliku nie może opisywać wielu strumieni. Kompilator odrzuca także indeksy poza zakresem rodziny, ujemne indeksy pól oraz kolizje nazw wygenerowanych z istniejącymi strumieniami.
+Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, nawiasy oraz operatory `*`, `+` i `-`. Rozmiar rodziny musi być dodatni, a szablon musi rzeczywiście używać `$`. Generator nie może mieć klauzuli `FILE`, ponieważ jedna nazwa pliku nie może opisywać wielu strumieni. Kompilator odrzuca także indeksy poza zakresem rodziny, ujemne indeksy pól, indeksy pól poza zakresem slotów źródła oraz kolizje nazw wygenerowanych z istniejącymi strumieniami. Zakres indeksu pola sprawdza ta sama kontrola co dla zapisu ręcznego — patrz [Indeks poza zakresem](../../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem).
 
 Ekspansja jest pierwszym przebiegiem kompilatora. Po niej plan jest taki sam jak plan z ręcznie rozpisanymi strumieniami `cell$0`...`cell$3`; runtime nie ma osobnego mechanizmu generatorów.
 
