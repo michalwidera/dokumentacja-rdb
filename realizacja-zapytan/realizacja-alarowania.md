@@ -69,6 +69,15 @@ Kod wyjścia polecenia jest sprawdzany:
 
 `DO DUMP` jest bardziej złożona, ponieważ wymaga zebrania danych **z przeszłości** (chwile przed zdarzeniem) i **z przyszłości** (chwile po zdarzeniu). Obsługuje to klasa `dumpManager`.
 
+<div class="timeline compact">
+
+- **Zdarzenie** — warunek `WHEN` prawdziwy dla próbki `t`, reguła wywołuje `dumpManager::registerTask()`
+- **Faza 1** — zapis `|step_back|` próbek historycznych z bufora strumienia (albo ustawienie opóźnienia startu)
+- **Faza 2** — w kolejnych iteracjach `processStreamChunk()` dopisuje próbki przyszłe
+- **Koniec** — `dumpedRecordsToGo` osiąga 0, plik zostaje zamknięty, zadanie opuszcza kolejkę
+
+</div>
+
 ### Faza 1: dane historyczne (przy rejestracji zadania)
 
 W chwili wyzwolenia reguły — zaraz po stwierdzeniu, że warunek jest prawdziwy — `dumpManager::registerTask()`:

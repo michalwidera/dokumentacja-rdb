@@ -10,14 +10,17 @@ W tym rozdziale chcę wyjaśnić, jak rozwiązałem problemy syntaktyczne, któr
 
 ### Plik `.rql`
 
-Wejście kompilatora — tekst w języku RetractorQL zawierający dyrektywy `DECLARE` i `SELECT`. Parser ANTLR4 czyta plik sekwencyjnie; odwołanie do strumienia niezdefiniowanego wcześniej w pliku kończy się błędem kompilacji.
-{% endstep %}
+Wejście kompilatora — tekst w języku RQL zawierający instrukcje `DECLARE`, `SELECT` i `RULE` oraz dyrektywy konfiguracyjne (np. `:STORAGE`). Parser ANTLR4 czyta plik instrukcja po instrukcji.
+
+Kolejność `DECLARE` i `SELECT` w pliku nie ma znaczenia: zapytanie może odwoływać się do strumienia zdefiniowanego niżej, bo zależności między strumieniami rozwiązuje dopiero kompilator. Wyjątkiem jest `RULE` — parser przypina regułę do strumienia już wczytanego, więc reguła musi stać po definicji swojego strumienia; w przeciwnym razie parser zgłasza błąd `Rule '…' refers to stream '…', but no such stream is defined`. Odwołanie do strumienia, którego w pliku nie ma wcale, przerywa kompilację błędem `Referenced Stream in QUERY _not found_ in CORE TREE`.
 
 ### Parser ANTLR4 → `qTree`
 
-Parser buduje wewnętrzną reprezentację `qTree`: topologicznie posortowany `std::vector<query>`. Każdy element opisuje jeden strumień — jego schemat pól, sekwencję instrukcji stosu, zależności od innych strumieni i interwał czasowy (delta).
+Parser buduje wewnętrzną reprezentację `qTree` — `std::vector<query>` — dopisując po jednym elemencie dla każdej instrukcji `DECLARE`, `SELECT` i dyrektywy konfiguracyjnej, w kolejności z pliku i bez sortowania. Element `SELECT` niesie schemat pól z programami stosowymi oraz program klauzuli `FROM` wskazujący strumienie źródłowe. Interwał czasowy (delta) jest na tym etapie znany tylko dla deklaracji `DECLARE`; dla zapytań `SELECT` wyznacza go kompilator. Szablon generatora `STREAM nazwa[N]` jest jeszcze jednym elementem, a reguła `RULE` nie tworzy własnego elementu — trafia na listę reguł swojego strumienia.
 
-### 10 etapów kompilacji
+Kolejność wektora zmienia się w trakcie kompilacji: rozwiązanie interwałów sortuje go według delty, a porządek topologiczny (producent przed konsumentem) przywraca dopiero ostatni etap.
+
+### 23 etapy kompilacji
 
 `qTree` przechodzi przez łańcuch przekształceń: od rozbicia wyrażeń FROM na operacje dwuargumentowe, przez wyznaczenie delt i offsetów bajtowych, aż po weryfikację semantyczną i obliczenie rozmiarów buforów. Każdy etap zakłada sukces poprzedniego.
 
@@ -36,11 +39,11 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora — od opis
 
 - **[Przebiegi kompilacji](przebiegi-kompilacji.md)**
 
-  Opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to uporządkowana sekwencja siedemnastu etapów wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego i zwraca komunikat błędu, gdy warunki nie są spełnione.
+  Opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok — to uporządkowana sekwencja dwudziestu trzech etapów wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego, a błąd na dowolnym etapie zatrzymuje kompilację.
 
 - **[Budowa drzewa zależności](budowa-drzewa-zaleznosci.md)**
 
-  Opisuje strukturę DAG powstającego w trakcie kompilacji — fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność zapytań w pliku `.rql` ma znaczenie — odwołanie do niezdefiniowanego jeszcze strumienia kończy się błędem.
+  Opisuje strukturę DAG powstającego w trakcie kompilacji — fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność `DECLARE` i `SELECT` w pliku `.rql` nie ma znaczenia — graf zależności buduje kompilator; tylko `RULE` musi stać po definicji strumienia, do którego się odnosi.
 
 - **[Substraty](substraty.md)**
 

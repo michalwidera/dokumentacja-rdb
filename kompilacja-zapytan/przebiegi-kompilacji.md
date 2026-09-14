@@ -32,7 +32,7 @@ SELECT * \
 STREAM merged \
 FROM core0 + core1
 
-SELECT merged[0], merged[2], core0[0], core1[0] \
+SELECT merged[0], merged[2] \
 STREAM result \
 FROM merged
 ```
@@ -40,43 +40,76 @@ FROM merged
 Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:
 
 ```
-merged(1/10)
-        :- PUSH_STREAM(core0)
-        :- PUSH_STREAM(core1)
-        :- STREAM_ADD
-        core0_0: BYTE
-                PUSH_ID(merged[0])
-        core0_1: INTEGER
-                PUSH_ID(merged[1])
-        core1_2: INTEGER
-                PUSH_ID(merged[2])
-        core1_3: FLOAT
-                PUSH_ID(merged[3])
-result(1/10)
-        :- PUSH_STREAM(merged)
-        result_0: BYTE
-                PUSH_ID(merged[0])
-        result_1: INTEGER
-                PUSH_ID(merged[2])
-        result_2: BYTE
-                PUSH_ID(merged[0])
-        result_3: INTEGER
-                PUSH_ID(merged[2])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
-core1(1/5)      sensor_b.txt
-        c: INTEGER
-        d: FLOAT
-core2(3/10)     sensor_c.txt
-        e: INTEGER
+core0(1/10)	sensor_a.txt
+	a: BYTE
+	b: INTEGER
+core1(1/5)	sensor_b.txt
+	c: INTEGER
+	d: FLOAT
+merged(1/10)	tail=1
+	:- PUSH_STREAM(core0)
+	:- PUSH_STREAM(core1)
+	:- STREAM_ADD
+	core0_0: BYTE
+		PUSH_ID(merged[0])
+	core0_1: INTEGER
+		PUSH_ID(merged[1])
+	core1_2: INTEGER
+		PUSH_ID(merged[2])
+	core1_3: FLOAT
+		PUSH_ID(merged[3])
+result(1/10)	tail=1
+	:- PUSH_STREAM(merged)
+	result_0: BYTE
+		PUSH_ID(result[0])
+	result_1: INTEGER
+		PUSH_ID(result[2])
+core2(3/10)	sensor_c.txt
+	e: INTEGER
 ```
+
+Plan jest wydrukowany w końcowym porządku topologicznym: deklaracje `core0` i `core1` poprzedzają swojego konsumenta `merged`, a ten — zapytanie `result`. Nieużywana deklaracja `core2` trafia na koniec. `tail=1` to ogon startowy wyznaczony przez `computeStartupLatency`. Odwołania `PUSH_ID` wskazują pozycje w rekordzie wejściowym zapytania, zapisane pod jego własną nazwą: `result[2]` to trzecie pole rekordu `merged`, czyli `core1.c`.
+
+Lista pól `result` odwołuje się wyłącznie do strumienia z własnej klauzuli `FROM`. Zapis `core1[0]` w tym miejscu kończy się błędem kompilacji `Stream 'result' refers to 'core1', which is not in its FROM clause`: `core1` jest źródłem `merged`, a nie `result` — patrz [Aliasowanie](aliasowanie.md).
 
 Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji. Jak interpretować każdy element tego planu — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Łańcuch etapów
 
-Łańcuch etapów definiuje funkcja `compiler::compile()`:
+Łańcuch dwudziestu trzech etapów definiuje funkcja `compiler::compile()`:
+
+<div class="timeline compact">
+
+- `checkFunctionCalls` — nazwy i arność funkcji skalarnych
+- `checkStreamReducerFieldRefs` — reduktor strumieniowy poza klauzulą `FROM`
+- `expandStreamGenerators` — rozwinięcie rodzin strumieni `nazwa[N]`
+- `snapshotNamedSourceRefs` — migawka odwołań zapisanych przez użytkownika
+- `extractIntermediateStreams` — wyrażenia `FROM` dwuargumentowe, substraty
+- `expandSchemaWildcards` — rozwinięcie `*` oraz `[_]`
+- `resolveStreamIntervals` — interwały strumieni, wykrywanie pętli
+- `factorMatchedHashTimeMoves` — wyniesienie wspólnego przesunięcia przed przeplot
+- `deduplicateSubstrats` — eliminacja powtórzonych substratów
+- `validateSubstratNameUniqueness` — jednoznaczność nazw substratów
+- `resolveFieldReferences` — odwołania do pól jako indeksy płaskie
+- `resolveWindowAggregates` — grupy agregatów okna rekordowego
+- `inferFieldShapes` — typ, długość i krotność każdego pola
+- `checkRuleConditionShapes` — obliczalność warunków `RULE`
+- `simplifyFieldExpressions` — uproszczenie programów pól i reguł
+- `shareEquivalentSelectComputations` — współdzielenie równoważnych `SELECT`
+- `localizeFieldOffsets` — przesunięcia pól w buforze wejściowym
+- `computeLogicalOrigin` — początek logiczny strumienia
+- `computeStartupLatency` — ogon startowy
+- `computeRequiredCapacities` — wymagana historia buforów
+- `validateConstraints` — kontrola semantyczna planu
+- `applyCapacitiesToStreams` — zastosowanie pojemności
+- `topologicalSort` — końcowy porządek producent–konsument
+
+</div>
+
+Etapy `factorMatchedHashTimeMoves`, `deduplicateSubstrats`, `simplifyFieldExpressions`
+i `shareEquivalentSelectComputations` są optymalizacjami, które przełączniki `RDB_OPT_*` mogą
+wyłączyć. Wyłączenie nie zmienia wartości wyniku; może najwyżej wydłużyć ogon startowy
+(patrz `factorMatchedHashTimeMoves`). Pozostałe etapy wykonują się zawsze.
 
 #### checkFunctionCalls
 
@@ -85,9 +118,19 @@ Dopasowanie ignoruje wielkość liter, a do tokena trafia postać kanoniczna naz
 funkcja lub niedozwolona szerokość kończy kompilację komunikatem `Check result:` jeszcze
 przed rozwinięciem generatorów, więc jeden błąd szablonu nie jest powielany N razy.
 
+#### checkStreamReducerFieldRefs
+
+Odrzuca reduktor strumieniowy (`MIN`, `MAX`, `AVG`, `SUMC` bez szerokości okna) użyty
+w programie pola `SELECT` albo w warunku `RULE`. Gramatyka dopuszcza go w wyrażeniu
+skalarnym, ale tam żaden mechanizm wykonawczy go nie obliczy: zapytanie
+`SELECT avg STREAM o FROM AVG(src)` przechodziło kompilację i nie emitowało potem ani
+jednego rekordu. Miejscem reduktora strumieniowego jest klauzula `FROM`; działające
+`SELECT * FROM AVG(src)` tej kontroli nie podlega. Etap stoi obok `checkFunctionCalls`
+z tego samego powodu — przed rozwinięciem generatorów.
+
 #### expandStreamGenerators
 
-Rozwija każdy szablon `SELECT ... STREAM nazwa[N] ...` na `N` zwykłych zapytań o nazwach `nazwa$0`...`nazwa$(N-1)` i podstawia numer instancji pod `$` w polach, wartościach oraz odwołaniach klauzuli `FROM`. Jest pierwszym przebiegiem: po nim pozostała część kompilatora otrzymuje plan nieodróżnialny od ręcznie rozpisanych zapytań. Składnię i ograniczenia opisuje [Polecenie SELECT](../konstrukcja-jezyka-zapytan/polecenie-select/README.md#generatory-strumieni).
+Rozwija każdy szablon `SELECT ... STREAM nazwa[N] ...` na `N` zwykłych zapytań o nazwach `nazwa$0`...`nazwa$(N-1)` i podstawia numer instancji pod `$` w polach, wartościach oraz odwołaniach klauzuli `FROM`. Jest pierwszym przebiegiem przepisującym plan (poprzedzają go tylko kontrole `checkFunctionCalls` i `checkStreamReducerFieldRefs`): po nim pozostała część kompilatora otrzymuje plan nieodróżnialny od ręcznie rozpisanych zapytań. Składnię i ograniczenia opisuje [Polecenie SELECT](../konstrukcja-jezyka-zapytan/polecenie-select/README.md#generatory-strumieni).
 
 #### snapshotNamedSourceRefs
 
@@ -146,20 +189,27 @@ Wyodrębnia program argumentu każdego `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)` 
 Identyczne trójki źródło–wyrażenie–szerokość współdzielą grupę i jedno przejście po historii.
 Token agregatu staje się bezargumentowym operandem wskazującym obliczony wynik grupy.
 
-#### propagateCopiedFieldShapes
+#### inferFieldShapes
 
-Przenosi ustalony typ wyniku agregatu okna przez węzły, które wyłącznie kopiują schemat:
-`SELECT *`, przesunięcie, różnicę, przeplot, rozplot i sumę strumieni. Przebieg działa do
-punktu stałego, bo kopia może czytać inną kopię, a drzewo jest jeszcze posortowane według
-interwału. Bez tego etapu pochodna kopia wyniku `RATIONAL` zachowywałaby parserowy typ
-`INTEGER` i po cichu obcinała część ułamkową.
+Jedyny etap ustalający publiczny kształt pola `SELECT`: typ, długość i krotność. Kształt
+wynika z całego programu pola — przebieg odtwarza arytmetykę wykonawczą na stosie typów,
+łącznie z promocją `BYTE`, jawnymi konwersjami w środku wyrażenia, wynikiem agregatu okna
+oraz szerokością `STRING`. Etap zastąpił wcześniejsze reguły lokalne
+(`propagateCopiedFieldShapes`, `inferStringFieldTypes`), które rozstrzygały kształt tylko
+w wybranych przypadkach — patrz [Równanie typów w górę](rownanie-typow-w-gore.md).
 
-#### inferStringFieldTypes
+Przebieg działa do punktu stałego, bo drzewo jest jeszcze posortowane według interwału
+i konsument może stać przed producentem. Obejmuje wyłącznie węzły kopiujące schemat
+operandu; reduktory i okno `@` zachowują schemat zbudowany przez swój operator, a deklaracje
+`DECLARE` pozostają nietknięte. Etap poprzedza upraszczanie wyrażeń: po zwinięciu stałych
+szerokość pola zależałaby od przełącznika optymalizacji.
 
-Po rozwiązaniu referencji ustala typ i szerokość pola wynikowego `STRING` na podstawie
-rzeczywistego pola źródłowego, literałów i `to_string`. Wykonuje się przed upraszczaniem,
-aby zwinięcie stałego wyrażenia nie zmniejszyło zadeklarowanej szerokości. Przebieg nie jest
-ogólnym wnioskowaniem typów liczbowych.
+#### checkRuleConditionShapes
+
+Stosuje do warunków `RULE` tę samą kontrolę obliczalności, którą `inferFieldShapes`
+stosuje do pól. Warunek reguły wykonuje ten sam ewaluator wyrażeń, więc bez tego etapu
+niepoprawny warunek omijałby kontrolę i dawał po cichu złą wartość. Przebieg niczego nie
+zapisuje w planie — jedynie odrzuca warunki, których nie da się obliczyć.
 
 #### simplifyFieldExpressions
 
@@ -182,7 +232,9 @@ Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FR
 
 #### localizeFieldOffsets
 
-Przelicza odwołania do pól (`b[x]`, `c[y]`) na pozycje w spłaszczonym schemacie wyniku (`merged[z]`). Dla sumy `+` offset wynika z liczby pól wcześniejszych składowych. Dla przeplotu `#` oba argumenty dzielą te same pozycje wspólnego schematu; tożsamość składowej nie jest już dostępna przez jej nazwę.
+Przelicza odwołania do pól (`b[x]`, `c[y]`) na pozycje w spłaszczonym rekordzie wejściowym zapytania, zapisywane pod jego własną nazwą (`result[z]`). Dla sumy `+` offset wynika z liczby pól wcześniejszych składowych. Dla przeplotu `#` oba argumenty dzielą te same pozycje wspólnego schematu; tożsamość składowej nie jest już dostępna przez jej nazwę.
+
+Pozycję da się wyznaczyć tylko dla strumieni z klauzuli `FROM` i dla źródeł osiąganych przez substraty wygenerowane przez kompilator. Odwołanie do źródła strumienia pośredniego, który jest zapytaniem użytkownika — np. `core1[0]` przy `FROM merged` — kończy kompilację błędem `Stream '…' refers to '…', which is not in its FROM clause`. Taki strumień ma własny interwał i bufor, więc pozycji jego źródeł w rekordzie wejściowym konsumenta nie ma czym wyznaczyć.
 
 Na tym etapie kompilator odrzuca napisane przez użytkownika `A[0]`, `A.pole`, `A[_]`, `A.*` i gołe nazwy pól, jeżeli wskazują składową osiąganą przez `#`. Kontrola obejmuje także warunki `RULE` oraz źródła ukryte w automatycznych substratach. Legalne pozostają odwołania przez nazwę strumienia wynikowego, niekwalifikowane `*` oraz jawne odzyskanie składowej przez `&` lub `%`.
 
@@ -283,4 +335,4 @@ substraty wewnętrzne, ale nie może zmienić nazw pól żadnego publicznego
 strumienia, ponieważ trafiają one do obserwowalnego deskryptora `.desc`.
 
 
-Każdy etap zwraca `"OK"` lub komunikat błędu — wówczas kompilacja się zatrzymuje.
+Etapy kontrolne i przepisujące zwracają `"OK"` lub komunikat błędu — wówczas kompilacja się zatrzymuje. Wyniku tego rodzaju nie zwracają `snapshotNamedSourceRefs`, `computeRequiredCapacities` (zwraca mapę pojemności) ani `topologicalSort`. Część niespójności planu, np. odwołanie do nieistniejącego strumienia, przerywa kompilację wyjątkiem zamiast komunikatu.

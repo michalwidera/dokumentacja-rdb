@@ -46,7 +46,29 @@ core1(1/5)      sensor_b.txt
 
 `merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` — to to samo pole. Natomiast `core1[0]` — pierwsze pole schematu `core1` — trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2.
 
-## Aliasowanie po sumie i przeplocie
+## Odwołanie spoza klauzuli `FROM`
+
+Alias źródłowy działa tylko wtedy, gdy suma stoi bezpośrednio w klauzuli `FROM` zapytania. Jeżeli suma została nazwana osobnym zapytaniem, lista pól konsumenta widzi wyłącznie ten nazwany strumień:
+
+```
+SELECT * STREAM merged FROM core0 + core1
+SELECT merged[0], core1[0] STREAM result FROM merged
+```
+
+Kompilacja kończy się błędem:
+
+```
+Check result:Stream 'result' refers to 'core1', which is not in its FROM clause. A field list reads only the streams named in FROM: refer to the field by its position in the record of a stream in FROM, or move the reference to a query whose FROM names 'core1'.
+```
+
+`merged` jest zapytaniem użytkownika z własnym interwałem i buforem, więc kompilator nie wyznacza pozycji jego źródeł w rekordzie `result`. Poprawny zapis wskazuje pole przez pozycję w rekordzie `merged` — `core1` zaczyna się tam od pozycji 2:
+
+```
+SELECT merged[0], merged[2] STREAM result FROM merged
+```
+
+Ograniczenie nie dotyczy substratów tworzonych automatycznie dla złożonej klauzuli `FROM`, np. `FROM (core0 + core1) > 1`: przez nie alias źródłowy nadal działa.
+
 
 Opisane wyżej aliasy źródłowe dotyczą operatora sumy `+`. Suma konkatenizuje schematy, dlatego zachowuje pozycję i tożsamość każdej składowej: `core0[0]` i `core1[0]` wskazują różne miejsca w rekordzie wynikowym.
 
@@ -91,4 +113,4 @@ SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 
 Gdy potrzebna jest ponownie konkretna składowa, należy odzyskać ją operatorem rozplotu `&` albo `%`, zamiast używać nazwy źródła przez węzeł `#`.
 
-> **_NOTE:_** Aliasowanie po `+` ma pokrycie w teście integracyjnym `Pattern7`. Odrzucanie nazwanych składowych `#` i kontrole pozytywne dla nazwy wyniku są pokryte testami jednostkowymi `ut_compiler`.
+> **_NOTE:_** Aliasowanie po `+` ma pokrycie w teście integracyjnym `Pattern7`, a odrzucenie odwołania spoza `FROM` — w teście `field_ref_outside_from`. Odrzucanie nazwanych składowych `#` i kontrole pozytywne dla nazwy wyniku są pokryte testami jednostkowymi `ut_compiler`.

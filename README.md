@@ -34,14 +34,41 @@ Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedyko
 
 Problem, który rozwiązuje RetractorDB, nie należy w całości do żadnej pojedynczej dyscypliny. Leży na styku ośmiu nurtów:
 
-1. **Teoria liczb** – sekwencje Beatty'ego, twierdzenie Fraenkela, układy pokrywające. To dostarcza fundamentu formalnego.
-2. **Szeregowanie zadań przez sekwencje Beatty'ego** – ta sama matematyka, inne zastosowanie. Najbliższy sąsiad aplikacyjny.
-3. **Synchroniczny i cykliczno-statyczny przepływ danych (SDF/CSDF)** – wielotempowe grafy aktorów, statyczne harmonogramy i rozmiary buforów.
-4. **Języki synchroniczne i rachunki zegarów** – deklaratywne zależności między okresowymi strumieniami oraz kompilacyjne wyznaczanie opóźnień.
-5. **Cyfrowe przetwarzanie sygnałów (DSP)** – próbkowanie niejednorodne i banki filtrów o wymiernych współczynnikach. To DSP-owy odpowiednik operacji przeplotu.
-6. **Strumieniowe systemy zarządzania danymi (DSMS)** – algebry strumieni i semantyka zapytań ciągłych. To bazodanowy punkt odniesienia.
-7. **Współdzielenie wielu zapytań i stanu** – ponowne wykorzystanie obliczeń, indeksów i materializacji przez kilka planów.
-8. **Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy** – najwęższa nisza, najbliższa właściwemu celowi systemu.
+<div class="timeline">
+
+- **1. Teoria liczb**
+
+  Sekwencje Beatty'ego, twierdzenie Fraenkela, układy pokrywające. To dostarcza fundamentu formalnego.
+
+- **2. Szeregowanie zadań przez sekwencje Beatty'ego**
+
+  Ta sama matematyka, inne zastosowanie. Najbliższy sąsiad aplikacyjny.
+
+- **3. Synchroniczny i cykliczno-statyczny przepływ danych (SDF/CSDF)**
+
+  Wielotempowe grafy aktorów, statyczne harmonogramy i rozmiary buforów.
+
+- **4. Języki synchroniczne i rachunki zegarów**
+
+  Deklaratywne zależności między okresowymi strumieniami oraz kompilacyjne wyznaczanie opóźnień.
+
+- **5. Cyfrowe przetwarzanie sygnałów (DSP)**
+
+  Próbkowanie niejednorodne i banki filtrów o wymiernych współczynnikach. To DSP-owy odpowiednik operacji przeplotu.
+
+- **6. Strumieniowe systemy zarządzania danymi (DSMS)**
+
+  Algebry strumieni i semantyka zapytań ciągłych. To bazodanowy punkt odniesienia.
+
+- **7. Współdzielenie wielu zapytań i stanu**
+
+  Ponowne wykorzystanie obliczeń, indeksów i materializacji przez kilka planów.
+
+- **8. Systemy szeregów czasowych (TSMS) i DSP wewnątrz bazy**
+
+  Najwęższa nisza, najbliższa właściwemu celowi systemu.
+
+</div>
 
 Omawiam je kolejno, od fundamentu ku zastosowaniu.
 

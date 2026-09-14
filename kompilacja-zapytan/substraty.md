@@ -336,27 +336,35 @@ Jeśli wszystkie warunki są spełnione, substrat `it` uznawany jest za duplikat
 
 ### Miejsce w potoku kompilacji
 
-Deduplikacja jest szóstym krokiem potoku (funkcja `compiler::compile()`):
+Deduplikacja jest dziewiątym z dwudziestu trzech etapów potoku (funkcja `compiler::compile()`):
 
-```
-1. expandStreamGenerators       – rozwinięcie rodzin strumieni
-2. extractIntermediateStreams   – wyodrębnienie substratów
-3. expandSchemaWildcards        – rozwinięcie `*` oraz `[_]`
-4. resolveStreamIntervals       – obliczenie interwałów czasowych
-5. factorMatchedHashTimeMoves   – prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
-6. deduplicateSubstrats         – eliminacja duplikatów  ← ten krok
-7. validateSubstratNameUniqueness – kontrola jednoznaczności nazw
-8. resolveFieldReferences       – rozwiązanie referencji do pól
-9. simplifyFieldExpressions     – uproszczenie programów pól i reguł
-10. shareEquivalentSelectComputations – współdzielenie równoważnych obliczeń SELECT
-11. localizeFieldOffsets        – wyznaczenie przesunięć pól
-12. computeLogicalOrigin        – wyznaczenie początku logicznego
-13. computeStartupLatency       – obliczenie ogonów startowych
-14. computeRequiredCapacities   – obliczenie wymaganej historii
-15. validateConstraints         – kontrola ograniczeń operatorów
-16. applyCapacitiesToStreams    – zastosowanie pojemności
-17. topologicalSort             – końcowy porządek producent–konsument
-```
+<div class="timeline compact">
+
+- `checkFunctionCalls` — nazwy i arność funkcji skalarnych
+- `checkStreamReducerFieldRefs` — reduktor strumieniowy poza klauzulą `FROM`
+- `expandStreamGenerators` — rozwinięcie rodzin strumieni
+- `snapshotNamedSourceRefs` — migawka odwołań użytkownika
+- `extractIntermediateStreams` — wyodrębnienie substratów
+- `expandSchemaWildcards` — rozwinięcie `*` oraz `[_]`
+- `resolveStreamIntervals` — obliczenie interwałów czasowych
+- `factorMatchedHashTimeMoves` — prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
+- **`deduplicateSubstrats` — eliminacja duplikatów ← ten krok**
+- `validateSubstratNameUniqueness` — kontrola jednoznaczności nazw
+- `resolveFieldReferences` — rozwiązanie referencji do pól
+- `resolveWindowAggregates` — grupy agregatów okna rekordowego
+- `inferFieldShapes` — kształt pól wynikowych
+- `checkRuleConditionShapes` — obliczalność warunków reguł
+- `simplifyFieldExpressions` — uproszczenie programów pól i reguł
+- `shareEquivalentSelectComputations` — współdzielenie równoważnych obliczeń SELECT
+- `localizeFieldOffsets` — wyznaczenie przesunięć pól
+- `computeLogicalOrigin` — wyznaczenie początku logicznego
+- `computeStartupLatency` — obliczenie ogonów startowych
+- `computeRequiredCapacities` — obliczenie wymaganej historii
+- `validateConstraints` — kontrola ograniczeń operatorów
+- `applyCapacitiesToStreams` — zastosowanie pojemności
+- `topologicalSort` — końcowy porządek producent–konsument
+
+</div>
 
 Wyniesienie wspólnego przesunięcia czasu przed przeplot i deduplikacja muszą nastąpić po rozwiązaniu interwałów, ponieważ obie operacje je porównują. Deduplikacja następuje po przepisaniu algebraicznym, aby mogła scalać ujawnione przez nie substraty przeplotu.
 

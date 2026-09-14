@@ -224,20 +224,20 @@ SELECT ecg.V1   STREAM v1   FROM ecg VOLATILE
 
 # 1. Filtr pasmowoprzepustowy (5-15 Hz) — splot FIR 25-tap
 SELECT mlii[_]*bpf[_] STREAM bp_acc FROM mlii@(1,25)+bpf VOLATILE
-SELECT bp_acc[0]/1000 STREAM bp_out FROM SUMC(bp_acc) VOLATILE
+SELECT int(bp_acc[0]/1000) STREAM bp_out FROM SUMC(bp_acc) VOLATILE
 
 # 2. Różniczkowanie — splot FIR 5-tap
 SELECT bp_out[_]*df[_] STREAM d_acc FROM bp_out@(1,5)+df VOLATILE
-SELECT d_acc[0] STREAM d_out FROM SUMC(d_acc) VOLATILE
+SELECT int(d_acc[0]) STREAM d_out FROM SUMC(d_acc) VOLATILE
 
 # 3. Kwadrat (/1000 zapobiega przepełnieniu int32)
 SELECT d_out[0]^2/1000 STREAM sq_out FROM d_out VOLATILE
 
 # 4. Całkowanie ruchome 30 próbek (~83 ms)
-SELECT sq_out[0] STREAM mwi FROM AVG(sq_out@(1,30)) VOLATILE
+SELECT int(sq_out[0]) STREAM mwi FROM AVG(sq_out@(1,30)) VOLATILE
 
 # 5. Próg adaptacyjny — 2× średnia ruchoma 180 próbek (0,5 s)
-SELECT mwi[0] STREAM mwi_thr FROM AVG(mwi@(1,180)) VOLATILE
+SELECT int(mwi[0]) STREAM mwi_thr FROM AVG(mwi@(1,180)) VOLATILE
 
 # Wyjście: MLII wycentrowane, V1 wycentrowane, sygnał detekcji ×5
 SELECT mlii[0]-900, v1[0]-900, (mwi[0]-mwi_thr[0]*2)*5 \
@@ -251,6 +251,8 @@ Operator `@(1,25)` tworzy ruchome okno 25 próbek bezpośrednio w `FROM`. Indeks
 Kompilator wydziela okna i reduktory z rozbudowanej klauzuli `FROM` jako własne substraty. `VOLATILE` dotyczy strumienia nazwanego w danym `SELECT`, nie tych automatycznych węzłów. Dyrektywa `SUBSTRAT 'memory'` utrzymuje cały potok pośredni w pamięci; bez niej wygenerowane okna korzystałyby z domyślnego składowania dyskowego.
 
 Dzielenie `bp_acc[0]/1000` w kroku 1 kompensuje skalę całkowitoliczbową współczynników filtru pasmowoprzepustowego. Drugie `/1000`, po potęgowaniu w kroku 3, ogranicza wzrost wartości; bez niego `d_out[0]^2` mógłby przekroczyć zakres `int32` (2 147 483 647) dla typowych amplitud EKG.
+
+Potok liczy w arytmetyce całkowitej, dlatego każdy wynik reduktora wraca do `INTEGER` jawnym `int(...)` (skrót `to_integer`). `SUMC` i `AVG` nad polem `INTEGER` dają `RATIONAL`; bez rzutowania mianowniki rosną z etapu na etap (`/1000`, kwadrat, średnia z 30 próbek), aż `boost::rational<int>` przepełnia się bez ostrzeżenia.
 
 Wyrażenie wyjściowe `(mwi[0]-mwi_thr[0]*2)*5` implementuje próg adaptacyjny: wartość jest dodatnia tylko wówczas, gdy obwiednia MWI przekracza dwukrotność bieżącej średniej ruchomej — co wskazuje na wykryty QRS. Mnożnik `×5` skaluje sygnał detekcji do zakresu wizualnie porównywalnego z surowym EKG na wykresie.
 
