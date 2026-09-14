@@ -10,7 +10,7 @@ STREAM nazwa_budowanego_strumienia [liczba_instancji]
 FROM strumieniowe_wyrażnie_algebraiczne 
 [FILE 'nazwa_pliku_artefaktu'] 
 [RETENTION pojemność [segmenty]]
-[VOLATILE]
+[VOLATILE | PERSISTENT]
 [STORAGE profile]
 ```
 
@@ -18,7 +18,7 @@ FROM strumieniowe_wyrażnie_algebraiczne
 
 _Rys. 4. Diagram składni polecenia SELECT_
 
-Diagram składni (railroad) przedstawiony na Rys. 4 został wygenerowany na podstawie reguły `select_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Rozgałęzienie za słowem SELECT pokazuje, że lista pól to albo gwiazdka (pełny rekord), albo jedno lub więcej wyrażeń rozdzielonych przecinkami (pętla powracająca przez przecinek). Opcjonalny rozmiar w nawiasach kwadratowych po nazwie strumienia tworzy rodzinę strumieni. Tory omijające klauzule FILE, RETENTION (z opcjonalnym drugim parametrem — liczbą segmentów), VOLATILE i STORAGE oznaczają, że każda z nich jest opcjonalna.
+Diagram składni (railroad) przedstawiony na Rys. 4 został wygenerowany na podstawie reguły `select_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Rozgałęzienie za słowem SELECT pokazuje, że lista pól to albo gwiazdka (pełny rekord), albo jedno lub więcej wyrażeń rozdzielonych przecinkami (pętla powracająca przez przecinek). Opcjonalny rozmiar w nawiasach kwadratowych po nazwie strumienia tworzy rodzinę strumieni. Tory omijające klauzule FILE, RETENTION (z opcjonalnym drugim parametrem — liczbą segmentów), VOLATILE/PERSISTENT i STORAGE oznaczają, że każda z nich jest opcjonalna.
 
 Osoby posługujące się językiem SQL zauważą od razu że przedstawione powyżej polecenie odbiega znacząco od tego co znają z zakresu relacyjnych baz danych.
 
@@ -140,3 +140,6 @@ Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma dokładnie 
 > **_NOTE:_** Operator przesunięcia `A > N` ma pokrycie w teście: `issue56_timeshift` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
 > **_NOTE:_** Propagacja wartości null przez wyrażenia SELECT ma pokrycie w teście: `issue121_null_propagation` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
+Domyślną ulotność całego planu ustawia `DEFAULT VOLATILE`. Klauzula `PERSISTENT`
+wyłącza ją dla konkretnego wyniku. Szczegóły: [VOLATILE i PERSISTENT](klauzula-volatile.md).
