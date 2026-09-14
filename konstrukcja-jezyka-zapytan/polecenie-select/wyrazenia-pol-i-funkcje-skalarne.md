@@ -115,7 +115,8 @@ starym schemacie wymaga ponownego utworzenia albo osobnego strumienia wynikowego
 
 `Sqrt`, `sin`, `cos`, `exp`, `tan`, `log` i `log2` **nie przyjmują** argumentu typu `RATIONAL`
 — kompilator odrzuca taki zapis kanałem `Check result:` i podaje obejście. Dotyczy to
-w praktyce reduktorów strumieniowych, bo `MIN`/`MAX`/`AVG`/`SUMC` dają zawsze `RATIONAL`:
+w praktyce reduktorów strumieniowych nad polami `BYTE`, `INTEGER`, `UINT` i `RATIONAL`,
+bo ich wynik ma typ `RATIONAL`. Reduktory nad `FLOAT` i `DOUBLE` zachowują typ wejścia:
 
 ```rql
 SELECT * STREAM m FROM AVG(src)
@@ -127,12 +128,14 @@ Obowiązuje jedna reguła: **funkcja o niewymiernej przeciwdziedzinie nad warto�
 wymaga jawnego `to_double`**. Ta sama reguła obejmuje warunek reguły (`RULE ... WHEN`), który
 kompilator sprawdza osobnym przebiegiem.
 
-Dla `Sqrt`, `tan`, `log` i `log2` powodem nie jest utrata precyzji, lecz cicha **błędna
-wartość**. Te cztery liczą się przez `double` i wracają rzutem na typ argumentu, a powrót do
-`RATIONAL` przybliża wynik ułamkiem o bardzo dużym mianowniku (`Sqrt(2)` daje `19601/13860`,
-`log(2)` daje `2731/3940`). `RATIONAL` przechowuje licznik i mianownik w 32 bitach bez kontroli
-zakresu, więc dwa kolejne mnożenia przepełniają go i `Sqrt(x)*Sqrt(x)*Sqrt(x)` zwracało
-`-4,247` zamiast `+2,828` — ze złym znakiem i bez żadnego błędu.
+Dla `Sqrt`, `tan`, `log` i `log2` powodem bramki jest powrót z obliczenia przez `double` do
+`RATIONAL`: wynik zostawał przybliżony ułamkiem o dużym mianowniku (dla argumentu
+wymiernego `2/1` pierwiastek dawał `19601/13860`, a logarytm `2731/3940`). W starszej
+wersji dwa kolejne mnożenia takiego przybliżenia mogły przepełnić 32-bitowy licznik lub
+mianownik bez sygnału;
+`Sqrt(x)*Sqrt(x)*Sqrt(x)` zwracało `-4,247` zamiast `+2,828`. Obecnie arytmetyka wartości
+pól typu `INTEGER` i `RATIONAL` wykrywa przepełnienie i zapisuje `NULL`, ale nie znosi to
+wymogu jawnego `to_double` dla tych funkcji.
 
 Dla `sin`, `cos` i `exp` powód jest inny: te trzy kończą na `DOUBLE` i nigdy nie wracają do
 `RATIONAL`, więc policzyłyby się poprawnie. Ich odrzucenie jest **decyzją o kontrakcie języka**,

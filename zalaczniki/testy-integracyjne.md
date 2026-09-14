@@ -92,6 +92,21 @@ uruchomił polecenie pod testem i nie zamaskował jego kodu wyjścia.
 | [`xqry_elem_limit`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/xqry_elem_limit) | Parametr `-m N` w `xqry` — limit liczby odebranych rekordów do dokładnie N, niezależnie od długości źródła. Patrz: *Opcje wywołania — xqry*. |
 | [`xqrywait_gate`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/xqrywait_gate) | Bramka `--xqrywait` nie gubi pierwszego polecenia, nie zeruje budżetu `--llimitqry` i daje się przerwać sygnałem przed nadejściem klienta. |
 
+### Nowsze scenariusze regresyjne
+
+| Nazwa testu | Opis |
+|:--------|:----------------------------|
+| [`expr_result_types`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/expr_result_types) | Typy i rozmiary pól wynikowych, wartości ułamkowe, `NULL` oraz kopiowanie schematu przez `SELECT *`. |
+| [`field_ref_outside_from`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/field_ref_outside_from) | Odrzucenie odwołania do pola strumienia spoza `FROM` i poprawność odwołania przez pole strumienia wynikowego. |
+| [`reducer_field_ref`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/reducer_field_ref) | Odrzucenie nazwy reduktora jako pola w `SELECT` oraz odczyt wyniku przez zmaterializowany strumień. |
+| [`reducer_float_max_avg_count`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/reducer_float_max_avg_count) | `MAX` nad ujemnymi `FLOAT` i `DOUBLE` oraz `AVG` nad rekordami o 256 i 257 polach. |
+| [`self_ref_field_shape`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/self_ref_field_shape) | Typ pola wskazanego własną nazwą strumienia pochodzi z odpowiedniego slotu rekordu `FROM`. |
+| [`self_ref_simplify_synth`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/self_ref_simplify_synth) | Typy slotów wejściowych okna i reduktora chronią obliczenia `FLOAT` przed błędnym uproszczeniem stałych. |
+| [`self_ref_simplify_type`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/self_ref_simplify_type) | Odwołanie własną nazwą w wyrażeniu podlegającym uproszczeniu używa typu slotu `FROM`, a nie typu pola wyjściowego. |
+| [`silent_arith_overflow`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/silent_arith_overflow) | Przepełnienie arytmetyki `INTEGER` i `RATIONAL` w wyrażeniach i reduktorach daje `NULL` zamiast zawiniętej liczby. |
+| [`synth_node_output_shape`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/synth_node_output_shape) | Typy pól wyjściowych po oknie, redukcji i złączeniu odpowiadają rzeczywistym slotom wejściowym. |
+| [`xqrywait_first_row`](https://github.com/michalwidera/retractordb/tree/master/test/IntegrationTest/xqrywait_first_row) | Pierwszy rekord nie ginie między otwarciem bramki `--xqrywait` a utworzeniem kolejki subskrypcji `xqry`. |
+
 ## Scenariusze kompilacyjne i offline
 
 Poniższe katalogi rejestrują przede wszystkim warianty kompilacji, prezentacji planu albo

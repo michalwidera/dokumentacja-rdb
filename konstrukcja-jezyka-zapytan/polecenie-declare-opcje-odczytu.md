@@ -11,7 +11,7 @@ DECLARE pole typ STREAM nazwa, szybkość FILE źródło
 
 ## ONESHOT
 
-Bez `ONESHOT` źródło danych czytane jest w nieskończonej pętli — po osiągnięciu końca pliku pozycja odczytu wraca na początek. `ONESHOT` wyłącza pętlę: plik czytany jest dokładnie raz, a po jego wyczerpaniu strumień zwraca wartości zerowe lub puste.
+Bez `ONESHOT` źródło danych czytane jest w nieskończonej pętli — po osiągnięciu końca pliku pozycja odczytu wraca na początek. `ONESHOT` wyłącza pętlę: plik czytany jest dokładnie raz, a po jego wyczerpaniu strumień zwraca rekordy ze wszystkimi polami `NULL`. Bajty takiego rekordu są wyzerowane, ale znaczniki null odróżniają brak danych od wartości zero.
 
 ```
 DECLARE pomiar INTEGER STREAM burst, 0.1 FILE 'dane.dat' ONESHOT
@@ -24,7 +24,7 @@ Zastosowanie: jednorazowe załadowanie danych historycznych do systemu.
 Po zakończeniu przesyłania danych ze źródła system usuwa plik danych, plik deskryptora (`.desc`) i plik metadanych (`.meta`). Dyrektywa działa przy destrukcji obiektu `storage`.
 
 ```
-DECLARE temp INTEGER STREAM jednorazowy, 0.1 FILE 'temp.dat' ONESHOT DISPOSABLE
+DECLARE temp INTEGER STREAM jednorazowy, 0.1 FILE 'temp.dat' DISPOSABLE ONESHOT
 ```
 
 `DISPOSABLE` używa się razem z `ONESHOT` — dane wczytane raz, po wczytaniu usunięte. Kombinacja przydatna do tymczasowych plików danych wejściowych.

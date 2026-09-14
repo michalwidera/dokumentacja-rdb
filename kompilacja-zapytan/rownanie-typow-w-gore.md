@@ -14,7 +14,7 @@ Na chwilę obecną system RetractorDB wspiera następujące typy danych:
 | DOUBLE   | liczby zmiennoprzecinkowe podwójnej precyzji |
 | STRING   | ciągi znaków                                 |
 
-Typy STRING i RATIONAL wymagają jeszcze przeglądu, poprawek i pokrycia testami. W trakcie rozwoju oprogramowania skupiłem wysiłek na przetwarzaniu liczb. Chcę w przyszłości jeszcze dołączyć do tego zbioru typy liczb zespolonych i wymiernych liczb zespolonych Eisensteina.
+`STRING` i `RATIONAL` są używane przez deskryptory, konwersje i wyrażenia; ich reprezentację i zachowanie sprawdzają testy `ut_payload`, `ut_convertTypes` oraz scenariusze integracyjne. Liczby zespolone i wymierne liczby zespolone Eisensteina pozostają poza aktualnym zestawem typów.
 
 Przykład równania typów w praktyce — zapytanie `scaled` z rozdziału [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md):
 
@@ -85,8 +85,9 @@ konwersje wyznaczają typ swojego wyniku **także wtedy, gdy stoją w środku wy
 Siedem funkcji o niewymiernej przeciwdziedzinie — `Sqrt`, `sin`, `cos`, `exp`, `tan`,
 `log` i `log2` — **nie kompiluje się** nad argumentem typu `RATIONAL`: kompilator odrzuca
 plan i wymaga jawnego `to_double`. Ma to znaczenie praktyczne, bo reduktory `MIN`, `MAX`,
-`AVG` i `SUMC` są z definicji `RATIONAL`. Powód, komunikat błędu, zasięg bramki (obejmuje
-też warunek `RULE ... WHEN`) i wyjątek dla funkcji zaokrąglających opisuje rozdział
+`AVG` i `SUMC` nad wejściem całkowitym lub wymiernym dają `RATIONAL`. Powód, komunikat
+błędu, zasięg bramki (obejmuje też warunek `RULE ... WHEN`) i wyjątek dla funkcji
+zaokrąglających opisuje rozdział
 [Wyrażenia pól i funkcje skalarne](../konstrukcja-jezyka-zapytan/polecenie-select/wyrazenia-pol-i-funkcje-skalarne.md);
 tutaj nie jest to powtarzane, żeby obie strony nie rozjechały się przy następnej zmianie.
 
@@ -107,8 +108,9 @@ przeplot `#`, rozploty `&` i `%` oraz suma strumieni `+` — niosą kształt pol
 slocie. Typ przechodzi przez dowolnie długi łańcuch strumieni pośrednich.
 
 Operatory, które schemat **syntetyzują**, zachowują własny: reduktor `MIN`/`MAX`/`AVG`/`SUMC`
-w klauzuli `FROM` daje jedno pole `RATIONAL` niezależnie od typu źródła, a okno `@(krok,
-szerokość)` daje pola typu najszerszego z rekordu źródła.
+w klauzuli `FROM` daje jedno pole: `RATIONAL` dla źródła całkowitego lub wymiernego,
+`FLOAT` dla `FLOAT` i `DOUBLE` dla `DOUBLE`. Okno `@(krok, szerokość)` daje pola typu
+najszerszego z rekordu źródła.
 
 Deklaracja `DECLARE` jest umową z plikiem źródłowym i **nie podlega wnioskowaniu** — żaden
 przebieg kompilatora jej nie zmienia.

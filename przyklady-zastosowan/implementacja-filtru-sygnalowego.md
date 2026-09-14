@@ -110,12 +110,12 @@ SELECT accRow[0] \
 STREAM output \
 FROM SUMC(accRow)
 
-SELECT (output[0]/25)/1000,source[0] \
+SELECT int(output[0]/25/1000),source[0] \
 STREAM outputAll \
 FROM output+source
 ```
 
-Pierwsze z trzech zapytań umieszcza okno bezpośrednio w klauzuli `FROM`. Indeks `source[_]` przyjmuje szerokość 25 slotów wnoszonych przez `source@(1,25)`, dlatego kompilator tworzy 25 iloczynów z odpowiadającymi współczynnikami `filter[_]`. Nie jest potrzebny osobny, nazwany strumień okna; kompilator wydziela go jako substrat planu. Następnie `SUMC(accRow)` sumuje iloczyny, a ostatnie zapytanie łączy wynik filtru z bieżącą próbką źródła.
+Pierwsze z trzech zapytań umieszcza okno bezpośrednio w klauzuli `FROM`. Indeks `source[_]` przyjmuje szerokość 25 slotów wnoszonych przez `source@(1,25)`, dlatego kompilator tworzy 25 iloczynów z odpowiadającymi współczynnikami `filter[_]`. Nie jest potrzebny osobny, nazwany strumień okna; kompilator wydziela go jako substrat planu. Następnie `SUMC(accRow)` sumuje iloczyny, a ostatnie zapytanie łączy wynik filtru z bieżącą próbką źródła. Suma z `SUMC` ma typ `RATIONAL`, dlatego ostatnie zapytanie skaluje ją i rzutuje funkcją `int(...)` na liczbę całkowitą; bez rzutowania `xqry` wypisywałby ułamki postaci `2225159/12500`, z których gnuplot odczytuje tylko licznik, i przebieg przefiltrowany znalazłby się poza zakresem osi.
 
 Po rozwinięciu symbolu `[_]` plan zawiera wiele pól, więc pełny wynik kompilacji zajmuje kilka ekranów. Możliwy do szybkiej analizy podgląd procesu można uzyskać poleceniem:
 

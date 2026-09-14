@@ -76,7 +76,7 @@ które powiela wyrażenie pola wewnątrz jednego zapytania według płaskiego sc
 > Agregaty okien rekordów sprawdza test `window_aggregate`. Testy integracyjne opisano
 > w załączniku [Testy integracyjne](../../zalaczniki/testy-integracyjne.md).
 
-Klauzula VOLATILE - tworzy ulotną formę zapytania. Zapytanie z tą klauzulą przechowują tylko jeden rekord w pamięci - na dysku pojawia się tylko deskryptor opisujący strukturę danych.
+Klauzula VOLATILE - tworzy ulotną formę zapytania. Dane pozostają w buforze pamięciowym, którego pojemność kompilator dobiera do potrzeb planu; na dysku pojawia się tylko deskryptor opisujący strukturę danych.
 
 Klauzula STORAGE umożliwia wybór sposobu tworzenia i zarządzania tworzonymi artefaktami. Pełna tabela typów z opisem każdego z nich znajduje się w rozdziale [Typy STORAGE](typy-storage.md).
 

@@ -97,7 +97,7 @@ albo jawnie przepuścić wynik przez `to_string`, `to_double` lub `to_integer`.
 ```
 DECLARE val INTEGER STREAM src, 1 FILE 'data.txt'
 
--- AGSE buduje rekord z pięciu próbek, AVG redukuje jego pięć pól
+# AGSE buduje rekord z pięciu próbek, AVG redukuje jego pięć pól
 SELECT * STREAM ma5 FROM AVG(src@(1,5))
 ```
 

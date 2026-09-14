@@ -35,19 +35,19 @@ Jeśli strumień źródłowy ma `W` pól w rekordzie i interwał `Δ`, to strumi
 ## Typowe wzorce użycia
 
 ```
--- serializacja: 2 pola → 1 pole (interwał ÷ 2)
+# serializacja: 2 pola → 1 pole (interwał ÷ 2)
 SELECT * STREAM s1 FROM A@(1,1)
 
--- tumbling window: okna po 4 rekordy, bez nakładania
+# tumbling window: okna po 4 rekordy, bez nakładania
 SELECT * STREAM s2 FROM A@(4,4)
 
--- sliding window: okno 5-elementowe przesuwane o 1
+# sliding window: okno 5-elementowe przesuwane o 1
 SELECT * STREAM s3 FROM A@(1,5)
 
--- próbkowanie: co piąty rekord (skip=5, okno=1)
+# próbkowanie: co piąty rekord (skip=5, okno=1)
 SELECT * STREAM s4 FROM A@(5,1)
 
--- deserializacja lustrzana: przywrócenie kolejności pól
+# deserializacja lustrzana: przywrócenie kolejności pól
 SELECT * STREAM s5 FROM s1@(2,-2)
 ```
 
