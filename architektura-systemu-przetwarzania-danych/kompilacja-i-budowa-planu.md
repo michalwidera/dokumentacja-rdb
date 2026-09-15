@@ -37,7 +37,7 @@ Pominięcie parametru -c spowoduje podjęcie próby kompilacji i natychmiastoweg
 Oprócz przeglądu tekstowego możemy obejrzeć również pliki kompilacji w postaci graficznej. Do tego celu należy wywołać następujący ciąg poleceń:
 
 ```
-$ xretractor -c -d -f -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
+$ xretractor -c -d -f -t -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
 Zakładając że w środowisku uruchomieniowym masz zainstalowany program dot z pakietu graphivz wygenerujesz tym poleceniem plik graficzny przedstawiający odpowiedź systemu w postaci grafu.
@@ -61,6 +61,7 @@ W trybie kompilacji (`-c`) i w trybie wykonania dostępne są różne zestawy fl
 | `-c`  | `--onlycompile`  | tylko kompilacja — nie uruchamia przetwarzania |
 | `-d`  | `--dot`          | generuj wyjście w formacie DOT (graphviz)      |
 | `-f`  | `--fields`       | pokaż pola strumieni w grafie DOT              |
+| `-t`  | `--tags`         | pokaż programy poszczególnych pól (`-f`)       |
 | `-s`  | `--streamprogs`  | pokaż programy strumieni w grafie DOT          |
 | `-u`  | `--rules`        | pokaż reguły RULE w grafie DOT                 |
 | `-p`  | `--transparent`  | przezroczyste tło grafu DOT                    |

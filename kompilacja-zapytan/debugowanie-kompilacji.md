@@ -60,7 +60,7 @@ Bloki efemerydów (`DECLARE`) pojawiają się na końcu planu — zawierają lis
 Zamiast tekstu można wygenerować graf w formacie DOT i przetworzyć przez `graphviz`:
 
 ```bash
-xretractor -c -d -f -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
+xretractor -c -d -f -t -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
 Dostępne flagi modyfikujące wyjście DOT:
@@ -69,6 +69,7 @@ Dostępne flagi modyfikujące wyjście DOT:
 |-------|-----------------|-----------|
 | `-d`  | `--dot`         | generuj wyjście DOT zamiast tekstowego planu |
 | `-f`  | `--fields`      | pokaż pola strumieni w węzłach grafu |
+| `-t`  | `--tags`        | pokaż programy poszczególnych pól (`-f`) |
 | `-s`  | `--streamprogs` | pokaż sekwencje instrukcji stosu w węzłach |
 | `-u`  | `--rules`       | pokaż reguły RULE |
 | `-p`  | `--transparent` | przezroczyste tło — do osadzania w dokumentach |

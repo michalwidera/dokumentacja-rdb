@@ -60,8 +60,8 @@ listing substrate-hash-plus
 listing substrate-shift
 "$xretractor" -c -w 1:3 "$script_dir/sum-sequence.rql" >"$script_dir/out/sum-sequence.txt"
 
-picture plan-basic graf_plan_zapytania svg -f -s
-picture runtime-plan graf_plan_zapytania_2 svg -f -s
+picture plan-basic graf_plan_zapytania svg -f -t -s
+picture runtime-plan graf_plan_zapytania_2 svg -f -t -s
 picture dag-1 dependencja_efemeryda_artefakt svg
 picture dag-2 dependencja_efemerydy_artefakty svg
 picture dag-3 dependencja_efemerydy_artefakty_artefakty svg
