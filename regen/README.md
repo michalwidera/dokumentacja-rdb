@@ -2,7 +2,9 @@
 
 Uruchom `./regen/pic_and_qry.sh` z katalogu glownego dokumentacji. Skrypt wybiera
 `../retractordb/build/Debug/src/retractor/xretractor`; aby wskazac inny aktualny
-program, ustaw `XRETRACTOR=/sciezka/do/xretractor`.
+program, ustaw `XRETRACTOR=/sciezka/do/xretractor`. Przed uzyciem skrypt wywoluje
+`ninja xretractor` w katalogu buildu, wiec rysunki zawsze powstaja z biezacego `src/`;
+programu wskazanego przez `XRETRACTOR` nie przebudowuje.
 
 Kazdy plik `.rql` jest zrodlem co najmniej jednego rysunku lub listingu w ksiazce.
 Skrypt zapisuje listingi do `regen/out/`, a nastepnie mdBook wlacza je w oznaczone
@@ -22,5 +24,7 @@ Kazdy SVG generowany przez skrypt ma przezroczyste tlo (`xretractor -p`).
 
 `dedup.rql` zasila dwa rysunki: `dedup_po.svg` z domyslnym kompilatorem oraz
 `dedup_przed.svg` z binarnym programem, dla ktorego
-`RDB_OPT_DEDUP_SUBSTRATES=OFF`. Skrypt wykrywa lokalny build ablacyjny albo
+`RDB_OPT_DEDUP_SUBSTRATES=OFF`. Skrypt wykrywa lokalny build ablacyjny
+(`build/Release-Ablation/*` z `RDB_OPT_DEDUP_SUBSTRATES:BOOL=OFF` w `CMakeCache.txt`),
+przebudowuje w nim `xretractor` albo
 wymaga wskazania go przez `XRETRACTOR_NO_DEDUP=/sciezka/do/xretractor`.
