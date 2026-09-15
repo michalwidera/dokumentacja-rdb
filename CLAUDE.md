@@ -70,6 +70,11 @@ Substitute `git ls-files` for the staged-file listing to audit the whole tracked
 
 **Known-good baseline — do not "fix" it.** The callout convention in *Authoring Rules* writes the information and warning symbols (`U+2139`, `U+26A0`) followed by `U+FE0F VARIATION SELECTOR-16`. The scanner reports that selector because those two symbols are text-default, not emoji-default. It is the documented convention, not a watermark. It currently occurs once or twice in about a dozen `.md` files and in `migrate_to_mdbook.py`; leave it alone. A `U+FE0F` in any other position, and every other reported codepoint, is a real finding.
 
+The `README.md` callouts also use the native emoji `U+2705` (check mark)
+and `U+1F4E5` (download), plus the accepted `U+2139 U+FE0F` information
+symbol. Keep these three icons unchanged; the native emoji need no variation
+selector and normally produce no scanner hit.
+
 **Scripts are code, not prose — zero tolerance, strict mode.** `migrate_to_mdbook.py` and the `.sh` files get checked immediately after every edit, not at commit time:
 
 ```bash
