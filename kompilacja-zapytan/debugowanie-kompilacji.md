@@ -24,36 +24,7 @@ Kompilację można wywołać nawet gdy inny proces `xretractor` już działa —
 Dla kanonicznego `query.rql` z tego rozdziału plan wygląda następująco:
 
 ```
-merged(1/10)
-        :- PUSH_STREAM(core0)
-        :- PUSH_STREAM(core1)
-        :- STREAM_ADD
-        core0_0: BYTE
-                PUSH_ID(merged[0])
-        core0_1: INTEGER
-                PUSH_ID(merged[1])
-        core1_2: INTEGER
-                PUSH_ID(merged[2])
-        core1_3: FLOAT
-                PUSH_ID(merged[3])
-result(1/10)
-        :- PUSH_STREAM(merged)
-        result_0: BYTE
-                PUSH_ID(merged[0])
-        result_1: INTEGER
-                PUSH_ID(merged[2])
-        result_2: BYTE
-                PUSH_ID(merged[0])
-        result_3: INTEGER
-                PUSH_ID(merged[2])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
-core1(1/5)      sensor_b.txt
-        c: INTEGER
-        d: FLOAT
-core2(3/10)     sensor_c.txt
-        e: INTEGER
+{{#include ../regen/out/debug.txt}}
 ```
 
 Każdy blok ma ustalony format:

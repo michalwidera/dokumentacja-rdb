@@ -32,32 +32,7 @@ Kompilacja:
 
 ```
 $ xretractor -c query.rql
-STREAM_HASH_core0_core1(1/15)
-        :- PUSH_STREAM(core0)
-        :- PUSH_STREAM(core1)
-        :- STREAM_HASH
-        a: BYTE
-                PUSH_ID(STREAM_HASH_core0_core1[0])
-        b: INTEGER
-                PUSH_ID(STREAM_HASH_core0_core1[1])
-        c: INTEGER
-                PUSH_ID(STREAM_HASH_core0_core1[2])
-        d: FLOAT
-                PUSH_ID(STREAM_HASH_core0_core1[3])
-merged(1/15)
-        :- PUSH_STREAM(STREAM_HASH_core0_core1)
-        :- PUSH_STREAM(core2)
-        :- STREAM_ADD
-        merged_0: BYTE
-                PUSH_ID(merged[0])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
-core1(1/5)      sensor_b.txt
-        c: INTEGER
-        d: FLOAT
-core2(3/10)     sensor_c.txt
-        e: INTEGER
+{{#include ../regen/out/substrate-hash.txt}}
 ```
 
 Pojawił się niezapowiedziany strumień `STREAM_HASH_core0_core1` — to właśnie substrat. Kompilator rozbił `(core0 # core1) + core2` na dwie operacje dwuargumentowe i wstawił pośredni strumień. Delta substratu: Δ = (1/10 · 1/5) / (1/10 + 1/5) = 1/15.
@@ -68,14 +43,11 @@ Co się stanie po dołączeniu zapytania:
 SELECT merged2[0] STREAM merged2 FROM (core0 # core1) > 2
 ```
 
-Do planu dołączone zostanie tylko jedno nowe zapytanie:
+Pełny plan po dołączeniu zapytania pokazuje niżej, że dochodzi jeden blok `merged2`, korzystający z już utworzonego
+substratu `STREAM_HASH_core0_core1`:
 
 ```
-merged2(1/15)
-        :- PUSH_STREAM(STREAM_HASH_core0_core1)
-        :- STREAM_TIMEMOVE(2)
-        merged2_0: BYTE
-                PUSH_ID(merged2[0])
+{{#include ../regen/out/substrate-hash-plus.txt}}
 ```
 
 Zastanawiasz się pewnie dlaczego tylko jedno a nie ponownie dwa? Odpowiedź to optymalizacja. Korzystamy z pośrednich wyników poprzedniego. To jedna z nieoczekiwanych korzyści zastosowania RetractorDB.
@@ -110,26 +82,10 @@ SELECT merged[0] STREAM merged FROM (core0 > 2) + core1
 SELECT shifted[0] STREAM shifted FROM core0 > 2
 ```
 
-Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
+Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_2_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_2_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
 
 ```
-merged(1/10)
-        :- PUSH_STREAM(shifted)
-        :- PUSH_STREAM(core1)
-        :- STREAM_ADD
-        merged_0: BYTE
-                PUSH_ID(merged[0])
-shifted(1/10)
-        :- PUSH_STREAM(core0)
-        :- STREAM_TIMEMOVE(2)
-        shifted_0: BYTE
-                PUSH_ID(shifted[0])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
-core1(1/5)      sensor_b.txt
-        c: INTEGER
-        d: FLOAT
+{{#include ../regen/out/substrate-shift.txt}}
 ```
 
 ### Ważne ograniczenie: tylko substraty są redukowane

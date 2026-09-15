@@ -44,7 +44,7 @@ Plik będzie zawierać kolejne liczby od 20 do 28.
 
 Rzut okna na plan realizacji zapytania przedstawi obraz na Rys. 29:
 
-<figure><img src="../assets/graf_plan_zapytania_2.png" width="100%" alt=""><figcaption><p>Rys. 29. Graficzna reprezentacja planu realizacji zapytania 2</p></figcaption></figure>
+<figure><img src="../assets/graf_plan_zapytania_2.svg" width="100%" alt=""><figcaption><p>Rys. 29. Graficzna reprezentacja planu realizacji zapytania 2</p></figcaption></figure>
 
 Jeśli przygotowaliśmy plik z danymi możemy uruchomić proces kompilacji i przetwarzania danych. Realizujemy to wydając następujące polecenie:
 

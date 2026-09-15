@@ -30,21 +30,7 @@ Program xretractor po podaniu jako pierwszy parametr nazwy pliku z planem realiz
 Jeśli zajrzysz do wygenerowanego pliku out.txt zobaczysz następującą zawartość:
 
 ```
-% Creating diagram output grid is on, cycle count:3
-% Minimum interval is 1000ms
-% Maximum interval is 2000ms
-% Grid time is 500ms, divider:2
-% Full cycle step count in grid is 4
--|a-a-|a-a-|a-a-|-
-title = A,1
-
--|b---|b---|b---|-
-title = B,2
-
-> SELECT * STREAM str1 FROM A+B
-
--|c-c-|c-c-|c-c-|-
-title = str1,1
+{{#include ../../regen/out/sum-sequence.txt}}
 ```
 
 W tym pliku proszę zwrócić uwagę na dane przedstawione w komentarzach. Są to czasy wyznaczone w trakcie generowania schematu a odnoszące się do skali prezentowanej na schemacie kulkowym. Jak widać, dla naszego zapytania minimalny interwał okna to 1 sekunda, maksymalny to 2 sekundy. Siatka jaka została zidentyfikowana i wyznaczona na pół sekundy. Na schemacie każda litera lub myślnik to właśnie półsekundowy czasokres pomiędzy kolejnymi operacjami.

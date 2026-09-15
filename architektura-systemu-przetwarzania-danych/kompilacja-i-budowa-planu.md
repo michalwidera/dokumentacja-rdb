@@ -29,15 +29,7 @@ $ xretractor -c query.rql
 Na ekranie wyświetli się następująca odpowiedź systemu:
 
 ```
-str1(1/10)
-      :- PUSH_STREAM(core0)
-      :- STREAM_TIMEMOVE(2)
-      str1_0: INTEGER
-            PUSH_ID(str1[0])
-            PUSH_VAL(1)
-            ADD
-core0(1/10) datafile1.dat
-      a: INTEGER
+{{#include ../regen/out/plan-basic.txt}}
 ```
 
 Pominięcie parametru -c spowoduje podjęcie próby kompilacji i natychmiastowego wysłania skompilowanego planu realizacji zapytania do wykonania. Taka akcja spowoduje wystąpienie błędu. Bowiem pliku z danymi datafile1.dat zapewne jeszcze nie przygotowaliśmy.
@@ -45,12 +37,12 @@ Pominięcie parametru -c spowoduje podjęcie próby kompilacji i natychmiastoweg
 Oprócz przeglądu tekstowego możemy obejrzeć również pliki kompilacji w postaci graficznej. Do tego celu należy wywołać następujący ciąg poleceń:
 
 ```
-$ xretractor -c -d -f -s query.rql > out.dot && dot -Tpng out.dot -o out.png
+$ xretractor -c -d -f -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
 Zakładając że w środowisku uruchomieniowym masz zainstalowany program dot z pakietu graphivz wygenerujesz tym poleceniem plik graficzny przedstawiający odpowiedź systemu w postaci grafu.
 
-<figure><img src="../assets/graf_plan_zapytania.png" alt=""><figcaption><p>Rys. 27. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
+<figure><img src="../assets/graf_plan_zapytania.svg" alt=""><figcaption><p>Rys. 27. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
 
 System RetractorDB potrafi wygenerować rysunek jako odpowiedź na jeden ze zleconych ciągów przetwarzania danych. Prezentacja graficzna jest najbardziej odpowiednia w przypadku tworzenia i przedstawiania grafów przetwarzania danych. Niestety czytelność ucierpi w przypadku bardzo skomplikowanych schematów.
 

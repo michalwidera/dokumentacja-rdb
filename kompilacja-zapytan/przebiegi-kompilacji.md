@@ -40,32 +40,7 @@ FROM merged
 Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:
 
 ```
-core0(1/10)	sensor_a.txt
-	a: BYTE
-	b: INTEGER
-core1(1/5)	sensor_b.txt
-	c: INTEGER
-	d: FLOAT
-merged(1/10)	tail=1
-	:- PUSH_STREAM(core0)
-	:- PUSH_STREAM(core1)
-	:- STREAM_ADD
-	core0_0: BYTE
-		PUSH_ID(merged[0])
-	core0_1: INTEGER
-		PUSH_ID(merged[1])
-	core1_2: INTEGER
-		PUSH_ID(merged[2])
-	core1_3: FLOAT
-		PUSH_ID(merged[3])
-result(1/10)	tail=1
-	:- PUSH_STREAM(merged)
-	result_0: BYTE
-		PUSH_ID(result[0])
-	result_1: INTEGER
-		PUSH_ID(result[2])
-core2(3/10)	sensor_c.txt
-	e: INTEGER
+{{#include ../regen/out/compile-flow.txt}}
 ```
 
 Plan jest wydrukowany w końcowym porządku topologicznym: deklaracje `core0` i `core1` poprzedzają swojego konsumenta `merged`, a ten — zapytanie `result`. Nieużywana deklaracja `core2` trafia na koniec. `tail=1` to ogon startowy wyznaczony przez `computeStartupLatency`. Odwołania `PUSH_ID` wskazują pozycje w rekordzie wejściowym zapytania, zapisane pod jego własną nazwą: `result[2]` to trzecie pole rekordu `merged`, czyli `core1.c`.

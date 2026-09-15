@@ -24,24 +24,7 @@ Po kompilacji otrzymamy:
 
 ```
 $ xretractor -c query.rql
-merged(1/10)
-        :- PUSH_STREAM(core0)
-        :- PUSH_STREAM(core1)
-        :- STREAM_ADD
-        merged_0: BYTE
-                PUSH_ID(merged[0])
-        merged_1: INTEGER
-                PUSH_ID(merged[2])
-        merged_2: BYTE
-                PUSH_ID(merged[0])
-        merged_3: INTEGER
-                PUSH_ID(merged[2])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
-core1(1/5)      sensor_b.txt
-        c: INTEGER
-        d: FLOAT
+{{#include ../regen/out/alias.txt}}
 ```
 
 `merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` — to to samo pole. Natomiast `core1[0]` — pierwsze pole schematu `core1` — trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2.

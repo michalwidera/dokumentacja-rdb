@@ -19,7 +19,7 @@ $ xretractor -c query5.rql -d > out.dot && dot -Tsvg out.dot -o out.svg
 
 Pełny opis flag `-d -f -s` i interpretacja wyjścia — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
-<figure><img src="../assets/dependencja_efemeryda_artefakt.png" alt=""><figcaption><p>Rys. 33. Dependencja efemeryd-artefakt</p></figcaption></figure>
+<figure><img src="../assets/dependencja_efemeryda_artefakt.svg" alt=""><figcaption><p>Rys. 33. Dependencja efemeryd-artefakt</p></figcaption></figure>
 
 Skomplikujmy trochę ten graf dodając dwie deklaracje efemerydów i dodatkowy artefakt.
 
@@ -32,7 +32,7 @@ SELECT str2[0] STREAM str2 FROM core0 + core1
 
 Graf zależności dla powyższego zestawu zapytań prezentuje się następująco (Rys. 34):
 
-<figure><img src="../assets/dependencja_efemerydy_artefakty.png" alt=""><figcaption><p>Rys. 34. Dependencja efemerydy-artefakty</p></figcaption></figure>
+<figure><img src="../assets/dependencja_efemerydy_artefakty.svg" alt=""><figcaption><p>Rys. 34. Dependencja efemerydy-artefakty</p></figcaption></figure>
 
 Zbudujmy dodatkowy węzeł zależny od artefaktów. Najprościej dodać następujące zapytanie na końcu:
 
@@ -42,7 +42,7 @@ SELECT str3[0] STREAM str3 FROM str1#str2
 
 Graf zmieni swoją postać:
 
-<figure><img src="../assets/dependencja_efemerydy_artefakty_artefakty.png" alt=""><figcaption><p>Rys. 35. Dependencja efemerydy-artefakty-artefakty</p></figcaption></figure>
+<figure><img src="../assets/dependencja_efemerydy_artefakty_artefakty.svg" alt=""><figcaption><p>Rys. 35. Dependencja efemerydy-artefakty-artefakty</p></figcaption></figure>
 
 Jak widać na Rys. 35 strumień str3 nie jest zależny bezpośrednio od danych dostarczanych przez strumienie core0 i core1. Zapytania tworzą graf zależności a kolejności ich wywoływania jest uporządkowana. Wartość interwału w strumieniach rośnie w kierunku korzeni. Wzrost w kierunku korzenia wynika z równań wyznaczających interwały opracowanej algebry.
 
@@ -56,11 +56,10 @@ SELECT str4[0] STREAM str4 FROM (core1+core0)>2
 
 Tak dołączone zapytanie spowoduje modyfikację drzewa zależności w sposób przedstawiony na Rys. 36.
 
-<figure><img src="../assets/dependencja_z_substratem.png" alt=""><figcaption><p>Rys. 36. Dependencja z substratem</p></figcaption></figure>
+<figure><img src="../assets/dependencja_z_substratem.svg" alt=""><figcaption><p>Rys. 36. Dependencja z substratem</p></figcaption></figure>
 
 Substrat został oznaczony innym kolorem oraz oznaczeniem Auto znajdującym się obok interwału czasowego.
 
 Graf zależności musi być acyklicznym grafem skierowanym (DAG). Próba zdefiniowania strumienia odwołującego się do własnych wyników tworzy cykl i kończy się błędem kompilacji. Mechanizm wykrywania opisany jest w rozdziale [Wykrywanie pętli w kompilacji](wykrywanie-petli.md).
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `subquery` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
-
