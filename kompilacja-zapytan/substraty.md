@@ -349,7 +349,7 @@ Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`.
 
 Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 37):
 
-<figure><img src="../assets/dedup_przed.svg" width="70%" alt=""><figcaption><p>Rys. 37. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
+<figure><img src="../assets/dedup_przed.svg" width="40%" alt=""><figcaption><p>Rys. 37. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
 
 Po uruchomieniu `deduplicateSubstrats()` jeden z duplikatów jest usuwany, a wszystkie odwołania `PUSH_STREAM` przepinane są do ocalałego węzła. W grafie pozostaje jeden wspólny substrat (Rys. 38):
 
