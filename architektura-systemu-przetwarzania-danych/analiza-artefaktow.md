@@ -41,8 +41,11 @@ $ hexdump str1
 
 Wraz z plikiem artefaktu powstają pliki metadanych. Ich zawartość informuje o strukturze pliku.
 
-```
+```bash
 $ cat str1.desc
+```
+
+```desc
 {       INTEGER str1_0
         INTEGER str1_1
 }
@@ -50,13 +53,22 @@ $ cat str1.desc
 
 O wiele ciekawsze są opisy plików efemerydów. Pliki opisu danych efemerycznych wskazują na pliki w systemie Linux.
 
-```
+```bash
 $ cat core0.desc
+```
+
+```desc
 {       INTEGER a
         REF "datafile1.txt"
         TYPE TEXTSOURCE
 }
+```
+
+```bash
 $ cat core1.desc
+```
+
+```desc
 {       BYTE a
         REF "/dev/urandom"
         TYPE DEVICE

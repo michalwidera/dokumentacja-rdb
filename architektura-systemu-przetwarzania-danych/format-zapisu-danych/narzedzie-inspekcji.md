@@ -65,7 +65,7 @@ Poniżej mapy następują kolejne sekcje:
 
 Strumień `pomiar` z dwoma polami, 100 rekordów, bez modyfikacji, bez przerw:
 
-```
+```desc
 {
   INTEGER  ts
   FLOAT    value
@@ -111,7 +111,7 @@ Interpretacja: jeden segment RLE, brak przerw, brak null, plik cienia nieobecny.
 
 Strumień `czujnik` z trzema polami. Po 50 rekordach nastąpiła przerwa (10 jednostek interwału), następnie napłynęło 30 rekordów z częściowymi brakami w polu `pressure`. Dwa rekordy zostały później zmodyfikowane (plik cienia obecny):
 
-```
+```desc
 {
   INTEGER  ts
   FLOAT    temp
@@ -162,7 +162,7 @@ Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w plik
 
 Strumień `bufor` z retencją cykliczną: maksymalnie 10 segmentów po 100 rekordów (łącznie 1000 rekordów). Aktualnie zapisano 280 rekordów w trzech segmentach:
 
-```
+```desc
 {
   DOUBLE   value
   TYPE     DEFAULT

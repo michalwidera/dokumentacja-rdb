@@ -12,13 +12,13 @@ Plik `.desc` opisuje strukturę rekordu. Jest parsowany przez gramatykę ANTLR4 
 
 ### Składnia
 
-```
+```desc
 { <polecenie>* }
 ```
 
 Każde polecenie to jedno z poniższych:
 
-```
+```desc
 BYTE     nazwa [N]          # tablica N bajtów (domyślnie N=1)
 INTEGER  nazwa [N]          # 32-bitowe liczby całkowite ze znakiem
 UINT     nazwa [N]          # 32-bitowe bez znaku
@@ -36,7 +36,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 
 **Artefakt domyślny** — dwa pola numeryczne, składowanie `DEFAULT` (plik danych + plik cienia):
 
-```
+```desc
 {
   INTEGER  ts
   FLOAT    value
@@ -46,7 +46,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 
 **Efemeryd** — strumień ulotny wyłącznie w RAM:
 
-```
+```desc
 {
   DOUBLE   x
   DOUBLE   y
@@ -56,7 +56,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 
 **Substrat z retencją** — cykliczny bufor ostatnich 1000 rekordów na dysku (10 segmentów po 100):
 
-```
+```desc
 {
   INTEGER  ts
   FLOAT    a
@@ -68,7 +68,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 
 **Deklaracja źródła binarnego** (`DECLARE` w RQL generuje ten schemat):
 
-```
+```desc
 {
   INTEGER  a
   FLOAT    b
