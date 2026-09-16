@@ -89,7 +89,7 @@ Dla celów testowych sygnał źródłowy pobierzemy z generatora liczb pseudolos
 
 Początkowa część pliku query.rql zapytania zawierająca deklaracje źródeł dla systemu RetractorDB przedstawia się następująco:
 
-```
+```rql
 DECLARE coef INTEGER[25] \
 STREAM filter, 1 \
 FILE 'filterremez.txt'

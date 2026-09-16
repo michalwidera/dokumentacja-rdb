@@ -6,7 +6,7 @@ Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor, o 
 
 Jako przykładowy plik przeznaczony do kompilacji przyjmiemy plik query.rql o następującej zawartości:
 
-```
+```rql
 DECLARE a INTEGER \
 STREAM core0, 0.1 \
 FILE 'datafile1.dat'

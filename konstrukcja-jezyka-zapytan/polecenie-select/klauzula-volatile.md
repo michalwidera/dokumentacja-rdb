@@ -32,7 +32,7 @@ wyłącza domyślnej ulotności: do zapisu historii należy dodać `PERSISTENT`.
 
 ## Działanie
 
-```
+```rql
 SELECT wyrażenie STREAM nazwa FROM źródło VOLATILE
 ```
 
@@ -64,7 +64,7 @@ historię wyniku `VOLATILE`, bufor może pomieścić więcej niż jeden rekord. 
 
 ## Przykład
 
-```
+```rql
 DECLARE a INTEGER STREAM sensor, 0.1 FILE '/dev/sensor0'
 
 SELECT sensor[0] * 100 STREAM scaled FROM sensor VOLATILE

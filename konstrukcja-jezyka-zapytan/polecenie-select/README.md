@@ -4,7 +4,7 @@ Każde polecenie SELECT w systemie RetractorDB tworzy ciągłe zapytania. Zapyta
 
 Składnia polecenia SELECT przedstawia się następująco:
 
-```
+```rql
 SELECT wyrażenie_algebraiczne [, wyrażenie_algebraiczne] 
 STREAM nazwa_budowanego_strumienia [liczba_instancji]
 FROM strumieniowe_wyrażnie_algebraiczne 
@@ -26,7 +26,7 @@ Pierwsza różnica poza składnią to fakt że polecenia te wprowadzone do syste
 
 Przykładem zapytania tworzącego nowy strumień danych może być następujące polecenie w języku RQL.
 
-```
+```rql
 SELECT str1[0]*10 + str1[1]*10, str1[2] \
 STREAM str1 \
 FROM A+B

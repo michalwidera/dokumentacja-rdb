@@ -25,13 +25,13 @@ Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewal
 
 Warunek buduje się z pól schematu strumienia wskazanego w klauzuli `ON`. Pola identyfikowane są tak samo jak w `SELECT` — przez nazwę strumienia z indeksem:
 
-```
+```rql
 WHEN strumień[indeks] operator wartość
 ```
 
 Złożone warunki łączymy spójnikami:
 
-```
+```rql
 WHEN strumień[0] > 10 AND strumień[1] != 0
 WHEN strumień[0] = 5 OR strumień[0] = 7
 WHEN NOT strumień[0] < 0
@@ -39,7 +39,7 @@ WHEN NOT strumień[0] < 0
 
 ## Przykłady
 
-```
+```rql
 RULE alarm_wysoki \
 ON pomiary \
 WHEN pomiary[0] > 100 OR pomiary[0] < -100 \
@@ -62,13 +62,13 @@ Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowia
 
 Jeżeli strumień z `ON` powstał przez przeplot `A#B`, warunek musi używać nazwy strumienia wynikowego:
 
-```
+```rql
 RULE poprawna ON wynik WHEN wynik[0] > 0 DO DUMP -1 TO 0
 ```
 
 Odwołanie do nazwanej składowej przeplotu jest niejednoznaczne i kończy kompilację błędem:
 
-```
+```rql
 RULE bledna ON wynik WHEN A[0] > 0 DO DUMP -1 TO 0
 ```
 

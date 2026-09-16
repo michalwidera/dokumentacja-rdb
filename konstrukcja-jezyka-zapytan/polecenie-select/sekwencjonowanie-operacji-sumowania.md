@@ -4,7 +4,7 @@ Do systemu napływają i są przetwarzane w nim dane. Określenie kolejności ic
 
 Na początku przeanalizujmy następujące zapytanie:
 
-```
+```rql
 DECLARE a BYTE STREAM A, 1 FILE 'data1.txt'
 DECLARE a BYTE STREAM B, 2 FILE 'data2.txt'
 SELECT * STREAM str1 FROM A+B

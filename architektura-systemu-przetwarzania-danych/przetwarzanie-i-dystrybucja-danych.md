@@ -8,7 +8,7 @@ Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych 
 
 Źródłowy plik danych query.rql zmienimy na następujący:
 
-```
+```rql
 DECLARE a INTEGER \
 STREAM core0, 0.1 \
 FILE 'datafile1.txt'

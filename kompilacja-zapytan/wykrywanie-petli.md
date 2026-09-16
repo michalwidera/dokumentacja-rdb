@@ -6,7 +6,7 @@ Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśl
 
 ## Przykład pętli
 
-```
+```rql
 DECLARE a BYTE, b INTEGER \
 STREAM core0, 0.1 \
 FILE 'sensor_a.txt'
@@ -70,12 +70,12 @@ Warunek `>=` (a nie `>`) chroni przed fałszywymi pozytywami: jeśli liczba nie 
 
 Usunąć odwołanie strumienia do samego siebie lub do strumienia, który od niego zależy. W powyższym przykładzie zapytanie:
 
-```
+```rql
 SELECT * STREAM broken FROM merged + broken
 ```
 
 należy zastąpić odwołaniem do strumienia, który istnieje niezależnie od `broken`:
 
-```
+```rql
 SELECT * STREAM broken FROM merged + core0
 ```

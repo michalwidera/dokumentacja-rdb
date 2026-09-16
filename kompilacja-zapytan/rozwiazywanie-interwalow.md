@@ -29,7 +29,7 @@ Każda runda rozwiązuje co najmniej jeden strumień — bo graf jest acykliczny
 
 ### Suma strumieni (`+`, STREAM\_ADD)
 
-```
+```rql
 SELECT ... STREAM c FROM a + b
 ```
 
@@ -41,7 +41,7 @@ Przykład: core0(Δ=1/10) + core1(Δ=1/5) → str1(Δ=1/10)
 
 ### Synchronizacja strumieni (`#`, STREAM\_HASH)
 
-```
+```rql
 SELECT ... STREAM c FROM a # b
 ```
 
@@ -53,7 +53,7 @@ Przykład: core0(Δ=1/10) # core1(Δ=1/5) → str1(Δ=1/15)
 
 ### Przesunięcie w czasie (`>n`, STREAM\_TIMEMOVE)
 
-```
+```rql
 SELECT ... STREAM c FROM a > n
 ```
 
@@ -81,7 +81,7 @@ Reduktory działają na całym wyrażeniu strumieniowym, np. `AVG(a@(1,10))`. Re
 
 ### Algorytm AGSE (`@(step, window)`, STREAM\_AGSE)
 
-```
+```rql
 SELECT ... STREAM c FROM a @ (step, window)
 ```
 
@@ -99,7 +99,7 @@ Operacje odwrotne do `#` — wyznaczają, jaki interwał miał jeden ze strumien
 
 W zapytaniu z wieloma strumieniami wynikowymi jeden strumień może zależeć od drugiego:
 
-```
+```rql
 DECLARE a INTEGER STREAM core0, 0.1 FILE 'data.dat'
 SELECT str1[0] STREAM str1 FROM core0
 SELECT str2[0] STREAM str2 FROM str1

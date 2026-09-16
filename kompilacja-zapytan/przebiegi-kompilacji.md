@@ -15,7 +15,7 @@ konsumenta.
 
 Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER \
 STREAM core0, 0.1 \
 FILE 'sensor_a.txt'

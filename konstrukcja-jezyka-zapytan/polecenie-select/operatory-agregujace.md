@@ -15,7 +15,7 @@ płaskie sloty jednego rekordu do jednej wartości.
 
 ### Składnia
 
-```
+```rql
 FROM AGREGATOR(wyrażenie_strumieniowe)
 ```
 
@@ -94,7 +94,7 @@ albo jawnie przepuścić wynik przez `to_string`, `to_double` lub `to_integer`.
 
 ### Przykład: średnia z rekordu okna AGSE
 
-```
+```rql
 DECLARE val INTEGER STREAM src, 1 FILE 'data.txt'
 
 # AGSE buduje rekord z pięciu próbek, AVG redukuje jego pięć pól
@@ -117,7 +117,7 @@ Okno znajduje się bezpośrednio w `FROM`, więc nie wymaga osobnego zapytania. 
 
 ### Przykład: MIN i MAX
 
-```
+```rql
 DECLARE v INTEGER STREAM src, 0.1 FILE '/dev/urandom'
 SELECT * STREAM min10 FROM MIN(src@(1,10))
 SELECT * STREAM max10 FROM MAX(src@(1,10))
@@ -254,7 +254,7 @@ Parametr `szerokość` (liczba naturalna po dwukropku `:`) określa szerokość 
 
 ### Przykład
 
-```
+```rql
 DECLARE v INTEGER STREAM src, 1 FILE 'data.txt'
 
 SELECT to_string(src[0]:10) STREAM labels FROM src
@@ -266,7 +266,7 @@ Strumień `labels` zawiera wartości `src` sformatowane jako tekst w polu 10-baj
 
 Ciąg wynikowy można łączyć z literałem stringowym operatorem `+`:
 
-```
+```rql
 SELECT to_string(src[0]:8) + '_ok' STREAM tagged FROM src
 ```
 

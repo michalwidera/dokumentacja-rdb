@@ -6,7 +6,7 @@ Taka konstrukcja to graf skierowany. Graf, który posiada wiele korzeni i wiele 
 
 Na początku rozważmy następujące trywialne zapytanie:
 
-```
+```rql
 DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 ```
@@ -23,7 +23,7 @@ Pełny opis flag `-d -f -s` i interpretacja wyjścia — patrz [Debugowanie komp
 
 Skomplikujmy trochę ten graf dodając dwie deklaracje efemerydów i dodatkowy artefakt.
 
-```
+```rql
 DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
 DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
 SELECT str1[0] STREAM str1 FROM core0
@@ -36,7 +36,7 @@ Graf zależności dla powyższego zestawu zapytań prezentuje się następująco
 
 Zbudujmy dodatkowy węzeł zależny od artefaktów. Najprościej dodać następujące zapytanie na końcu:
 
-```
+```rql
 SELECT str3[0] STREAM str3 FROM str1#str2
 ```
 
@@ -50,7 +50,7 @@ Proszę zwrócić uwagę, że zapytania w pliku rql przetwarzane są sekwencyjni
 
 W przypadku dołączenia do drzewa zależności następującego zapytania wytworzymy dodatkowy substrat.
 
-```
+```rql
 SELECT str4[0] STREAM str4 FROM (core1+core0)>2
 ```
 

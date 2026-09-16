@@ -10,7 +10,7 @@ Parser akceptuje zarówno formę z nawiasami, jak i łańcuchy bez nawiasów, np
 
 Przykład używa kanonicznych deklaracji z całego rozdziału — trzy strumienie o różnych typach i interwałach:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER \
 STREAM core0, 0.1 \
 FILE 'sensor_a.txt'
@@ -39,7 +39,7 @@ Pojawił się niezapowiedziany strumień `STREAM_HASH_core0_core1` — to właś
 
 Co się stanie po dołączeniu zapytania:
 
-```
+```rql
 SELECT merged2[0] STREAM merged2 FROM (core0 # core1) > 2
 ```
 
@@ -74,7 +74,7 @@ Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy
 
 Rozważmy zapytanie z kanonicznymi deklaracjami:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
 DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
@@ -94,7 +94,7 @@ Redukcja dotyczy wyłącznie substratów wygenerowanych przez kompilator (`isSub
 
 Przykład — dwa zapytania użytkownika o tej samej operacji:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
 
 SELECT shifted1[0] STREAM shifted1 FROM core0 > 2
@@ -338,7 +338,7 @@ może umieścić szybszego konsumenta `#` przed jego producentami.
 
 Rozważmy zapytania:
 
-```
+```rql
 DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
 DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
 SELECT str4[0] STREAM str4 FROM (core0+core1)>2
@@ -363,7 +363,7 @@ Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dl
 
 Rozważmy zapytanie zawierające wyłącznie złożone wyrażenie:
 
-```
+```rql
 DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
 DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
 SELECT str4[0] STREAM str4 FROM (core0+core1)>2
@@ -375,7 +375,7 @@ SELECT str4[0] STREAM str4 FROM (core0+core1)>2
 
 Gdy użytkownik doda jawną deklarację strumienia będącego dokładnie tą samą sumą:
 
-```
+```rql
 SELECT * STREAM mysum FROM core0+core1
 ```
 
@@ -393,7 +393,7 @@ Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuj
 
 Rozważmy zapytanie:
 
-```
+```rql
 DECLARE a INTEGER STREAM s1, 1 FILE 'data1.dat'
 DECLARE b INTEGER STREAM s2, 1 FILE 'data2.dat'
 DECLARE c INTEGER STREAM s3, 1 FILE 'data3.dat'
@@ -439,7 +439,7 @@ Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada
 
 `deduplicateSubstrats()` działa iteracyjnie (`while(changed)`), co pozwala na wielokrokowe wchłonięcia. W przykładzie:
 
-```
+```rql
 SELECT * STREAM mysum   FROM s1+s2
 SELECT * STREAM shifted FROM (s1+s2)>1
 SELECT * STREAM merged  FROM s3+((s1+s2)>1)

@@ -197,7 +197,7 @@ Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Oper
 
 ### Przykład
 
-```
+```rql
 DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
 ```
 

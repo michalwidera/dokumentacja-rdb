@@ -33,13 +33,13 @@ Wybór zależy od wymagań środowiska:
 
 ## Przykład
 
-```
+```rql
 SELECT str1[0] STREAM str1 FROM core0 STORAGE MEMORY
 SELECT str2[0] STREAM str2 FROM core0 RETENTION 100 STORAGE DIRECT
 ```
 
 Dla substratów globalnie — dyrektywa `SUBSTRAT`:
 
-```
+```rql
 SUBSTRAT 'memory'
 ```

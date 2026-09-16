@@ -6,7 +6,7 @@ To polecenie to jedno z ostatnich opracowanych przeze mnie rozszerzeń systemu. 
 
 Składnia polecenia RULE przedstawia się następująco:
 
-```
+```rql
 RULE nazwa_reguły
 ON nazwa_strumienia_danych
 WHEN warunek_logiczny
@@ -15,7 +15,7 @@ DO DUMP kroki_wstecz TO kroki_w_przód [RETENTION segmenty]
 
 Lub w taki sposób:
 
-```
+```rql
 RULE nazwa_reguły
 ON nazwa_strumienia_danych
 WHEN warunek_logiczny
@@ -38,7 +38,7 @@ Klauzula DO SYSTEM umożliwia wywołanie zdarzenia systemowego po zajściu w war
 
 Przykłady deklaracji reguł w języku RQL:
 
-```
+```rql
 RULE testrule1 \
 ON str1 \
 WHEN str1[0] > 11 \
@@ -58,7 +58,7 @@ Druga reguła z trochę innym warunkiem logicznym wyświetli na ekranie w który
 
 Pełna składnia polecenia RULE ma postać:
 
-```
+```rql
 RULE <nazwa>
 ON <strumień>
 WHEN <warunek>
@@ -67,7 +67,7 @@ DO <akcja>
 
 Gdzie `<akcja>` może przyjąć jedną z dwóch form:
 
-```
+```rql
 SYSTEM '<polecenie_systemowe>'
 DUMP [-]<krok_wstecz> TO [-]<krok_wprzód> [RETENTION <n>]
 ```
@@ -76,7 +76,7 @@ DUMP [-]<krok_wstecz> TO [-]<krok_wprzód> [RETENTION <n>]
 
 Reguła może być podpięta wyłącznie pod strumień zadeklarowany poleceniem `SELECT` (artefakt lub substrat). Podpięcie pod strumień wejściowy `DECLARE` jest błędem kompilacji:
 
-```
+```rql
 # NIEPRAWIDŁOWE — core0 jest deklaracją, nie można podpiąć reguły
 RULE r1 ON core0 WHEN core0[0] > 10 DO SYSTEM 'echo alarm'
 ```
@@ -87,7 +87,7 @@ Warunek to wyrażenie logiczne ewaluowane do wartości prawda/fałsz po każdej 
 
 Operatory porównania: `=`, `!=`, `<`, `>`, `<=`, `>=`. Operatory logiczne: `OR`, `AND`, `NOT`. Przykłady:
 
-```
+```rql
 WHEN str1[0] > 100
 WHEN str1[0] = 0 OR str1[0] = 255
 WHEN str1[0] >= 10 AND str1[0] <= 90
@@ -98,7 +98,7 @@ WHEN NOT str1[0] = 0
 
 Akcja `DO SYSTEM` wykonuje podane polecenie powłoki (przez wywołanie `system(3)`) w momencie spełnienia warunku. RetractorDB loguje kod wyjścia polecenia — niezerowy kod jest raportowany jako błąd w logu.
 
-```
+```rql
 RULE alert1 \
 ON wyniki \
 WHEN wyniki[0] > 1000 \
@@ -111,7 +111,7 @@ W poleceniu można użyć dowolnego programu dostępnego w `PATH`: skryptów pow
 
 Akcja `DO DUMP` zapisuje okno próbek strumienia do pliku binarnego w momencie spełnienia warunku. Pozwala zachować kontekst zdarzenia: dane przed jego wystąpieniem i dane po nim.
 
-```
+```rql
 RULE zdarzenie \
 ON wyniki \
 WHEN wyniki[0] > 500 \
@@ -146,7 +146,7 @@ Format pliku to surowe dane binarne zgodne z deskryptorem strumienia (bez nagł�
 
 Parametr `RETENTION <n>` ogranicza liczbę przechowywanych zrzutów — stary plik jest nadpisywany przez nowy (bufor cykliczny). Bez `RETENTION` każde wyzwolenie nadpisuje jeden plik `_dump.tmp`.
 
-```
+```rql
 RULE zdarzenie \
 ON wyniki \
 WHEN wyniki[0] > 500 \
@@ -159,7 +159,7 @@ Powyższy przykład przechowuje 20 ostatnich zrzutów w plikach `wyniki_zdarzeni
 
 Do jednego strumienia można przypiąć dowolną liczbę reguł różnych typów:
 
-```
+```rql
 RULE alert_wysoki \
 ON pomiary \
 WHEN pomiary[0] > 900 \

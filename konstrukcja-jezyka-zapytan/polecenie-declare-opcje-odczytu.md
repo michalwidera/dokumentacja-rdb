@@ -2,7 +2,7 @@
 
 Polecenie `DECLARE` przyjmuje trzy opcjonalne dyrektywy wpływające na sposób odczytu i cykl życia zadeklarowanego źródła:
 
-```
+```rql
 DECLARE pole typ STREAM nazwa, szybkość FILE źródło
     [DISPOSABLE]
     [ONESHOT]
@@ -13,7 +13,7 @@ DECLARE pole typ STREAM nazwa, szybkość FILE źródło
 
 Bez `ONESHOT` źródło danych czytane jest w nieskończonej pętli — po osiągnięciu końca pliku pozycja odczytu wraca na początek. `ONESHOT` wyłącza pętlę: plik czytany jest dokładnie raz, a po jego wyczerpaniu strumień zwraca rekordy ze wszystkimi polami `NULL`. Bajty takiego rekordu są wyzerowane, ale znaczniki null odróżniają brak danych od wartości zero.
 
-```
+```rql
 DECLARE pomiar INTEGER STREAM burst, 0.1 FILE 'dane.dat' ONESHOT
 ```
 
@@ -23,7 +23,7 @@ Zastosowanie: jednorazowe załadowanie danych historycznych do systemu.
 
 Po zakończeniu przesyłania danych ze źródła system usuwa plik danych, plik deskryptora (`.desc`) i plik metadanych (`.meta`). Dyrektywa działa przy destrukcji obiektu `storage`.
 
-```
+```rql
 DECLARE temp INTEGER STREAM jednorazowy, 0.1 FILE 'temp.dat' DISPOSABLE ONESHOT
 ```
 
@@ -33,7 +33,7 @@ DECLARE temp INTEGER STREAM jednorazowy, 0.1 FILE 'temp.dat' DISPOSABLE ONESHOT
 
 Zadeklarowane źródło nie inicjuje odczytu od razu po starcie systemu. Fizyczny odczyt danych uruchamia się dopiero przy pierwszym zapytaniu wymagającym danych z tego strumienia (np. zapytanie Ad Hoc). Dopóki strumień nie zostanie odpytany — w systemie widoczne są wartości zerowe lub puste.
 
-```
+```rql
 DECLARE rzadkie INTEGER STREAM opcjonalny, 1.0 FILE 'rzadkie.dat' HOLD
 ```
 

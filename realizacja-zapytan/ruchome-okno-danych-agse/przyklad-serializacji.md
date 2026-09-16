@@ -2,7 +2,7 @@
 
 Na początku stwórzmy plik qplan3.rql o następującej zawartości:
 
-```
+```rql
 DECLARE a BYTE, b BYTE STREAM A, 1 FILE 'data3.txt'
 SELECT * STREAM str3 FROM A@(1,1)
 ```
@@ -53,7 +53,7 @@ Ze strumienia źródłowego, w którym co sekundę przychodzą dane zawierające
 
 Skoro mamy już w systemie strumień danych str3 zwracający sekwencyjne liczby – możemy go wykorzystać do dalszych transformacji. Dodajmy do pliku qplan3.rql następujące zapytanie:
 
-```
+```rql
 SELECT * STREAM str4 FROM str3@(2,2)
 ```
 
@@ -73,7 +73,7 @@ $ xqry -s str4
 
 Na drodze trudnej sztuki przetwarzania strumieni danych znajdują się pułapki. To jedna z nich. Dopiero jak czytelnik dobrze się przyjrzy, to zauważy że dane są odbite w lustrze. Proszę zamień to zapytanie na taką formę:
 
-```
+```rql
 SELECT * STREAM str4 FROM str3@(2,-2)
 ```
 

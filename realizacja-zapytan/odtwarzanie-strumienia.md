@@ -12,7 +12,7 @@ Tak przygotowany plik będziemy odtwarzać w systemie RetractorDB.
 
 W kolejnym kroku stwórzmy następujący plik wypełniony zapytaniami dla systemu – query.rql zawierający tylko jedną deklarację zakończoną HOLD.
 
-```
+```rql
 DECLARE a INTEGER STREAM core, 1 FILE 'dane.txt' HOLD
 ```
 

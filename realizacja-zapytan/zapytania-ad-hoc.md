@@ -76,7 +76,7 @@ jeśli nowe zapytanie wnosi do systemu nowe tempo.
 
 Przykład rozpoczniemy od przygotowania prostego zapytania:
 
-```
+```rql
 DECLARE a BYTE STREAM A, 1 FILE 'data1.txt'
 DECLARE a BYTE STREAM B, 2 FILE 'data2.txt'
 SELECT * STREAM str1 FROM A+B

@@ -4,7 +4,7 @@ Każdy, który pisał w języku SQL poznał magiczny znak \* w tym języku. Wywo
 
 Przykład używa kanonicznych deklaracji z całego rozdziału:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER \
 STREAM core0, 0.1 \
 FILE 'sensor_a.txt'

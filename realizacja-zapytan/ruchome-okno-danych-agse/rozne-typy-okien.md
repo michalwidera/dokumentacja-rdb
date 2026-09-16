@@ -12,7 +12,7 @@ $ seq 1 12 > data.txt
 
 Deklaracja źródła — jeden rekord co sekundę, jedno pole:
 
-```
+```rql
 DECLARE val INTEGER \
 STREAM src, 1 \
 FILE 'data.txt'
@@ -22,7 +22,7 @@ FILE 'data.txt'
 
 Skok równy rozmiarowi okna: `k = w`. Każdy element wejściowy należy dokładnie do jednego okna wyjściowego.
 
-```
+```rql
 SELECT * \
 STREAM tumbling \
 FROM src@(4,4)
@@ -43,7 +43,7 @@ Zastosowania: agregacja próbek w stałych przedziałach czasu (np. minutowe, go
 
 Skok mniejszy od rozmiaru okna: `k < w`. Każdy element wejściowy pojawia się w kilku kolejnych oknach.
 
-```
+```rql
 SELECT * \
 STREAM sliding \
 FROM src@(1,4)
@@ -66,7 +66,7 @@ Zastosowania: średnia ruchoma, detekcja trendów, filtry FIR (jak w [implementa
 
 Skok większy od rozmiaru okna: `k > w`. Część elementów wejściowych jest pomijana.
 
-```
+```rql
 SELECT * \
 STREAM sampled \
 FROM src@(3,1)
@@ -88,7 +88,7 @@ Zastosowania: decimacja sygnału, redukcja częstotliwości próbkowania, diagno
 
 Ujemna wartość `w` odwraca kolejność pól w rekordzie wyjściowym przy zachowaniu tego samego rozmiaru okna.
 
-```
+```rql
 SELECT * \
 STREAM mirrored \
 FROM src@(2,-2)
@@ -121,7 +121,7 @@ Porównaj z `src@(2,2)`, które dałoby `1 2`, `3 4`, `5 6`… — kolejność z
 
 Wszystkie cztery warianty można uruchomić jednocześnie umieszczając je w jednym pliku `.rql`:
 
-```
+```rql
 DECLARE val INTEGER STREAM src, 1 FILE 'data.txt'
 
 SELECT * STREAM tumbling FROM src@(4,4)

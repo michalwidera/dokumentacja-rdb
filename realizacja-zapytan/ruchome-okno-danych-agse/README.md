@@ -34,7 +34,7 @@ Jeśli strumień źródłowy ma `W` pól w rekordzie i interwał `Δ`, to strumi
 
 ## Typowe wzorce użycia
 
-```
+```rql
 # serializacja: 2 pola → 1 pole (interwał ÷ 2)
 SELECT * STREAM s1 FROM A@(1,1)
 

@@ -10,7 +10,7 @@ Dostępne są cztery dyrektywy konfiguracyjne:
 `STORAGE`, `SUBSTRAT` i `ROTATION` przyjmują parametr tekstowy w apostrofach.
 `DEFAULT VOLATILE` nie przyjmuje napisu. Przykład dyrektyw z parametrem:
 
-```
+```rql
 STORAGE 'temp_folder'
 SUBSTRAT 'memory'
 ROTATION 'rotation_counter.txt'

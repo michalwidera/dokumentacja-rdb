@@ -42,7 +42,7 @@ Akcja `DO DUMP` pozwala utrwalić okno próbek z otoczenia zdarzenia — dane sp
 
 Tworzymy plik `query.rql`:
 
-```
+```rql
 STORAGE 'temp'
 
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
@@ -85,7 +85,7 @@ $ xtrdb
 
 Bez `RETENTION` każde kolejne wyzwolenie reguły nadpisuje ten sam plik. Gdy zdarzenia powtarzają się, użyj `RETENTION N` aby zachować ostatnie N zrzutów w osobnych plikach.
 
-```
+```rql
 STORAGE 'temp'
 
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
@@ -113,7 +113,7 @@ Po przekroczeniu pojemności (`RETENTION 5`) najstarszy plik jest nadpisywany pr
 
 Do jednego strumienia można przypiąć dowolną liczbę reguł. Poniższy przykład łączy obie akcje — powiadomienie systemowe i zapis kontekstu:
 
-```
+```rql
 STORAGE 'temp'
 
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'

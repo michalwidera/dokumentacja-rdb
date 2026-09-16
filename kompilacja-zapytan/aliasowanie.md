@@ -6,7 +6,7 @@ Możemy jednak użyć też nazw z jakich strumień powstał. Na wartość wskazy
 
 Przykład używa kanonicznych deklaracji z całego rozdziału:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER \
 STREAM core0, 0.1 \
 FILE 'sensor_a.txt'
@@ -33,7 +33,7 @@ $ xretractor -c query.rql
 
 Alias źródłowy działa tylko wtedy, gdy suma stoi bezpośrednio w klauzuli `FROM` zapytania. Jeżeli suma została nazwana osobnym zapytaniem, lista pól konsumenta widzi wyłącznie ten nazwany strumień:
 
-```
+```rql
 SELECT * STREAM merged FROM core0 + core1
 SELECT merged[0], core1[0] STREAM result FROM merged
 ```
@@ -46,7 +46,7 @@ Check result:Stream 'result' refers to 'core1', which is not in its FROM clause.
 
 `merged` jest zapytaniem użytkownika z własnym interwałem i buforem, więc kompilator nie wyznacza pozycji jego źródeł w rekordzie `result`. Poprawny zapis wskazuje pole przez pozycję w rekordzie `merged` — `core1` zaczyna się tam od pozycji 2:
 
-```
+```rql
 SELECT merged[0], merged[2] STREAM result FROM merged
 ```
 
@@ -89,7 +89,7 @@ Porównanie kompilacji dla deklaracji `core0` i `core1` z przykładu pokazuje r�
 
 Drugi wiersz odpowiada zapytaniu:
 
-```
+```rql
 SELECT core0[0], core1[0] STREAM interleaved FROM core0#core1
 ```
 
@@ -105,14 +105,14 @@ Z tego powodu kompilator odrzuca nazwane odwołania użytkownika, które przez `
 
 Poprawny zapis odwołuje się do jedynego schematu wyniku:
 
-```
+```rql
 SELECT wynik[0], wynik[1] STREAM wynik FROM A#B
 SELECT wynik2.* STREAM wynik2 FROM A#B
 ```
 
 Niekwalifikowane `*` również oznacza cały schemat wynikowy i pozostaje legalne. Jeżeli dalsze obliczenie wymaga `[_]`, najpierw należy nazwać przeplot, a następnie użyć jego wyniku:
 
-```
+```rql
 SELECT * STREAM przeplot FROM A#B
 SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 ```

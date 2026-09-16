@@ -6,7 +6,7 @@ Liczba kopii nie wynika wyłącznie z własnego schematu strumienia. `x[_]` ozna
 
 Przykład używa kanonicznych deklaracji z całego rozdziału — `core0` ma dwa pola (BYTE, INTEGER), `core1` ma dwa pola (INTEGER, FLOAT), schematy są równoliczne:
 
-```
+```rql
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE ‘sensor_a.txt’
 DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE ‘sensor_b.txt’
 
@@ -60,7 +60,7 @@ Kompilator odrzuca odwołanie, gdy wskazany strumień nie występuje w `FROM` al
 
 Aliasowanie składowych przez `A[_]` jest poprawne dla sumy `+`, ponieważ suma zachowuje osobne fragmenty schematów obu argumentów. Nie wolno stosować tej postaci do składowej osiąganej przez przeplot `#`:
 
-```
+```rql
 SELECT A[_] - B[_] STREAM roznica FROM A#B
 ```
 
@@ -68,7 +68,7 @@ Po przeplocie pozycje `A[k]` i `B[k]` są tą samą pozycją wspólnego schematu
 
 Jeżeli `_` ma przetwarzać rekord przeplotu, należy najpierw nadać wynikowi nazwę, a potem odwołać się do tego wyniku:
 
-```
+```rql
 SELECT * STREAM przeplot FROM A#B
 SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 ```
