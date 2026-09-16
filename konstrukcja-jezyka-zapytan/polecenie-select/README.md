@@ -133,7 +133,7 @@ Powyższy zapis oznacza `v*(w^2)` oraz `v^(w^2)`. Zapis `(v*w)^2` wymaga jawnych
 
 Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma dokładnie semantykę powtarzanego mnożenia, łącznie z promocją typu i przepełnieniem. Dla pozostałych przypadków używane jest obliczenie zmiennoprzecinkowe; wynik nieskończony albo `NaN` staje się `NULL`. Operandy tekstowe są niedozwolone.
 
-> **ℹ Info** Literał ujemny jest jednym atomem gramatyki: `-2^2` oznacza `(-2)^2`. Dla pola `-v^2` oznacza `-(v^2)`. W razie wątpliwości użyj nawiasów.
+> **ℹ️️ Info** Literał ujemny jest jednym atomem gramatyki: `-2^2` oznacza `(-2)^2`. Dla pola `-v^2` oznacza `-(v^2)`. W razie wątpliwości użyj nawiasów.
 
 > **⚠️ Ostrzeżenie** Po przeplocie `A#B` nie wolno odwoływać się do jego składowych przez `A[0]`, `A.pole`, `A[_]` ani `A.*`. Przeplot ma jeden wspólny schemat; użyj nazwy strumienia wynikowego albo odzyskaj składową operatorem `&`/`%`. Szczegóły opisuje rozdział [Aliasowanie](../../kompilacja-zapytan/aliasowanie.md).
 

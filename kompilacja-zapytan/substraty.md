@@ -190,7 +190,7 @@ W programie zapytania macierzystego token operatora zastępowany jest tokenem `P
 
 ### Prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
 
-> **ℹ Info**
+> **ℹ️ Info**
 > Polska nazwa jest świadomie opisowa i nie stanowi dosłownego tłumaczenia angielskiego terminu
 > *matched interleave-shift factorization*, pozostawionego w angielskiej wersji dokumentacji.
 
