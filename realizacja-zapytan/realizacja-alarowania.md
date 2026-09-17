@@ -109,12 +109,24 @@ Pełna sekwencja dla `DUMP -3 TO 2` przedstawiona jest na Rys. 51.
 
 ```mermaid
 %% pdf-width: 85%
-%% pdf-height: 45%
-%%{init: {"markdownAutoWrap": false}}%%
-block-beta
-    columns 2
-    T["1. Próbka t — warunek TRUE<br/>streamInstance → dumpManager: registerTask(stream, {-3, 2, retention=0})<br/>dumpManager: otwórz plik dump.tmp<br/>dumpManager: zapisz t-3, t-2, t-1 (historia)<br/>dumpedRecordsToGo = 2<br/>streamInstance → dumpManager: processStreamChunk(stream)<br/>dumpManager: zapisz t → dumpedRecordsToGo = 1"]
-    T1["2. Próbka t+1<br/>streamInstance → dumpManager: processStreamChunk(stream)<br/>dumpManager: zapisz t+1 → dumpedRecordsToGo = 0<br/>dumpManager: zamknij plik — zadanie gotowe"]
+%% pdf-height: 55%
+%%{init: {"markdownAutoWrap": false, "sequence": {"mirrorActors": false, "messageMargin": 22, "boxMargin": 6}}}%%
+sequenceDiagram
+    participant SI as streamInstance
+    participant DM as dumpManager
+
+    note over SI: Próbka t — warunek TRUE
+    SI->>DM: registerTask(stream, {-3, 2, retention=0})
+    DM->>DM: Otwórz plik dump.tmp
+    DM->>DM: Zapisz t-3, t-2, t-1 (historia)
+    DM->>DM: dumpedRecordsToGo = 2
+    SI->>DM: processStreamChunk(stream)
+    DM->>DM: Zapisz t → dumpedRecordsToGo = 1
+
+    note over SI: Próbka t+1
+    SI->>DM: processStreamChunk(stream)
+    DM->>DM: Zapisz t+1 → dumpedRecordsToGo = 0
+    DM->>DM: Zamknij plik — zadanie gotowe
 ```
 
 _Rys. 51. Sekwencja zbierania danych przez DO DUMP –3 TO 2_

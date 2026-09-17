@@ -394,6 +394,7 @@ flushCurrentEntry() → seek na ostatni wpis, overwrite [wzorzec, count=3]
 Diagram sekwencji dla typowego wzorca `storage` (append + flush po każdym rekordzie) ilustruje Rys. 18:
 
 ```mermaid
+%% pdf-height: 55%
 sequenceDiagram
     participant S as storage
     participant M as metaData
