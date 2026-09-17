@@ -9,17 +9,11 @@ Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych 
 Źródłowy plik danych query.rql zmienimy na następujący:
 
 ```rql
-DECLARE a INTEGER \
-STREAM core0, 0.1 \
-FILE 'datafile1.txt'
+DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.txt'
 
-DECLARE a BYTE \
-STREAM core1, 0.2 \
-FILE '/dev/urandom'
+DECLARE a BYTE STREAM core1, 0.2 FILE '/dev/urandom'
 
-SELECT str1[0], str1[0] + str1[1]/20 \
-STREAM str1 \
-FROM core0 + core1
+SELECT str1[0], str1[0] + str1[1]/20 STREAM str1 FROM core0 + core1
 ```
 
 W tym przykładzie deklarujemy istnienie pliku tekstowego zawierającego dane tekstowe. Proponuję wypełnić plik datafile1.txt następującą zawartością:

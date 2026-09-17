@@ -45,7 +45,7 @@ przez `SELECT *` albo, gdy potrzebne są dalsze obliczenia, przez zmaterializowa
 w osobnym strumieniu:
 
 ```rql
-SELECT * STREAM m FROM AVG(src)
+SELECT *      STREAM m FROM AVG(src)
 SELECT m[0]*2 STREAM o FROM m
 ```
 
@@ -110,7 +110,7 @@ Fragment z przykładu implementacji filtru sygnałowego:
 
 ```rql
 SELECT source[_] * filter[_] STREAM accRow FROM source@(1,25)+filter
-SELECT accRow[0] STREAM output FROM SUMC(accRow)
+SELECT accRow[0]             STREAM output FROM SUMC(accRow)
 ```
 
 Okno znajduje się bezpośrednio w `FROM`, więc nie wymaga osobnego zapytania. `source[_]` rozwija się zgodnie z 25 slotami, które `source@(1,25)` wnosi do rekordu wejściowego. `SUMC(accRow)` sumuje wszystkie pola rekordu `accRow` — iloczyny próbek sygnału przez współczynniki filtru — produkując wyjście filtru FIR.
@@ -142,8 +142,7 @@ Sam `AGREGATOR(wartość_rekordu : szerokość)` jest operandem zwykłego wyraż
 go łączyć z literałami, innymi polami, operatorami arytmetycznymi i funkcjami skalarnymi:
 
 ```rql
-SELECT 2*MIN(a : 5)+1, null2zero(AVG(a+b : 5))-10 \
-STREAM transformed FROM src
+SELECT 2*MIN(a : 5)+1, null2zero(AVG(a+b : 5))-10 STREAM transformed FROM src
 ```
 
 Nie wolno jedynie zagnieżdżać agregatu okna w argumencie innego agregatu okna.
@@ -156,8 +155,7 @@ Interwał wyniku pozostaje równy interwałowi źródła, początek logiczny prz
 ```rql
 DECLARE a INTEGER, b INTEGER STREAM src, 1 FILE 'data.txt'
 
-SELECT MIN(a : 5), MAX(a : 5), AVG(a+b : 5), SUMC(a : 5) \
-STREAM stats FROM src
+SELECT MIN(a : 5), MAX(a : 5), AVG(a+b : 5), SUMC(a : 5) STREAM stats FROM src
 ```
 
 Kilka agregatów nad tym samym wyrażeniem, źródłem i szerokością współdzieli jedno przejście
@@ -190,7 +188,7 @@ strumienia dla każdego kanału:
 ```rql
 DECLARE value INTEGER[24] STREAM sensors, 1/10 FILE 'sensors.txt'
 
-SELECT * STREAM row_min FROM MIN(sensors)
+SELECT *                    STREAM row_min      FROM MIN(sensors)
 SELECT MIN(row_min[0] : 10) STREAM interval_min FROM row_min
 ```
 
@@ -206,7 +204,7 @@ gotowego strumienia okien operatorem `-` w drugim węźle:
 
 ```rql
 SELECT MIN(a : 5) STREAM sliding FROM src
-SELECT * STREAM hopping FROM sliding - 2
+SELECT *          STREAM hopping FROM sliding - 2
 ```
 
 Argument operatora `-` jest docelowym interwałem wyniku. Dla skoku H nad źródłem o

@@ -7,13 +7,9 @@ Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor, o 
 Jako przykładowy plik przeznaczony do kompilacji przyjmiemy plik query.rql o następującej zawartości:
 
 ```rql
-DECLARE a INTEGER \
-STREAM core0, 0.1 \
-FILE 'datafile1.dat'
+DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.dat'
 
-SELECT str1[0]+1 \
-STREAM str1 \
-FROM core0>2
+SELECT str1[0]+1 STREAM str1 FROM core0>2
 ```
 
 Jest to bardzo prosty przykład pliku zawierającego dwie dyrektywy. Pierwsza deklaruje istnieje efemerydu w postaci źródła danych binarnych zawierającego 4-bajtowe liczby typu INTEGER. Dane z tego pliku będą czytane z szybkością 10 razy na sekundę. A nazwa tego obiektu to core0.

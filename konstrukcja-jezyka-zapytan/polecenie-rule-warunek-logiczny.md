@@ -50,10 +50,7 @@ ON status \
 WHEN status[0] = 1 AND status[1] != 0 \
 DO SYSTEM 'systemctl restart sensor-reader'
 
-RULE jednorazowy \
-ON dane \
-WHEN NOT dane[0] = 0 \
-DO DUMP -5 TO 0
+RULE jednorazowy ON dane WHEN NOT dane[0] = 0 DO DUMP -5 TO 0
 ```
 
 ## Dostęp do pól

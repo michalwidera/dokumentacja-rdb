@@ -10,9 +10,7 @@ Przykład używa kanonicznych deklaracji z całego rozdziału — `core0` ma dwa
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE ‘sensor_a.txt’
 DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE ‘sensor_b.txt’
 
-SELECT core0[_] * core1[_] \
-STREAM scaled \
-FROM core0 + core1
+SELECT core0[_] * core1[_] STREAM scaled FROM core0 + core1
 ```
 
 Po przeprowadzeniu kompilacji:
@@ -36,15 +34,15 @@ DECLARE value INTEGER STREAM src, 1/500 FILE 'data.txt'
 DECLARE coef INTEGER[5] STREAM filter, 1 FILE 'coef.txt'
 
 SELECT src[_] * filter[_] STREAM products FROM src@(1,5)+filter
-SELECT products[0] STREAM output FROM SUMC(products)
+SELECT products[0]        STREAM output   FROM SUMC(products)
 ```
 
 Pierwsze zapytanie rozwija się do pięciu iloczynów. Jest równoważne dłuższej postaci:
 
 ```rql
-SELECT * STREAM window FROM src@(1,5)
+SELECT *                     STREAM window   FROM src@(1,5)
 SELECT window[_] * filter[_] STREAM products FROM window+filter
-SELECT products[0] STREAM output FROM SUMC(products)
+SELECT products[0]           STREAM output   FROM SUMC(products)
 ```
 
 W krótszej postaci kompilator sam wydziela okno z `FROM` jako substrat. Taki substrat jest przezroczysty podczas ustalania szerokości wkładu `src`. Nazwany przez użytkownika strumień `window` stanowi natomiast granicę schematu, dlatego dłuższa postać odwołuje się do `window[_]`, a nie do `src[_]`.
@@ -72,7 +70,7 @@ Po przeplocie pozycje `A[k]` i `B[k]` są tą samą pozycją wspólnego schematu
 Jeżeli `_` ma przetwarzać rekord przeplotu, należy najpierw nadać wynikowi nazwę, a potem odwołać się do tego wyniku:
 
 ```rql
-SELECT * STREAM przeplot FROM A#B
+SELECT *               STREAM przeplot      FROM A#B
 SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 ```
 

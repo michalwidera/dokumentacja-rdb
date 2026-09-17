@@ -37,9 +37,7 @@ Każde pole ma nazwę i typ. Dostępne typy:
 Do każdego pola można dodać mnożnik tablicowy `[N]` — pole zajmuje `N × rozmiar_typu` bajtów i tworzy `N` kolejnych pozycji w schemacie rekordu:
 
 ```rql
-DECLARE coef INTEGER[25] \
-STREAM filter, 1 \
-FILE 'coefficients.txt'
+DECLARE coef INTEGER[25] STREAM filter, 1 FILE 'coefficients.txt'
 ```
 
 Pole `coef INTEGER[25]` tworzy rekord o rozmiarze 25 × 4 = 100 bajtów i daje dostęp do indeksów `filter[0]` … `filter[24]`. Jest to standardowy sposób przekazywania tablic współczynników (np. filtry FIR) do systemu.
@@ -59,17 +57,13 @@ System RetractorDB działając pod kontrolą systemu Linux pobiera i zapisuje da
 Przykładem polecenia tworzącego w systemie RetractorDB obiekt zwracający wartości przypadkowe ze strumienia /dev/random 10 razy na sekundę o wartościach typu int wygląda następująco
 
 ```rql
-DECLARE pole_przypadkowe INTEGER \
-STREAM random_stream, 0.1 \
-FILE ‘/dev/random’
+DECLARE pole_przypadkowe INTEGER STREAM random_stream, 0.1 FILE ‘/dev/random’
 ```
 
 Wspominane w poleceniu źródło, jeśli zostanie zadeklarowane jako plik tekstowy z rozszerzeniem .txt zostanie zinterpretowane przez system jako ciągły i nieskończony plik danych czytany wiersz po wierszu. Po napotkaniu końca pliku, odczyt danych zaczyna się od początku. Ta funkcjonalność została wbudowana w system RetractorDB. Zapewnione jest podstawowe wsparcie dla formatu – jeśli podamy dwa pola całkowite w deklaracji a w pliku po spacji podamy dwie wartości całkowite – wartości te trafią jako kolejne elementy czytanego rekordu.
 
 ```rql
-DECLARE pole_1 INTEGER \
-STREAM cykliczny_stream, 0.1 \
-FILE ‘plik.txt’
+DECLARE pole_1 INTEGER STREAM cykliczny_stream, 0.1 FILE ‘plik.txt’
 ```
 
 Aby parsowanie pliku nastąpiło automatycznie, plik musi nosić rozszerzenie .txt. Na chwilę ta funkcjonalność została zaimplementowana na stałe i nie podlega parametryzacji. Planuję to zmienić w przyszłości.

@@ -16,25 +16,15 @@ konsumenta.
 Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
 
 ```rql
-DECLARE a BYTE, b INTEGER \
-STREAM core0, 0.1 \
-FILE 'sensor_a.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
 
-DECLARE c INTEGER, d FLOAT \
-STREAM core1, 0.2 \
-FILE 'sensor_b.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-DECLARE e INTEGER \
-STREAM core2, 0.3 \
-FILE 'sensor_c.txt'
+DECLARE e INTEGER STREAM core2, 0.3 FILE 'sensor_c.txt'
 
-SELECT * \
-STREAM merged \
-FROM core0 + core1
+SELECT *                    STREAM merged FROM core0 + core1
 
-SELECT merged[0], merged[2] \
-STREAM result \
-FROM merged
+SELECT merged[0], merged[2] STREAM result FROM merged
 ```
 
 Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:

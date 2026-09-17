@@ -19,9 +19,7 @@ Na chwilę obecną system RetractorDB wspiera następujące typy danych:
 Przykład równania typów w praktyce — zapytanie `scaled` z rozdziału [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md):
 
 ```rql
-SELECT core0[_] * core1[_] \
-STREAM scaled \
-FROM core0 + core1
+SELECT core0[_] * core1[_] STREAM scaled FROM core0 + core1
 ```
 
 `core0` ma pola BYTE i INTEGER, `core1` ma pola INTEGER i FLOAT. Po rozwinięciu `_` kompilator wyznacza typy pól wynikowych:

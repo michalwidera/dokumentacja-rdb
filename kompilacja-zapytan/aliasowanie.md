@@ -7,17 +7,11 @@ Możemy jednak użyć też nazw z jakich strumień powstał. Na wartość wskazy
 Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```rql
-DECLARE a BYTE, b INTEGER \
-STREAM core0, 0.1 \
-FILE 'sensor_a.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
 
-DECLARE c INTEGER, d FLOAT \
-STREAM core1, 0.2 \
-FILE 'sensor_b.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-SELECT merged[0], merged[2], core0[0], core1[0] \
-STREAM merged \
-FROM core0 + core1
+SELECT merged[0], merged[2], core0[0], core1[0] STREAM merged FROM core0 + core1
 ```
 
 Po kompilacji otrzymamy:
@@ -37,7 +31,7 @@ $ xretractor -c query.rql
 Alias źródłowy działa tylko wtedy, gdy suma stoi bezpośrednio w klauzuli `FROM` zapytania. Jeżeli suma została nazwana osobnym zapytaniem, lista pól konsumenta widzi wyłącznie ten nazwany strumień:
 
 ```rql
-SELECT * STREAM merged FROM core0 + core1
+SELECT *                   STREAM merged FROM core0 + core1
 SELECT merged[0], core1[0] STREAM result FROM merged
 ```
 
@@ -109,14 +103,14 @@ Z tego powodu kompilator odrzuca nazwane odwołania użytkownika, które przez `
 Poprawny zapis odwołuje się do jedynego schematu wyniku:
 
 ```rql
-SELECT wynik[0], wynik[1] STREAM wynik FROM A#B
-SELECT wynik2.* STREAM wynik2 FROM A#B
+SELECT wynik[0], wynik[1] STREAM wynik  FROM A#B
+SELECT wynik2.*           STREAM wynik2 FROM A#B
 ```
 
 Niekwalifikowane `*` również oznacza cały schemat wynikowy i pozostaje legalne. Jeżeli dalsze obliczenie wymaga `[_]`, najpierw należy nazwać przeplot, a następnie użyć jego wyniku:
 
 ```rql
-SELECT * STREAM przeplot FROM A#B
+SELECT *               STREAM przeplot      FROM A#B
 SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 ```
 

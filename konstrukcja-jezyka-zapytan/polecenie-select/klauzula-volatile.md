@@ -11,8 +11,8 @@ powtarzane `VOLATILE` i dyrektywę `SUBSTRAT 'memory'`:
 ```rql
 DEFAULT VOLATILE
 DECLARE a INTEGER STREAM sensor, 0.1 FILE '/dev/sensor0'
-SELECT sensor[0]*100 STREAM scaled FROM sensor
-SELECT scaled[0] STREAM history FROM scaled PERSISTENT
+SELECT sensor[0]*100 STREAM scaled  FROM sensor
+SELECT scaled[0]     STREAM history FROM scaled PERSISTENT
 ```
 
 `scaled` pozostaje w pamięci, a `history` zapisuje dane na dysku według zwykłych

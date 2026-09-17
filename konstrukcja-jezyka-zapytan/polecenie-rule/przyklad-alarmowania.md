@@ -48,10 +48,7 @@ STORAGE 'temp'
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
-RULE zapis_anomalii \
-ON str1 \
-WHEN str1[0] > 24 \
-DO DUMP -3 TO 3
+RULE zapis_anomalii ON str1 WHEN str1[0] > 24 DO DUMP -3 TO 3
 ```
 
 Dane wejściowe — liczby od 20 do 28:
@@ -91,10 +88,7 @@ STORAGE 'temp'
 DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
-RULE zapis_anomalii \
-ON str1 \
-WHEN str1[0] > 24 \
-DO DUMP -3 TO 3 RETENTION 5
+RULE zapis_anomalii ON str1 WHEN str1[0] > 24 DO DUMP -3 TO 3 RETENTION 5
 ```
 
 Każde wyzwolenie tworzy kolejny plik (rotacja cykliczna):
@@ -129,10 +123,7 @@ ON str1 \
 WHEN str1[0] > 26 \
 DO SYSTEM 'echo "ALARM: wartosc powyzej progu gornego" >> alarm.log'
 
-RULE zapis_kontekstu \
-ON str1 \
-WHEN str1[0] > 26 \
-DO DUMP -5 TO 5 RETENTION 10
+RULE zapis_kontekstu ON str1 WHEN str1[0] > 26 DO DUMP -5 TO 5 RETENTION 10
 ```
 
 Reguły `prog_gorny` i `zapis_kontekstu` reagują na ten sam warunek niezależnie — przekroczenie progu górnego jednocześnie zapisuje log i utrwala okno danych. Reguła `prog_dolny` obsługuje osobno próg dolny.

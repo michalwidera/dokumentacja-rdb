@@ -90,29 +90,19 @@ Dla celów testowych sygnał źródłowy pobierzemy z generatora liczb pseudolos
 Początkowa część pliku query.rql zapytania zawierająca deklaracje źródeł dla systemu RetractorDB przedstawia się następująco:
 
 ```rql
-DECLARE coef INTEGER[25] \
-STREAM filter, 1 \
-FILE 'filterremez.txt'
+DECLARE coef INTEGER[25] STREAM filter, 1 FILE 'filterremez.txt'
 
-DECLARE data BYTE \
-STREAM source, 0.02 \
-FILE '/dev/urandom'
+DECLARE data BYTE STREAM source, 0.02 FILE '/dev/urandom'
 ```
 
 W kolejnej części znajdują się polecenia tworzące proces przetwarzania sygnałów.
 
 ```rql
-SELECT source[_] * filter[_] \
-STREAM accRow \
-FROM source@(1,25)+filter
+SELECT source[_] * filter[_] STREAM accRow FROM source@(1,25)+filter
 
-SELECT accRow[0] \
-STREAM output \
-FROM SUMC(accRow)
+SELECT accRow[0] STREAM output FROM SUMC(accRow)
 
-SELECT int(output[0]/25/1000),source[0] \
-STREAM outputAll \
-FROM output+source
+SELECT int(output[0]/25/1000),source[0] STREAM outputAll FROM output+source
 ```
 
 Pierwsze z trzech zapytań umieszcza okno bezpośrednio w klauzuli `FROM`. Indeks `source[_]` przyjmuje szerokość 25 slotów wnoszonych przez `source@(1,25)`, dlatego kompilator tworzy 25 iloczynów z odpowiadającymi współczynnikami `filter[_]`. Nie jest potrzebny osobny, nazwany strumień okna; kompilator wydziela go jako substrat planu. Następnie `SUMC(accRow)` sumuje iloczyny, a ostatnie zapytanie łączy wynik filtru z bieżącą próbką źródła. Suma z `SUMC` ma typ `RATIONAL`, dlatego ostatnie zapytanie skaluje ją i rzutuje funkcją `int(...)` na liczbę całkowitą; bez rzutowania `xqry` wypisywałby ułamki postaci `2225159/12500`, z których gnuplot odczytuje tylko licznik, i przebieg przefiltrowany znalazłby się poza zakresem osi.

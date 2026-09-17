@@ -7,17 +7,13 @@ Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśl
 ## Przykład pętli
 
 ```rql
-DECLARE a BYTE, b INTEGER \
-STREAM core0, 0.1 \
-FILE 'sensor_a.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
 
-DECLARE c INTEGER, d FLOAT \
-STREAM core1, 0.2 \
-FILE 'sensor_b.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
 
 SELECT merged[0]*10, merged[2]+10 STREAM merged FROM core0 + core1
-SELECT * STREAM agg FROM MAX(merged)
-SELECT * STREAM broken FROM merged + broken
+SELECT *                          STREAM agg    FROM MAX(merged)
+SELECT *                          STREAM broken FROM merged + broken
 ```
 
 Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl (Rys. 41):

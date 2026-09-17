@@ -11,21 +11,13 @@ Parser akceptuje zarówno formę z nawiasami, jak i łańcuchy bez nawiasów, np
 Przykład używa kanonicznych deklaracji z całego rozdziału — trzy strumienie o różnych typach i interwałach:
 
 ```rql
-DECLARE a BYTE, b INTEGER \
-STREAM core0, 0.1 \
-FILE 'sensor_a.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
 
-DECLARE c INTEGER, d FLOAT \
-STREAM core1, 0.2 \
-FILE 'sensor_b.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-DECLARE e INTEGER \
-STREAM core2, 0.3 \
-FILE 'sensor_c.txt'
+DECLARE e INTEGER STREAM core2, 0.3 FILE 'sensor_c.txt'
 
-SELECT merged[0] \
-STREAM merged \
-FROM (core0 # core1) + core2
+SELECT merged[0] STREAM merged FROM (core0 # core1) + core2
 ```
 
 Kompilacja:
@@ -81,7 +73,7 @@ Rozważmy zapytanie z kanonicznymi deklaracjami:
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
 DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
 
-SELECT merged[0] STREAM merged FROM (core0 > 2) + core1
+SELECT merged[0]  STREAM merged  FROM (core0 > 2) + core1
 SELECT shifted[0] STREAM shifted FROM core0 > 2
 ```
 
@@ -160,8 +152,8 @@ Zapytania `x1` i `x2` mogą współdzielić obliczenie, ponieważ zamieniają ty
 Kolejność wejścia jest również widoczna dla pełnego skanu i kolejności projekcji. Następujących par nie wolno scalać:
 
 ```rql
-SELECT * STREAM d1 FROM a+b
-SELECT * STREAM d2 FROM b+a
+SELECT *          STREAM d1 FROM a+b
+SELECT *          STREAM d2 FROM b+a
 
 SELECT a[0], b[1] STREAM n1 FROM a+b
 SELECT b[1], a[0] STREAM n2 FROM b+a

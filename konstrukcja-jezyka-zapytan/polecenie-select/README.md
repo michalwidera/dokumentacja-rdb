@@ -27,9 +27,7 @@ Pierwsza różnica poza składnią to fakt że polecenia te wprowadzone do syste
 Przykładem zapytania tworzącego nowy strumień danych może być następujące polecenie w języku RQL.
 
 ```rql
-SELECT str1[0]*10 + str1[1]*10, str1[2] \
-STREAM str1 \
-FROM A+B
+SELECT str1[0]*10 + str1[1]*10, str1[2] STREAM str1 FROM A+B
 ```
 
 Tak zbudowane zapytanie zakłada że ktoś zadeklarował strumienie A i B. Operację tą mógł wykonać za pomocą słowa kluczowego DECLARE lub innego polecenia SELECT. W oparciu tylko o wiersz zawierający zapytanie nie jesteśmy w stanie stwierdzić jak szybko dane strumienia str1 napływają. Ta informacja jest wyliczana na etapie kompilacji w oparciu o strumienie A i B i wyrażenie algebraiczne w klauzuli FROM.
@@ -42,7 +40,7 @@ Opcjonalny rozmiar po nazwie w klauzuli `STREAM` rozwija jeden szablon na podan�
 DECLARE cell INTEGER[4] STREAM cells, 1/10 FILE 'cells.txt'
 
 SELECT cells[$] STREAM cell[4] FROM cells
-SELECT * STREAM grouped FROM cell[0]#cell[1]#cell[2]#cell[3]
+SELECT *        STREAM grouped FROM cell[0]#cell[1]#cell[2]#cell[3]
 ```
 
 Pierwsze polecenie `SELECT` tworzy fizyczne strumienie `cell$0`, `cell$1`, `cell$2` i `cell$3`. Odwołanie `cell[2]` w klauzuli `FROM` oznacza instancję `cell$2`; w wyrażeniu listy `SELECT` zapis `cells[2]` nadal oznacza pole o indeksie 2.
@@ -64,7 +62,7 @@ raz i zastosować je niezależnie do każdego kanału wejściowego:
 DECLARE sample INTEGER[8] STREAM samples, 1/1000 FILE 'samples.txt'
 
 SELECT sample[$]^2 STREAM square[8] FROM samples
-SELECT * STREAM energy[8] FROM SUMC(square[$]@(25,100))
+SELECT *           STREAM energy[8] FROM SUMC(square[$]@(25,100))
 ```
 
 Powstaje osiem par strumieni `square$N` i `energy$N`, po jednej na kanał. Symbol `$`

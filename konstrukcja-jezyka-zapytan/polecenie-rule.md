@@ -39,10 +39,7 @@ Klauzula DO SYSTEM umożliwia wywołanie zdarzenia systemowego po zajściu w war
 Przykłady deklaracji reguł w języku RQL:
 
 ```rql
-RULE testrule1 \
-ON str1 \
-WHEN str1[0] > 11 \
-DO DUMP -5 TO 5 RETENTION 100
+RULE testrule1 ON str1 WHEN str1[0] > 11 DO DUMP -5 TO 5 RETENTION 100
 
 RULE testrule2 \
 ON str1 \
@@ -112,10 +109,7 @@ W poleceniu można użyć dowolnego programu dostępnego w `PATH`: skryptów pow
 Akcja `DO DUMP` zapisuje okno próbek strumienia do pliku binarnego w momencie spełnienia warunku. Pozwala zachować kontekst zdarzenia: dane przed jego wystąpieniem i dane po nim.
 
 ```rql
-RULE zdarzenie \
-ON wyniki \
-WHEN wyniki[0] > 500 \
-DO DUMP -10 TO 5
+RULE zdarzenie ON wyniki WHEN wyniki[0] > 500 DO DUMP -10 TO 5
 ```
 
 Parametry zakresu:
@@ -147,10 +141,7 @@ Format pliku to surowe dane binarne zgodne z deskryptorem strumienia (bez nagł�
 Parametr `RETENTION <n>` ogranicza liczbę przechowywanych zrzutów — stary plik jest nadpisywany przez nowy (bufor cykliczny). Bez `RETENTION` każde wyzwolenie nadpisuje jeden plik `_dump.tmp`.
 
 ```rql
-RULE zdarzenie \
-ON wyniki \
-WHEN wyniki[0] > 500 \
-DO DUMP -10 TO 5 RETENTION 20
+RULE zdarzenie ON wyniki WHEN wyniki[0] > 500 DO DUMP -10 TO 5 RETENTION 20
 ```
 
 Powyższy przykład przechowuje 20 ostatnich zrzutów w plikach `wyniki_zdarzenie_dump_0.tmp` … `wyniki_zdarzenie_dump_19.tmp`.
