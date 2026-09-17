@@ -1,6 +1,6 @@
 # Klauzula VOLATILE
 
-Klauzula `VOLATILE` w poleceniu `SELECT` tworzy strumień przechowywany w pamięci. Na dysku pojawia się jedynie plik deskryptora `.desc` opisujący schemat danych — same dane nigdy nie są zapisywane.
+Klauzula `VOLATILE` w poleceniu `SELECT` tworzy strumień przechowywany w pamięci. Na dysku pojawia się jedynie plik deskryptora `.desc` opisujący schemat danych - same dane nigdy nie są zapisywane.
 
 ## Domyślna ulotność i wyjątek PERSISTENT
 
@@ -49,7 +49,7 @@ historię wyniku `VOLATILE`, bufor może pomieścić więcej niż jeden rekord. 
 
 * bufor w pamięci przechowuje co najmniej ostatni rekord oraz historię potrzebną konsumentom,
 * dane nie trafiają na dysk,
-* deskryptor `.desc` jest tworzony — inne procesy mogą poznać schemat strumienia.
+* deskryptor `.desc` jest tworzony - inne procesy mogą poznać schemat strumienia.
 
 ## Różnica względem `STORAGE MEMORY`
 
@@ -60,7 +60,7 @@ historię wyniku `VOLATILE`, bufor może pomieścić więcej niż jeden rekord. 
 | Deskryptor na dysku  | tak                                             | tak                                     |
 | Dane na dysku        | nie                                             | nie                                     |
 
-`VOLATILE` przydaje się gdy wynik zapytania jest pobierany przez `xqry` na bieżąco i historia nie jest potrzebna — np. aktualna wartość czujnika udostępniana przez system operacyjny.
+`VOLATILE` przydaje się gdy wynik zapytania jest pobierany przez `xqry` na bieżąco i historia nie jest potrzebna - np. aktualna wartość czujnika udostępniana przez system operacyjny.
 
 ## Przykład
 

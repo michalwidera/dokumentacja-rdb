@@ -1,8 +1,8 @@
 # Przebiegi kompilacji
 
-Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transformuje wewnętrzną reprezentację zapytań — drzewo `qTree` — i przekazuje wynik do następnego. Kolejność jest ściśle ustalona: każdy etap zakłada, że poprzedni zakończył się sukcesem.
+Kompilacja zapytań w RetractorDB przebiega w wielu etapach. Każdy etap transformuje wewnętrzną reprezentację zapytań - drzewo `qTree` - i przekazuje wynik do następnego. Kolejność jest ściśle ustalona: każdy etap zakłada, że poprzedni zakończył się sukcesem.
 
-`qTree` to `std::vector<query>` — centralna struktura danych kompilatora
+`qTree` to `std::vector<query>` - centralna struktura danych kompilatora
 i executora. Każdy element wektora odpowiada jednemu zapytaniu (`SELECT` lub
 `DECLARE`) i przechowuje jego schemat pól, sekwencję instrukcji stosu,
 interwał czasowy, ogon startowy oraz referencje do strumieni źródłowych.
@@ -13,7 +13,7 @@ konsumenta.
 
 ## Przykład śledzący
 
-Przez cały rozdział śledzimy jedno zapytanie — `query.rql` — przez kolejne etapy:
+Przez cały rozdział śledzimy jedno zapytanie - `query.rql` - przez kolejne etapy:
 
 ```rql
 DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
@@ -30,11 +30,11 @@ Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:
 {{#include ../regen/out/compile-flow.txt}}
 ```
 
-Plan jest wydrukowany w końcowym porządku topologicznym: deklaracje `core0` i `core1` poprzedzają swojego konsumenta `merged`, a ten — zapytanie `result`. Nieużywana deklaracja `core2` trafia na koniec. `tail=1` to ogon startowy wyznaczony przez `computeStartupLatency`. Odwołania `PUSH_ID` wskazują pozycje w rekordzie wejściowym zapytania, zapisane pod jego własną nazwą: `result[2]` to trzecie pole rekordu `merged`, czyli `core1.c`.
+Plan jest wydrukowany w końcowym porządku topologicznym: deklaracje `core0` i `core1` poprzedzają swojego konsumenta `merged`, a ten - zapytanie `result`. Nieużywana deklaracja `core2` trafia na koniec. `tail=1` to ogon startowy wyznaczony przez `computeStartupLatency`. Odwołania `PUSH_ID` wskazują pozycje w rekordzie wejściowym zapytania, zapisane pod jego własną nazwą: `result[2]` to trzecie pole rekordu `merged`, czyli `core1.c`.
 
-Lista pól `result` odwołuje się wyłącznie do strumienia z własnej klauzuli `FROM`. Zapis `core1[0]` w tym miejscu kończy się błędem kompilacji `Stream 'result' refers to 'core1', which is not in its FROM clause`: `core1` jest źródłem `merged`, a nie `result` — patrz [Aliasowanie](aliasowanie.md).
+Lista pól `result` odwołuje się wyłącznie do strumienia z własnej klauzuli `FROM`. Zapis `core1[0]` w tym miejscu kończy się błędem kompilacji `Stream 'result' refers to 'core1', which is not in its FROM clause`: `core1` jest źródłem `merged`, a nie `result` - patrz [Aliasowanie](aliasowanie.md).
 
-Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji. Jak interpretować każdy element tego planu — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
+Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów tego samego zestawu deklaracji. Jak interpretować każdy element tego planu - patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Łańcuch etapów
 
@@ -42,29 +42,29 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 
 <div class="timeline compact">
 
-- `checkFunctionCalls` — nazwy i arność funkcji skalarnych
-- `checkStreamReducerFieldRefs` — reduktor strumieniowy poza klauzulą `FROM`
-- `expandStreamGenerators` — rozwinięcie rodzin strumieni `nazwa[N]`
-- `snapshotNamedSourceRefs` — migawka odwołań zapisanych przez użytkownika
-- `extractIntermediateStreams` — wyrażenia `FROM` dwuargumentowe, substraty
-- `expandSchemaWildcards` — rozwinięcie `*` oraz `[_]`
-- `resolveStreamIntervals` — interwały strumieni, wykrywanie pętli
-- `factorMatchedHashTimeMoves` — wyniesienie wspólnego przesunięcia przed przeplot
-- `deduplicateSubstrats` — eliminacja powtórzonych substratów
-- `validateSubstratNameUniqueness` — jednoznaczność nazw substratów
-- `resolveFieldReferences` — odwołania do pól jako indeksy płaskie
-- `resolveWindowAggregates` — grupy agregatów okna rekordowego
-- `inferFieldShapes` — typ, długość i krotność każdego pola
-- `checkRuleConditionShapes` — obliczalność warunków `RULE`
-- `simplifyFieldExpressions` — uproszczenie programów pól i reguł
-- `shareEquivalentSelectComputations` — współdzielenie równoważnych `SELECT`
-- `localizeFieldOffsets` — przesunięcia pól w buforze wejściowym
-- `computeLogicalOrigin` — początek logiczny strumienia
-- `computeStartupLatency` — ogon startowy
-- `computeRequiredCapacities` — wymagana historia buforów
-- `validateConstraints` — kontrola semantyczna planu
-- `applyCapacitiesToStreams` — zastosowanie pojemności
-- `topologicalSort` — końcowy porządek producent–konsument
+- `checkFunctionCalls` - nazwy i arność funkcji skalarnych
+- `checkStreamReducerFieldRefs` - reduktor strumieniowy poza klauzulą `FROM`
+- `expandStreamGenerators` - rozwinięcie rodzin strumieni `nazwa[N]`
+- `snapshotNamedSourceRefs` - migawka odwołań zapisanych przez użytkownika
+- `extractIntermediateStreams` - wyrażenia `FROM` dwuargumentowe, substraty
+- `expandSchemaWildcards` - rozwinięcie `*` oraz `[_]`
+- `resolveStreamIntervals` - interwały strumieni, wykrywanie pętli
+- `factorMatchedHashTimeMoves` - wyniesienie wspólnego przesunięcia przed przeplot
+- `deduplicateSubstrats` - eliminacja powtórzonych substratów
+- `validateSubstratNameUniqueness` - jednoznaczność nazw substratów
+- `resolveFieldReferences` - odwołania do pól jako indeksy płaskie
+- `resolveWindowAggregates` - grupy agregatów okna rekordowego
+- `inferFieldShapes` - typ, długość i krotność każdego pola
+- `checkRuleConditionShapes` - obliczalność warunków `RULE`
+- `simplifyFieldExpressions` - uproszczenie programów pól i reguł
+- `shareEquivalentSelectComputations` - współdzielenie równoważnych `SELECT`
+- `localizeFieldOffsets` - przesunięcia pól w buforze wejściowym
+- `computeLogicalOrigin` - początek logiczny strumienia
+- `computeStartupLatency` - ogon startowy
+- `computeRequiredCapacities` - wymagana historia buforów
+- `validateConstraints` - kontrola semantyczna planu
+- `applyCapacitiesToStreams` - zastosowanie pojemności
+- `topologicalSort` - końcowy porządek producent–konsument
 
 </div>
 
@@ -88,7 +88,7 @@ skalarnym, ale tam żaden mechanizm wykonawczy go nie obliczy: zapytanie
 `SELECT avg STREAM o FROM AVG(src)` przechodziło kompilację i nie emitowało potem ani
 jednego rekordu. Miejscem reduktora strumieniowego jest klauzula `FROM`; działające
 `SELECT * FROM AVG(src)` tej kontroli nie podlega. Etap stoi obok `checkFunctionCalls`
-z tego samego powodu — przed rozwinięciem generatorów.
+z tego samego powodu - przed rozwinięciem generatorów.
 
 #### expandStreamGenerators
 
@@ -102,7 +102,7 @@ odwołań do składowej przeplotu `#`, której tożsamości wynik już nie zacho
 
 #### extractIntermediateStreams
 
-Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` oraz zapisy łańcuchowe bez nawiasów (`core0+core1+core2`, `core0#core1#core2`) wymagają pośrednich strumieni. Każde zapytanie jest redukowane do punktu stałego, więc etap obsługuje również sąsiadujące podwyrażenia jednoargumentowe, np. `(core0>2)#(core1>1)`. Etap tworzy automatycznie substraty — patrz [Substraty](substraty.md).
+Sprowadza każde wyrażenie FROM do postaci co najwyżej dwuargumentowej. Złożone wyrażenia jak `(core0#core1)+core2` oraz zapisy łańcuchowe bez nawiasów (`core0+core1+core2`, `core0#core1#core2`) wymagają pośrednich strumieni. Każde zapytanie jest redukowane do punktu stałego, więc etap obsługuje również sąsiadujące podwyrażenia jednoargumentowe, np. `(core0>2)#(core1>1)`. Etap tworzy automatycznie substraty - patrz [Substraty](substraty.md).
 
 #### expandSchemaWildcards
 
@@ -116,24 +116,24 @@ Patrz [Rozwijanie symbolu \*](rozwijanie-symbolu.md) i [Przetwarzanie symbolu \_
 
 #### resolveStreamIntervals (← tu wykrywane są pętle)
 
-Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów algebraicznych i interwałów strumieni wejściowych. Algorytm iteracyjny — w każdej rundzie rozwiązuje tyle strumieni, ile jest możliwe. Agregat okna rekordowego w liście `SELECT` nie zmienia interwału i wymaga pojedynczego odwołania do strumienia w `FROM`; złożona klauzula jest tutaj odrzucana. Etap wykrywa cykliczne zależności zatrzymując się, gdy liczba nierozwiązanych strumieni przestaje maleć — patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md) i [Wykrywanie pętli](wykrywanie-petli.md).
+Wyznacza interwał czasowy (delta) każdego strumienia na podstawie operatorów algebraicznych i interwałów strumieni wejściowych. Algorytm iteracyjny - w każdej rundzie rozwiązuje tyle strumieni, ile jest możliwe. Agregat okna rekordowego w liście `SELECT` nie zmienia interwału i wymaga pojedynczego odwołania do strumienia w `FROM`; złożona klauzula jest tutaj odrzucana. Etap wykrywa cykliczne zależności zatrzymując się, gdy liczba nierozwiązanych strumieni przestaje maleć - patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md) i [Wykrywanie pętli](wykrywanie-petli.md).
 
 #### factorMatchedHashTimeMoves
 
-Rozpoznaje dopasowane przesunięcia argumentów przeplotu. Gdy `i·ΔA=k·ΔB`, przepisuje `(A>i)#(B>k)` do `(A#B)>(i+k)`, redukując dwa substraty przesunięcia do jednego substratu przeplotu. Przypadki niedopasowane oraz substraty współdzielone z innymi konsumentami pozostają bez zmian — patrz [Substraty](substraty.md).
+Rozpoznaje dopasowane przesunięcia argumentów przeplotu. Gdy `i·ΔA=k·ΔB`, przepisuje `(A>i)#(B>k)` do `(A#B)>(i+k)`, redukując dwa substraty przesunięcia do jednego substratu przeplotu. Przypadki niedopasowane oraz substraty współdzielone z innymi konsumentami pozostają bez zmian - patrz [Substraty](substraty.md).
 
 Przesunięcie przenosi milczenie do początku logicznego, a nie wstawia rekordy
 prefiksu. Równość fizycznych przesunięć sprawia, że obie strony reguły mają ten
 sam emitowany ciąg i ten sam początek logiczny. **Ogony równe nie są**: strona
 sfaktoryzowana czyta treść wprost z przeplotu, więc jest gotowa nie później,
 a zwykle wcześniej niż strona czytająca składowe po ich własnym przesunięciu.
-Reguła jest zatem optymalizacją opóźnienia, nie przepisaniem neutralnym —
+Reguła jest zatem optymalizacją opóźnienia, nie przepisaniem neutralnym -
 zakres twierdzenia R1 i kontrprzykład: [Formalne podstawy
 i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 #### deduplicateSubstrats
 
-Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej (np. `core0#core1`), etap wskazuje drugie zapytanie na substrat utworzony przez pierwsze. Unika powielania obliczeń — patrz przykład w [Substraty](substraty.md).
+Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej (np. `core0#core1`), etap wskazuje drugie zapytanie na substrat utworzony przez pierwsze. Unika powielania obliczeń - patrz przykład w [Substraty](substraty.md).
 
 #### validateSubstratNameUniqueness
 
@@ -141,7 +141,7 @@ Sprawdza, czy dwa substraty o tej samej nazwie opisują ten sam program. Nazwy d
 
 #### resolveFieldReferences
 
-Przekształca odwołania do pól ze schematów źródłowych na indeksy płaskie w schemacie wynikowym. Obsługuje aliasowanie po sumie — `core0[0]` zamienia na `str1[0]` itp. — oraz zapamiętuje, do którego źródła została rozwiązana goła nazwa pola. Nazwane odwołania zapisane przez użytkownika są śledzone osobno, aby późniejszy przebieg nie pomylił ich z tokenami syntetyzowanymi przez kompilator. Goła nazwa liczbowej tablicy jest odrzucana: `a` nie znaczy `a[0]`; trzeba podać element. Patrz [Aliasowanie](aliasowanie.md).
+Przekształca odwołania do pól ze schematów źródłowych na indeksy płaskie w schemacie wynikowym. Obsługuje aliasowanie po sumie - `core0[0]` zamienia na `str1[0]` itp. - oraz zapamiętuje, do którego źródła została rozwiązana goła nazwa pola. Nazwane odwołania zapisane przez użytkownika są śledzone osobno, aby późniejszy przebieg nie pomylił ich z tokenami syntetyzowanymi przez kompilator. Goła nazwa liczbowej tablicy jest odrzucana: `a` nie znaczy `a[0]`; trzeba podać element. Patrz [Aliasowanie](aliasowanie.md).
 
 #### resolveWindowAggregates
 
@@ -154,11 +154,11 @@ Token agregatu staje się bezargumentowym operandem wskazującym obliczony wynik
 #### inferFieldShapes
 
 Jedyny etap ustalający publiczny kształt pola `SELECT`: typ, długość i krotność. Kształt
-wynika z całego programu pola — przebieg odtwarza arytmetykę wykonawczą na stosie typów,
+wynika z całego programu pola - przebieg odtwarza arytmetykę wykonawczą na stosie typów,
 łącznie z promocją `BYTE`, jawnymi konwersjami w środku wyrażenia, wynikiem agregatu okna
 oraz szerokością `STRING`. Etap zastąpił wcześniejsze reguły lokalne
 (`propagateCopiedFieldShapes`, `inferStringFieldTypes`), które rozstrzygały kształt tylko
-w wybranych przypadkach — patrz [Równanie typów w górę](rownanie-typow-w-gore.md).
+w wybranych przypadkach - patrz [Równanie typów w górę](rownanie-typow-w-gore.md).
 
 Przebieg działa do punktu stałego, bo drzewo jest jeszcze posortowane według interwału
 i konsument może stać przed producentem. Obejmuje wyłącznie węzły kopiujące schemat
@@ -171,7 +171,7 @@ szerokość pola zależałaby od przełącznika optymalizacji.
 Stosuje do warunków `RULE` tę samą kontrolę obliczalności, którą `inferFieldShapes`
 stosuje do pól. Warunek reguły wykonuje ten sam ewaluator wyrażeń, więc bez tego etapu
 niepoprawny warunek omijałby kontrolę i dawał po cichu złą wartość. Przebieg niczego nie
-zapisuje w planie — jedynie odrzuca warunki, których nie da się obliczyć.
+zapisuje w planie - jedynie odrzuca warunki, których nie da się obliczyć.
 
 #### simplifyFieldExpressions
 
@@ -190,13 +190,13 @@ jest zastępowane wywołaniem `pow`.
 
 #### shareEquivalentSelectComputations
 
-Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FROM` zawierających `STREAM_ADD`. Porządkuje tylko dwoje dzieci pojedynczego węzła `STREAM_ADD`, bez zmiany grupowania całego drzewa. Dla każdej klasy równoważności tworzy jeden substrat `STREAM_SELECT_*`, a publiczne zapytania pozostawia jako lekkie projekcje zachowujące własne nazwy, deskryptory, reguły i storage. Przebieg wykonuje się przed lokalizacją offsetów — patrz [Substraty](substraty.md).
+Wykrywa jawne zapytania `SELECT` o równoważnych programach pól i drzewach `FROM` zawierających `STREAM_ADD`. Porządkuje tylko dwoje dzieci pojedynczego węzła `STREAM_ADD`, bez zmiany grupowania całego drzewa. Dla każdej klasy równoważności tworzy jeden substrat `STREAM_SELECT_*`, a publiczne zapytania pozostawia jako lekkie projekcje zachowujące własne nazwy, deskryptory, reguły i storage. Przebieg wykonuje się przed lokalizacją offsetów - patrz [Substraty](substraty.md).
 
 #### localizeFieldOffsets
 
 Przelicza odwołania do pól (`b[x]`, `c[y]`) na pozycje w spłaszczonym rekordzie wejściowym zapytania, zapisywane pod jego własną nazwą (`result[z]`). Dla sumy `+` offset wynika z liczby pól wcześniejszych składowych. Dla przeplotu `#` oba argumenty dzielą te same pozycje wspólnego schematu; tożsamość składowej nie jest już dostępna przez jej nazwę.
 
-Pozycję da się wyznaczyć tylko dla strumieni z klauzuli `FROM` i dla źródeł osiąganych przez substraty wygenerowane przez kompilator. Odwołanie do źródła strumienia pośredniego, który jest zapytaniem użytkownika — np. `core1[0]` przy `FROM merged` — kończy kompilację błędem `Stream '…' refers to '…', which is not in its FROM clause`. Taki strumień ma własny interwał i bufor, więc pozycji jego źródeł w rekordzie wejściowym konsumenta nie ma czym wyznaczyć.
+Pozycję da się wyznaczyć tylko dla strumieni z klauzuli `FROM` i dla źródeł osiąganych przez substraty wygenerowane przez kompilator. Odwołanie do źródła strumienia pośredniego, który jest zapytaniem użytkownika - np. `core1[0]` przy `FROM merged` - kończy kompilację błędem `Stream '…' refers to '…', which is not in its FROM clause`. Taki strumień ma własny interwał i bufor, więc pozycji jego źródeł w rekordzie wejściowym konsumenta nie ma czym wyznaczyć.
 
 Na tym etapie kompilator odrzuca napisane przez użytkownika `A[0]`, `A.pole`, `A[_]`, `A.*` i gołe nazwy pól, jeżeli wskazują składową osiąganą przez `#`. Kontrola obejmuje także warunki `RULE` oraz źródła ukryte w automatycznych substratach. Legalne pozostają odwołania przez nazwę strumienia wynikowego, niekwalifikowane `*` oraz jawne odzyskanie składowej przez `&` lub `%`.
 
@@ -205,8 +205,8 @@ Na tym etapie kompilator odrzuca napisane przez użytkownika `A[0]`, `A.pole`, `
 Oblicza `query::logicalOrigin`, czyli indeks pierwszego rekordu, który **w ogóle
 istnieje**. Różnica wobec ogona jest jakościowa: ogon mówi „jeszcze nie teraz",
 origin mówi „ten rekord nie ma definicji". Źródłem początku logicznego jest okno
-`@(k,L)` stemplowane końcem przedziału — jego wczesne rekordy sięgałyby przed
-początek źródła — agregat okna rekordowego, który dodaje `W-1`, oraz przesunięcie `>N`,
+`@(k,L)` stemplowane końcem przedziału - jego wczesne rekordy sięgałyby przed
+początek źródła - agregat okna rekordowego, który dodaje `W-1`, oraz przesunięcie `>N`,
 którego rekord `n` niesie rekord `n-N`.
 Pozostałe operatory origin wyłącznie przenoszą, tym samym odwzorowaniem indeksu,
 którym czytają dane.
@@ -222,14 +222,14 @@ interwału strumienia, w których istniejący wynik nie jest jeszcze gotowy.
 Źródła mają ogon 0; `>N` daje `max(0, W_src − N)`, bo czyta rekord starszy od
 bieżącego; przeplot uwzględnia ogony obu wejść i fazę rzeczywiście wybieranej
 składowej; suma bierze maksimum granic dostępności obu wejść. Różnica oraz oba
-rozploty używają dokładnych granic fazowych — lewy rozplot nie dodaje
+rozploty używają dokładnych granic fazowych - lewy rozplot nie dodaje
 bezwarunkowo jednego slotu. AGSE używa granicy wynikającej z najnowszego pola
 okna, a redukcje i agregaty okna rekordowego nie dodają własnego ogona. Listing planu pokazuje wartość jako
 `tail=`; runtime nie emituje podczas ogona żadnego rekordu. Liczba slotów
 milczenia wynosi `origin + tail`.
 
 Ten przebieg biegnie po `computeLogicalOrigin` i przed obliczeniem pojemności:
-ogon zależy od tego, które sloty są rekordami, a wymagana historia — od chwili
+ogon zależy od tego, które sloty są rekordami, a wymagana historia - od chwili
 pierwszej emisji konsumenta.
 
 #### computeRequiredCapacities
@@ -271,13 +271,13 @@ W_{\\#}
 \right)
 \\]
 
-Wynik jest dokładny — ani nie zaniża, ani nie zawyża granicy przyczynowej.
+Wynik jest dokładny - ani nie zaniża, ani nie zawyża granicy przyczynowej.
 Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn
 \\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int`
 już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit`
 (`SOperations.hpp`) koszt przeglądu przestaje być akceptowalny i wraca
 poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\), która zawyża ogon
-o slot — wybór bezpieczny, bo zaniżenie oznaczałoby emisję rekordu przed
+o slot - wybór bezpieczny, bo zaniżenie oznaczałoby emisję rekordu przed
 określeniem jego zależności.
 
 Regresje obejmują między innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\)
@@ -297,4 +297,4 @@ substraty wewnętrzne, ale nie może zmienić nazw pól żadnego publicznego
 strumienia, ponieważ trafiają one do obserwowalnego deskryptora `.desc`.
 
 
-Etapy kontrolne i przepisujące zwracają `"OK"` lub komunikat błędu — wówczas kompilacja się zatrzymuje. Wyniku tego rodzaju nie zwracają `snapshotNamedSourceRefs`, `computeRequiredCapacities` (zwraca mapę pojemności) ani `topologicalSort`. Część niespójności planu, np. odwołanie do nieistniejącego strumienia, przerywa kompilację wyjątkiem zamiast komunikatu.
+Etapy kontrolne i przepisujące zwracają `"OK"` lub komunikat błędu - wówczas kompilacja się zatrzymuje. Wyniku tego rodzaju nie zwracają `snapshotNamedSourceRefs`, `computeRequiredCapacities` (zwraca mapę pojemności) ani `topologicalSort`. Część niespójności planu, np. odwołanie do nieistniejącego strumienia, przerywa kompilację wyjątkiem zamiast komunikatu.

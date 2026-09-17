@@ -11,7 +11,7 @@ Na Rys. 13 każda instancja kompiluje własny plan i zgłasza własny zestaw naz
 w slocie magistrali; ponumerowane węzły zastępują tam nazwy, bo istotne jest tylko to, że
 nie powtarzają się one między instancjami. Rozłączne są nazwy obiektów, nie obszar pamięci:
 segment magistrali i obiekty IPC wszystkich instancji leżą w tym samym `/dev/shm`,
-a odróżnia je sufiks nazwy instancji — dla instancji `alfa` są to kolejka poleceń
+a odróżnia je sufiks nazwy instancji - dla instancji `alfa` są to kolejka poleceń
 `RetractorQueryQueue.alfa`, segment odpowiedzi `RetractorShmemMap.alfa`, muteks mapy
 `RetractorMapMutex.alfa` i kolejka odpowiedzi klienta `brcdbr.alfa.<pid>`. Wspólny jest
 również katalog magazynu, w którym pliki poszczególnych instancji pozostają rozłączne.

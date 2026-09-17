@@ -9,7 +9,7 @@ rozstrzyga zatem, czy redukcja biegnie poziomo po polach, czy pionowo po czasie.
 
 ## Reduktory bieżącego rekordu w FROM
 
-Reduktory strumieniowe działają na strumieniu posiadającym wiele pól — typowo na wyniku
+Reduktory strumieniowe działają na strumieniu posiadającym wiele pól - typowo na wyniku
 operatora `@(k,w)` albo na rekordzie zawierającym tablicę liczbową. Redukują wszystkie
 płaskie sloty jednego rekordu do jednej wartości.
 
@@ -40,7 +40,7 @@ Postać przyrostkowa `strumień.min`, `.max`, `.avg` i `.sumc` pozostaje zgodna 
 
 Wyniku reduktora **nie czyta się po nazwie w liście `SELECT`**. Zapis `SELECT avg STREAM o FROM
 AVG(src)` jest odrzucany przez kompilator kanałem `Check result:`, bo `avg` jest w tym miejscu
-operatorem strumieniowym, a nie polem — nie ma go czym wykonać. Wynik redukcji odczytuje się
+operatorem strumieniowym, a nie polem - nie ma go czym wykonać. Wynik redukcji odczytuje się
 przez `SELECT *` albo, gdy potrzebne są dalsze obliczenia, przez zmaterializowanie reduktora
 w osobnym strumieniu:
 
@@ -69,7 +69,7 @@ redukcji jest `NULL`, a nie zero.
 
 ### Interwał wyjściowy
 
-Agregaty nie zmieniają częstotliwości strumienia — interwał wyniku jest taki sam jak źródła:
+Agregaty nie zmieniają częstotliwości strumienia - interwał wyniku jest taki sam jak źródła:
 
 \\[\Delta_{wynik} = \Delta_{strumień}\\]
 
@@ -113,7 +113,7 @@ SELECT source[_] * filter[_] STREAM accRow FROM source@(1,25)+filter
 SELECT accRow[0]             STREAM output FROM SUMC(accRow)
 ```
 
-Okno znajduje się bezpośrednio w `FROM`, więc nie wymaga osobnego zapytania. `source[_]` rozwija się zgodnie z 25 slotami, które `source@(1,25)` wnosi do rekordu wejściowego. `SUMC(accRow)` sumuje wszystkie pola rekordu `accRow` — iloczyny próbek sygnału przez współczynniki filtru — produkując wyjście filtru FIR.
+Okno znajduje się bezpośrednio w `FROM`, więc nie wymaga osobnego zapytania. `source[_]` rozwija się zgodnie z 25 slotami, które `source@(1,25)` wnosi do rekordu wejściowego. `SUMC(accRow)` sumuje wszystkie pola rekordu `accRow` - iloczyny próbek sygnału przez współczynniki filtru - produkując wyjście filtru FIR.
 
 ### Przykład: MIN i MAX
 
@@ -247,7 +247,7 @@ Parametr `szerokość` (liczba naturalna po dwukropku `:`) określa szerokość 
 
 > **ℹ️ Info**
 >
-> Separator argumentów to dwukropek `:`, nie przecinek `,`. Przecinek jest separatorem listy SELECT — użycie przecinka w `to_string(x, n)` spowoduje błąd parsowania.
+> Separator argumentów to dwukropek `:`, nie przecinek `,`. Przecinek jest separatorem listy SELECT - użycie przecinka w `to_string(x, n)` spowoduje błąd parsowania.
 
 
 ### Przykład
@@ -297,7 +297,7 @@ to_integer(wyrażenie)
 > `to_integer` **obcina w stronę zera**, a nie podłoguje. Dla wartości ujemnych wynik różni
 > się od podłogi o jeden.
 
-Reguła jest ta sama dla argumentu wymiernego i zmiennoprzecinkowego — w obu przypadkach
+Reguła jest ta sama dla argumentu wymiernego i zmiennoprzecinkowego - w obu przypadkach
 część ułamkowa jest odrzucana, a znak zachowany:
 
 | Wartość wejściowa | `to_integer` | podłoga (dla porównania) |
@@ -307,7 +307,7 @@ część ułamkowa jest odrzucana, a znak zachowany:
 | `-4/3`            | `-1`         | `-2`                     |
 | `-2.6666…`        | `-2`         | `-3`                     |
 
-Wartość `NULL` przechodzi przez funkcję bez zmiany — `to_integer(NULL)` daje `NULL`, a nie zero.
+Wartość `NULL` przechodzi przez funkcję bez zmiany - `to_integer(NULL)` daje `NULL`, a nie zero.
 
 ### Pułapka przy przenoszeniu na Pythona
 

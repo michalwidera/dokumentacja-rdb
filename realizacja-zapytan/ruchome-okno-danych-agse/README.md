@@ -10,11 +10,11 @@ strumień@(k, w)
 
 gdzie:
 
-* **k** — skok okna (liczba naturalna): o ile rekordów źródłowych przesuwa się okno przy każdym kroku,
-* **w** — rozmiar okna (liczba całkowita różna od zera): ile pól źródłowych zawiera jeden rekord wyjściowy.
+* **k** - skok okna (liczba naturalna): o ile rekordów źródłowych przesuwa się okno przy każdym kroku,
+* **w** - rozmiar okna (liczba całkowita różna od zera): ile pól źródłowych zawiera jeden rekord wyjściowy.
 
 Wartość dodatnia `w` zachowuje historyczną konwencję RetractorDB: najnowsze
-pole okna jest pierwsze. Wartość ujemna oznacza **agregację lustrzaną** —
+pole okna jest pierwsze. Wartość ujemna oznacza **agregację lustrzaną** -
 odwraca tę kolejność, więc pola są ułożone zgodnie z napływem.
 
 ## Jak zmienia się interwał strumienia wyjściowego
@@ -26,11 +26,11 @@ Jeśli strumień źródłowy ma `W` pól w rekordzie i interwał `Δ`, to strumi
 
 | Parametry          | Efekt                                                          |
 | ------------------ | -------------------------------------------------------------- |
-| `k = \|w\|`        | okno tumbling — kolejne okna nie zachodzą na siebie            |
-| `k < \|w\|`        | okno przesuwne (sliding) — kolejne okna zachodzą na siebie     |
-| `k > \|w\|`        | próbkowanie z przerwami — część danych jest pomijana           |
-| `k = 1, \|w\| = 1` | serializacja — wielopolowy rekord rozbijany na jednoelementowe |
-| `w < 0`            | agregacja lustrzana — kolejność napływu od najstarszego pola   |
+| `k = \|w\|`        | okno tumbling - kolejne okna nie zachodzą na siebie            |
+| `k < \|w\|`        | okno przesuwne (sliding) - kolejne okna zachodzą na siebie     |
+| `k > \|w\|`        | próbkowanie z przerwami - część danych jest pomijana           |
+| `k = 1, \|w\| = 1` | serializacja - wielopolowy rekord rozbijany na jednoelementowe |
+| `w < 0`            | agregacja lustrzana - kolejność napływu od najstarszego pola   |
 
 ## Typowe wzorce użycia
 
@@ -59,16 +59,16 @@ Poniżej schematyczne przedstawienie działania `source@(k, w)` dla strumienia j
 Dane wejściowe:   0  1  2  3  4  5  6  7  8  9  ...
                   ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓  ↓
 
-@(1, 3) — sliding window, skok=1, okno=3:
+@(1, 3) - sliding window, skok=1, okno=3:
   [2,1,0]  [3,2,1]  [4,3,2]  [5,4,3]  ...
 
-@(3, 3) — tumbling window, skok=3, okno=3:
+@(3, 3) - tumbling window, skok=3, okno=3:
   [2,1,0]           [5,4,3]           ...
 
-@(5, 1) — próbkowanie co 5 elementów:
+@(5, 1) - próbkowanie co 5 elementów:
   [0]               [5]               ...
 
-@(2,-2) — lustrzana, skok=2, okno=2:
+@(2,-2) - lustrzana, skok=2, okno=2:
   [0,1]    [2,3]    [4,5]    [6,7]    ...
 ```
 
@@ -80,7 +80,7 @@ wyprzedza sygnału. Ilustracja powyżej pokazuje ciąg emitowanych okien; pierws
 z nich nosi indeks `origin`, nie zero.
 
 AGSE emituje dopiero pełne okno. Początkowe sloty, w których okno sięgałoby
-przed początek źródła, **nie są rekordami i nie mają definicji** — tworzą
+przed początek źródła, **nie są rekordami i nie mają definicji** - tworzą
 raportowany w planie `origin=`. Sloty, w których okno jest zdefiniowane, ale
 najnowsze pole jeszcze nie powstało, tworzą `tail=`. Prawdziwy `NULL` obecny
 w danych pozostaje natomiast elementem pełnego okna.
@@ -91,9 +91,9 @@ Formalna granica ogona i pojemności historii jest opisana w rozdziale
 
 Poniższe podrozdziały prezentują konkretne zastosowania operatora AgSe:
 
-* **Przykład serializacji** — zamiana wielopolowego rekordu na sekwencję jednoelementowych rekordów i powrót przez agregację lustrzaną.
-* **Przykład średniej ruchomej** — sliding window jako podstawa filtru uśredniającego sygnał.
-* **Różne typy okien** — tumbling, sliding i próbkowanie na jednym strumieniu danych.
+* **Przykład serializacji** - zamiana wielopolowego rekordu na sekwencję jednoelementowych rekordów i powrót przez agregację lustrzaną.
+* **Przykład średniej ruchomej** - sliding window jako podstawa filtru uśredniającego sygnał.
+* **Różne typy okien** - tumbling, sliding i próbkowanie na jednym strumieniu danych.
 
 Na początku rozważymy proces serializacji w operatorze Agregacji i Serializacji – AgSe.
 

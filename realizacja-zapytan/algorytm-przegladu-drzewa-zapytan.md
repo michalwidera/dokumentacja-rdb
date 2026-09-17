@@ -35,15 +35,15 @@ graph TD
 
 _Rys. 43. Przykładowy graf zależności dla qTree_
 
-Po sortowaniu topologicznym kolejność w wektorze: `[A, B, C, D]`. Zapytanie C zależne od B zawsze trafi po B w iteracji — gwarantuje poprawność obliczeń.
+Po sortowaniu topologicznym kolejność w wektorze: `[A, B, C, D]`. Zapytanie C zależne od B zawsze trafi po B w iteracji - gwarantuje poprawność obliczeń.
 
-Metoda `getAvailableTimeIntervals()` wyodrębnia ze wszystkich zapytań unikalne wartości `rInterval` (z pominięciem dyrektyw kompilatora i wartości zerowych) — wynik to wejście do konstruktora `TimeLine`.
+Metoda `getAvailableTimeIntervals()` wyodrębnia ze wszystkich zapytań unikalne wartości `rInterval` (z pominięciem dyrektyw kompilatora i wartości zerowych) - wynik to wejście do konstruktora `TimeLine`.
 
 ***
 
 ## Minimalna siatka czasowa: TimeLine / CRSMath
 
-`TimeLine` (`src/retractor/lib/CRSMath.cpp`) zarządza racjonalnymi interwałami czasowymi. Konstruktor redukuje zbiór interwałów — usuwa wielokrotności, zachowując tylko koprimalne:
+`TimeLine` (`src/retractor/lib/CRSMath.cpp`) zarządza racjonalnymi interwałami czasowymi. Konstruktor redukuje zbiór interwałów - usuwa wielokrotności, zachowując tylko koprimalne:
 
 ```
 Wejście: {1/2, 1, 4}  →  Wyjście: {1/2}
@@ -94,7 +94,7 @@ for (auto &q : coreInstance_) {
 }
 ```
 
-Po tym kroku każda deklaracja ma `bufferState = armed` — dane z fizycznego źródła są w `outputPayload`.
+Po tym kroku każda deklaracja ma `bufferState = armed` - dane z fizycznego źródła są w `outputPayload`.
 
 ***
 
@@ -112,7 +112,7 @@ for (auto &q : *coreInstancePtr)
 return retVal;
 ```
 
-Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie — podzbiór wszystkich zapytań.
+Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie - podzbiór wszystkich zapytań.
 
 ### Przetwarzanie: `processRows(inSet)`
 
@@ -123,7 +123,7 @@ Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98),
 flowchart LR
     S([processRows - inSet]) --> P1
 
-    subgraph P1["Przebieg 1 — nie-deklaracje (kolejność topologiczna)"]
+    subgraph P1["Przebieg 1 - nie-deklaracje (kolejność topologiczna)"]
         direction TB
         X1["constructInputPayload()<br/>buduje dane wejściowe z FROM"] --> XW
         XW["computeWindowAggregates()<br/>redukuje historię dla okien SELECT"] --> X2
@@ -134,7 +134,7 @@ flowchart LR
 
     P1 --> P2
 
-    subgraph P2["Przebieg 2 — deklaracje (odblokowanie na następny slot)"]
+    subgraph P2["Przebieg 2 - deklaracje (odblokowanie na następny slot)"]
         direction TB
         Y1{"bufferState<br/>== armed?"} -->|tak| Y2
         Y2["bufferState = flux<br/>odblokuj odczyt"] --> Y3
@@ -168,7 +168,7 @@ zwykłymi operandami `constructOutputPayload()`, dlatego można pisać na przyk�
 
 ## Rozgłaszanie wyników: `broadcast()`
 
-Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 46:
+Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) - algorytm przedstawia Rys. 46:
 
 ```mermaid
 %% pdf-width: 85%
@@ -239,7 +239,7 @@ Drzewo zależności determinuje kolejność przejścia 1. Interwały czasowe z a
 
 ***
 
-## Realizacja algebraiczna — powiązanie kodu z równaniami
+## Realizacja algebraiczna - powiązanie kodu z równaniami
 
 Każdy kluczowy fragment algorytmu opisanego na tej stronie jest bezpośrednią realizacją równań z [algebry regularnych serii czasowych](../podstawy-matematyczne/algebra-regularnych-serii-czasowych.md) i [formalnych dowodów](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
@@ -275,25 +275,25 @@ return i + floorR(i * deltaB / deltaA);
 b_{n} = c_{n+\left\lfloor \frac{n\Delta_{b}}{\Delta_{a}} \right\rfloor}
 \\]
 
-`Hash` implementuje test z definicji przeplotu — warunek \\(\left\lfloor iz \right\rfloor = \left\lfloor (i+1)z \right\rfloor\\) przy \\(z = \Delta_{b}/(\Delta_{a}+\Delta_{b})\\) — i zwraca odpowiedni offset do strumienia A albo B.
+`Hash` implementuje test z definicji przeplotu - warunek \\(\left\lfloor iz \right\rfloor = \left\lfloor (i+1)z \right\rfloor\\) przy \\(z = \Delta_{b}/(\Delta_{a}+\Delta_{b})\\) - i zwraca odpowiedni offset do strumienia A albo B.
 
-Pomocnicze funkcje `floorR()` i `ceilR()` operują wyłącznie na `boost::rational<int>`, nigdy nie przechodząc przez `double`. Jest to bezpośrednia realizacja wymagania z [Twierdzenia 2](../podstawy-matematyczne/formalne-podstawy-i-dowody.md): niejawne rzutowanie na `float` łamie założenia twierdzenia Fraenkela — materializacja do postaci zmiennoprzecinkowej musi być odłożona do momentu jawnego zastosowania podłogi lub sufitu.
+Pomocnicze funkcje `floorR()` i `ceilR()` operują wyłącznie na `boost::rational<int>`, nigdy nie przechodząc przez `double`. Jest to bezpośrednia realizacja wymagania z [Twierdzenia 2](../podstawy-matematyczne/formalne-podstawy-i-dowody.md): niejawne rzutowanie na `float` łamie założenia twierdzenia Fraenkela - materializacja do postaci zmiennoprzecinkowej musi być odłożona do momentu jawnego zastosowania podłogi lub sufitu.
 
 ### `TimeLine` jako minimalna baza układu pokrywającego
 
-Konstruktor `TimeLine` wyznacza **pierwotny zbiór interwałów** — usuwa wszystkie delty będące całkowitą wielokrotnością innej delty ze zbioru. Interwał jest pierwotny, gdy żaden mniejszy interwał z zestawu nie jest jego dzielnikiem z ilorazem naturalnym. Jest to wyznaczanie minimalnego układu pokrywającego (_covering system_) w rozumieniu twierdzenia Fraenkela: tylko pierwotne delty generują niezależne sekwencje Beatty'ego i tylko one są potrzebne do wyznaczenia pełnej siatki czasowej.
+Konstruktor `TimeLine` wyznacza **pierwotny zbiór interwałów** - usuwa wszystkie delty będące całkowitą wielokrotnością innej delty ze zbioru. Interwał jest pierwotny, gdy żaden mniejszy interwał z zestawu nie jest jego dzielnikiem z ilorazem naturalnym. Jest to wyznaczanie minimalnego układu pokrywającego (_covering system_) w rozumieniu twierdzenia Fraenkela: tylko pierwotne delty generują niezależne sekwencje Beatty'ego i tylko one są potrzebne do wyznaczenia pełnej siatki czasowej.
 
-Metoda `getNextTimeSlot()` — opatrzona komentarzem `// MAGIC Warning` w źródle — generuje kolejne punkty siatki jako:
+Metoda `getNextTimeSlot()` - opatrzona komentarzem `// MAGIC Warning` w źródle - generuje kolejne punkty siatki jako:
 
 \\[
 t_{k} = \min_{\delta \in \mathrm{sr}} \left(\delta \cdot \mathrm{counter}[\delta]\right)
 \\]
 
-gdzie `sr` to pierwotny zbiór interwałów, a \\(\mathrm{counter}[\delta]\\) zlicza dotychczasowe „trafienia" każdej delty. Pętla dwufazowa — osobno wyznaczenie minimum, osobno inkrementacja liczników — gwarantuje poprawną obsługę kolizji: kilka delt może wyznaczać ten sam slot jednocześnie.
+gdzie `sr` to pierwotny zbiór interwałów, a \\(\mathrm{counter}[\delta]\\) zlicza dotychczasowe „trafienia" każdej delty. Pętla dwufazowa - osobno wyznaczenie minimum, osobno inkrementacja liczników - gwarantuje poprawną obsługę kolizji: kilka delt może wyznaczać ten sam slot jednocześnie.
 
 > **ℹ️ Info**
 >
-> Komentarz `// MAGIC Warning` w źródle `CRSMath.cpp` oznacza, że algorytm jest poprawny z nieoczywistego powodu. Nie wystarczy intuicja — poprawność gwarantuje twierdzenie Fraenkela. Ponieważ `sr` zawiera wyłącznie pierwotne interwały (żaden nie jest wielokrotnością innego), liczniki poszczególnych delt nigdy nie „wychodzą przed siebie" w sposób, który pominąłby lub zdublował slot. Kolizja — gdy dwie delty wskazują na ten sam slot — jest przypadkiem legalnym i jest obsługiwana przez drugą pętlę. „Magia" polega na tym, że prosta formuła `min(δ·counter[δ])` z automatyczną inkrementacją jest równoważna pełnemu generatorowi sekwencji Beatty'ego dla całego układu pokrywającego.
+> Komentarz `// MAGIC Warning` w źródle `CRSMath.cpp` oznacza, że algorytm jest poprawny z nieoczywistego powodu. Nie wystarczy intuicja - poprawność gwarantuje twierdzenie Fraenkela. Ponieważ `sr` zawiera wyłącznie pierwotne interwały (żaden nie jest wielokrotnością innego), liczniki poszczególnych delt nigdy nie „wychodzą przed siebie" w sposób, który pominąłby lub zdublował slot. Kolizja - gdy dwie delty wskazują na ten sam slot - jest przypadkiem legalnym i jest obsługiwana przez drugą pętlę. „Magia" polega na tym, że prosta formuła `min(δ·counter[δ])` z automatyczną inkrementacją jest równoważna pełnemu generatorowi sekwencji Beatty'ego dla całego układu pokrywającego.
 
 ### `isThisDeltaAwaitCurrentTimeSlot()` jako test przynależności do sekwencji Beatty'ego
 
@@ -302,4 +302,4 @@ boost::rational<int> value = ctSlot_ / inDelta;
 return (value.denominator() == 1);
 ```
 
-Test sprawdza, czy \\(t_{\mathrm{slot}} / \Delta \in \mathbb{N}\\) — czy bieżący slot jest całkowitą wielokrotnością delty zapytania. W języku teorii sekwencji Beatty'ego: punkt \\(t\\) należy do sekwencji o gęstości \\(\Delta\\) wtedy i tylko wtedy, gdy \\(t/\Delta\\) jest liczbą naturalną. Warunek na mianownik równy 1 wynika z arytmetyki `boost::rational` — ułamek jest zawsze w postaci zredukowanej, więc mianownik 1 oznacza dokładnie liczbę całkowitą bez żadnych zaokrągleń.
+Test sprawdza, czy \\(t_{\mathrm{slot}} / \Delta \in \mathbb{N}\\) - czy bieżący slot jest całkowitą wielokrotnością delty zapytania. W języku teorii sekwencji Beatty'ego: punkt \\(t\\) należy do sekwencji o gęstości \\(\Delta\\) wtedy i tylko wtedy, gdy \\(t/\Delta\\) jest liczbą naturalną. Warunek na mianownik równy 1 wynika z arytmetyki `boost::rational` - ułamek jest zawsze w postaci zredukowanej, więc mianownik 1 oznacza dokładnie liczbę całkowitą bez żadnych zaokrągleń.

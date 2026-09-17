@@ -4,7 +4,7 @@ Program `xtrdb` to interaktywne narzędzie do analizy artefaktów i substratów 
 
 > **⚠️ Ostrzeżenie**
 >
-> Wywołanie `xtrdb` blokuje uruchomiony równolegle `xretractor` — przed użyciem `xtrdb` zatrzymaj serwer lub poczekaj na zakończenie pracy systemu. Narzędzie samo wykrywa blokadę i zgłosi błąd, jeśli `xretractor` działa.
+> Wywołanie `xtrdb` blokuje uruchomiony równolegle `xretractor` - przed użyciem `xtrdb` zatrzymaj serwer lub poczekaj na zakończenie pracy systemu. Narzędzie samo wykrywa blokadę i zgłosi błąd, jeśli `xretractor` działa.
 
 
 ---
@@ -21,7 +21,7 @@ $ xtrdb --storagemap plik  # to samo co -s
 $ xtrdb -h                 # help i informacje o buildzie, potem zakończ
 ```
 
-Tryb `-n/--noprompt` usuwa kolorowanie, prompt `.` i komunikat `ok` — przydatny, gdy wejście pochodzi z pliku lub potoku.
+Tryb `-n/--noprompt` usuwa kolorowanie, prompt `.` i komunikat `ok` - przydatny, gdy wejście pochodzi z pliku lub potoku.
 Wciąż działa też historyczny wariant pozycyjny `noprompt`.
 
 ```
@@ -101,7 +101,7 @@ open nazwa_pliku
 open nazwa_pliku { TYP pole TYP pole ... }
 ```
 
-Jeśli plik `.desc` istnieje — schemat jest z niego odczytany. Jeśli nie istnieje — schemat należy podać w nawiasach `{}`.
+Jeśli plik `.desc` istnieje - schemat jest z niego odczytany. Jeśli nie istnieje - schemat należy podać w nawiasach `{}`.
 
 Tablicowe typy pól: `STRING name[8]` oznacza pole tekstowe o długości 8 bajtów (array multiplicity = 8).
 
@@ -149,7 +149,7 @@ Przykłady:
 | `set pole wartość` | Ustaw pole o podanej nazwie w buforze payload.                                     |
 | `setpos N wartość` | Ustaw pole o indeksie N (0-based) w buforze payload.                               |
 | `getpos N`         | Wypisz wartość pola o indeksie N z bieżącego payload.                              |
-| `input`            | Interaktywne wypełnienie payload — wpisz wartości po kolei dla każdego pola.       |
+| `input`            | Interaktywne wypełnienie payload - wpisz wartości po kolei dla każdego pola.       |
 | `status`           | Wypisz stan payload: `clean`, `fetched`, `changed`, `stored`.                      |
 | `hex` / `dec`      | Przełącz format wejścia/wyjścia pól liczbowych między szesnastkowym a dziesiętnym. |
 
@@ -159,8 +159,8 @@ Przykłady:
 
 | Polecenie | Opis                                                                                                             |
 | --------- | ---------------------------------------------------------------------------------------------------------------- |
-| `meta`    | Wypisz indeks null i przerw w transmisji z pliku `.meta` — opisowo (segmenty z liczbą rekordów i wzorcem null).  |
-| `metaraw` | Wypisz surową strukturę binarną pliku `.meta` — każdy wpis RLE z polami `count`, `gap`, `bitsetHex`.             |
+| `meta`    | Wypisz indeks null i przerw w transmisji z pliku `.meta` - opisowo (segmenty z liczbą rekordów i wzorcem null).  |
+| `metaraw` | Wypisz surową strukturę binarną pliku `.meta` - każdy wpis RLE z polami `count`, `gap`, `bitsetHex`.             |
 
 `meta` wyświetli segmenty z informacją o brakach (`null`) i przerwach w transmisji (`gap`). `metaraw` pokaże surową strukturę binarną pliku `.meta`.
 
@@ -170,7 +170,7 @@ Przykłady:
 
 | Polecenie            | Opis                                                                                     |
 | -------------------- | ---------------------------------------------------------------------------------------- |
-| `rox`                | Przełącz flagę „remove on exit" — po zakończeniu narzędzia usuwa dane, `.desc`, `.meta`. |
+| `rox`                | Przełącz flagę „remove on exit" - po zakończeniu narzędzia usuwa dane, `.desc`, `.meta`. |
 | `cap N`              | Ustaw pojemność bufora cofania (backread) dla urządzeń strumiennych.                     |
 | `dropfile f1 f2 … }` | Usuń wymienione pliki. Lista kończy się tokenem `}`.                                     |
 | `echo tekst`         | Wypisz tekst na terminal (przydatne w skryptach).                                        |
@@ -194,7 +194,7 @@ $ xtrdb
 
 ### Odczyt pliku DUMP bez deskryptora
 
-Pliki zrzutu tworzone przez `DO DUMP` nie mają pliku `.desc` — schemat należy podać ręcznie:
+Pliki zrzutu tworzone przez `DO DUMP` nie mają pliku `.desc` - schemat należy podać ręcznie:
 
 ```
 $ xtrdb

@@ -137,4 +137,4 @@ Podsumowując, algebra będąca podstawą dla deklaratywnego języka zapytań pr
 A_{rql}::=((s_n,\Delta_s), (\\#,\\&,\\%,+,-,>,@))
 \\]
 
-Gdzie pierwszy element pary definiującej algebrę to model danych (s\_n — seria danych, ∆\_s — jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.
+Gdzie pierwszy element pary definiującej algebrę to model danych (s\_n - seria danych, ∆\_s - jej regularny odstęp czasu) a drugi to zdefiniowane formalnie na tym modelu danych operacje.

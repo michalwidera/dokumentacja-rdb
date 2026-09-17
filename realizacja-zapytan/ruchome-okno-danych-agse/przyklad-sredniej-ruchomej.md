@@ -40,9 +40,9 @@ SELECT sumRow[0]/5 STREAM avg5    FROM sumRow
 
 ### Co robi każde zapytanie
 
-1. `sensor@(1,5)` — tworzy przesuwne okno 5-elementowe. Każdy rekord `window5` zawiera 5 ostatnich odczytów temperatury. Interwał wyjściowy: `1s / 1 × 1 = 1s` (skok=1, W=1 pole).
-2. Suma pięciu pól — klasyczne `SELECT` po polach `window5[0]`..`window5[4]`.
-3. Podzielenie sumy przez 5 — wynik to średnia ruchoma.
+1. `sensor@(1,5)` - tworzy przesuwne okno 5-elementowe. Każdy rekord `window5` zawiera 5 ostatnich odczytów temperatury. Interwał wyjściowy: `1s / 1 × 1 = 1s` (skok=1, W=1 pole).
+2. Suma pięciu pól - klasyczne `SELECT` po polach `window5[0]`..`window5[4]`.
+3. Podzielenie sumy przez 5 - wynik to średnia ruchoma.
 
 ## Uruchomienie
 
@@ -61,7 +61,7 @@ Przykładowy wynik (okno wypełnia się po pierwszych 5 próbkach):
 50
 ```
 
-Wartość `30` odpowiada średniej z pierwszego pełnego okna: `(10+15+20+25+30)/5 = 20`... uwaga — system RetractorDB nie wyświetla niepełnych okien, więc pierwsze pojawienie się wyniku odpowiada chwili gdy okno jest w pełni nasycone danymi.
+Wartość `30` odpowiada średniej z pierwszego pełnego okna: `(10+15+20+25+30)/5 = 20`... uwaga - system RetractorDB nie wyświetla niepełnych okien, więc pierwsze pojawienie się wyniku odpowiada chwili gdy okno jest w pełni nasycone danymi.
 
 ## Weryfikacja planu zapytania
 
@@ -69,7 +69,7 @@ Wartość `30` odpowiada średniej z pierwszego pełnego okna: `(10+15+20+25+30)
 $ xretractor -c avg.rql -f -p -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-W wygenerowanym planie widać łańcuch: `sensor → window5 → sumRow → avg5`. Kluczowy jest węzeł `sensor@(1,5)` — z jednoelementowego strumienia wchodzącego co sekundę powstaje strumień pięcioelementowy, ciągle przesuwany.
+W wygenerowanym planie widać łańcuch: `sensor → window5 → sumRow → avg5`. Kluczowy jest węzeł `sensor@(1,5)` - z jednoelementowego strumienia wchodzącego co sekundę powstaje strumień pięcioelementowy, ciągle przesuwany.
 
 ## Zależność między parametrami okna a opóźnieniem
 

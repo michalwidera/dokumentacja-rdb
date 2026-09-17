@@ -16,7 +16,7 @@ Na chwilę obecną system RetractorDB wspiera następujące typy danych:
 
 `STRING` i `RATIONAL` są używane przez deskryptory, konwersje i wyrażenia; ich reprezentację i zachowanie sprawdzają testy `ut_payload`, `ut_convertTypes` oraz scenariusze integracyjne. Liczby zespolone i wymierne liczby zespolone Eisensteina pozostają poza aktualnym zestawem typów.
 
-Przykład równania typów w praktyce — zapytanie `scaled` z rozdziału [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md):
+Przykład równania typów w praktyce - zapytanie `scaled` z rozdziału [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md):
 
 ```rql
 SELECT core0[_] * core1[_] STREAM scaled FROM core0 + core1
@@ -31,8 +31,8 @@ SELECT core0[_] * core1[_] STREAM scaled FROM core0 + core1
 
 ## Skąd bierze się typ pola wynikowego
 
-Typ, długość i krotność pola wyznacza **jeden przebieg kompilatora** —
-`compiler::inferFieldShapes()` — który wykonuje program pola w odwrotnej notacji polskiej na
+Typ, długość i krotność pola wyznacza **jeden przebieg kompilatora** -
+`compiler::inferFieldShapes()` - który wykonuje program pola w odwrotnej notacji polskiej na
 stosie *typów*, dokładnie tak, jak `expressionEvaluator` wykonuje go na stosie *wartości*.
 Przebieg stoi po rozwiązaniu odwołań do pól i agregatów okiennych, a **przed** upraszczaniem
 wyrażeń, więc deskryptor nie zależy od żadnego przełącznika optymalizacji.
@@ -52,12 +52,12 @@ liczbowej daje pojedynczą wartość, więc krotność spada do jednego; `STRING
 slotem i zachowuje swoją szerokość.
 
 **Operator dwuargumentowy** (`+`, `-`, `*`, `/`, `^`) daje typ o wyższym miejscu w porządku
-`BYTE < INTEGER < UINT < RATIONAL < FLOAT < DOUBLE` — z jednym wyjątkiem: **`BYTE` z `BYTE`
+`BYTE < INTEGER < UINT < RATIONAL < FLOAT < DOUBLE` - z jednym wyjątkiem: **`BYTE` z `BYTE`
 daje `INTEGER`**. Nie jest to decyzja projektowa, tylko odwzorowanie języka: `uint8_t + uint8_t`
 promuje się w C++ do `int` i właśnie `int` ląduje w wyniku. Ta sama promocja obowiązuje potęgę
 typu dokładnego, bo `a^k` jest liczone tym samym mnożeniem, co zapisany wprost iloczyn.
 
-**Operator jednoargumentowy** (`-x`, `NOT x`) zachowuje typ argumentu — tu promocji nie ma.
+**Operator jednoargumentowy** (`-x`, `NOT x`) zachowuje typ argumentu - tu promocji nie ma.
 
 **Porównania** dają typ operandów po zrównaniu, bez promocji `BYTE`. Nie sięgają one listy
 `SELECT`: żyją w warunku `RULE`.
@@ -80,8 +80,8 @@ wynik z powrotem na typ argumentu: `Ceil` nad polem `DOUBLE` daje `DOUBLE`, a `S
 konwersje wyznaczają typ swojego wyniku **także wtedy, gdy stoją w środku wyrażenia**:
 `to_float('2.5') * 2` jest `FLOAT`, a `to_integer(AVG(x : 10)) + 1` jest `INTEGER`.
 
-Siedem funkcji o niewymiernej przeciwdziedzinie — `Sqrt`, `sin`, `cos`, `exp`, `tan`,
-`log` i `log2` — **nie kompiluje się** nad argumentem typu `RATIONAL`: kompilator odrzuca
+Siedem funkcji o niewymiernej przeciwdziedzinie - `Sqrt`, `sin`, `cos`, `exp`, `tan`,
+`log` i `log2` - **nie kompiluje się** nad argumentem typu `RATIONAL`: kompilator odrzuca
 plan i wymaga jawnego `to_double`. Ma to znaczenie praktyczne, bo reduktory `MIN`, `MAX`,
 `AVG` i `SUMC` nad wejściem całkowitym lub wymiernym dają `RATIONAL`. Powód, komunikat
 błędu, zasięg bramki (obejmuje też warunek `RULE ... WHEN`) i wyjątek dla funkcji
@@ -101,8 +101,8 @@ pola. `null2zero(x)` przepuszcza typ argumentu, a zero zapisuje się w tym wła�
 
 ## Propagacja przez plan
 
-Operatory, które **kopiują** schemat operandu — `SELECT *`, przesunięcie `>N`, decymacja `-r`,
-przeplot `#`, rozploty `&` i `%` oraz suma strumieni `+` — niosą kształt pola producenta slot po
+Operatory, które **kopiują** schemat operandu - `SELECT *`, przesunięcie `>N`, decymacja `-r`,
+przeplot `#`, rozploty `&` i `%` oraz suma strumieni `+` - niosą kształt pola producenta slot po
 slocie. Typ przechodzi przez dowolnie długi łańcuch strumieni pośrednich.
 
 Operatory, które schemat **syntetyzują**, zachowują własny: reduktor `MIN`/`MAX`/`AVG`/`SUMC`
@@ -110,7 +110,7 @@ w klauzuli `FROM` daje jedno pole: `RATIONAL` dla źródła całkowitego lub wym
 `FLOAT` dla `FLOAT` i `DOUBLE` dla `DOUBLE`. Okno `@(krok, szerokość)` daje pola typu
 najszerszego z rekordu źródła.
 
-Deklaracja `DECLARE` jest umową z plikiem źródłowym i **nie podlega wnioskowaniu** — żaden
+Deklaracja `DECLARE` jest umową z plikiem źródłowym i **nie podlega wnioskowaniu** - żaden
 przebieg kompilatora jej nie zmienia.
 
 ## Zmiana formatu artefaktu
@@ -118,5 +118,5 @@ przebieg kompilatora jej nie zmienia.
 Poprawne typowanie zmienia `.desc` i układ rekordu tam, gdzie dotąd wychodził `INTEGER`:
 `DOUBLE` zajmuje 8 bajtów zamiast 4, więc przesuwa offsety kolejnych pól. Strumień policzony
 starszą wersją silnika ma artefakt o innym układzie i przy starcie zostanie odrzucony jako
-niezgodny schemat — tak samo jak po każdej innej zmianie listy pól. Okresu zgodności nie ma:
+niezgodny schemat - tak samo jak po każdej innej zmianie listy pól. Okresu zgodności nie ma:
 deskryptor opisuje teraz to, co silnik naprawdę zapisuje, a poprzednio opisywał co innego.

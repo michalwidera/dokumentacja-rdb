@@ -8,7 +8,7 @@ Kompilacja kodu systemu odbywa się ze wsparciem managera pakietów Conan \[[8](
 
 ## Przegląd poruszonych w rozdziale tematów
 
-Rozdział zbudowany jest warstwowo — od widoku ogólnego do szczegółów implementacyjnych.
+Rozdział zbudowany jest warstwowo - od widoku ogólnego do szczegółów implementacyjnych.
 
 <div class="timeline">
 
@@ -22,11 +22,11 @@ Rozdział zbudowany jest warstwowo — od widoku ogólnego do szczegółów impl
 
 - **[Przepływ danych i sterowania](przeplyw-danych-i-sterowania.md)**
 
-  Które ścieżki danych są zawsze aktywne (napływ danych → xretractor → artefakty), a które opcjonalne lub diagnostyczne. Opisano też mechanizm graceful shutdown — xretractor reaguje na sygnały `SIGINT`, `SIGTERM` i `SIGHUP` kończąc bieżący cykl bez ryzyka uszkodzenia plików.
+  Które ścieżki danych są zawsze aktywne (napływ danych → xretractor → artefakty), a które opcjonalne lub diagnostyczne. Opisano też mechanizm graceful shutdown - xretractor reaguje na sygnały `SIGINT`, `SIGTERM` i `SIGHUP` kończąc bieżący cykl bez ryzyka uszkodzenia plików.
 
 - **[Artefakty, substraty i efemerydy](artefakty-substraty-efemerydy.md)**
 
-  Kluczowy podział taksonomiczny systemu. Każdy typ strumienia ma inne przeznaczenie i inną strategię składowania: artefakty materializowane na dysku jako trwały wynik, substraty to strumienie pośrednie niezbędne podczas obliczeń, efemerydy — ulotne źródła danych, których nie można ani nie warto przechowywać.
+  Kluczowy podział taksonomiczny systemu. Każdy typ strumienia ma inne przeznaczenie i inną strategię składowania: artefakty materializowane na dysku jako trwały wynik, substraty to strumienie pośrednie niezbędne podczas obliczeń, efemerydy - ulotne źródła danych, których nie można ani nie warto przechowywać.
 
 - **[Format zapisu danych](format-zapisu-danych/readme.md)**
 
@@ -38,11 +38,11 @@ Rozdział zbudowany jest warstwowo — od widoku ogólnego do szczegółów impl
 
 - **[Przetwarzanie i dystrybucja danych](przetwarzanie-i-dystrybucja-danych.md)**
 
-  Kompletny walkthrough: od przygotowania pliku danych przez uruchomienie `xretractor`, przez podgląd statystyk strumieniowania (`xqry -d`), po wizualizację na żywo w gnuplot (`xqry -s str1 -p 50,50 | gnuplot`) i transmisję przez sieć za pomocą `nc`. Przykład łączy dwa źródła — plik tekstowy i `/dev/urandom` — ilustrując jak operator `+` w klauzuli FROM realizuje algebraiczne łączenie strumieni.
+  Kompletny walkthrough: od przygotowania pliku danych przez uruchomienie `xretractor`, przez podgląd statystyk strumieniowania (`xqry -d`), po wizualizację na żywo w gnuplot (`xqry -s str1 -p 50,50 | gnuplot`) i transmisję przez sieć za pomocą `nc`. Przykład łączy dwa źródła - plik tekstowy i `/dev/urandom` - ilustrując jak operator `+` w klauzuli FROM realizuje algebraiczne łączenie strumieni.
 
 - **[Analiza artefaktów](analiza-artefaktow.md)**
 
-  Narzędzie `xtrdb` — interaktywny inspektor plików binarnych wzorowany na stylu dbase. Polecenia `.open`, `.desc`, `.list`, `.rlist` i `.meta` pozwalają przeglądać zawartość artefaktów bez znajomości formatu binarnego. Narzędzie służy też do weryfikacji deterministyczności: te same dane wejściowe powinny zawsze dawać identyczne wyniki.
+  Narzędzie `xtrdb` - interaktywny inspektor plików binarnych wzorowany na stylu dbase. Polecenia `.open`, `.desc`, `.list`, `.rlist` i `.meta` pozwalają przeglądać zawartość artefaktów bez znajomości formatu binarnego. Narzędzie służy też do weryfikacji deterministyczności: te same dane wejściowe powinny zawsze dawać identyczne wyniki.
 
 </div>
 
@@ -56,4 +56,4 @@ xretractor query.rql             # uruchomienie przetwarzania
 xqry -s <strumień>               # odczyt danych bieżących
 ```
 
-Czwarty element — `xtrdb` — pojawia się przy diagnostyce i testowaniu, nie w typowym przepływie produkcyjnym.
+Czwarty element - `xtrdb` - pojawia się przy diagnostyce i testowaniu, nie w typowym przepływie produkcyjnym.

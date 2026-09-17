@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# generate_railroad.py — generuje diagramy railroad (SVG) dla poleceń RQL
+# generate_railroad.py - generuje diagramy railroad (SVG) dla poleceń RQL
 # na podstawie gramatyki ANTLR4 (RQL.g4) z repozytorium retractordb.
 #
 # Skrypt samodzielnie parsuje podzbiór składni ANTLR4 używany przez reguły
@@ -8,8 +8,8 @@
 # railroad-diagrams (pip). Nie wymaga Javy ani ANTLR.
 #
 # Struktura diagramów podąża za gramatyką automatycznie. Etykiety (sekcja
-# LANGUAGES poniżej) istnieją w dwóch wersjach językowych — "pl" dla repozytorium
-# dokumentacja-rdb i "en" dla documentation-rdb — i są dopasowywane po etykietach
+# LANGUAGES poniżej) istnieją w dwóch wersjach językowych - "pl" dla repozytorium
+# dokumentacja-rdb i "en" dla documentation-rdb - i są dopasowywane po etykietach
 # elementów (np. stream_name=ID -> "nazwa"/"name") albo po nazwach tokenów/reguł.
 # Jeśli po zmianie gramatyki na diagramie pojawi się surowa nazwa z gramatyki
 # (np. ID, DECIMAL), uzupełnij odpowiednią mapę OBU wersji językowych.
@@ -52,7 +52,7 @@ except ImportError:
 # ---------------------------------------------------------------- KONFIGURACJA
 
 # Diagramy do wygenerowania: (reguła gramatyki, nazwa pliku wynikowego).
-# Krotka reguł rysowana jest jako alternatywa ich gałęzi — dyrektywy
+# Krotka reguł rysowana jest jako alternatywa ich gałęzi - dyrektywy
 # konfiguracyjne to dwie reguły: compiler_option i default_statement.
 DIAGRAMS = [
     ("select_statement", "railroad-select.svg"),
@@ -74,18 +74,18 @@ INLINE_RULES = {
 }
 
 # Maksymalna szerokość wiersza diagramu (px). Sekwencja szersza niż ta wartość
-# jest łamana na kolejne wiersze (railroad.Stack) — inaczej diagram polecenia
+# jest łamana na kolejne wiersze (railroad.Stack) - inaczej diagram polecenia
 # SELECT byłby jedną linią o szerokości ~1900 px, nieczytelną po wpasowaniu
 # w szerokość strony.
 MAX_ROW_WIDTH = 760
 
 # Etykiety w obu wersjach językowych. Znaczenie kluczy:
-#   rules          — reguły rysowane jako osobny prostokąt (non-terminal)
-#   tokens         — tokeny bez dosłownej postaci (globalnie)
-#   elements       — etykiety elementów gramatyki (np. stream_name=ID);
+#   rules          - reguły rysowane jako osobny prostokąt (non-terminal)
+#   tokens         - tokeny bez dosłownej postaci (globalnie)
+#   elements       - etykiety elementów gramatyki (np. stream_name=ID);
 #                    klucz (reguła, etykieta), reguła "*" obowiązuje wszędzie
-#   scoped_tokens  — token z innym podpisem w konkretnej regule: (reguła, token)
-#   overrides      — ręczne definicje reguł, tam gdzie dokumentacja świadomie
+#   scoped_tokens  - token z innym podpisem w konkretnej regule: (reguła, token)
+#   overrides      - ręczne definicje reguł, tam gdzie dokumentacja świadomie
 #                    upraszcza gramatykę (patrz komentarze); zmiana gramatyki
 #                    tych reguł NIE trafi na diagram bez zmiany definicji tutaj
 LANGUAGES = {
@@ -123,9 +123,9 @@ LANGUAGES = {
             ("field_declaration", "ID"): "pole",
         },
         "overrides": {
-            # asterisk : (ID DOT)? STAR — w dokumentacji po prostu gwiazdka.
+            # asterisk : (ID DOT)? STAR - w dokumentacji po prostu gwiazdka.
             "asterisk": lambda: Terminal("*"),
-            # rational_se : fraction_rule | FLOAT | DECIMAL — FLOAT i DECIMAL
+            # rational_se : fraction_rule | FLOAT | DECIMAL - FLOAT i DECIMAL
             # dokumentacja zbiera w jedną gałąź "liczba".
             "rational_se": lambda: Choice(
                 0,
@@ -363,7 +363,7 @@ class Parser:
         return None
 
     def parse_alternatives(self):
-        # Jednoelementowe alternatywy i sekwencje są zwijane do samego elementu —
+        # Jednoelementowe alternatywy i sekwencje są zwijane do samego elementu -
         # dzięki temu grupa '(' ... ')' nie wprowadza dodatkowego poziomu AST
         # i wzorce w conv_sequence (np. pętla z separatorem) są rozpoznawalne.
         seqs = [self.parse_sequence()]
@@ -504,7 +504,7 @@ class Renderer:
         raise GrammarError(f"nieznany węzeł AST: {node!r}")
 
     def seq_items(self, elems):
-        # wzorzec "X (sep X)*" -> OneOrMore(X, sep) — pętla z separatorem
+        # wzorzec "X (sep X)*" -> OneOrMore(X, sep) - pętla z separatorem
         items = []
         i = 0
         while i < len(elems):

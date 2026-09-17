@@ -17,7 +17,7 @@ Graf, w którym uwypuklone zostaną dependencje pomiędzy poszczególnymi obiekt
 $ xretractor -c query5.rql -d > out.dot && dot -Tsvg out.dot -o out.svg
 ```
 
-Pełny opis flag `-d -f -s` i interpretacja wyjścia — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
+Pełny opis flag `-d -f -s` i interpretacja wyjścia - patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 <figure><img src="../assets/dependencja_efemeryda_artefakt.svg" alt=""><figcaption><p>Rys. 33. Dependencja efemeryd-artefakt</p></figcaption></figure>
 

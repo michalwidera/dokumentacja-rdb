@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build-book.sh — buduje dokumentację RetractorDB do plików HTML (katalog book/).
+# build-book.sh - buduje dokumentację RetractorDB do plików HTML (katalog book/).
 #
 # Użycie:
 #   scripts/build-book.sh            # buduje stronę www do katalogu book/
@@ -7,7 +7,7 @@
 #   scripts/build-book.sh --serve    # buduje i uruchamia podgląd na żywo
 #
 # Skrypt korzysta wyłącznie z już zainstalowanych narzędzi (mdbook,
-# mdbook-mermaid) — niczego nie instaluje. Brakujące narzędzia doinstalujesz
+# mdbook-mermaid) - niczego nie instaluje. Brakujące narzędzia doinstalujesz
 # poleceniem: scripts/install-local-tools.sh --install
 
 set -euo pipefail
@@ -22,7 +22,7 @@ Użycie: $(basename "$0") [OPCJE]
 
 Buduje dokumentację RetractorDB do plików HTML w katalogu book/
 (odpowiednik kroku "Build" z .github/workflows/deploy.yml).
-Korzysta wyłącznie z zainstalowanych narzędzi — niczego nie instaluje.
+Korzysta wyłącznie z zainstalowanych narzędzi - niczego nie instaluje.
 
 Opcje:
   --clean     usuwa katalog book/ przed budową (build od zera)

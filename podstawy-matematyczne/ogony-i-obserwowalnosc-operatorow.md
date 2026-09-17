@@ -12,7 +12,7 @@ na różne pytania i różnie zachowują się przy przepisaniach planu.
 Żadna z nich nie jest prefiksem zer ani rekordów all-null. Zasada brzegu
 obowiązuje bez zmian: `NULL` jest wartością danych, nigdy rezerwacją miejsca.
 Liczba początkowych slotów, w których strumień milczy, wynosi
-\\(O_S+W_S\\) — i tylko ta suma była widoczna przed rozdzieleniem obu wielkości.
+\\(O_S+W_S\\) - i tylko ta suma była widoczna przed rozdzieleniem obu wielkości.
 
 Indeks logiczny jest walutą wszystkich odwzorowań między strumieniami.
 Strumień o niezerowym \\(O_S\\) nie ma rekordów wcześniejszych, więc jego
@@ -41,8 +41,8 @@ wyniku.
 dalsze rekordy trafiają odwzorowaniem w istniejące rekordy składowych.
 Nie jest to „pierwszy indeks o kompletnych zależnościach”: przy przeplocie
 składowych o różnych początkach rekord 0 może mieć komplet, a rekord 1 już nie.
-Strumień jest ciągiem rekordów, nie zbiorem z dziurami — zasada brzegu zabrania
-wypełnić lukę `NULL`-em — więc początkiem logicznym jest pierwszy indeks bez
+Strumień jest ciągiem rekordów, nie zbiorem z dziurami - zasada brzegu zabrania
+wypełnić lukę `NULL`-em - więc początkiem logicznym jest pierwszy indeks bez
 żadnej dalszej luki. Wszystkie odwzorowania rekord–rekord są niemalejące, więc
 taki indeks istnieje i jest jednoznaczny.
 
@@ -55,7 +55,7 @@ od interwału źródła \\(\Delta_C\\). Dla stosunku
 
 Różnica oraz oba rozploty używają wspólnej reguły dostępności. Niech
 \\(r=\Delta_{out}/\Delta_{src}\\), \\(W_S\\) będzie ogonem źródła, a
-\\(e_{max}\\) — największą osiąganą fazą odwzorowania indeksu. Wtedy:
+\\(e_{max}\\) - największą osiąganą fazą odwzorowania indeksu. Wtedy:
 
 \\[
 W_{out}=\max\left(0,
@@ -74,8 +74,8 @@ stosunku całkowitego jego własny ogon może wynosić zero.
 
 Przeplot jest jedynym operatorem, którego ogon nie rozkłada się na „przeliczone
 ogony producentów plus stała własna". Rekord \\(i\\) niesie treść rekordu
-\\(j(i)\\) tylko jednej ze składowych — tej, którą w slocie \\(i\\) wybiera
-definicja operatora — więc wymagane opóźnienie zależy od tego, na którą
+\\(j(i)\\) tylko jednej ze składowych - tej, którą w slocie \\(i\\) wybiera
+definicja operatora - więc wymagane opóźnienie zależy od tego, na którą
 składową i na którą jej fazę wypada dany slot:
 
 \\[
@@ -121,7 +121,7 @@ logicznym zamiast offsetem względnym.
 Okno jest stemplowane **końcem** przedziału: rekord \\(n\\) obejmuje spłaszczone
 pozycje źródła od \\(nk-(\lvert L\rvert-1)\\) do \\(nk\\). Dzięki temu jego
 najnowsze pole leży dokładnie w pozycji \\(nk\\), a indeks logiczny okna oznacza
-tę samą chwilę co indeks logiczny źródła — złączenie okna z jego własnym
+tę samą chwilę co indeks logiczny źródła - złączenie okna z jego własnym
 źródłem (potok FIR) nie wyprzedza sygnału.
 
 Ceną konwencji jest to, że dla małych \\(n\\) okno sięgałoby przed początek
@@ -150,7 +150,7 @@ w postaci sprzed przestemplowania, **zniknął z ogona**: rozpiętość okna nie
 czekaniem, tylko niedefiniowalnością, i przeszła w całości do początku
 logicznego. Suma \\(O+W\\) opisuje to samo milczenie co poprzednio.
 
-Dodatnia szerokość zachowuje historyczną konwencję RetractorDB — najnowsze pole
+Dodatnia szerokość zachowuje historyczną konwencję RetractorDB - najnowsze pole
 jest pierwsze; ujemna szerokość daje odbicie lustrzane, czyli kolejność napływu.
 
 Pojemność historii źródła nie ma tu postaci zamkniętej. Odległość wsteczna
@@ -174,7 +174,7 @@ dodatkowe rekordy. Pojemność jest własnością wykonania, nie częścią wyni
 Obserwacja strumienia rozpada się na dwie części, bo przepisania planu
 zachowują je w różnym stopniu.
 
-**Część wartościowa** — zachowywana przez przepisania dokładnie:
+**Część wartościowa** - zachowywana przez przepisania dokładnie:
 
 \\[
 \operatorname{Obs}(S)
@@ -185,14 +185,14 @@ gdzie:
 
 * \\(O_S\\) jest początkiem logicznym, czyli indeksem pierwszego rekordu;
 * \\(D_S\\) jest publicznym deskryptorem i kolejnością nazw pól;
-* \\(N_n\\) jest mapą `NULL` rekordu — prawdziwy `NULL` pozostaje wartością
+* \\(N_n\\) jest mapą `NULL` rekordu - prawdziwy `NULL` pozostaje wartością
   danych i jest przenoszony przez AGSE;
 * \\(G_S\\) jest śladem luk; obecnie detekcja działa dla deklaracji, a dla
   strumieni obliczanych obowiązuje \\(G_S=\varnothing\\);
 * \\(M_S\\) opisuje politykę materializacji (`DEFAULT`, `MEMORY`, `VOLATILE`
   i pozostałe storage).
 
-**Część opóźnieniowa** — ogon \\(W_S\\) — podlega słabszej gwarancji:
+**Część opóźnieniowa** - ogon \\(W_S\\) - podlega słabszej gwarancji:
 
 > przepisanie planu nigdy nie **zwiększa** \\(W_S\\) i nigdy nie emituje rekordu
 > przed określeniem jego zależności; wolno mu natomiast \\(W_S\\) **zmniejszyć**.
@@ -212,7 +212,7 @@ obliczanych wymaga wersjonowanej zmiany semantyki.
 
 Odczyt poza dostępną historią zwraca wewnętrznie rekord all-null jako
 bezpiecznik. Poprawnie skompilowany plan nigdy go nie materializuje:
-`logicalOrigin` pomija sloty bez definicji, `startupLatency` — sloty jeszcze
+`logicalOrigin` pomija sloty bez definicji, `startupLatency` - sloty jeszcze
 nieokreślone, a pojemność historii zachowuje każdy wymagany indeks. Test
 `it_k19_boundaries` rozróżnia ten przypadek od prawdziwego `NULL` znajdującego
 się wewnątrz pełnego okna.

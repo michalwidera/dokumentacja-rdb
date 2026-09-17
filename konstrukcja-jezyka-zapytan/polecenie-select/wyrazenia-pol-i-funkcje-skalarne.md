@@ -93,7 +93,7 @@ do pól; reguły opisuje rozdział [Równanie typów w górę](../../kompilacja-
 Zadeklarowana szerokość jest własnością **pola**, a nie skutkiem konkretnego przebiegu
 kompilacji. Obowiązuje także wtedy, gdy cały argument jest stały: `to_string(42 : 16)` daje
 `STRING[16]`, a nie `STRING[2]`. Upraszczanie wyrażeń zwija argument pod wywołaniem, ale samego
-`to_string` nie usuwa — inaczej deklaracja znikałaby razem z programem przy **ponownej**
+`to_string` nie usuwa - inaczej deklaracja znikałaby razem z programem przy **ponownej**
 kompilacji planu, czyli po zapytaniu ad hoc (`xqry -a`), które kompiluje żywy plan drugi raz.
 
 ### `sin`, `cos` i `exp`
@@ -105,7 +105,7 @@ części ułamkowej. `NULL` na wejściu daje `NULL`, a wynik niefinitywny (np. `
 również daje `NULL` bez zatrzymania strumienia.
 
 Wyjątkiem jest argument typu `RATIONAL`: kompilator go **odrzuca** i wymaga jawnego
-`to_double` — tak samo jak dla `Sqrt`, patrz rozdział niżej.
+`to_double` - tak samo jak dla `Sqrt`, patrz rozdział niżej.
 
 Zmiana typu `sin` i `cos` względem starszego silnika może zmienić deskryptor `.desc` i układ
 rekordu: `INTEGER` oraz `FLOAT` zajmują 4 bajty, a `DOUBLE` 8 bajtów. Istniejący artefakt o
@@ -114,7 +114,7 @@ starym schemacie wymaga ponownego utworzenia albo osobnego strumienia wynikowego
 ### Funkcje niewymierne nad wartością RATIONAL
 
 `Sqrt`, `sin`, `cos`, `exp`, `tan`, `log` i `log2` **nie przyjmują** argumentu typu `RATIONAL`
-— kompilator odrzuca taki zapis kanałem `Check result:` i podaje obejście. Dotyczy to
+\- kompilator odrzuca taki zapis kanałem `Check result:` i podaje obejście. Dotyczy to
 w praktyce reduktorów strumieniowych nad polami `BYTE`, `INTEGER`, `UINT` i `RATIONAL`,
 bo ich wynik ma typ `RATIONAL`. Reduktory nad `FLOAT` i `DOUBLE` zachowują typ wejścia:
 
@@ -139,7 +139,7 @@ wymogu jawnego `to_double` dla tych funkcji.
 
 Dla `sin`, `cos` i `exp` powód jest inny: te trzy kończą na `DOUBLE` i nigdy nie wracają do
 `RATIONAL`, więc policzyłyby się poprawnie. Ich odrzucenie jest **decyzją o kontrakcie języka**,
-podjętą po to, żeby nie trzeba było pamiętać listy wyjątków — jedna reguła zamiast siedmiu
+podjętą po to, żeby nie trzeba było pamiętać listy wyjątków - jedna reguła zamiast siedmiu
 osobnych zachowań. Ceną jest `to_double` w każdym zapytaniu liczącym np. RMS nad reduktorem.
 
 Ograniczenie nie obejmuje pozostałych funkcji ani innych typów argumentu. Zaokrąglenia `Floor`,
@@ -147,7 +147,7 @@ Ograniczenie nie obejmuje pozostałych funkcji ani innych typów argumentu. Zaok
 mianownik 1, a `Abs` liczy się wprost na wartości i mianownika nie rusza w ogóle.
 
 Bramka dotyczy **wyłącznie** pary z `RATIONAL` i nie zmienia typu wyniku żadnej funkcji. `tan`,
-`log` i `log2` nad `INTEGER` nadal dają `INTEGER`, czyli obcinają część ułamkową — to strata
+`log` i `log2` nad `INTEGER` nadal dają `INTEGER`, czyli obcinają część ułamkową - to strata
 jawna i zamierzona, nie przepełnienie. Ewentualne doprowadzenie ich do `DOUBLE`, tak jak `sin`,
 `cos` i `exp`, zmieniłoby typ pola w `.desc`, więc jest osobnym zadaniem.
 

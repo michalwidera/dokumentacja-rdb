@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install-local-tools.sh — narzędzia do lokalnego renderowania dokumentacji
+# install-local-tools.sh - narzędzia do lokalnego renderowania dokumentacji
 # RetractorDB (odpowiednik kroków z .github/workflows/deploy.yml).
 #
 # Użycie:
@@ -20,7 +20,7 @@ usage() {
   cat <<EOF
 Użycie: $(basename "$0") [OPCJE]
 
-Narzędzia do lokalnego renderowania dokumentacji RetractorDB — odpowiednik
+Narzędzia do lokalnego renderowania dokumentacji RetractorDB - odpowiednik
 kroków z .github/workflows/deploy.yml. Zakłada system Debian/Ubuntu.
 
 Bez opcji skrypt działa w trybie TYLKO DO ODCZYTU: sprawdza, które narzędzia
@@ -33,7 +33,7 @@ Opcje:
                2. najnowszy release mdBook z GitHuba,
                3. prebuilt binarkę mdbook-mermaid (bez instalowania Rusta),
                4. bibliotekę Pythona railroad-diagrams (generator diagramów
-                  składni — scripts/generate-railroad.sh),
+                  składni - scripts/generate-railroad.sh),
                5. uruchamia 'mdbook-mermaid install .' oraz 'mdbook build',
                   generując stronę www do katalogu book/
   --with-pdf   jak --install, plus toolchain PDF/EPUB z workflow:
@@ -89,7 +89,7 @@ report() { # report <nazwa> <komenda>
   fi
 }
 
-# --- tryb sprawdzania (bez parametrów) — nic nie zmienia ---------------------
+# --- tryb sprawdzania (bez parametrów) - nic nie zmienia ---------------------
 if [ "$DO_INSTALL" -eq 0 ]; then
   missing=0
   echo "Stan systemu (tryb tylko do odczytu, nic nie zmieniam):"
@@ -133,7 +133,7 @@ apt_install() {
     sudo apt-get update -q
     sudo apt-get install -y -q "$@"
   else
-    echo "Brak apt-get — zainstaluj ręcznie: $*" >&2
+    echo "Brak apt-get - zainstaluj ręcznie: $*" >&2
     exit 1
   fi
 }
@@ -162,7 +162,7 @@ else
     | tar xz -C "$INSTALL_DIR"
 fi
 
-# mdbook-mermaid (prebuilt binary — bez potrzeby instalowania cargo)
+# mdbook-mermaid (prebuilt binary - bez potrzeby instalowania cargo)
 if command -v mdbook-mermaid >/dev/null 2>&1; then
   echo "mdbook-mermaid już zainstalowany: $(mdbook-mermaid --version)"
 else
@@ -185,7 +185,7 @@ fi
 
 case ":$PATH:" in
   *":$INSTALL_DIR:"*) ;;
-  *) echo "UWAGA: $INSTALL_DIR nie jest w PATH — dodaj do ~/.bashrc: export PATH=\"$INSTALL_DIR:\$PATH\"" >&2 ;;
+  *) echo "UWAGA: $INSTALL_DIR nie jest w PATH - dodaj do ~/.bashrc: export PATH=\"$INSTALL_DIR:\$PATH\"" >&2 ;;
 esac
 
 # railroad-diagrams (biblioteka Pythona dla scripts/generate-railroad.sh)
@@ -194,7 +194,7 @@ if python3 -c "import railroad" >/dev/null 2>&1; then
 else
   python3 -m pip --version >/dev/null 2>&1 || apt_install python3-pip
   if python3 -c "import sys; sys.exit(0 if sys.prefix != sys.base_prefix else 1)"; then
-    # aktywne środowisko wirtualne — instalujemy w nim (--user jest tam błędem)
+    # aktywne środowisko wirtualne - instalujemy w nim (--user jest tam błędem)
     python3 -m pip install railroad-diagrams
   elif ! python3 -m pip install --user railroad-diagrams; then
     echo "UWAGA: pip odmówił instalacji railroad-diagrams." >&2
@@ -213,7 +213,7 @@ if [ "$WITH_PDF" -eq 1 ]; then
   if command -v npm >/dev/null 2>&1; then
     npm install -g @mermaid-js/mermaid-cli
   else
-    echo "UWAGA: brak npm — mermaid-cli (potrzebny do PDF) nie został zainstalowany." >&2
+    echo "UWAGA: brak npm - mermaid-cli (potrzebny do PDF) nie został zainstalowany." >&2
     echo "       Zainstaluj Node.js i uruchom: npm install -g @mermaid-js/mermaid-cli" >&2
   fi
 fi

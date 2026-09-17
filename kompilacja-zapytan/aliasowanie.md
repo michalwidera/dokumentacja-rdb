@@ -23,7 +23,7 @@ $ xretractor -c query.rql
 {{#include ../regen/out/alias.txt}}
 ```
 
-`merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` — to to samo pole. Natomiast `core1[0]` — pierwsze pole schematu `core1` — trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2.
+`merged[0]` i `core0[0]` oba trafiają na `PUSH_ID(merged[0])` - to to samo pole. Natomiast `core1[0]` - pierwsze pole schematu `core1` - trafia na `PUSH_ID(merged[2])`, nie `merged[0]`. Kompilator przetłumaczył lokalny indeks `core1[0]` na absolutną pozycję w schemacie złączonym: `core0` zajmuje pozycje 0 i 1, więc `core1` zaczyna się na pozycji 2.
 
 ## Odwołanie spoza klauzuli `FROM`
 
@@ -40,7 +40,7 @@ Kompilacja kończy się błędem:
 Check result:Stream 'result' refers to 'core1', which is not in its FROM clause. A field list reads only the streams named in FROM: refer to the field by its position in the record of a stream in FROM, or move the reference to a query whose FROM names 'core1'.
 ```
 
-`merged` jest zapytaniem użytkownika z własnym interwałem i buforem, więc kompilator nie wyznacza pozycji jego źródeł w rekordzie `result`. Poprawny zapis wskazuje pole przez pozycję w rekordzie `merged` — `core1` zaczyna się tam od pozycji 2:
+`merged` jest zapytaniem użytkownika z własnym interwałem i buforem, więc kompilator nie wyznacza pozycji jego źródeł w rekordzie `result`. Poprawny zapis wskazuje pole przez pozycję w rekordzie `merged` - `core1` zaczyna się tam od pozycji 2:
 
 ```rql
 SELECT merged[0], merged[2] STREAM result FROM merged
@@ -83,8 +83,8 @@ Porównanie kompilacji dla deklaracji `core0` i `core1` z przykładu pokazuje r�
 
 | Wyrażenie `FROM` | Odwołania na liście `SELECT` | Wynik kompilacji |
 |---|---|---|
-| `core0 + core1` | `core0[0]`, `core1[0]` | `PUSH_ID(merged[0])`, `PUSH_ID(merged[2])` — schematy są skonkatenowane, więc składowe pozostają rozróżnialne |
-| `core0 # core1` | `core0[0]`, `core1[0]` | błąd kompilacji — oba argumenty dzielą pozycję `0` jednego schematu wyniku |
+| `core0 + core1` | `core0[0]`, `core1[0]` | `PUSH_ID(merged[0])`, `PUSH_ID(merged[2])` - schematy są skonkatenowane, więc składowe pozostają rozróżnialne |
+| `core0 # core1` | `core0[0]`, `core1[0]` | błąd kompilacji - oba argumenty dzielą pozycję `0` jednego schematu wyniku |
 
 Drugi wiersz odpowiada zapytaniu:
 
@@ -118,4 +118,4 @@ SELECT przeplot[_] * 2 STREAM przeskalowany FROM przeplot
 
 Gdy potrzebna jest ponownie konkretna składowa, należy odzyskać ją operatorem rozplotu `&` albo `%`, zamiast używać nazwy źródła przez węzeł `#`.
 
-> **_NOTE:_** Aliasowanie po `+` ma pokrycie w teście integracyjnym `Pattern7`, a odrzucenie odwołania spoza `FROM` — w teście `field_ref_outside_from`. Odrzucanie nazwanych składowych `#` i kontrole pozytywne dla nazwy wyniku są pokryte testami jednostkowymi `ut_compiler`.
+> **_NOTE:_** Aliasowanie po `+` ma pokrycie w teście integracyjnym `Pattern7`, a odrzucenie odwołania spoza `FROM` - w teście `field_ref_outside_from`. Odrzucanie nazwanych składowych `#` i kontrole pozytywne dla nazwy wyniku są pokryte testami jednostkowymi `ut_compiler`.

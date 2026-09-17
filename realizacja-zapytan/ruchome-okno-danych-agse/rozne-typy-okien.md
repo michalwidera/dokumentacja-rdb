@@ -4,19 +4,19 @@ Operator `@(k, w)` przez dobór dwóch parametrów pozwala zbudować każdy z kl
 
 ## Strumień źródłowy
 
-Plik `data.txt` — 12 kolejnych liczb całkowitych:
+Plik `data.txt` - 12 kolejnych liczb całkowitych:
 
 ```
 $ seq 1 12 > data.txt
 ```
 
-Deklaracja źródła — jeden rekord co sekundę, jedno pole:
+Deklaracja źródła - jeden rekord co sekundę, jedno pole:
 
 ```rql
 DECLARE val INTEGER STREAM src, 1 FILE 'data.txt'
 ```
 
-## Tumbling window — okna bez nakładania
+## Tumbling window - okna bez nakładania
 
 Skok równy rozmiarowi okna: `k = w`. Każdy element wejściowy należy dokładnie do jednego okna wyjściowego.
 
@@ -35,7 +35,7 @@ $ xqry -s tumbling
 
 Zastosowania: agregacja próbek w stałych przedziałach czasu (np. minutowe, godzinowe).
 
-## Sliding window — okna z nakładaniem
+## Sliding window - okna z nakładaniem
 
 Skok mniejszy od rozmiaru okna: `k < w`. Każdy element wejściowy pojawia się w kilku kolejnych oknach.
 
@@ -56,7 +56,7 @@ $ xqry -s sliding
 
 Zastosowania: średnia ruchoma, detekcja trendów, filtry FIR (jak w [implementacji filtru sygnałowego](../../przyklady-zastosowan/implementacja-filtru-sygnalowego.md)).
 
-## Próbkowanie — okna z przerwami
+## Próbkowanie - okna z przerwami
 
 Skok większy od rozmiaru okna: `k > w`. Część elementów wejściowych jest pomijana.
 
@@ -76,7 +76,7 @@ $ xqry -s sampled
 
 Zastosowania: decimacja sygnału, redukcja częstotliwości próbkowania, diagnostyka co N-ty pomiar.
 
-## Okno lustrzane — odwrócona kolejność pól
+## Okno lustrzane - odwrócona kolejność pól
 
 Ujemna wartość `w` odwraca kolejność pól w rekordzie wyjściowym przy zachowaniu tego samego rozmiaru okna.
 
@@ -95,7 +95,7 @@ $ xqry -s mirrored
 ...
 ```
 
-Porównaj z `src@(2,2)`, które dałoby `1 2`, `3 4`, `5 6`… — kolejność zgodna z napływem. Agregacja lustrzana jest niezbędna przy odwracaniu serializacji (deserializacja), jak opisano w [przykładzie serializacji](przyklad-serializacji.md).
+Porównaj z `src@(2,2)`, które dałoby `1 2`, `3 4`, `5 6`… - kolejność zgodna z napływem. Agregacja lustrzana jest niezbędna przy odwracaniu serializacji (deserializacja), jak opisano w [przykładzie serializacji](przyklad-serializacji.md).
 
 ## Zestawienie wzorców
 

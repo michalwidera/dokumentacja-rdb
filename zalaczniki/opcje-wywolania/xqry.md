@@ -217,4 +217,4 @@ xqry --server test --wait-server --select strumien --elimitqry 10
 
 Informacje pod listą pomocy zawierają nazwę odnogi, skrót commita, wersję kompilatora,
 czas i typ budowania oraz ścieżkę dziennika. Opis formatu znajduje się w rozdziale
-[xretractor — Informacje o wersji](xretractor.md#informacje-o-wersji).
+[xretractor - Informacje o wersji](xretractor.md#informacje-o-wersji).

@@ -18,7 +18,7 @@ FROM strumieniowe_wyrażnie_algebraiczne
 
 _Rys. 4. Diagram składni polecenia SELECT_
 
-Diagram składni (railroad) przedstawiony na Rys. 4 został wygenerowany na podstawie reguły `select_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Rozgałęzienie za słowem SELECT pokazuje, że lista pól to albo gwiazdka (pełny rekord), albo jedno lub więcej wyrażeń rozdzielonych przecinkami (pętla powracająca przez przecinek). Opcjonalny rozmiar w nawiasach kwadratowych po nazwie strumienia tworzy rodzinę strumieni. Tory omijające klauzule FILE, RETENTION (z opcjonalnym drugim parametrem — liczbą segmentów), VOLATILE/PERSISTENT i STORAGE oznaczają, że każda z nich jest opcjonalna.
+Diagram składni (railroad) przedstawiony na Rys. 4 został wygenerowany na podstawie reguły `select_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Rozgałęzienie za słowem SELECT pokazuje, że lista pól to albo gwiazdka (pełny rekord), albo jedno lub więcej wyrażeń rozdzielonych przecinkami (pętla powracająca przez przecinek). Opcjonalny rozmiar w nawiasach kwadratowych po nazwie strumienia tworzy rodzinę strumieni. Tory omijające klauzule FILE, RETENTION (z opcjonalnym drugim parametrem - liczbą segmentów), VOLATILE/PERSISTENT i STORAGE oznaczają, że każda z nich jest opcjonalna.
 
 Osoby posługujące się językiem SQL zauważą od razu że przedstawione powyżej polecenie odbiega znacząco od tego co znają z zakresu relacyjnych baz danych.
 
@@ -51,7 +51,7 @@ W szablonie `$` może wystąpić:
 - jako wartość wyrażenia, np. `cells[0]+$`;
 - w odwołaniu do innej rodziny w klauzuli `FROM`, np. `cell[$]@(2,4)`.
 
-Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, nawiasy oraz operatory `*`, `+` i `-`. Rozmiar rodziny musi być dodatni, a szablon musi rzeczywiście używać `$`. Generator nie może mieć klauzuli `FILE`, ponieważ jedna nazwa pliku nie może opisywać wielu strumieni. Kompilator odrzuca także indeksy poza zakresem rodziny, ujemne indeksy pól, indeksy pól poza zakresem slotów źródła oraz kolizje nazw wygenerowanych z istniejącymi strumieniami. Zakres indeksu pola sprawdza ta sama kontrola co dla zapisu ręcznego — patrz [Indeks poza zakresem](../../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem).
+Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, nawiasy oraz operatory `*`, `+` i `-`. Rozmiar rodziny musi być dodatni, a szablon musi rzeczywiście używać `$`. Generator nie może mieć klauzuli `FILE`, ponieważ jedna nazwa pliku nie może opisywać wielu strumieni. Kompilator odrzuca także indeksy poza zakresem rodziny, ujemne indeksy pól, indeksy pól poza zakresem slotów źródła oraz kolizje nazw wygenerowanych z istniejącymi strumieniami. Zakres indeksu pola sprawdza ta sama kontrola co dla zapisu ręcznego - patrz [Indeks poza zakresem](../../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem).
 
 Ekspansja jest pierwszym przebiegiem kompilatora. Po niej plan jest taki sam jak plan z ręcznie rozpisanymi strumieniami `cell$0`...`cell$3`; runtime nie ma osobnego mechanizmu generatorów.
 
@@ -84,13 +84,13 @@ Strumieniowe wyrażenie algebraiczne w klauzuli `FROM` może zawierać:
 
 | Operator | Składnia | Opis |
 | --- | --- | --- |
-| Suma | `A + B` | Konkatenacja schematów dwóch strumieni — patrz [Sekwencjonowanie sumowania](sekwencjonowanie-operacji-sumowania.md) |
-| Przeplot | `A # B` | Przeplot dwóch strumieni — patrz [Sekwencjonowanie przeplotu](sekwencjonowanie-operacji-przeplotu.md) |
+| Suma | `A + B` | Konkatenacja schematów dwóch strumieni - patrz [Sekwencjonowanie sumowania](sekwencjonowanie-operacji-sumowania.md) |
+| Przeplot | `A # B` | Przeplot dwóch strumieni - patrz [Sekwencjonowanie przeplotu](sekwencjonowanie-operacji-przeplotu.md) |
 | Przesunięcie | `A > N` | Przesuwa odczyt o `N` próbek |
 | Zmiana interwału | `A - r` | Przetaktowuje strumień do interwału wymiernego `r` |
 | Rozplot | `A & r` / `A % r` | Odzyskuje lewą albo prawą składową przeplotu dla stosunku `r` |
-| Okno AGSE | `A @ (k, w)` | Buduje ruchome okno danych — patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/) |
-| Redukcja | `MIN(A)` / `MAX(A)` / `AVG(A)` / `SUMC(A)` | Redukuje wielopolowy rekord do jednej wartości — patrz [Operatory agregujące](operatory-agregujace.md) |
+| Okno AGSE | `A @ (k, w)` | Buduje ruchome okno danych - patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/) |
+| Redukcja | `MIN(A)` / `MAX(A)` / `AVG(A)` / `SUMC(A)` | Redukuje wielopolowy rekord do jednej wartości - patrz [Operatory agregujące](operatory-agregujace.md) |
 
 Agregaty `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)` występują w liście `SELECT`, a nie w
 wyrażeniu strumieniowym `FROM`. Redukują historię W rekordów i mogą być operandem większego

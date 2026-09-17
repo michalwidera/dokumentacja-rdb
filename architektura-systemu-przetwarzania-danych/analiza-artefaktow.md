@@ -12,7 +12,7 @@ W celu przedstawienia procesu analizy artefaktów konieczne jest uwzględnienie 
 $ xretractor -m 10 query.rql
 ```
 
-Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 cyklach przetwarzania. Parametr `-m` określa liczbę iteracji pętli głównej, nie liczbę sekund — czas działania zależy od interwału strumieni źródłowych. Dla strumieni z interwałem 0.1 s (10 Hz) oznacza to \~1 sekundę działania. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
+Tak wywołany proces przetwarzania zapytań zakończy swoją pracę po 10 cyklach przetwarzania. Parametr `-m` określa liczbę iteracji pętli głównej, nie liczbę sekund - czas działania zależy od interwału strumieni źródłowych. Dla strumieni z interwałem 0.1 s (10 Hz) oznacza to \~1 sekundę działania. Po zakończeniu działania i przejrzeniu katalogu w którym realizowaliśmy zapytanie powinniśmy zobaczyć następujące pliki:
 
 ```
 $ ls -al
@@ -77,7 +77,7 @@ $ cat core1.desc
 
 Pliki opisu metadanych są tworzone automatycznie w momencie zarejestrowania w systemie RetractorDB obiektu. Należy pamiętać aby usunąć te deskryptory w przypadku zmodyfikowania pliku query.rql
 
-Po uruchomieniu programu xtrdb w terminalu narzędzie wyświetli znak zachęty w postaci kropki (`.`). Znak ten to wyłącznie prompt — nie jest częścią polecenia. Można od razu rozpocząć komunikację z tym narzędziem. Przykład sesji:
+Po uruchomieniu programu xtrdb w terminalu narzędzie wyświetli znak zachęty w postaci kropki (`.`). Znak ten to wyłącznie prompt - nie jest częścią polecenia. Można od razu rozpocząć komunikację z tym narzędziem. Przykład sesji:
 
 ```
 $ xtrdb
@@ -98,7 +98,7 @@ Głównym celem tego narzędzia było wsparcie przy tworzeniu skryptów testowyc
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue113_meta_xtrdb`, `issue113_meta`, `issue113_null_txtsrc`, `Pattern5` opisanych w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
-Bardzo użyteczną funkcją w tym narzędziu jest funkcja `list` oraz `rlist`. Listująca początkowe elementy pliku lub końcowe elementy pliku — uwzględniając strukturę opisaną w metadanych.
+Bardzo użyteczną funkcją w tym narzędziu jest funkcja `list` oraz `rlist`. Listująca początkowe elementy pliku lub końcowe elementy pliku - uwzględniając strukturę opisaną w metadanych.
 
 ```
 .list 4

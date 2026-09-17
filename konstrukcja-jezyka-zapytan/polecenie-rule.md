@@ -74,7 +74,7 @@ DUMP [-]<krok_wstecz> TO [-]<krok_wprzód> [RETENTION <n>]
 Reguła może być podpięta wyłącznie pod strumień zadeklarowany poleceniem `SELECT` (artefakt lub substrat). Podpięcie pod strumień wejściowy `DECLARE` jest błędem kompilacji:
 
 ```rql
-# NIEPRAWIDŁOWE — core0 jest deklaracją, nie można podpiąć reguły
+# NIEPRAWIDŁOWE - core0 jest deklaracją, nie można podpiąć reguły
 RULE r1 ON core0 WHEN core0[0] > 10 DO SYSTEM 'echo alarm'
 ```
 
@@ -93,7 +93,7 @@ WHEN NOT str1[0] = 0
 
 ## Akcja DO SYSTEM
 
-Akcja `DO SYSTEM` wykonuje podane polecenie powłoki (przez wywołanie `system(3)`) w momencie spełnienia warunku. RetractorDB loguje kod wyjścia polecenia — niezerowy kod jest raportowany jako błąd w logu.
+Akcja `DO SYSTEM` wykonuje podane polecenie powłoki (przez wywołanie `system(3)`) w momencie spełnienia warunku. RetractorDB loguje kod wyjścia polecenia - niezerowy kod jest raportowany jako błąd w logu.
 
 ```rql
 RULE alert1 \
@@ -138,7 +138,7 @@ Format pliku to surowe dane binarne zgodne z deskryptorem strumienia (bez nagł�
 
 ### Opcja RETENTION
 
-Parametr `RETENTION <n>` ogranicza liczbę przechowywanych zrzutów — stary plik jest nadpisywany przez nowy (bufor cykliczny). Bez `RETENTION` każde wyzwolenie nadpisuje jeden plik `_dump.tmp`.
+Parametr `RETENTION <n>` ogranicza liczbę przechowywanych zrzutów - stary plik jest nadpisywany przez nowy (bufor cykliczny). Bez `RETENTION` każde wyzwolenie nadpisuje jeden plik `_dump.tmp`.
 
 ```rql
 RULE zdarzenie ON wyniki WHEN wyniki[0] > 500 DO DUMP -10 TO 5 RETENTION 20

@@ -1,6 +1,6 @@
 # Rozwiązywanie interwałów
 
-Każdy strumień w RetractorDB ma przypisany interwał czasowy — delta (Δ). Interwał określa, jak często produkowane są nowe wartości. Dla strumieni deklarowanych (`DECLARE`) interwał podaje użytkownik. Dla strumieni wynikowych (`SELECT`) interwał wyznacza kompilator z równań algebry strumieni.
+Każdy strumień w RetractorDB ma przypisany interwał czasowy - delta (Δ). Interwał określa, jak często produkowane są nowe wartości. Dla strumieni deklarowanych (`DECLARE`) interwał podaje użytkownik. Dla strumieni wynikowych (`SELECT`) interwał wyznacza kompilator z równań algebry strumieni.
 
 Przykłady w tym rozdziale używają kanonicznych deklaracji z całego rozdziału: `core0` (Δ=1/10), `core1` (Δ=1/5), `core2` (Δ=3/10).
 
@@ -23,7 +23,7 @@ pętla:
     prevUnresolved = unresolvedCount
 ```
 
-Każda runda rozwiązuje co najmniej jeden strumień — bo graf jest acykliczny i sortowanie topologiczne gwarantuje, że źródła są przetwarzane przed wynikami. Jeśli liczba nierozwiązanych strumieni nie maleje, oznacza to cykl — patrz [Wykrywanie pętli](wykrywanie-petli.md).
+Każda runda rozwiązuje co najmniej jeden strumień - bo graf jest acykliczny i sortowanie topologiczne gwarantuje, że źródła są przetwarzane przed wynikami. Jeśli liczba nierozwiązanych strumieni nie maleje, oznacza to cykl - patrz [Wykrywanie pętli](wykrywanie-petli.md).
 
 ## Równania operatorów
 
@@ -47,7 +47,7 @@ SELECT ... STREAM c FROM a # b
 
 \\[\Delta_c = \frac{\Delta_a \cdot \Delta_b}{\Delta_a + \Delta_b}\\]
 
-Wynik odpowiada średniej harmonicznej interwałów — strumień produkuje wartości tylko wtedy, gdy oba wejścia są dostępne jednocześnie.
+Wynik odpowiada średniej harmonicznej interwałów - strumień produkuje wartości tylko wtedy, gdy oba wejścia są dostępne jednocześnie.
 
 Przykład: core0(Δ=1/10) # core1(Δ=1/5) → str1(Δ=1/15)
 
@@ -62,7 +62,7 @@ SELECT ... STREAM c FROM a > n
 Przesunięcie nie zmienia częstotliwości ani ciągu emitowanych rekordów, zmienia
 natomiast indeks, pod którym ten ciąg się pojawia: rekord `m` niesie treść
 rekordu `m-n`. Jest przyczynowym opóźnieniem, ale jego nośnikiem jest **początek
-logiczny**, a nie ogon — rekordy o indeksie mniejszym od `n` nie mają definicji.
+logiczny**, a nie ogon - rekordy o indeksie mniejszym od `n` nie mają definicji.
 Własny ogon operatora jest niedodatni: wynosi `max(0, W_src − n)`, bo rekord
 `m-n` jest starszy od bieżącego i tym bardziej dostępny. Listing planu pokazuje
 obie wielkości jako `origin=` i `tail=`; sloty milczenia to ich suma i runtime
@@ -91,7 +91,7 @@ AGSE (Algorytm Generowania Serii Epizodów) generuje okna przesuwne. Interwał w
 
 ### Operatory de-hash (STREAM\_DEHASH\_DIV, STREAM\_DEHASH\_MOD)
 
-Operacje odwrotne do `#` — wyznaczają, jaki interwał miał jeden ze strumieni wejściowych, znając interwał wyniku i drugiego argumentu:
+Operacje odwrotne do `#` - wyznaczają, jaki interwał miał jeden ze strumieni wejściowych, znając interwał wyniku i drugiego argumentu:
 
 \\[\Delta_a = \frac{\Delta_c \cdot \Delta_b}{\left|\Delta_c - \Delta_b\right|}\\]
 
@@ -105,4 +105,4 @@ SELECT str1[0] STREAM str1 FROM core0
 SELECT str2[0] STREAM str2 FROM str1
 ```
 
-W pierwszej rundzie iteracji kompilator wyznacza Δ\_str1 = 1/10 (bo Δ\_core0 jest znana). W drugiej rundzie — Δ\_str2 = 1/10 (bo Δ\_str1 jest już znana). Gdyby nie iteracja, str2 musiałoby być zadeklarowane przed str1, co ograniczałoby ekspresywność języka.
+W pierwszej rundzie iteracji kompilator wyznacza Δ\_str1 = 1/10 (bo Δ\_core0 jest znana). W drugiej rundzie - Δ\_str2 = 1/10 (bo Δ\_str1 jest już znana). Gdyby nie iteracja, str2 musiałoby być zadeklarowane przed str1, co ograniczałoby ekspresywność języka.

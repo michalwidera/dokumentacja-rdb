@@ -4,20 +4,20 @@ Kompilator transformuje plik `.rql` w plan wykonania przez kilka etapów. Efekt 
 
 ## Podstawowe narzędzie: flaga `-c`
 
-Flaga `-c` (`--onlycompile`) zatrzymuje `xretractor` po kompilacji i drukuje skompilowany plan na standardowe wyjście — bez uruchamiania przetwarzania:
+Flaga `-c` (`--onlycompile`) zatrzymuje `xretractor` po kompilacji i drukuje skompilowany plan na standardowe wyjście - bez uruchamiania przetwarzania:
 
 ```bash
 xretractor -c query.rql
 ```
 
-Kod wyjścia `0` oznacza sukces. Kod `1` — błąd kompilacji. Komunikaty błędów trafiają na stderr:
+Kod wyjścia `0` oznacza sukces. Kod `1` - błąd kompilacji. Komunikaty błędów trafiają na stderr:
 
 ```bash
 xretractor -c query.rql 2>errors.txt
 echo $?
 ```
 
-Kompilację można wywołać nawet gdy inny proces `xretractor` już działa — flaga `-c` nie próbuje przejąć blokady wykonania.
+Kompilację można wywołać nawet gdy inny proces `xretractor` już działa - flaga `-c` nie próbuje przejąć blokady wykonania.
 
 ## Jak czytać plan kompilacji
 
@@ -45,15 +45,15 @@ nazwaStrumienia(delta)
 | `:- STREAM_HASH` | Operator synchronizacji strumieni (`#` w FROM) |
 | `:- STREAM_TIMEMOVE(n)` | Przesunięcie w czasie (`>n` w FROM) |
 | `pole: TYP` | Pole schematu wynikowego po równaniu typów w górę |
-| `PUSH_ID(s[n])` | Odkłada na stos wartość pola `n` ze strumienia `s` — tu widoczny efekt aliasowania |
+| `PUSH_ID(s[n])` | Odkłada na stos wartość pola `n` ze strumienia `s` - tu widoczny efekt aliasowania |
 | `PUSH_VAL(x)` | Odkłada stałą `x` na stos |
 | `ADD`, `MULTIPLY`, ... | Operacja arytmetyczna: zdejmuje dwa argumenty ze stosu, odkłada wynik |
 
-Bloki efemerydów (`DECLARE`) pojawiają się na końcu planu — zawierają listę pól i ścieżkę do pliku danych.
+Bloki efemerydów (`DECLARE`) pojawiają się na końcu planu - zawierają listę pól i ścieżkę do pliku danych.
 
-**Aliasowanie w planie**: jeśli dwa pola wyjściowe wskazują na ten sam `PUSH_ID`, są aliasami. W przykładzie `result_0` i `result_2` oba to `PUSH_ID(merged[0])` — potwierdzenie, że `merged[0]` i `core0[0]` to ta sama pozycja. Patrz [Aliasowanie](aliasowanie.md).
+**Aliasowanie w planie**: jeśli dwa pola wyjściowe wskazują na ten sam `PUSH_ID`, są aliasami. W przykładzie `result_0` i `result_2` oba to `PUSH_ID(merged[0])` - potwierdzenie, że `merged[0]` i `core0[0]` to ta sama pozycja. Patrz [Aliasowanie](aliasowanie.md).
 
-**Substraty w planie**: automatycznie wygenerowany substrat pojawia się jako blok z nazwą w stylu `STREAM_HASH_core0_core1` — bez odpowiadającego `SELECT` w pliku źródłowym. Patrz [Substraty](substraty.md).
+**Substraty w planie**: automatycznie wygenerowany substrat pojawia się jako blok z nazwą w stylu `STREAM_HASH_core0_core1` - bez odpowiadającego `SELECT` w pliku źródłowym. Patrz [Substraty](substraty.md).
 
 ## Wizualizacja grafu zależności
 
@@ -72,7 +72,7 @@ Dostępne flagi modyfikujące wyjście DOT:
 | `-t`  | `--tags`        | pokaż programy poszczególnych pól (`-f`) |
 | `-s`  | `--streamprogs` | pokaż sekwencje instrukcji stosu w węzłach |
 | `-u`  | `--rules`       | pokaż reguły RULE |
-| `-p`  | `--transparent` | przezroczyste tło — do osadzania w dokumentach |
+| `-p`  | `--transparent` | przezroczyste tło - do osadzania w dokumentach |
 
 Graf pokazuje zależności między strumieniami jako krawędzie skierowane od źródeł do wyników. Substraty mają inny kolor niż strumienie jawnie zdefiniowane przez użytkownika. Patrz [Budowa drzewa zależności](budowa-drzewa-zaleznosci.md).
 
@@ -82,10 +82,10 @@ Graf pokazuje zależności między strumieniami jako krawędzie skierowane od ź
 
 Jeśli delta strumienia wynikowego jest niespodziewana:
 
-1. Sprawdź delty strumieni źródłowych — widoczne w blokach DECLARE na końcu planu.
-2. Sprawdź operator w klauzuli FROM — każdy operator ma inne równanie na deltę.
+1. Sprawdź delty strumieni źródłowych - widoczne w blokach DECLARE na końcu planu.
+2. Sprawdź operator w klauzuli FROM - każdy operator ma inne równanie na deltę.
 
-Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna), nie `1/10`. Jeśli spodziewałeś się `1/10`, użyj `+` zamiast `#`. Pełne równania — patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
+Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna), nie `1/10`. Jeśli spodziewałeś się `1/10`, użyj `+` zamiast `#`. Pełne równania - patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
 
 ## Typowe błędy kompilacji
 
@@ -96,11 +96,11 @@ Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna),
 >> unresolved streams
 ```
 
-Strumień odwołuje się pośrednio lub bezpośrednio do samego siebie. Wygeneruj graf przez `-d` — cykl będzie widoczny jako pętla. Patrz [Wykrywanie pętli](wykrywanie-petli.md).
+Strumień odwołuje się pośrednio lub bezpośrednio do samego siebie. Wygeneruj graf przez `-d` - cykl będzie widoczny jako pętla. Patrz [Wykrywanie pętli](wykrywanie-petli.md).
 
 ### Nieznany strumień
 
-Odwołanie do strumienia, który nie został jeszcze zadeklarowany. Pliki `.rql` przetwarzane są sekwencyjnie — `SELECT` nie może odwoływać się do strumienia zdefiniowanego niżej w pliku. Przesuń `DECLARE` lub `SELECT` wyżej.
+Odwołanie do strumienia, który nie został jeszcze zadeklarowany. Pliki `.rql` przetwarzane są sekwencyjnie - `SELECT` nie może odwoływać się do strumienia zdefiniowanego niżej w pliku. Przesuń `DECLARE` lub `SELECT` wyżej.
 
 ### Niezgodność krotności schematów przy `_`
 
@@ -108,4 +108,4 @@ Oba strumienie w wyrażeniu `core0[_] * core1[_]` muszą mieć schematy tej same
 
 ### Plik danych niedostępny
 
-Błąd ten **nie pojawia się przy `-c`** — flaga weryfikuje poprawność zapytania, nie sprawdza czy pliki danych istnieją. Błąd dostępu do pliku pojawi się dopiero przy uruchamianiu przetwarzania bez `-c`.
+Błąd ten **nie pojawia się przy `-c`** - flaga weryfikuje poprawność zapytania, nie sprawdza czy pliki danych istnieją. Błąd dostępu do pliku pojawi się dopiero przy uruchamianiu przetwarzania bez `-c`.

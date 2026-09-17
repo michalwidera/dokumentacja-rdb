@@ -1,6 +1,6 @@
 # Warunek logiczny w RULE
 
-Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewaluowane na każdym nowym rekordzie wskazanego strumienia. Jeśli wyrażenie zwraca prawdę — uruchamiany jest proces zdefiniowany w klauzuli `DO`.
+Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewaluowane na każdym nowym rekordzie wskazanego strumienia. Jeśli wyrażenie zwraca prawdę - uruchamiany jest proces zdefiniowany w klauzuli `DO`.
 
 ## Operatory porównania
 
@@ -17,13 +17,13 @@ Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewal
 
 | Operator | Znaczenie |
 | -------- | --------- |
-| `AND`    | koniunkcja — oba warunki muszą być spełnione |
-| `OR`     | alternatywa — wystarczy jeden warunek        |
-| `NOT`    | negacja — warunek musi być niespełniony      |
+| `AND`    | koniunkcja - oba warunki muszą być spełnione |
+| `OR`     | alternatywa - wystarczy jeden warunek        |
+| `NOT`    | negacja - warunek musi być niespełniony      |
 
 ## Struktura wyrażenia
 
-Warunek buduje się z pól schematu strumienia wskazanego w klauzuli `ON`. Pola identyfikowane są tak samo jak w `SELECT` — przez nazwę strumienia z indeksem:
+Warunek buduje się z pól schematu strumienia wskazanego w klauzuli `ON`. Pola identyfikowane są tak samo jak w `SELECT` - przez nazwę strumienia z indeksem:
 
 ```rql
 WHEN strumień[indeks] operator wartość
@@ -55,7 +55,7 @@ RULE jednorazowy ON dane WHEN NOT dane[0] = 0 DO DUMP -5 TO 0
 
 ## Dostęp do pól
 
-Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowiada pozycji w schemacie tego strumienia — tak samo jak w klauzuli `SELECT`. Warunek czyta rekord wyjściowy strumienia, więc indeks równy liczbie jego pól lub większy jest błędem kompilacji (zob. [Indeks poza zakresem](../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem)). Aliasowanie działa identycznie jak opisano w rozdziale [Aliasowanie](../kompilacja-zapytan/aliasowanie.md).
+Warunek odwołuje się do pól strumienia wskazanego w `ON`. Indeks pola odpowiada pozycji w schemacie tego strumienia - tak samo jak w klauzuli `SELECT`. Warunek czyta rekord wyjściowy strumienia, więc indeks równy liczbie jego pól lub większy jest błędem kompilacji (zob. [Indeks poza zakresem](../kompilacja-zapytan/aliasowanie.md#indeks-poza-zakresem)). Aliasowanie działa identycznie jak opisano w rozdziale [Aliasowanie](../kompilacja-zapytan/aliasowanie.md).
 
 Jeżeli strumień z `ON` powstał przez przeplot `A#B`, warunek musi używać nazwy strumienia wynikowego:
 

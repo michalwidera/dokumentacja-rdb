@@ -12,7 +12,7 @@ Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementacj�
 
 | Typ (`TYPE_PROFILE`) | Klasa implementacji                    | Zastosowanie                                                      |
 | -------------------- | ------------------------------------------------------- | -------------------------------------------- |
-| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne — plik danych + plik cienia, z retencją        |
+| `DEFAULT`            | `groupFile<posixBinaryFileWithShadow>` | Artefakty domyślne - plik danych + plik cienia, z retencją        |
 | `DIRECT`             | `groupFile<posixBinaryFile>`           | Zapis bezpośredni bez cienia, z retencją                          |
 | `POSIX`              | `posixBinaryFile`                      | Surowy zapis POSIX bez cienia                                     |
 | `POSIXSHD`           | `posixBinaryFileWithShadow`            | POSIX z plikiem cienia                                            |
@@ -29,7 +29,7 @@ Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie pi�
 
 | Plik                  | Rozszerzenie         | Cel                                                       |
 | --------------------- | -------------------- | --------------------------------------------------------- |
-| Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów — append-only                    |
+| Plik danych binarnych | _(nazwa strumienia)_ | Główny strumień rekordów - append-only                    |
 | Plik deskryptora      | `.desc`              | Schemat rekordu (pola, typy, rozmiary, typ składowania)   |
 | Plik metadanych       | `.meta`              | Indeks wartości null i przerw w transmisji (RLE)          |
 | Plik cienia danych    | `.shadow`            | Modyfikacje rekordów bez nadpisywania danych oryginalnych |
@@ -57,17 +57,17 @@ graph TD
 
 _Rys. 15. Zestaw plików artefaktu i ich powiązania_
 
-Diagram na Rys. 15 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, `.shadow` przechowuje opcjonalne nadpisania rekordów, a `.meta.shadow` — odpowiadające im nadpisania wzorców null. Dwa pliki cienia zawsze idą w parze.
+Diagram na Rys. 15 przedstawia statyczną relację między plikami artefaktu: `.desc` definiuje strukturę rekordu, `.meta` indeksuje null i przerwy, `.shadow` przechowuje opcjonalne nadpisania rekordów, a `.meta.shadow` - odpowiadające im nadpisania wzorców null. Dwa pliki cienia zawsze idą w parze.
 
 Pliki cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych bez przerw i bez modyfikacji wystarczy sam plik danych binarnych i deskryptor.
 
-Efemerydy **nie mają własnego pliku danych** — ich źródłem jest obiekt zewnętrzny (plik tekstowy, urządzenie), którego system nie tworzy ani nie usuwa. Powstaje dla nich natomiast deskryptor `.desc` opisujący schemat odczytu. Indeks `.meta` nie powstaje: dla źródeł deklarowanych wstrzykiwany jest inertny wariant indeksu metadanych, działający wyłącznie w pamięci.
+Efemerydy **nie mają własnego pliku danych** - ich źródłem jest obiekt zewnętrzny (plik tekstowy, urządzenie), którego system nie tworzy ani nie usuwa. Powstaje dla nich natomiast deskryptor `.desc` opisujący schemat odczytu. Indeks `.meta` nie powstaje: dla źródeł deklarowanych wstrzykiwany jest inertny wariant indeksu metadanych, działający wyłącznie w pamięci.
 
 ***
 
 ## Rozdziały
 
-* [Pliki artefaktu](pliki.md) — deskryptor, dane binarne, metadane, plik cienia i relacje między nimi
-* [Mechanizm rotacji plików](rotacja.md) — dyrektywa `ROTATION`, cykl życia plików, przykłady sesji
-* [Narzędzie inspekcji `xtrdb -s`](narzedzie-inspekcji.md) — mapa składowania, sekcje raportu, przykłady
-* [Podsumowanie](podsumowanie.md) — uzasadnienie przyjętej struktury, porównanie podejść
+* [Pliki artefaktu](pliki.md) - deskryptor, dane binarne, metadane, plik cienia i relacje między nimi
+* [Mechanizm rotacji plików](rotacja.md) - dyrektywa `ROTATION`, cykl życia plików, przykłady sesji
+* [Narzędzie inspekcji `xtrdb -s`](narzedzie-inspekcji.md) - mapa składowania, sekcje raportu, przykłady
+* [Podsumowanie](podsumowanie.md) - uzasadnienie przyjętej struktury, porównanie podejść

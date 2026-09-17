@@ -289,7 +289,7 @@ Ogon przeplotu o interwale
 z definicji operatora, bez pośrednictwa jednego członu fazowego.
 
 Rekord \\(i\\) strumienia \\(\varphi(A,B)\\) niesie treść rekordu \\(j(i)\\)
-jednej ze składowych — tej, którą w slocie \\(i\\) wybiera definicja przeplotu.
+jednej ze składowych - tej, którą w slocie \\(i\\) wybiera definicja przeplotu.
 Oznaczmy przez \\(\Delta_{s(i)}\\) i \\(W_{s(i)}\\) interwał oraz ogon wybranej
 składowej. Rekord \\(j(i)\\) jest określony w chwili
 \\(\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}\\), a slot \\(i\\) konsumenta kończy
@@ -315,7 +315,7 @@ W_{\varphi(A,B)}
 \\]
 
 Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej dla
-żadnego węzła. Przegląd okresu zaczyna się od zera — początek logiczny przesuwa
+żadnego węzła. Przegląd okresu zaczyna się od zera - początek logiczny przesuwa
 indeks konsumenta i indeks składowej o tę samą liczbę slotów, więc okno
 \\([0,\,p+q)\\) daje tę samą wartość co okno przesunięte.
 
@@ -333,7 +333,7 @@ H_{a,b}=\left\lceil\frac{p+q-1}{p}\right\rceil
 \\]
 
 zabezpieczała najgorszą fazę odczytu drugiego argumentu, ale nie sprawdzała,
-czy ta faza w ogóle wypada na rekord czekający najdłużej — dlatego zawyżała
+czy ta faza w ogóle wypada na rekord czekający najdłużej - dlatego zawyżała
 ogon o slot dla części węzłów. Pozostała w implementacji jako wariant awaryjny
 dla \\(p+q\\) powyżej progu przeglądu (`kHashPhaseScanLimit` w
 `SOperations.hpp`): zawyżenie kosztuje jeden slot opóźnienia, podczas gdy
@@ -351,7 +351,7 @@ W_{\tau_m(S)}=\max\left(0,\;W_S-m\right)
 \\]
 
 Ogon **maleje**: rekord \\(n-m\\) jest starszy od bieżącego, więc dostępny tym
-bardziej — deficyt slotu wynosi \\(W_S-m\\) i jest stały. Szczegóły i pomiar:
+bardziej - deficyt slotu wynosi \\(W_S-m\\) i jest stały. Szczegóły i pomiar:
 [Ogony, początki logiczne i obserwowalność
 operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
@@ -362,7 +362,7 @@ operatorów](ogony-i-obserwowalnosc-operatorow.md).
 > przesunięte o ten sam czas), to przeplot strumieni przesuniętych i przeplot
 > strumieni pierwotnych przesunięty o sumę tych liczb mają **ten sam ciąg
 > rekordów, ten sam interwał i ten sam początek logiczny**. Ich ogony spełniają
-> nierówność — strona sfaktoryzowana nigdy nie jest późniejsza.
+> nierówność - strona sfaktoryzowana nigdy nie jest późniejsza.
 
 Formalnie, dla \\(L:=i+k\\):
 
@@ -378,7 +378,7 @@ W_{\mathrm{RHS}}=\max\left(0,\;W_{\varphi(A,B)}-L\right)\le W_{\mathrm{LHS}}
 
 gdzie \\(\operatorname{Obs}\\) jest częścią wartościową obserwacji (interwał,
 początek logiczny, ciąg rekordów z mapą `NULL`, deskryptor, ślad luk, polityka
-materializacji) — patrz [Ogony, początki logiczne i obserwowalność
+materializacji) - patrz [Ogony, początki logiczne i obserwowalność
 operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 **Dowód.**

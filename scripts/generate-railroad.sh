@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# generate-railroad.sh — aktualizuje diagramy railroad (assets/railroad-*.svg)
+# generate-railroad.sh - aktualizuje diagramy railroad (assets/railroad-*.svg)
 # na podstawie gramatyki ANTLR4 RQL.g4 z repozytorium retractordb.
 #
 # Użycie:
@@ -9,12 +9,12 @@
 #   scripts/generate-railroad.sh --grammar ŚCIEŻKA/RQL.g4
 #
 # Zakłada, że repozytoria leżą obok siebie:
-#   …/dokumentacja-rdb    (to repozytorium — diagramy z polskimi etykietami)
-#   …/documentation-rdb   (wersja angielska — etykiety po angielsku)
+#   …/dokumentacja-rdb    (to repozytorium - diagramy z polskimi etykietami)
+#   …/documentation-rdb   (wersja angielska - etykiety po angielsku)
 #   …/retractordb         (kod źródłowy z RQL.g4)
 #
 # Właściwą pracę wykonuje scripts/generate_railroad.py; wymaga biblioteki
-# railroad-diagrams — instaluje ją scripts/install-local-tools.sh --install
+# railroad-diagrams - instaluje ją scripts/install-local-tools.sh --install
 
 set -euo pipefail
 

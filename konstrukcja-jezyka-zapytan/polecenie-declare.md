@@ -34,7 +34,7 @@ Każde pole ma nazwę i typ. Dostępne typy:
 
 ### Tablice pól (`typ[N]`)
 
-Do każdego pola można dodać mnożnik tablicowy `[N]` — pole zajmuje `N × rozmiar_typu` bajtów i tworzy `N` kolejnych pozycji w schemacie rekordu:
+Do każdego pola można dodać mnożnik tablicowy `[N]` - pole zajmuje `N × rozmiar_typu` bajtów i tworzy `N` kolejnych pozycji w schemacie rekordu:
 
 ```rql
 DECLARE coef INTEGER[25] STREAM filter, 1 FILE 'coefficients.txt'
@@ -72,7 +72,7 @@ Aby parsowanie pliku nastąpiło automatycznie, plik musi nosić rozszerzenie .t
 
 Jeśli plik danych wejściowych będzie nosić rozszerzenie .dat – plik ten zostanie potraktowany jako plik binarny a odczyt danych z niego zostanie również zapętlony. Zapętlenie polega na tym że po przeczytaniu ostatniej wartości z pliku źródłowego, pozycja odczytu pliku kierowana jest na początek. Dane z takiego pliku czytane są w nieskończonej pętli, po zakończeniu wracając do początku.
 
-Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych — szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
+Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych - szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
 
 > **ℹ️ Info**
 >

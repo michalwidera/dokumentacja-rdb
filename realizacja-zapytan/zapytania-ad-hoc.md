@@ -56,14 +56,14 @@ serwerów jest odrzucane. Nowe nazwy strumieni i pliki magazynu są zgłaszane w
 magistrali przed modyfikacją aktywnego planu, więc ad hoc nie może nadpisać
 zasobu innej instancji.
 
-Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia — także
-w instancji bezczynnej — służy `xqry --reset plik.rql`.
+Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia - także
+w instancji bezczynnej - służy `xqry --reset plik.rql`.
 
 ### Kiedy zaczyna się strumień dołożony ad hoc
 
 Plan zbudowany od początku pracy systemu numeruje rekordy od początku
 logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma
-takiej przeszłości — jego pierwszym rekordem jest **pierwszy slot, w którym
+takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym
 runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy:
 skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym
 zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet

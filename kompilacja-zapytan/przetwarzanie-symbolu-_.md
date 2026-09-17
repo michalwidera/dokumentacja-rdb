@@ -4,7 +4,7 @@ Indeks `[_]` jest cukrem syntaktycznym powielającym wyrażenie pola. Jedno wyra
 
 Liczba kopii nie wynika wyłącznie z własnego schematu strumienia. `x[_]` oznacza wszystkie sloty, które `x` wnosi do rekordu czytanego przez dane zapytanie z całej klauzuli `FROM`. Ma to znaczenie, gdy operator strumieniowy zmienia szerokość schematu, na przykład tworząc okno.
 
-Przykład używa kanonicznych deklaracji z całego rozdziału — `core0` ma dwa pola (BYTE, INTEGER), `core1` ma dwa pola (INTEGER, FLOAT), schematy są równoliczne:
+Przykład używa kanonicznych deklaracji z całego rozdziału - `core0` ma dwa pola (BYTE, INTEGER), `core1` ma dwa pola (INTEGER, FLOAT), schematy są równoliczne:
 
 ```rql
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE ‘sensor_a.txt’
@@ -23,7 +23,7 @@ $ xretractor -c query.rql
 {{#include ../regen/out/underscore.txt}}
 ```
 
-Symbol `_` rozwinął się w dwa pola: `scaled[0] * scaled[2]` (czyli `a * c`) i `scaled[1] * scaled[3]` (czyli `b * d`). Odwołania do `core0` i `core1` zostały przetłumaczone przez aliasowanie na absolutne pozycje w schemacie złączonym. Typy wynikowe to INTEGER (`BYTE * INTEGER`) i FLOAT (`INTEGER * FLOAT`) — wynik równania typów w górę, opisanego w osobnym podrozdziale.
+Symbol `_` rozwinął się w dwa pola: `scaled[0] * scaled[2]` (czyli `a * c`) i `scaled[1] * scaled[3]` (czyli `b * d`). Odwołania do `core0` i `core1` zostały przetłumaczone przez aliasowanie na absolutne pozycje w schemacie złączonym. Typy wynikowe to INTEGER (`BYTE * INTEGER`) i FLOAT (`INTEGER * FLOAT`) - wynik równania typów w górę, opisanego w osobnym podrozdziale.
 
 ## Szerokość liczona w klauzuli `FROM`
 

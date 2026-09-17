@@ -1,6 +1,6 @@
 # Narzędzie inspekcji: `xtrdb -s`
 
-Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania artefaktu — bez otwierania procesu `xretractor`, bez wchodzenia w tryb interaktywny. Wystarczy wskazać ścieżkę bazową (bez rozszerzenia), a narzędzie samo znajdzie powiązane pliki: `.desc`, dane binarne, `.meta`, `.shadow`, segmenty cykliczne i pliki rotowane.
+Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania artefaktu - bez otwierania procesu `xretractor`, bez wchodzenia w tryb interaktywny. Wystarczy wskazać ścieżkę bazową (bez rozszerzenia), a narzędzie samo znajdzie powiązane pliki: `.desc`, dane binarne, `.meta`, `.shadow`, segmenty cykliczne i pliki rotowane.
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue153_storagemap_meta_cases` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
@@ -8,13 +8,13 @@ Polecenie `xtrdb -s <ścieżka>` wyświetla kompletny obraz stanu składowania a
 
 | Sytuacja | Co daje `xtrdb -s` |
 | -------- | ------------------- |
-| Diagnoza po awarii | Widać od razu, czy plik danych jest spójny z metadanymi — różne liczby rekordów sygnalizują problem |
+| Diagnoza po awarii | Widać od razu, czy plik danych jest spójny z metadanymi - różne liczby rekordów sygnalizują problem |
 | Weryfikacja retencji | Sekcja DATA TOTAL pokazuje podział na segmenty i aktualny stopień wypełnienia bufora cyklicznego |
-| Kontrola modyfikacji | Sekcja SHADOW ujawnia liczbę niezatwierdzonych zmian — `Updates: N` to liczba wpisów w `.shadow`; w normalnej pracy to stan docelowy, bo silnik nie wywołuje `merge()` samodzielnie |
+| Kontrola modyfikacji | Sekcja SHADOW ujawnia liczbę niezatwierdzonych zmian - `Updates: N` to liczba wpisów w `.shadow`; w normalnej pracy to stan docelowy, bo silnik nie wywołuje `merge()` samodzielnie |
 | Analiza jakości danych | Pasek META z symbolami `=`, `-`, `~`, `X` pokazuje wzorzec null i przerwy bez parsowania pliku binarnego |
 | Audyt historii rotacji | Sekcja ROTATED FILES wymienia stare wersje pliku po kolejnych rotacjach |
 
-Polecenie jest **tylko do odczytu** — nie modyfikuje żadnego pliku. Można je uruchamiać również gdy `xretractor` nie działa.
+Polecenie jest **tylko do odczytu** - nie modyfikuje żadnego pliku. Można je uruchamiać również gdy `xretractor` nie działa.
 
 ## Co pokazuje mapa
 
@@ -53,15 +53,15 @@ Poniżej mapy następują kolejne sekcje:
 ### Legenda paska META
 
 ```
-[====] — dane bez wartości null
-[----] — częściowe null (przynajmniej jedno pole ma wartość null)
-[~~~~] — wszystkie pola mają wartość null (nullfill)
-[XXXX] — przerwa w transmisji (gap)
+[====] - dane bez wartości null
+[----] - częściowe null (przynajmniej jedno pole ma wartość null)
+[~~~~] - wszystkie pola mają wartość null (nullfill)
+[XXXX] - przerwa w transmisji (gap)
 ```
 
 ---
 
-## Przykład 1 — artefakt prosty
+## Przykład 1 - artefakt prosty
 
 Strumień `pomiar` z dwoma polami, 100 rekordów, bez modyfikacji, bez przerw:
 
@@ -107,7 +107,7 @@ Interpretacja: jeden segment RLE, brak przerw, brak null, plik cienia nieobecny.
 
 ---
 
-## Przykład 2 — artefakt z przerwą w transmisji i modyfikacją
+## Przykład 2 - artefakt z przerwą w transmisji i modyfikacją
 
 Strumień `czujnik` z trzema polami. Po 50 rekordach nastąpiła przerwa (10 jednostek interwału), następnie napłynęło 30 rekordów z częściowymi brakami w polu `pressure`. Dwa rekordy zostały później zmodyfikowane (plik cienia obecny):
 
@@ -154,11 +154,11 @@ $ xtrdb -s czujnik
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w pliku danych), przerwa jest zakodowana wyłącznie w `.meta`. Kolumna `[binary data]` pokazuje pusty zakres dla segmentu gapowego — danych binarnych nie ma. Pole `pressure` w rekordach 50–79 ma wartości null w niektórych polach (`[----]`).
+Interpretacja: plik binarny zawiera 80 rekordów (gap nie zajmuje miejsca w pliku danych), przerwa jest zakodowana wyłącznie w `.meta`. Kolumna `[binary data]` pokazuje pusty zakres dla segmentu gapowego - danych binarnych nie ma. Pole `pressure` w rekordach 50–79 ma wartości null w niektórych polach (`[----]`).
 
 ---
 
-## Przykład 3 — artefakt z retencją segmentową
+## Przykład 3 - artefakt z retencją segmentową
 
 Strumień `bufor` z retencją cykliczną: maksymalnie 10 segmentów po 100 rekordów (łącznie 1000 rekordów). Aktualnie zapisano 280 rekordów w trzech segmentach:
 

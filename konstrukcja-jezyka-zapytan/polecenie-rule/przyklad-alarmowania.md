@@ -38,7 +38,7 @@ Zapis sesji (Animacja poniżej):
 
 ## Przykład 2: zapis kontekstu zdarzenia (DO DUMP)
 
-Akcja `DO DUMP` pozwala utrwalić okno próbek z otoczenia zdarzenia — dane sprzed i po jego wystąpieniu. Jest to przydatne gdy chcemy zachować kontekst anomalii do późniejszej analizy.
+Akcja `DO DUMP` pozwala utrwalić okno próbek z otoczenia zdarzenia - dane sprzed i po jego wystąpieniu. Jest to przydatne gdy chcemy zachować kontekst anomalii do późniejszej analizy.
 
 Tworzymy plik `query.rql`:
 
@@ -51,7 +51,7 @@ SELECT str1[0] STREAM str1 FROM core0
 RULE zapis_anomalii ON str1 WHEN str1[0] > 24 DO DUMP -3 TO 3
 ```
 
-Dane wejściowe — liczby od 20 do 28:
+Dane wejściowe - liczby od 20 do 28:
 
 ```
 $ seq 20 28 > datafile1.txt
@@ -67,7 +67,7 @@ Gdy wartość strumienia `str1` przekroczy 24, reguła wyzwoli zapis 6 rekordów
 
 ### Odczyt pliku zrzutu
 
-Plik zrzutu nie zawiera nagłówka `.desc` — przy otwieraniu w `xtrdb` należy podać schemat ręcznie:
+Plik zrzutu nie zawiera nagłówka `.desc` - przy otwieraniu w `xtrdb` należy podać schemat ręcznie:
 
 ```
 $ xtrdb
@@ -105,7 +105,7 @@ Po przekroczeniu pojemności (`RETENTION 5`) najstarszy plik jest nadpisywany pr
 
 ## Przykład 4: wiele reguł na jednym strumieniu
 
-Do jednego strumienia można przypiąć dowolną liczbę reguł. Poniższy przykład łączy obie akcje — powiadomienie systemowe i zapis kontekstu:
+Do jednego strumienia można przypiąć dowolną liczbę reguł. Poniższy przykład łączy obie akcje - powiadomienie systemowe i zapis kontekstu:
 
 ```rql
 STORAGE 'temp'
@@ -126,6 +126,6 @@ DO SYSTEM 'echo "ALARM: wartosc powyzej progu gornego" >> alarm.log'
 RULE zapis_kontekstu ON str1 WHEN str1[0] > 26 DO DUMP -5 TO 5 RETENTION 10
 ```
 
-Reguły `prog_gorny` i `zapis_kontekstu` reagują na ten sam warunek niezależnie — przekroczenie progu górnego jednocześnie zapisuje log i utrwala okno danych. Reguła `prog_dolny` obsługuje osobno próg dolny.
+Reguły `prog_gorny` i `zapis_kontekstu` reagują na ten sam warunek niezależnie - przekroczenie progu górnego jednocześnie zapisuje log i utrwala okno danych. Reguła `prog_dolny` obsługuje osobno próg dolny.
 
 Wszystkie trzy reguły są ewaluowane przy każdej nowej próbce strumienia `str1`.

@@ -15,8 +15,8 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 | `DEVICE`       | `binaryDeviceRO`                      | nie      | nie    | Urządzenie binarne; tylko odczyt; pętla zależna od `ONESHOT` |
 | `TEXTSOURCE`   | `textSourceRO`                        | nie      | nie    | Plik tekstowy; tylko odczyt; pętla zależna od `ONESHOT` |
 
-**Retencja** — artefakty rotowane, starsze pliki usuwane automatycznie (wymaga `RETENTION` w `SELECT`).\
-**Shadow** — każda modyfikacja zapisywana jest do osobnego pliku `.shadow`; dane historyczne są chronione przed nadpisaniem.
+**Retencja** - artefakty rotowane, starsze pliki usuwane automatycznie (wymaga `RETENTION` w `SELECT`).\
+**Shadow** - każda modyfikacja zapisywana jest do osobnego pliku `.shadow`; dane historyczne są chronione przed nadpisaniem.
 
 W przypadku `MEMORY` retencja działa w pamięci jako bufor kołowy: kolejne dopisania nadpisują najstarszy slot (`index % capacity`). Dane nie są segmentowane do plików i nie trafiają na dysk.
 
@@ -38,7 +38,7 @@ SELECT str1[0] STREAM str1 FROM core0 STORAGE MEMORY
 SELECT str2[0] STREAM str2 FROM core0 RETENTION 100 STORAGE DIRECT
 ```
 
-Dla substratów globalnie — dyrektywa `SUBSTRAT`:
+Dla substratów globalnie - dyrektywa `SUBSTRAT`:
 
 ```rql
 SUBSTRAT 'memory'

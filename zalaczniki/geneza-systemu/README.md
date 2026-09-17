@@ -14,23 +14,23 @@ Tak przedstawia się w ogólnym zarysie generyczna przyczyna, z której wynikła
 
 <div class="timeline">
 
-- **Początek XXI wieku — Zabrze**
+- **Początek XXI wieku - Zabrze**
 
   System nadzoru neonatologicznego oparty na relacyjnej bazie danych. Sygnały o wysokiej granulacji i ciągły napływ danych ujawniają ograniczenia wydajności.
 
-- **2003 — bazy strumieniowe**
+- **2003 - bazy strumieniowe**
 
   Strumieniowe bazy danych jako najbliższa dziedzina. Założenie: strumieniowa baza danych do przetwarzania sygnałów.
 
-- **Wdrożenie — szpital w Warszawie**
+- **Wdrożenie - szpital w Warszawie**
 
-  System monitorowania działa u klienta, ale bez języka zapytań i mechanizmów zarządzania danymi opisywanych w publikacjach — termin wymusił rozwiązanie ręczne.
+  System monitorowania działa u klienta, ale bez języka zapytań i mechanizmów zarządzania danymi opisywanych w publikacjach - termin wymusił rozwiązanie ręczne.
 
-- **2019 — repozytorium RetractorDB**
+- **2019 - repozytorium RetractorDB**
 
   Pierwszy commit repozytorium (grudzień 2019): początek implementacji systemu zarządzania danymi dla przetwarzania sygnałów.
 
-- **Dziś — telemetria, monitorowanie, IoT**
+- **Dziś - telemetria, monitorowanie, IoT**
 
   Systemy strumieniowe przeobraziły się w bazy serii czasowych, a obszar zastosowań rozszerzył się na telemetrię i systemy IoT.
 

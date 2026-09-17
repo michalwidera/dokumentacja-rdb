@@ -24,11 +24,11 @@ Proces xretractor obsługuje sygnały systemowe i kończy pracę w kontrolowany 
 | `SIGTERM` | `kill <pid>`       | standardowe zakończenie procesu       |
 | `SIGHUP`  | `kill -HUP <pid>`  | zakończenie przy zamknięciu terminala |
 
-Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown — pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.
+Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown - pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.
 
 ### Zatrzymanie przez xqry
 
-Obok sygnałów systemowych xretractor można zatrzymać programowo — za pomocą polecenia:
+Obok sygnałów systemowych xretractor można zatrzymać programowo - za pomocą polecenia:
 
 ```bash
 xqry --server nazwa --kill
@@ -45,12 +45,12 @@ Proces xqry rozstrzyga instancję z opcji `--server` albo z magistrali, buduje k
 Wątek komunikacyjny obiektu `IpcServer` wybranej instancji stale nasłuchuje na swojej
 kolejce. Dyspozytor `executorsm::commandProcessor` po odebraniu komunikatu `kill` ustawia
 atomowy licznik `iLoopLimitCnt` na wartość `stop_now` i budzi pętlę wykonawczą. Ten sam
-mechanizm jest używany przez obsługę sygnałów systemowych — niezależnie od źródła efekt
+mechanizm jest używany przez obsługę sygnałów systemowych - niezależnie od źródła efekt
 jest identyczny dla tej jednej instancji.
 
 **3. Główna pętla przetwarzania wykrywa flagę i kończy bieżący cykl**
 
-Pętla główna sprawdza `iLoopLimitCnt` przy każdej iteracji. Gdy wykryje wartość `stop_now`, kończy bieżący cykl i wychodzi z pętli — bez przerywania w połowie obliczeń. Zapewnia to integralność zapisywanych artefaktów.
+Pętla główna sprawdza `iLoopLimitCnt` przy każdej iteracji. Gdy wykryje wartość `stop_now`, kończy bieżący cykl i wychodzi z pętli - bez przerywania w połowie obliczeń. Zapewnia to integralność zapisywanych artefaktów.
 
 **4. xretractor powiadamia wszystkich podłączonych klientów (broadcast OOB)**
 
@@ -61,7 +61,7 @@ komunikat specjalny o wartości `OUT_OF_BUSSINESS`.
 
 **5. Każdy klient xqry odbiera sygnał zakończenia i kończy działanie**
 
-Każda subskrypcja xqry ma własną kolejkę zawierającą nazwę serwera i PID klienta. Po odebraniu komunikatu `OUT_OF_BUSSINESS` xqry ustawia wewnętrzną flagę `done` i kończy działanie w kontrolowany sposób — niezależnie od tego, ile danych zdążył odebrać.
+Każda subskrypcja xqry ma własną kolejkę zawierającą nazwę serwera i PID klienta. Po odebraniu komunikatu `OUT_OF_BUSSINESS` xqry ustawia wewnętrzną flagę `done` i kończy działanie w kontrolowany sposób - niezależnie od tego, ile danych zdążył odebrać.
 
 **6. Sprzątanie zasobów IPC**
 
@@ -79,17 +79,17 @@ Proces kończy się statusem 1. Dzięki temu kolejny start nie zastaje osierocon
 blokady, a błąd pierwotny nie jest maskowany wtórnym `SIGSEGV` lub `SIGABRT` podczas
 zamykania.
 
-> **_NOTE:_** Obie ścieżki — błąd podczas startu i błąd zgłoszony z wątku komunikacyjnego —
+> **_NOTE:_** Obie ścieżki - błąd podczas startu i błąd zgłoszony z wątku komunikacyjnego -
 > sprawdza test `fatal_exit_path`.
 
 #### Co się dzieje przy wielu procesach xqry
 
-RetractorDB jest zaprojektowany do pracy z wieloma równoległymi klientami. Gdy w systemie działają jednocześnie — powiedzmy — trzy procesy xqry subskrybujące różne strumienie, a jeden z nich wywoła `xqry --kill`:
+RetractorDB jest zaprojektowany do pracy z wieloma równoległymi klientami. Gdy w systemie działają jednocześnie - powiedzmy - trzy procesy xqry subskrybujące różne strumienie, a jeden z nich wywoła `xqry --kill`:
 
 - wskazany xretractor przetworzy żądanie kill **jednorazowo**, niezależnie od tego, który klient je wysłał,
 - mechanizm `IpcServer::broadcastOutOfBusiness()` roześle komunikat `OUT_OF_BUSSINESS` do **wszystkich** zarejestrowanych klientów tej instancji,
 - każdy z trzech procesów xqry otrzyma sygnał zakończenia i zakończy działanie samodzielnie,
-- klienci, którzy nie subskrybowali żadnego strumienia (np. xqry wywołany tylko z `--dir` lub `--hello`), nie są wpisani do mapy i nie muszą być powiadamiani — te polecenia kończą działanie natychmiast po udzieleniu odpowiedzi.
+- klienci, którzy nie subskrybowali żadnego strumienia (np. xqry wywołany tylko z `--dir` lub `--hello`), nie są wpisani do mapy i nie muszą być powiadamiani - te polecenia kończą działanie natychmiast po udzieleniu odpowiedzi.
 
 Klienci podłączeni do innych nazwanych instancji nie otrzymują tego komunikatu i pracują dalej.
 

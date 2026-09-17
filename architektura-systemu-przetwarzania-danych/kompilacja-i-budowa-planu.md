@@ -1,6 +1,6 @@
 # Kompilacja i budowa planu
 
-Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor, o ile podano plik z sekwencją poleceń i zapytań. Argument ten jest wymagany w trybie `-c` (tylko kompilacja) — bez niego nie ma czego kompilować; w trybie przetwarzania jego pominięcie uruchamia [tryb bezczynny](schemat-architektury.md), w którym etap kompilacji jest w całości pomijany. W oparciu o przepływ przedstawiony na Rys. 14 przygotowałem opis procesu Rys. 26 realizujący proces kompilacji w trybie rozwojowym. Samą kompilację można wywołać niezależnie od działających instancji. W trybie wykonania ponowne użycie tej samej nazwy instancji jest odrzucane, ale inna nazwa uruchamia osobny plan, o ile magistrala nie wykryje kolizji jego strumieni, plików magazynu lub licznika rotacji.
+Proces kompilacji odbywa się przed każdym uruchomieniem procesu xretractor, o ile podano plik z sekwencją poleceń i zapytań. Argument ten jest wymagany w trybie `-c` (tylko kompilacja) - bez niego nie ma czego kompilować; w trybie przetwarzania jego pominięcie uruchamia [tryb bezczynny](schemat-architektury.md), w którym etap kompilacji jest w całości pomijany. W oparciu o przepływ przedstawiony na Rys. 14 przygotowałem opis procesu Rys. 26 realizujący proces kompilacji w trybie rozwojowym. Samą kompilację można wywołać niezależnie od działających instancji. W trybie wykonania ponowne użycie tej samej nazwy instancji jest odrzucane, ale inna nazwa uruchamia osobny plan, o ile magistrala nie wykryje kolizji jego strumieni, plików magazynu lub licznika rotacji.
 
 <figure><img src="../assets/schemat_procesu_kompilacji.png" width="100%" alt=""><figcaption><p>Rys. 26. Proces kompilacji</p></figcaption></figure>
 
@@ -54,7 +54,7 @@ W trybie kompilacji (`-c`) i w trybie wykonania dostępne są różne zestawy fl
 
 | Flaga | Pełna nazwa      | Znaczenie                                      |
 | ----- | ---------------- | ---------------------------------------------- |
-| `-c`  | `--onlycompile`  | tylko kompilacja — nie uruchamia przetwarzania |
+| `-c`  | `--onlycompile`  | tylko kompilacja - nie uruchamia przetwarzania |
 | `-d`  | `--dot`          | generuj wyjście w formacie DOT (graphviz)      |
 | `-f`  | `--fields`       | pokaż pola strumieni w grafie DOT              |
 | `-t`  | `--tags`         | pokaż programy poszczególnych pól (`-f`)       |
@@ -69,12 +69,12 @@ Flagi trybu wykonania (bez `-c`):
 | Flaga  | Pełna nazwa     | Znaczenie                                        |
 | ------ | --------------- | ------------------------------------------------ |
 | `-m N` | `--llimitqry N` | uruchom N cykli przetwarzania, potem zakończ     |
-| `-k`   | `--noanykey`    | nie czekaj na klawisz — tryb daemon/skrypt       |
+| `-k`   | `--noanykey`    | nie czekaj na klawisz - tryb daemon/skrypt       |
 | `-t`   | `--realtime`    | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
 | `-x`   | `--xqrywait`    | czekaj na pierwsze połączenie xqry przed startem |
 | `-s`   | `--status`      | sprawdź czy instancja xretractor już działa      |
 | `-v`   | `--verbose`     | wyświetl parametry strumieni przy starcie        |
-| `-j`   | `--service`     | tryb usługowy — dziennik na stderr (journald)    |
+| `-j`   | `--service`     | tryb usługowy - dziennik na stderr (journald)    |
 | `-g F` | `--config F`    | plik konfiguracyjny TOML zamiast wyszukiwania    |
 | `-b`   | `--build-info`  | wypisz konfigurację optymalizatora i zakończ     |
 
@@ -85,7 +85,7 @@ Flagi trybu wykonania (bez `-c`):
 
 > **⚠️ Ostrzeżenie**
 >
-> Przy użyciu `-m N` w skryptach i testach zawsze dodawaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient (`xqry`) zdąży się podłączyć — klient nie otrzyma żadnych danych i będzie czekał do przekroczenia limitu czasowego. Flaga `-x` wstrzymuje przetwarzanie do nadejścia pierwszej komendy od `xqry`.
+> Przy użyciu `-m N` w skryptach i testach zawsze dodawaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient (`xqry`) zdąży się podłączyć - klient nie otrzyma żadnych danych i będzie czekał do przekroczenia limitu czasowego. Flaga `-x` wstrzymuje przetwarzanie do nadejścia pierwszej komendy od `xqry`.
 
 
-Pełna lista wszystkich opcji z opisem każdej z nich — w tym opcja `--realtime` wymagająca uprawnień systemowych — znajduje się w [Załączniku A](../zalaczniki/opcje-wywolania/xretractor.md).
+Pełna lista wszystkich opcji z opisem każdej z nich - w tym opcja `--realtime` wymagająca uprawnień systemowych - znajduje się w [Załączniku A](../zalaczniki/opcje-wywolania/xretractor.md).

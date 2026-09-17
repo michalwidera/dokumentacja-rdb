@@ -1,6 +1,6 @@
 # Wykrywanie pętli w kompilacji
 
-Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśli zapytanie odwołuje się — bezpośrednio lub pośrednio — do własnych wyników, powstaje cykl. Kompilator wykrywa taką sytuację i kończy kompilację z błędem.
+Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśli zapytanie odwołuje się - bezpośrednio lub pośrednio - do własnych wyników, powstaje cykl. Kompilator wykrywa taką sytuację i kończy kompilację z błędem.
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue95_loopInCompile` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
@@ -15,7 +15,7 @@ SELECT *                          STREAM agg    FROM MAX(merged)
 SELECT *                          STREAM broken FROM merged + broken
 ```
 
-Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` — strumień zależy od samego siebie. Graf zależności zawiera cykl (Rys. 41):
+Ostatnie zapytanie definiuje `broken` jako wynik operacji `merged + broken` - strumień zależy od samego siebie. Graf zależności zawiera cykl (Rys. 41):
 
 ```mermaid
 %% pdf-width: 85%
@@ -43,11 +43,11 @@ $ cat out.txt
 >> unresolved streams
 ```
 
-Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć. Jak uruchomić kompilację i czytać komunikaty błędów — patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
+Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć. Jak uruchomić kompilację i czytać komunikaty błędów - patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Mechanizm wykrywania
 
-Etap `resolveStreamIntervals` w każdej rundzie iteracji liczy strumienie, dla których nie udało się jeszcze wyznaczyć interwału (`unresolvedCount`). W poprawnym grafie acyklicznym liczba ta maleje co rundę — zawsze co najmniej jeden strumień uzyskuje wyznaczoną deltę. W grafie z cyklem strumienie wzajemnie od siebie zależą i żaden nie może uzyskać wartości — `unresolvedCount` zatrzymuje się.
+Etap `resolveStreamIntervals` w każdej rundzie iteracji liczy strumienie, dla których nie udało się jeszcze wyznaczyć interwału (`unresolvedCount`). W poprawnym grafie acyklicznym liczba ta maleje co rundę - zawsze co najmniej jeden strumień uzyskuje wyznaczoną deltę. W grafie z cyklem strumienie wzajemnie od siebie zależą i żaden nie może uzyskać wartości - `unresolvedCount` zatrzymuje się.
 
 ```cpp
 if (unresolvedCount >= prevUnresolved) {

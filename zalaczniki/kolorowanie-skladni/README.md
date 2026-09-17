@@ -54,7 +54,7 @@ Repozytorium zawiera dwa pliki Vima w katalogu `scripts/.vim/`:
 
 ### Instalacja przez buildrdb.sh
 
-Najwygodniejsza metoda — skrypt kopiuje oba pliki do odpowiednich podkatalogów `~/.vim/`:
+Najwygodniejsza metoda - skrypt kopiuje oba pliki do odpowiednich podkatalogów `~/.vim/`:
 
 ```bash
 scripts/buildrdb.sh vimsyntax
@@ -182,7 +182,7 @@ Rozpoznawane jest też rozszerzenie `.desc` (pliki deskryptorów strumieni). Mo�
 bat --language rql dowolny-plik.txt
 ```
 
-**Weryfikacja instalacji — dostępne języki:**
+**Weryfikacja instalacji - dostępne języki:**
 
 ```bash
 bat --list-languages | grep -i rql
@@ -211,4 +211,4 @@ DO SYSTEM 'echo "systemcall"'
 
 Wywołanie `bat query.rql` wyświetli zawartość pliku z numeracją linii i podświetleniem składni w terminalu, gdzie słowa kluczowe, typy, komentarze i literały łańcuchowe będą miały odrębne kolory zgodne z aktywnym motywem `bat` (Rys. 65).
 
-<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 65. Podświetlenie składni RQL w terminalu — polecenie batcat</p></figcaption></figure>
+<figure><img src="../../assets/batcat-polecenie-rql.png" alt="Widok polecenia batcat test.rql"><figcaption><p>Rys. 65. Podświetlenie składni RQL w terminalu - polecenie batcat</p></figcaption></figure>

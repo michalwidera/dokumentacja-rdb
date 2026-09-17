@@ -8,7 +8,7 @@ Przez rotację plików rozumiemy kontrolowane zamykanie bieżącego zestawu plik
 
 Bez dyrektywy `ROTATION` w skrypcie RQL, `xretractor` przy każdym starcie **usuwa** pliki artefaktów (dane binarne, `.desc`, `.meta`) i zaczyna rejestrację od nowa.
 
-Rotacja i usuwanie nie dotyczą efemerydów (`DECLARE`). Nie znaczy to, że efemeryda nie ma żadnego pliku: jej źródło danych (plik tekstowy, urządzenie) jest zewnętrzne wobec systemu i nietykalne, a obok niego powstaje deskryptor `.desc` opisujący schemat odczytu — `storage::attachDescriptor()` zapisuje go dla każdego strumienia, także deklarowanego. Efemeryda nie dostaje natomiast indeksu `.meta`: fabryka `makeMetaIndex()` wstrzykuje dla źródeł deklarowanych wariant **inertny** (`metaData` z pustą ścieżką pliku), który utrzymuje wzorce null w pamięci i nie wykonuje żadnego I/O. Jest to więc brak persystencji metadanych, nie brak samego obiektu indeksu.
+Rotacja i usuwanie nie dotyczą efemerydów (`DECLARE`). Nie znaczy to, że efemeryda nie ma żadnego pliku: jej źródło danych (plik tekstowy, urządzenie) jest zewnętrzne wobec systemu i nietykalne, a obok niego powstaje deskryptor `.desc` opisujący schemat odczytu - `storage::attachDescriptor()` zapisuje go dla każdego strumienia, także deklarowanego. Efemeryda nie dostaje natomiast indeksu `.meta`: fabryka `makeMetaIndex()` wstrzykuje dla źródeł deklarowanych wariant **inertny** (`metaData` z pustą ścieżką pliku), który utrzymuje wzorce null w pamięci i nie wykonuje żadnego I/O. Jest to więc brak persystencji metadanych, nie brak samego obiektu indeksu.
 
 ## Dyrektywa `ROTATION` i licznik sesji
 
@@ -38,7 +38,7 @@ sequenceDiagram
     RQL->>Old: metaData::rotate(N): rename .meta → .meta.oldN
     RQL->>M: nowy pusty plik .meta
 
-    Note over RQL: praca — zapis rekordów
+    Note over RQL: praca - zapis rekordów
     RQL->>D: dopisuje rekordy
     RQL->>M: aktualizuje indeks RLE
 
@@ -48,19 +48,19 @@ sequenceDiagram
     Note over RQL: PersistentCounter zapisuje N+1 do pliku
 ```
 
-_Rys. 25. Sekwencja rotacji plików — start i stop sesji_
+_Rys. 25. Sekwencja rotacji plików - start i stop sesji_
 
-Rotacja pliku `.meta` następuje **przy starcie** sesji N — `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaData::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
+Rotacja pliku `.meta` następuje **przy starcie** sesji N - `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaData::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
 
 ## Co trafia do plików `.old<N>`
 
 | Plik | Kiedy powstaje |
 | ---- | -------------- |
-| `<name>.oldN` | Zamknięcie sesji N — destruktor `posixBinaryFile` przemianowuje plik danych |
-| `<name>.shadow.oldN` | Zamknięcie sesji N — destruktor `posixBinaryFileWithShadow` przemianowuje plik cienia |
-| `<name>.meta.oldN` | Start sesji N — `detectStartupState()` wykrywa rotację i przemianowuje `.meta` pozostawiony przez sesję N−1 |
+| `<name>.oldN` | Zamknięcie sesji N - destruktor `posixBinaryFile` przemianowuje plik danych |
+| `<name>.shadow.oldN` | Zamknięcie sesji N - destruktor `posixBinaryFileWithShadow` przemianowuje plik cienia |
+| `<name>.meta.oldN` | Start sesji N - `detectStartupState()` wykrywa rotację i przemianowuje `.meta` pozostawiony przez sesję N−1 |
 
-Wskutek tej kolejności: plik `.meta.oldN` zawiera metadane null dla danych z sesji `N−1`, podczas gdy plik `.oldN` zawiera dane sesji `N`. W sekcji `ROTATED FILES` narzędzia `xtrdb -s` pliki są grupowane według numeru suffiksu — pary `.oldN` i `.meta.oldN` różnią się więc o 1 w stosunku do sesji, której fizycznie odpowiadają.
+Wskutek tej kolejności: plik `.meta.oldN` zawiera metadane null dla danych z sesji `N−1`, podczas gdy plik `.oldN` zawiera dane sesji `N`. W sekcji `ROTATED FILES` narzędzia `xtrdb -s` pliki są grupowane według numeru suffiksu - pary `.oldN` i `.meta.oldN` różnią się więc o 1 w stosunku do sesji, której fizycznie odpowiadają.
 
 ## Przykład sekwencji trzech sesji
 
@@ -94,7 +94,7 @@ $ xtrdb -s pomiar
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Plik `pomiar.meta.old3` jest w grupie `[3]` sam — odpowiadający mu plik `pomiar.old3` powstanie dopiero przy zamknięciu bieżącej sesji.
+Plik `pomiar.meta.old3` jest w grupie `[3]` sam - odpowiadający mu plik `pomiar.old3` powstanie dopiero przy zamknięciu bieżącej sesji.
 
 ## Otwieranie pliku rotowanego w `xtrdb`
 

@@ -8,7 +8,7 @@ W praktyce w systemie realizuję wyłącznie operacje jedno lub dwuargumentowe. 
 
 Parser akceptuje zarówno formę z nawiasami, jak i łańcuchy bez nawiasów, np. `s1+s2+s3`, `s1#s2#s3` oraz `s1+s2+s3+s4`. Taki zapis jest następnie redukowany do sekwencji operacji dwuargumentowych z automatycznymi substratami pośrednimi.
 
-Przykład używa kanonicznych deklaracji z całego rozdziału — trzy strumienie o różnych typach i interwałach:
+Przykład używa kanonicznych deklaracji z całego rozdziału - trzy strumienie o różnych typach i interwałach:
 
 ```rql
 DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
@@ -28,7 +28,7 @@ $ xretractor -c query.rql
 {{#include ../regen/out/substrate-hash.txt}}
 ```
 
-Pojawił się niezapowiedziany strumień `STREAM_HASH_core0_core1` — to właśnie substrat. Kompilator rozbił `(core0 # core1) + core2` na dwie operacje dwuargumentowe i wstawił pośredni strumień. Delta substratu: Δ = (1/10 · 1/5) / (1/10 + 1/5) = 1/15.
+Pojawił się niezapowiedziany strumień `STREAM_HASH_core0_core1` - to właśnie substrat. Kompilator rozbił `(core0 # core1) + core2` na dwie operacje dwuargumentowe i wstawił pośredni strumień. Delta substratu: Δ = (1/10 · 1/5) / (1/10 + 1/5) = 1/15.
 
 Co się stanie po dołączeniu zapytania:
 
@@ -59,9 +59,9 @@ Kompilator realizuje optymalizację zwaną **redukcją substratów** (funkcja `d
 
 Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy spełnione są jednocześnie trzy warunki:
 
-1. **Ten sam kształt schematu** — liczba pól oraz ich typy, rozmiary w bajtach i liczności są identyczne. Nazwy pól nie są porównywane.
-2. **Ta sama delta** — częstotliwość próbkowania strumieni jest taka sama.
-3. **Te same operacje przetwarzania** — sekwencja instrukcji `PUSH_STREAM` / `STREAM_TIMEMOVE` / `STREAM_HASH` itp. jest identyczna.
+1. **Ten sam kształt schematu** - liczba pól oraz ich typy, rozmiary w bajtach i liczności są identyczne. Nazwy pól nie są porównywane.
+2. **Ta sama delta** - częstotliwość próbkowania strumieni jest taka sama.
+3. **Te same operacje przetwarzania** - sekwencja instrukcji `PUSH_STREAM` / `STREAM_TIMEMOVE` / `STREAM_HASH` itp. jest identyczna.
 
 ### Przykład redukcji
 
@@ -75,7 +75,7 @@ SELECT merged[0]  STREAM merged  FROM (core0 > 2) + core1
 SELECT shifted[0] STREAM shifted FROM core0 > 2
 ```
 
-Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_2_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_2_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
+Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_2_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę - ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_2_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
 
 ```rasm
 {{#include ../regen/out/substrate-shift.txt}}
@@ -85,7 +85,7 @@ Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOV
 
 Redukcja dotyczy wyłącznie substratów wygenerowanych przez kompilator (`isSubstrat = true`). Zapytania zdefiniowane jawnie przez użytkownika **nigdy** nie są redukowane, nawet jeśli dwa z nich mają identyczną strukturę.
 
-Przykład — dwa zapytania użytkownika o tej samej operacji:
+Przykład - dwa zapytania użytkownika o tej samej operacji:
 
 ```rql
 DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
@@ -112,7 +112,7 @@ core0(1/10)     sensor_a.txt
         b: INTEGER
 ```
 
-Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania. Przebieg `deduplicateSubstrats()` nie usuwa żadnego z nich. Kompilator może natomiast współdzielić ich wewnętrzne obliczenie, pozostawiając oba publiczne strumienie — opisuje to następny podrozdział.
+Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania. Przebieg `deduplicateSubstrats()` nie usuwa żadnego z nich. Kompilator może natomiast współdzielić ich wewnętrzne obliczenie, pozostawiając oba publiczne strumienie - opisuje to następny podrozdział.
 
 ## Współdzielenie równoważnych obliczeń SELECT
 
@@ -164,7 +164,7 @@ Po utworzeniu wspólnego `STREAM_SELECT_*` kompilator usuwa osierocone substraty
 
 Przebieg działa po `resolveFieldReferences()` i `expandIndexWildcards()`, ale przed `localizeFieldOffsets()`. Dzięki temu podpis pola porównuje tożsamość źródła i jego indeks, a nie lokalny offset zależny od kolejności argumentów `a+b` lub `b+a`.
 
-Test `select_cse_commutative_add` sprawdza kształt planu oraz wykonanie. Obejmuje równoważne projekcje indeksowane i jawne listy pól, wartości NULL i ich metadane, osobne deskryptory publiczne, `SELECT *`, zmianę kolejności pól oraz dodatni i ujemny przypadek trzech źródeł. Test porównuje bajtowo dane równoważnych par i potwierdza różnicę wyników dla kontrprzykładów — patrz [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
+Test `select_cse_commutative_add` sprawdza kształt planu oraz wykonanie. Obejmuje równoważne projekcje indeksowane i jawne listy pól, wartości NULL i ich metadane, osobne deskryptory publiczne, `SELECT *`, zmianę kolejności pól oraz dodatni i ujemny przypadek trzech źródeł. Test porównuje bajtowo dane równoważnych par i potwierdza różnicę wyników dla kontrprzykładów - patrz [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
 ## Eliminacja duplikatów substratów
 
@@ -197,12 +197,12 @@ Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są p
 
 Niech zredukowany stosunek \\(\Delta_a/\Delta_b\\) będzie równy \\(p/q\\).
 Ogon przeplotu chroni wszystkie fazy okresu \\(p+q\\), bo kompilator przegląda
-ten okres slot po slocie i bierze maksimum wymaganego opóźnienia — wzór
+ten okres slot po slocie i bierze maksimum wymaganego opóźnienia - wzór
 i uzasadnienie w rozdziale [Formalne podstawy
 i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 Przesunięcie jest opóźnieniem realizacji przyczynowej: przesuwa **początek
-logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) — nie zmienia
+logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) - nie zmienia
 ciągu rekordów i nie wstawia prefiksu. Dla
 \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje
 dokładnie:
@@ -216,7 +216,7 @@ dokładnie:
 Dlatego przesunięcie każdego wejścia odpowiada tej samej liczbie `i+k` slotów
 wyjścia i początek logiczny obu stron jest identyczny. **Ogony identyczne nie
 są.** Strona sfaktoryzowana czyta treść wprost z przeplotu, a strona
-niesfaktoryzowana — dopiero po własnym przesunięciu składowych, więc czeka
+niesfaktoryzowana - dopiero po własnym przesunięciu składowych, więc czeka
 dłużej:
 
 \\[
@@ -250,7 +250,7 @@ kopiach plikowych źródeł danych. Obie strony są tu sfaktoryzowane do tej sam
 postaci, więc porównanie jest pełne: bajtowo artefakty `matched` i `CC`, ich
 metadane z pominięciem zarezerwowanego nagłówka, pełna sekwencja wobec wzorca
 wyprowadzonego z okresu przeplotu `B,A,A` oraz równość deklaracji
-(`origin=3` przy zerowym ogonie — \\(\tau_3\\) nad przeplotem o ogonie 2
+(`origin=3` przy zerowym ogonie - \\(\tau_3\\) nad przeplotem o ogonie 2
 pochłania go w całości). Żadna strona nie emituje rekordów zastępczych.
 Osobno `computeRequiredCapacities()` przydziela źródłu deklarowanemu
 `N+1+2` rekordów historii: `N+1` na sam zakres odczytu oraz dwa na wyprzedzenie
@@ -262,7 +262,7 @@ Test `r1_identity_nulls` sprawdza tę samą tożsamość dla stosunku
 przepisany plan, zablokowaną przed przepisaniem lewą stronę i jawną prawą
 stronę. Plan przepisany i jawna prawa strona są równe w pełni. Lewa strona
 **zablokowana** przed przepisaniem ma ten sam początek logiczny i tę samą treść,
-ale ogon ściśle większy — porównanie obejmuje wspólny prefiks payloadu i mapy
+ale ogon ściśle większy - porównanie obejmuje wspólny prefiks payloadu i mapy
 `NULL`, a osobna asercja wymaga, żeby strona sfaktoryzowana była ściśle dłuższa.
 Niepusty, okresowy rekord w całości `NULL` chroni przed ukryciem błędnego ogona
 przez brak danych. Testy jednostkowe kompilatora
@@ -288,29 +288,29 @@ Deduplikacja jest dziewiątym z dwudziestu trzech etapów potoku (funkcja `compi
 
 <div class="timeline compact">
 
-- `checkFunctionCalls` — nazwy i arność funkcji skalarnych
-- `checkStreamReducerFieldRefs` — reduktor strumieniowy poza klauzulą `FROM`
-- `expandStreamGenerators` — rozwinięcie rodzin strumieni
-- `snapshotNamedSourceRefs` — migawka odwołań użytkownika
-- `extractIntermediateStreams` — wyodrębnienie substratów
-- `expandSchemaWildcards` — rozwinięcie `*` oraz `[_]`
-- `resolveStreamIntervals` — obliczenie interwałów czasowych
-- `factorMatchedHashTimeMoves` — prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
-- **`deduplicateSubstrats` — eliminacja duplikatów ← ten krok**
-- `validateSubstratNameUniqueness` — kontrola jednoznaczności nazw
-- `resolveFieldReferences` — rozwiązanie referencji do pól
-- `resolveWindowAggregates` — grupy agregatów okna rekordowego
-- `inferFieldShapes` — kształt pól wynikowych
-- `checkRuleConditionShapes` — obliczalność warunków reguł
-- `simplifyFieldExpressions` — uproszczenie programów pól i reguł
-- `shareEquivalentSelectComputations` — współdzielenie równoważnych obliczeń SELECT
-- `localizeFieldOffsets` — wyznaczenie przesunięć pól
-- `computeLogicalOrigin` — wyznaczenie początku logicznego
-- `computeStartupLatency` — obliczenie ogonów startowych
-- `computeRequiredCapacities` — obliczenie wymaganej historii
-- `validateConstraints` — kontrola ograniczeń operatorów
-- `applyCapacitiesToStreams` — zastosowanie pojemności
-- `topologicalSort` — końcowy porządek producent–konsument
+- `checkFunctionCalls` - nazwy i arność funkcji skalarnych
+- `checkStreamReducerFieldRefs` - reduktor strumieniowy poza klauzulą `FROM`
+- `expandStreamGenerators` - rozwinięcie rodzin strumieni
+- `snapshotNamedSourceRefs` - migawka odwołań użytkownika
+- `extractIntermediateStreams` - wyodrębnienie substratów
+- `expandSchemaWildcards` - rozwinięcie `*` oraz `[_]`
+- `resolveStreamIntervals` - obliczenie interwałów czasowych
+- `factorMatchedHashTimeMoves` - prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
+- **`deduplicateSubstrats` - eliminacja duplikatów ← ten krok**
+- `validateSubstratNameUniqueness` - kontrola jednoznaczności nazw
+- `resolveFieldReferences` - rozwiązanie referencji do pól
+- `resolveWindowAggregates` - grupy agregatów okna rekordowego
+- `inferFieldShapes` - kształt pól wynikowych
+- `checkRuleConditionShapes` - obliczalność warunków reguł
+- `simplifyFieldExpressions` - uproszczenie programów pól i reguł
+- `shareEquivalentSelectComputations` - współdzielenie równoważnych obliczeń SELECT
+- `localizeFieldOffsets` - wyznaczenie przesunięć pól
+- `computeLogicalOrigin` - wyznaczenie początku logicznego
+- `computeStartupLatency` - obliczenie ogonów startowych
+- `computeRequiredCapacities` - obliczenie wymaganej historii
+- `validateConstraints` - kontrola ograniczeń operatorów
+- `applyCapacitiesToStreams` - zastosowanie pojemności
+- `topologicalSort` - końcowy porządek producent–konsument
 
 </div>
 
@@ -341,17 +341,17 @@ Oba zapytania wymagają uprzedniego obliczenia sumy `core0+core1`.
 
 Faza `extractIntermediateStreams` tworzy osobny substrat dla każdego zapytania, co daje dwa identyczne węzły pośrednie w grafie (Rys. 37):
 
-<figure><img src="../assets/dedup_przed.svg" width="40%" alt=""><figcaption><p>Rys. 37. Graf przed deduplikacją — dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
+<figure><img src="../assets/dedup_przed.svg" width="40%" alt=""><figcaption><p>Rys. 37. Graf przed deduplikacją - dwa identyczne substraty STREAM_ADD_core0_core1</p></figcaption></figure>
 
 Po uruchomieniu `deduplicateSubstrats()` jeden z duplikatów jest usuwany, a wszystkie odwołania `PUSH_STREAM` przepinane są do ocalałego węzła. W grafie pozostaje jeden wspólny substrat (Rys. 38):
 
-<figure><img src="../assets/dedup_po.svg" width="40%" alt=""><figcaption><p>Rys. 38. Graf po deduplikacji — jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
+<figure><img src="../assets/dedup_po.svg" width="40%" alt=""><figcaption><p>Rys. 38. Graf po deduplikacji - jeden wspólny substrat, wygenerowany poleceniem: xretractor dedup_after.rql -c -d</p></figcaption></figure>
 
-Graf po deduplikacji to dokładnie to, co zwraca `xretractor -c -d` — kompilator zawsze prezentuje wynik po wszystkich fazach optymalizacji.
+Graf po deduplikacji to dokładnie to, co zwraca `xretractor -c -d` - kompilator zawsze prezentuje wynik po wszystkich fazach optymalizacji.
 
 ## Wchłonięcie substratu przez jawny strumień
 
-Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dla kandydata `it2` — sprawdzenie to istnieje tylko w pętli zewnętrznej. Oznacza to, że substrat automatyczny może zostać wchłonięty nie tylko przez inny substrat, ale przez **dowolny strumień o identycznym programie i schemacie** — w tym przez strumień zdefiniowany jawnie przez użytkownika.
+Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dla kandydata `it2` - sprawdzenie to istnieje tylko w pętli zewnętrznej. Oznacza to, że substrat automatyczny może zostać wchłonięty nie tylko przez inny substrat, ale przez **dowolny strumień o identycznym programie i schemacie** - w tym przez strumień zdefiniowany jawnie przez użytkownika.
 
 Rozważmy zapytanie zawierające wyłącznie złożone wyrażenie:
 
@@ -371,15 +371,15 @@ Gdy użytkownik doda jawną deklarację strumienia będącego dokładnie tą sam
 SELECT * STREAM mysum FROM core0+core1
 ```
 
-substrat `STREAM_ADD_core0_core1` spełnia wszystkie warunki równoważności względem `mysum` — identyczny interwał, identyczny program tokenów, identyczny schemat pól. Faza `deduplicateSubstrats()` usuwa substrat i przepina wszystkie odwołania `PUSH_STREAM` na `mysum`. Substrat znika z grafu w zupełności (Rys. 40):
+substrat `STREAM_ADD_core0_core1` spełnia wszystkie warunki równoważności względem `mysum` - identyczny interwał, identyczny program tokenów, identyczny schemat pól. Faza `deduplicateSubstrats()` usuwa substrat i przepina wszystkie odwołania `PUSH_STREAM` na `mysum`. Substrat znika z grafu w zupełności (Rys. 40):
 
-<figure><img src="../assets/absorb_z_mysum.svg" alt=""><figcaption><p>Rys. 40. Graf po dodaniu SELECT * STREAM mysum FROM core0+core1 — substrat zastąpiony przez jawny strumień</p></figcaption></figure>
+<figure><img src="../assets/absorb_z_mysum.svg" alt=""><figcaption><p>Rys. 40. Graf po dodaniu SELECT * STREAM mysum FROM core0+core1 - substrat zastąpiony przez jawny strumień</p></figcaption></figure>
 
-Efekt uboczny: `mysum` staje się węzłem wspólnym — obsługuje zarówno własnych konsumentów, jak i tych, którzy wcześniej korzystali z automatycznego substratu. Użytkownik zyskuje przy tym jawną nazwę dla wyników pośrednich i może odpytywać je przez `xqry`.
+Efekt uboczny: `mysum` staje się węzłem wspólnym - obsługuje zarówno własnych konsumentów, jak i tych, którzy wcześniej korzystali z automatycznego substratu. Użytkownik zyskuje przy tym jawną nazwę dla wyników pośrednich i może odpytywać je przez `xqry`.
 
 ## Aktualizacja schematu po wchłonięciu
 
-Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuje w `lSchema` sekwencję instrukcji opisujących, jak zbudować wartość wyjściową każdego pola — w tym tokeny `PUSH_ID(nazwa_strumienia, N)`, które mówią: „weź N-te pole z bufora wejściowego o nazwie `nazwa_strumienia`". Gdy substrat zostaje wchłonięty, te tokeny wciąż odnoszą się do starej, usuniętej nazwy substratu. Krok `localizeFieldOffsets()` buduje mapę offsetów na podstawie tokenów `PUSH_STREAM` w programie — jeśli klucz z `PUSH_ID` nie pasuje do żadnego wpisu w mapie, domyślnie przyjmuje offset 0.
+Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuje w `lSchema` sekwencję instrukcji opisujących, jak zbudować wartość wyjściową każdego pola - w tym tokeny `PUSH_ID(nazwa_strumienia, N)`, które mówią: „weź N-te pole z bufora wejściowego o nazwie `nazwa_strumienia`". Gdy substrat zostaje wchłonięty, te tokeny wciąż odnoszą się do starej, usuniętej nazwy substratu. Krok `localizeFieldOffsets()` buduje mapę offsetów na podstawie tokenów `PUSH_STREAM` w programie - jeśli klucz z `PUSH_ID` nie pasuje do żadnego wpisu w mapie, domyślnie przyjmuje offset 0.
 
 ### Scenariusz błędu przy niezerowym offsecie
 
@@ -401,14 +401,14 @@ PUSH_ID(STREAM_ADD_s1_s2, 0)   ← pole a ze źródła na offsecie 1
 PUSH_ID(STREAM_ADD_s1_s2, 1)   ← pole b ze źródła na offsecie 1
 ```
 
-Po wchłonięciu `deduplicateSubstrats()` przepina `PUSH_STREAM` z `STREAM_ADD_s1_s2` na `mysum`. Jednak bez aktualizacji `lSchema` tokeny `PUSH_ID` wciąż noszą starą nazwę. Gdy `localizeFieldOffsets()` nie znajdzie `STREAM_ADD_s1_s2` w mapie offsetów, przyjmuje offset 0 — kolizję z polami `s3`. Efekt: pola `a` i `b` z `mysum` były odczytywane z offsetu 0 (pozycja `s3`) zamiast z offsetu 1 (pozycja `mysum`).
+Po wchłonięciu `deduplicateSubstrats()` przepina `PUSH_STREAM` z `STREAM_ADD_s1_s2` na `mysum`. Jednak bez aktualizacji `lSchema` tokeny `PUSH_ID` wciąż noszą starą nazwę. Gdy `localizeFieldOffsets()` nie znajdzie `STREAM_ADD_s1_s2` w mapie offsetów, przyjmuje offset 0 - kolizję z polami `s3`. Efekt: pola `a` i `b` z `mysum` były odczytywane z offsetu 0 (pozycja `s3`) zamiast z offsetu 1 (pozycja `mysum`).
 
 ### Poprawka: aktualizacja lSchema w deduplicateSubstrats
 
 Aby uniknąć tej rozbieżności, `deduplicateSubstrats()` po zaktualizowaniu tokenów `PUSH_STREAM` wykonuje dodatkowy przebieg przez `lSchema` wszystkich zapytań i przepisuje:
 
-- tokeny `PUSH_ID(stara_nazwa, N)` na `PUSH_ID(nowa_nazwa, N)` — to przypadek pól z `buildOutputSchema` dla `STREAM_ADD`,
-- tokeny `PUSH_ID2("stara_nazwa[N]")` na `PUSH_ID2("nowa_nazwa[N]")` — to przypadek symbolicznych nazw tworzonych przez `buildOutputSchema` dla `STREAM_TIMEMOVE`, `STREAM_HASH`, `STREAM_SUBTRACT`.
+- tokeny `PUSH_ID(stara_nazwa, N)` na `PUSH_ID(nowa_nazwa, N)` - to przypadek pól z `buildOutputSchema` dla `STREAM_ADD`,
+- tokeny `PUSH_ID2("stara_nazwa[N]")` na `PUSH_ID2("nowa_nazwa[N]")` - to przypadek symbolicznych nazw tworzonych przez `buildOutputSchema` dla `STREAM_TIMEMOVE`, `STREAM_HASH`, `STREAM_SUBTRACT`.
 
 Po poprawce wyjście kompilatora dla powyższego przykładu wygląda poprawnie:
 
@@ -423,7 +423,7 @@ merged(1/1)
                 PUSH_ID(merged[2])
 ```
 
-Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` — po polu `c` ze strumienia `s3`.
+Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` - po polu `c` ze strumienia `s3`.
 
 ### Kaskadowe wchłonięcie
 
@@ -437,4 +437,4 @@ SELECT * STREAM shifted FROM (s1+s2)>1
 SELECT * STREAM merged  FROM s3+((s1+s2)>1)
 ```
 
-w pierwszej rundzie `mysum` wchłania `STREAM_ADD_s1_s2` i przepisuje jego nazwy — również w schemacie pośredniego substratu `STREAM_TIMEMOVE_STREAM_ADD_s1_s2`. Dzięki temu w drugiej rundzie `shifted` może wchłonąć ten substrat (warunek programowy jest teraz spełniony, bo oba wskazują na `mysum`). Po dwóch rundach w planie nie pozostaje żaden substrat automatyczny, a `merged` korzysta bezpośrednio z `s3` i `shifted`.
+w pierwszej rundzie `mysum` wchłania `STREAM_ADD_s1_s2` i przepisuje jego nazwy - również w schemacie pośredniego substratu `STREAM_TIMEMOVE_STREAM_ADD_s1_s2`. Dzięki temu w drugiej rundzie `shifted` może wchłonąć ten substrat (warunek programowy jest teraz spełniony, bo oba wskazują na `mysum`). Po dwóch rundach w planie nie pozostaje żaden substrat automatyczny, a `merged` korzysta bezpośrednio z `s3` i `shifted`.

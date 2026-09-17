@@ -2,7 +2,7 @@
 
 W niniejszym rozdziale zostaną przedstawione krótkie przykłady zastosowania systemu RetractorDB w rozwiązaniu konkretnych zagadnień spotykanych w konstrukcjach systemów monitorowania.
 
-Każdy przykład jest kompletny — zawiera opis problemu, projekt zapytań RQL, uruchomienie oraz interpretację wyników. Przykłady można uruchomić samodzielnie: wymagane pliki danych i skrypty są opisane krok po kroku.
+Każdy przykład jest kompletny - zawiera opis problemu, projekt zapytań RQL, uruchomienie oraz interpretację wyników. Przykłady można uruchomić samodzielnie: wymagane pliki danych i skrypty są opisane krok po kroku.
 
 <div class="timeline">
 
@@ -27,7 +27,7 @@ Każdy przykład jest kompletny — zawiera opis problemu, projekt zapytań RQL,
 
   - przygotowanie danych: konwersja nagrań MIT-BIH (format WFDB) do plików tekstowych kompatybilnych z RetractorDB,
   - implementację pięcioetapowego algorytmu Pan-Tompkins w RQL: filtr pasmowoprzepustowy → różniczkowanie → potęgowanie → całkowanie ruchome → detekcja progowa,
-  - wizualizację sygnału EKG i wyniku detekcji QRS w oknie gnuplot (tryb RTL — najnowsze próbki po prawej),
+  - wizualizację sygnału EKG i wyniku detekcji QRS w oknie gnuplot (tryb RTL - najnowsze próbki po prawej),
   - interpretację wyników: odczyty interwałów RR, identyfikacja epizodów arytmii na rekordzie 205 MIT-BIH.
 
   Wynikiem jest działający detektor QRS przetwarzający dwukanałowy sygnał EKG (MLII + V1) z częstotliwością 360 Hz, realizowany wyłącznie zapytaniami RQL bez specjalistycznych bibliotek.

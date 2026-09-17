@@ -1,6 +1,6 @@
 # Pliki
 
-Rozdział opisuje pięć plików tworzących kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`), plik cienia danych (`.shadow`) i plik cienia indeksu (`.meta.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaData` — mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi plikami na poziomie operacji `append`, `update` i `read`.
+Rozdział opisuje pięć plików tworzących kompletny zestaw artefaktu lub substratu: deskryptor schematu (`.desc`), główny plik danych binarnych, indeks metadanych (`.meta`), plik cienia danych (`.shadow`) i plik cienia indeksu (`.meta.shadow`). Dla każdego pliku przedstawiono format binarny, semantykę pól oraz reguły zapisu i odczytu. Rozdział obejmuje też klasę `metaData` - mechanizm kompresji RLE, obsługę przerw w transmisji, interfejs aktualizacji i persystencję po restarcie. Sekcja końcowa pokazuje relacje między wszystkimi plikami na poziomie operacji `append`, `update` i `read`.
 
 Zakres rozdziału **nie obejmuje** mechanizmu rotacji plików między sesjami (→ [Rotacja](rotacja.md)) ani narzędzia inspekcji `xtrdb -s` (→ [Narzędzie inspekcji](narzedzie-inspekcji.md)).
 
@@ -34,7 +34,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 
 ### Przykłady plików `.desc`
 
-**Artefakt domyślny** — dwa pola numeryczne, składowanie `DEFAULT` (plik danych + plik cienia):
+**Artefakt domyślny** - dwa pola numeryczne, składowanie `DEFAULT` (plik danych + plik cienia):
 
 ```desc
 {
@@ -44,7 +44,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 }
 ```
 
-**Efemeryd** — strumień ulotny wyłącznie w RAM:
+**Efemeryd** - strumień ulotny wyłącznie w RAM:
 
 ```desc
 {
@@ -54,7 +54,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 }
 ```
 
-**Substrat z retencją** — cykliczny bufor ostatnich 1000 rekordów na dysku (10 segmentów po 100):
+**Substrat z retencją** - cykliczny bufor ostatnich 1000 rekordów na dysku (10 segmentów po 100):
 
 ```desc
 {
@@ -89,7 +89,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 | `RATIONAL` | 8 B (dwa int32)              |
 | `STRING`   | N B (deklarowany rozmiar)    |
 
-Dla pól tablicowych `nazwa[N]` całkowity rozmiar = rozmiar_typu × N. Pola `TYPE`, `REF`, `RETENTION` i `RETMEMORY` nie zajmują miejsca w rekordzie — są metadanymi deskryptora.
+Dla pól tablicowych `nazwa[N]` całkowity rozmiar = rozmiar_typu × N. Pola `TYPE`, `REF`, `RETENTION` i `RETMEMORY` nie zajmują miejsca w rekordzie - są metadanymi deskryptora.
 
 Rozmiar rekordu `R` = suma rozmiarów wszystkich pól danych.
 
@@ -103,17 +103,17 @@ offset +0   int32   licznik
 offset +4   int32   mianownik
 ```
 
-Kolejność bajtów jest natywna dla maszyny — na x86-64 i ARM64 little-endian, tak samo
+Kolejność bajtów jest natywna dla maszyny - na x86-64 i ARM64 little-endian, tak samo
 jak dla pól `INTEGER` i `UINT`. Pole zajmuje 8 bajtów; dla pola tablicowego
 `RATIONAL nazwa[N]` pary leżą jedna za drugą, `8 × N` bajtów.
 
 Wartość jest zawsze zapisana w **postaci nieskracalnej**, a mianownik jest zawsze
-**dodatni** — znak liczby niesie wyłącznie licznik. Wynika to z arytmetyki
+**dodatni** - znak liczby niesie wyłącznie licznik. Wynika to z arytmetyki
 `boost::rational`, która normalizuje wynik przy każdym przypisaniu, a nie z konwencji
 zapisu. W szczególności:
 
 * zero zapisuje się jako `0/1`, nigdy jako `0/0` ani `0/5`;
-* liczba całkowita zapisuje się jako `n/1` — pole `RATIONAL` o mianowniku 1 to
+* liczba całkowita zapisuje się jako `n/1` - pole `RATIONAL` o mianowniku 1 to
   dokładnie liczba całkowita, bez zaokrągleń (na tym niezmienniku opiera się też test
   podzielności slotu w [algorytmie przeglądu drzewa zapytań](../../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md));
 * mianownik nigdy nie jest zerem, więc czytelnik nie musi tego przypadku obsługiwać.
@@ -145,14 +145,14 @@ f8 ff ff ff   03 00 00 00
    -8            3            →  -8/3
 ```
 
-Czwarty rekord to `07 00 00 00 01 00 00 00`, czyli `7/1` — średnia z trzech siódemek
+Czwarty rekord to `07 00 00 00 01 00 00 00`, czyli `7/1` - średnia z trzech siódemek
 zapisana jako liczba wymierna o mianowniku 1, a nie jako `INTEGER`.
 
 #### Odczyt bez rozbierania bajtów
 
 Układ pary trzeba znać tylko przy czytaniu pliku binarnego wprost. Sam fakt, że pole jest
 typu `RATIONAL` i zajmuje 8 bajtów, wypisuje `xtrdb -s nazwa` z deskryptora
-(→ [Narzędzie inspekcji](narzedzie-inspekcji.md)) — narzędzie pokazuje strukturę, nie wartości.
+(→ [Narzędzie inspekcji](narzedzie-inspekcji.md)) - narzędzie pokazuje strukturę, nie wartości.
 Wartość odczytuje się natomiast, przepuszczając pole przez konwersję już w zapytaniu; trzy
 funkcje dają trzy różne kompromisy:
 
@@ -160,11 +160,11 @@ funkcje dają trzy różne kompromisy:
 | -------------- | ---------------- | ----- |
 | `to_string(pole : N)` | napis `-8/3` w polu `STRING[N]` | postać dokładna; liczba całkowita wychodzi jako `7/1`, nie `7` |
 | `to_double(pole)` | pole `DOUBLE` o wartości `-2.6666…` | przybliżenie, ale bez utraty znaku i rzędu wielkości |
-| `to_integer(pole)` | pole `INTEGER` o wartości `-2` | **obcięcie w stronę zera**, nie podłoga — → [Wyrażenia pól i funkcje skalarne](../../konstrukcja-jezyka-zapytan/polecenie-select/wyrazenia-pol-i-funkcje-skalarne.md) |
+| `to_integer(pole)` | pole `INTEGER` o wartości `-2` | **obcięcie w stronę zera**, nie podłoga - → [Wyrażenia pól i funkcje skalarne](../../konstrukcja-jezyka-zapytan/polecenie-select/wyrazenia-pol-i-funkcje-skalarne.md) |
 
 Do eksportu do systemów tekstowych właściwe jest `to_string`, bo zachowuje wartość
 dokładnie; `to_integer` jest wygodne, ale gubi część ułamkową i robi to inaczej, niż
-podłoguje Python — opis zaokrąglenia jest przy funkcjach wyrażeń.
+podłoguje Python - opis zaokrąglenia jest przy funkcjach wyrażeń.
 
 ### Pole TYPE a strategia składowania
 
@@ -193,7 +193,7 @@ Każdy rekord zawiera upakowane wartości pól w kolejności zdefiniowanej przez
 | len\_0 + len\_1                | ...     | ...           |
 | len\_0 + len\_1 + ... + len\_n | pole\_n | len\_n bajtów |
 
-Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Operacja **update** (modyfikacja istniejącego rekordu) — jeśli istnieje plik cienia — trafia do pliku cienia, a nie do pliku głównego.
+Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Operacja **update** (modyfikacja istniejącego rekordu) - jeśli istnieje plik cienia - trafia do pliku cienia, a nie do pliku głównego.
 
 ### Przykład
 
@@ -207,7 +207,7 @@ Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach nap
 
 ## Plik metadanych (.meta)
 
-Plik `.meta` to indeks wartości null i przerw w transmisji. Przechowuje informację o tym, które pola rekordów mają wartość null i gdzie wystąpiły przerwy — bez duplikowania samych danych.
+Plik `.meta` to indeks wartości null i przerw w transmisji. Przechowuje informację o tym, które pola rekordów mają wartość null i gdzie wystąpiły przerwy - bez duplikowania samych danych.
 
 ### Format pliku
 
@@ -257,7 +257,7 @@ Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększ
 
 ### Marker przerwy w transmisji (gap)
 
-Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy — informacja żyje wyłącznie w pliku `.meta`.
+Przerwa w transmisji (np. wyłączenie systemu, zanik sygnału) rejestrowana jest jako wpis z `isGap=true` i wszystkimi bitami null ustawionymi na `true`. Parametr `count` przechowuje długość przerwy w jednostkach interwału strumienia. Sam plik danych binarnych nie zawiera żadnych dodatkowych rekordów dla przerwy - informacja żyje wyłącznie w pliku `.meta`.
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `issue113_meta_internal`, `issue113_meta_autocreate` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
@@ -270,16 +270,16 @@ Plikiem `.meta` zarządza klasa `rdb::metaData`. Jest ona koordynatorem: sama ut
 | Jednostka | Nagłówek | Rola |
 | --------- | -------- | ---- |
 | `IndexRecord` | `indexRecord.hpp` | format pojedynczego wpisu i jego (de)serializacja |
-| `MetaIndexStore` | `metaIndexStore.hpp` | surowe I/O pliku `.meta` — nagłówek, wpisy zatwierdzone, cache |
+| `MetaIndexStore` | `metaIndexStore.hpp` | surowe I/O pliku `.meta` - nagłówek, wpisy zatwierdzone, cache |
 | `GapDetector` | `gapDetector.hpp` | maszyna stanów wykrywania przerw (nullfill, absorpcja, przerwa oczekująca) |
 | `splitSegment()`, `sumNonGapRecords()` | `rleSegment.hpp` | operacje na segmentach RLE |
 | `storageShadow` | `storageShadow.hpp` | wariant kierujący aktualizacje do cienia indeksu (`.meta.shadow`) |
 
 Sama `metaData` hermetyzuje trzy obszary odpowiedzialności:
 
-1. **Agregację RLE w pamięci** — buforuje bieżący segment (ostatnią serię rekordów z identycznym wzorcem null) w polu `currentEntry_`, nie zapisując go do pliku przy każdym rekordzie.
-2. **Trwałość danych** — wyłącznie zakończone segmenty (gdy wzorzec się zmienia lub gdy nastąpi jawne wywołanie `flushCurrentEntry()`) trafiają do pliku jako wpisy zatwierdzone (_committed_).
-3. **Indeks zapytań** — udostępnia interfejs do odpytywania wzorca null dla dowolnego rekordu oraz wykrywania przerw w transmisji.
+1. **Agregację RLE w pamięci** - buforuje bieżący segment (ostatnią serię rekordów z identycznym wzorcem null) w polu `currentEntry_`, nie zapisując go do pliku przy każdym rekordzie.
+2. **Trwałość danych** - wyłącznie zakończone segmenty (gdy wzorzec się zmienia lub gdy nastąpi jawne wywołanie `flushCurrentEntry()`) trafiają do pliku jako wpisy zatwierdzone (_committed_).
+3. **Indeks zapytań** - udostępnia interfejs do odpytywania wzorca null dla dowolnego rekordu oraz wykrywania przerw w transmisji.
 
 Klasa przechowuje dwa stany:
 
@@ -308,7 +308,7 @@ _Rys. 16. Cykl życia obiektu metaData_
 
 **Konstruktor** (`metaData(descriptor, path)`):
 - Inicjalizuje pusty `currentEntry_` na podstawie liczby pól deskryptora.
-- Wywołuje `loadIndex()` — jeżeli plik istnieje, wczytuje wszystkie zatwierdzone segmenty, wyznacza `committedRecordCount_`, a ostatni niegapowy segment przenosi z powrotem do `currentEntry_` (umożliwia kontynuację serii RLE po restarcie).
+- Wywołuje `loadIndex()` - jeżeli plik istnieje, wczytuje wszystkie zatwierdzone segmenty, wyznacza `committedRecordCount_`, a ostatni niegapowy segment przenosi z powrotem do `currentEntry_` (umożliwia kontynuację serii RLE po restarcie).
 - Jeżeli plik nie istnieje, tworzy go i zapisuje nagłówek (8 bajtów zarezerwowanych, zera).
 
 **Destruktor** automatycznie wywołuje `flushCurrentEntry()`, gwarantując, że bieżący bufor trafi na dysk nawet gdy program zakończy pracę w normalnym trybie.
@@ -328,7 +328,7 @@ wzorzec identyczny z currentEntry_?
           ustaw currentEntry_ = {nullBitset, count=1}
 ```
 
-Operacja I/O następuje **wyłącznie przy zmianie wzorca** — dla serii identycznych rekordów koszt to jedna inkrementacja licznika w pamięci.
+Operacja I/O następuje **wyłącznie przy zmianie wzorca** - dla serii identycznych rekordów koszt to jedna inkrementacja licznika w pamięci.
 
 #### `onRecordModified(index, nullBitset)`
 
@@ -368,16 +368,16 @@ sequenceDiagram
     participant F as plik .meta
 
     S->>M: onTransmissionGap(5)
-    M->>F: flushCurrentEntry() — zapisz [normalny, count=N]
+    M->>F: flushCurrentEntry() - zapisz [normalny, count=N]
     M->>F: appendEntry(isGap=true, count=5)
     Note over F: plik zawiera teraz marker przerwy
 ```
 
-_Rys. 17. Sekwencja rejestracji przerwy — onTransmissionGap_
+_Rys. 17. Sekwencja rejestracji przerwy - onTransmissionGap_
 
 ### Mechanizm bezpieczeństwa: `flushCurrentEntry()` i nadpisywanie (tail_.dirty)
 
-Klasa `storage` wywołuje `flushCurrentEntry()` po **każdym** wywołaniu `write()`, aby zagwarantować przeżycie awarii procesu. Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu — powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
+Klasa `storage` wywołuje `flushCurrentEntry()` po **każdym** wywołaniu `write()`, aby zagwarantować przeżycie awarii procesu. Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu - powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
 
 Rozwiązanie: mechanizm **lazy overwrite** oznaczany flagą `tail_.dirty`.
 
@@ -419,17 +419,17 @@ sequenceDiagram
     M->>F: appendEntry([T,F], count=1)
 ```
 
-_Rys. 18. Mechanizm lazy overwrite — nadpisywanie ostatniego wpisu .meta_
+_Rys. 18. Mechanizm lazy overwrite - nadpisywanie ostatniego wpisu .meta_
 
-Dzięki temu plik `.meta` rośnie wyłącznie przy **zmianie wzorca null** — nie przy każdym rekordzie. Przy ciągłym napływie jednorodnych danych plik ma stały rozmiar niezależnie od liczby rekordów.
+Dzięki temu plik `.meta` rośnie wyłącznie przy **zmianie wzorca null** - nie przy każdym rekordzie. Przy ciągłym napływie jednorodnych danych plik ma stały rozmiar niezależnie od liczby rekordów.
 
 ### Persystencja i odtwarzanie stanu
 
 Po restarcie procesu nowy obiekt `metaData` wczytuje plik przez `loadIndex()` (sekwencja na Rys. 19):
 
-1. Pomija nagłówek — 8 bajtów zarezerwowanych; nic z nich nie jest interpretowane.
+1. Pomija nagłówek - 8 bajtów zarezerwowanych; nic z nich nie jest interpretowane.
 2. Wczytuje wszystkie zatwierdzone wpisy z pliku.
-3. Jeżeli ostatni wpis **nie jest gap-em** — przenosi go z powrotem do `currentEntry_` i usuwa z pliku (umożliwia kontynuację RLE po restarcie bez duplikacji).
+3. Jeżeli ostatni wpis **nie jest gap-em** - przenosi go z powrotem do `currentEntry_` i usuwa z pliku (umożliwia kontynuację RLE po restarcie bez duplikacji).
 4. Wyznacza `committedRecordCount_` jako sumę `recordCount` wszystkich niegalowych wpisów pozostałych w pliku.
 
 ```mermaid
@@ -455,27 +455,27 @@ _Rys. 19. Persystencja i odtwarzanie stanu po restarcie_
 
 | Metoda | Opis         |
 | ----   | ------------ |
-| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Metoda wirtualna: w wariancie `storageShadow` najpierw sprawdza nadpisania w `metaShadow` (od końca — ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
+| `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Metoda wirtualna: w wariancie `storageShadow` najpierw sprawdza nadpisania w `metaShadow` (od końca - ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
 | `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" zamiast rzucać wyjątkiem. Pozwala `storage::read()` nakładać metadane null bez kontroli zakresu. |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
 | `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Nie obejmuje nadpisań z `.meta.shadow`. Służy do inspekcji i testów. |
 | `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |
 | `isEmpty()` | Skrót: `totalRecords() == 0`. |
-| `rotate(percounter)` | Rotuje plik indeksu: przemianowuje bieżący plik `.meta` na `.meta.old<N>`, tworzy nowy pusty plik. Wywoływana przez `storage::detectStartupState()` po wykryciu rotacji pliku danych (plik danych pusty, indeks niepusty). Gdy `percounter < 0`, plik nie jest przemianowywany — wykonywany jest tylko reset indeksu. |
+| `rotate(percounter)` | Rotuje plik indeksu: przemianowuje bieżący plik `.meta` na `.meta.old<N>`, tworzy nowy pusty plik. Wywoływana przez `storage::detectStartupState()` po wykryciu rotacji pliku danych (plik danych pusty, indeks niepusty). Gdy `percounter < 0`, plik nie jest przemianowywany - wykonywany jest tylko reset indeksu. |
 | `reset()` | Czyści indeks w miejscu: zeruje liczniki, przepisuje plik z samym nagłówkiem bez zmiany jego nazwy. Wywołuje też `discardShadow()`. Wywoływany przez `storage` przy czyszczeniu bez zachowania historii (np. po `purge()`). |
 
 ### Interfejs cienia indeksu
 
-Metody klasy `storageShadow` — wariantu indeksu wstrzykiwanego przez `makeMetaIndex()` dla magazynów utrzymujących plik cienia danych. Bazowy `metaData` ich nie ma; nie ma też przełącznika trybu, bo o obecności cienia decyduje wybór klasy przy inicjalizacji magazynu.
+Metody klasy `storageShadow` - wariantu indeksu wstrzykiwanego przez `makeMetaIndex()` dla magazynów utrzymujących plik cienia danych. Bazowy `metaData` ich nie ma; nie ma też przełącznika trybu, bo o obecności cienia decyduje wybór klasy przy inicjalizacji magazynu.
 
 | Metoda | Opis         |
 | ----   | ------------ |
 | konstruktor | Wczytuje istniejące nadpisania z pliku `.meta.shadow` (`metaShadow::load()`), przywracając stan cienia po restarcie procesu. |
-| `mergeShadow()` | Scala nadpisania z cienia do głównego indeksu (aplikuje każde nadpisanie w kolejności zapisu — ostatnie wygrywa), a następnie usuwa plik `.meta.shadow`. Odpowiednik `merge()` dla pliku cienia danych. |
+| `mergeShadow()` | Scala nadpisania z cienia do głównego indeksu (aplikuje każde nadpisanie w kolejności zapisu - ostatnie wygrywa), a następnie usuwa plik `.meta.shadow`. Odpowiednik `merge()` dla pliku cienia danych. |
 | `discardShadow()` | Czyści listę nadpisań w pamięci i usuwa plik `.meta.shadow`. Wywoływany przy odrzuceniu cienia danych (purge, reset, rotacja). |
 | `metaShadowFilePath(p)` | Statyczna: zwraca ścieżkę pliku cienia indeksu odpowiadającą danemu plikowi `.meta`, bez tworzenia obiektu. Używana przez `storage` przy porządkowaniu zasobów. |
 
-### Przykład użycia — typowy scenariusz produkcyjny
+### Przykład użycia - typowy scenariusz produkcyjny
 
 ```
 storage.write(rec0)           → onRecordAppended([F,F,F]) + flushCurrentEntry()
@@ -506,7 +506,7 @@ Plik cienia umożliwia modyfikację zarejestrowanych rekordów bez niszczenia da
 | `position` | 8 B (size\_t) | indeks rekordu w pliku głównym |
 | `data`     | R bajtów      | nowe wartości rekordu          |
 
-Każda modyfikacja dopisuje nowy wpis na koniec pliku cienia. Przy wielu modyfikacjach tego samego rekordu plik może zawierać wiele wpisów dla tej samej pozycji — aktualny jest ostatni.
+Każda modyfikacja dopisuje nowy wpis na koniec pliku cienia. Przy wielu modyfikacjach tego samego rekordu plik może zawierać wiele wpisów dla tej samej pozycji - aktualny jest ostatni.
 
 ### Priorytety odczytu
 
@@ -542,7 +542,7 @@ sequenceDiagram
         Shadow-->>App: (position=i, data=data_i)
         App->>Main: pwrite(data_i, offset=i×R)
     end
-    App->>Shadow: ftruncate(0) — wyczyść plik cienia
+    App->>Shadow: ftruncate(0) - wyczyść plik cienia
 ```
 
 _Rys. 21. Scalanie pliku cienia z plikiem głównym_
@@ -572,14 +572,14 @@ Plik `.meta.shadow` jest odpowiednikiem `.shadow` na poziomie indeksu null. Reje
 
 Plik `.meta.shadow` jest tworzony automatycznie, gdy spełnione są dwa warunki:
 
-1. Magazyn jest typu `DEFAULT` lub `POSIXSHD` — czyli taki, który trzyma modyfikacje rekordów w pliku `.shadow` (nie w pliku głównym).
+1. Magazyn jest typu `DEFAULT` lub `POSIXSHD` - czyli taki, który trzyma modyfikacje rekordów w pliku `.shadow` (nie w pliku głównym).
 2. W danej sesji wykonana zostanie przynajmniej jedna modyfikacja istniejącego rekordu (`storage::write()` na indeks inny niż maksymalny).
 
 Warunek 1 nie jest przełącznikiem trybu, lecz **wyborem klasy**. Przy inicjalizacji magazynu fabryka `makeMetaIndex()` (`accessorFactory.hpp`) pyta akcesor o `hasShadow()` i zwraca:
 
 | Warunek | Zwracany obiekt | Zachowanie |
 | ------- | --------------- | ---------- |
-| źródło deklarowane (`DECLARE`) | `metaData` z pustą ścieżką | wariant inertny — indeks działa w pamięci, nic nie trafia na dysk |
+| źródło deklarowane (`DECLARE`) | `metaData` z pustą ścieżką | wariant inertny - indeks działa w pamięci, nic nie trafia na dysk |
 | akcesor ma plik cienia danych | `storageShadow` | `onRecordModified()` kieruje nadpisania do `metaShadow` (`.meta.shadow`) |
 | pozostałe | `metaData` | modyfikacje przepisują główny indeks `.meta` |
 
@@ -596,7 +596,7 @@ Plik `.meta.shadow` nie ma nagłówka. Jest sekwencją wpisów w tym samym forma
 | `bitsetSize` | 8 B (size\_t) | liczba pól deskryptora (N)            |
 | `bitset`     | ⌈N/8⌉ B       | nowy wzorzec null dla tego rekordu    |
 
-Każde wywołanie `onRecordModified()` w trybie cienia dopisuje jeden wpis na koniec pliku. Wiele wpisów dla tej samej pozycji jest dozwolone — obowiązuje **ostatni** wpis (semantyka „last-write-wins", zgodna z plikiem `.shadow`).
+Każde wywołanie `onRecordModified()` w trybie cienia dopisuje jeden wpis na koniec pliku. Wiele wpisów dla tej samej pozycji jest dozwolone - obowiązuje **ostatni** wpis (semantyka „last-write-wins", zgodna z plikiem `.shadow`).
 
 ### Priorytety odczytu
 
@@ -613,7 +613,7 @@ flowchart TD
     MAIN --> RET2["Zwróć wzorzec z .meta"]
 ```
 
-_Rys. 22. Priorytety odczytu wzorca null — główny indeks vs. cień indeksu_
+_Rys. 22. Priorytety odczytu wzorca null - główny indeks vs. cień indeksu_
 
 ### Cykl życia
 
@@ -623,16 +623,16 @@ Plik `.meta.shadow` jest zarządzany równolegle z plikiem cienia danych:
 | ---------------------------- | ----------------------- |
 | Pierwsza modyfikacja rekordu | Tworzenie pliku; dołączenie pierwszego wpisu |
 | Kolejne modyfikacje | Dołączanie kolejnych wpisów |
-| `merge()` — scalenie cienia z plikiem głównym | `mergeShadow()` — nadpisania aplikowane do `.meta`; plik usuwany |
-| `purge()` / `reset()` — odrzucenie cienia | `discardShadow()` — plik usuwany bez scalania |
-| Restart procesu | konstruktor `storageShadow` → `metaShadow::load()` — plik odczytywany; nadpisania przywrócone w pamięci |
+| `merge()` - scalenie cienia z plikiem głównym | `mergeShadow()` - nadpisania aplikowane do `.meta`; plik usuwany |
+| `purge()` / `reset()` - odrzucenie cienia | `discardShadow()` - plik usuwany bez scalania |
+| Restart procesu | konstruktor `storageShadow` → `metaShadow::load()` - plik odczytywany; nadpisania przywrócone w pamięci |
 | Usunięcie tymczasowego magazynu (destruktor) | Plik `.meta.shadow` usuwany razem z `.meta` |
 
 ### Persystencja po restarcie
 
 Po restarcie procesu nowy obiekt `storageShadow` przywraca stan cienia już w konstruktorze, przez `metaShadow::load()` (Rys. 23):
 
-1. Odczytuje wszystkie wpisy z `.meta.shadow` (brak nagłówka — format bezpośredni).
+1. Odczytuje wszystkie wpisy z `.meta.shadow` (brak nagłówka - format bezpośredni).
 2. Ładuje je do listy nadpisań w kolejności zapisu.
 3. `getNullBitset()` i kolejne `onRecordModified()` działają tak samo jak przed restartem.
 
@@ -658,9 +658,9 @@ sequenceDiagram
     Proc2->>MS: usuń plik .meta.shadow
 ```
 
-_Rys. 23. Cień indeksu — odtwarzanie wzorców null po restarcie_
+_Rys. 23. Cień indeksu - odtwarzanie wzorców null po restarcie_
 
-### Przykład użycia — korekta rekordu z zachowaniem spójności
+### Przykład użycia - korekta rekordu z zachowaniem spójności
 
 ```
 # 5 rekordów w strumieniu str1, 3 pola FLOAT
@@ -674,9 +674,9 @@ storage.write(rec2_corrected, pos=2)
     → .meta.shadow: dołącz (index=2, [F,F,F])
 
 # Stan plików:
-# .meta        — bez zmian: [isGap=F, count=2, [F,F,F]], 
+# .meta        - bez zmian: [isGap=F, count=2, [F,F,F]],
 # >> [isGap=F, count=1, [T,F,F]], [isGap=F, count=2, [F,F,F]]
-# .meta.shadow — nowy wpis: [gapFlag=0, recordCount=2, bitset=[F,F,F]]
+# .meta.shadow - nowy wpis: [gapFlag=0, recordCount=2, bitset=[F,F,F]]
 
 # Odczyt:
 getNullBitset(2) → [F,F,F]  (z .meta.shadow)
@@ -720,14 +720,14 @@ graph LR
 
 _Rys. 24. Relacja pomiędzy operacjami zapisu, modyfikacji i odczytu artefaktu (typy `DEFAULT` i `POSIXSHD`)_
 
-Rys. 24 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`. O rodzaju zapisu decyduje indeks rekordu: `N` równy lub większy od liczby rekordów to `append`, mniejszy to `update`. Wpis w `.shadow` jest kluczowany przesunięciem w bajtach (`N·size`, przy retencji liczonym względem segmentu), wpis w `.meta.shadow` indeksem rekordu `N`. Rekord złożony wyłącznie z wartości null poza fazą nullfill nie trafia do pliku głównego — zostaje po nim wpis przerwy w `.meta`. Warstwa cienia istnieje tylko dla typów `DEFAULT` i `POSIXSHD`; w pozostałych typach (`POSIX`, `DIRECT`, `GENERIC`, `MEMORY`) `update` nadpisuje rekord bezpośrednio w pliku głównym i w `.meta`.
+Rys. 24 przedstawia przepływ operacji `append`, `update` i `read` przez warstwę `storage` oraz ich bezpośredni wpływ na plik danych, `.meta`, `.shadow` i `.meta.shadow`. O rodzaju zapisu decyduje indeks rekordu: `N` równy lub większy od liczby rekordów to `append`, mniejszy to `update`. Wpis w `.shadow` jest kluczowany przesunięciem w bajtach (`N·size`, przy retencji liczonym względem segmentu), wpis w `.meta.shadow` indeksem rekordu `N`. Rekord złożony wyłącznie z wartości null poza fazą nullfill nie trafia do pliku głównego - zostaje po nim wpis przerwy w `.meta`. Warstwa cienia istnieje tylko dla typów `DEFAULT` i `POSIXSHD`; w pozostałych typach (`POSIX`, `DIRECT`, `GENERIC`, `MEMORY`) `update` nadpisuje rekord bezpośrednio w pliku głównym i w `.meta`.
 
-## Punkt wyjścia — plik binarny bez metadanych
+## Punkt wyjścia - plik binarny bez metadanych
 
-Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w pliku binarnym: stały rozmiar rekordu, brak nagłówka, brak opisu struktury. Takie podejście ma jedną zaletę — minimalny narzut — i szereg istotnych ograniczeń:
+Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w pliku binarnym: stały rozmiar rekordu, brak nagłówka, brak opisu struktury. Takie podejście ma jedną zaletę - minimalny narzut - i szereg istotnych ograniczeń:
 
 - Interpretacja danych wymaga wiedzy zewnętrznej wobec pliku (nazwy pól, typy, kolejność).
-- Brak informacji o przerwach w transmisji — ciągłość danych jest pozorna.
+- Brak informacji o przerwach w transmisji - ciągłość danych jest pozorna.
 - Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
 - Zmiana struktury rekordu unieważnia cały plik.
 
@@ -735,38 +735,38 @@ RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, g
 
 ## Co wnosi każdy plik
 
-**Deskryptor (`.desc`) — samoopisywalność i niezależność od kodu**
+**Deskryptor (`.desc`) - samoopisywalność i niezależność od kodu**
 
 Plik danych binarnych jest bezużyteczny bez znajomości struktury rekordu. Deskryptor przechowuje tę wiedzę obok danych, co oznacza:
 
-- Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji — wystarczy plik `.desc`.
+- Dane można odczytać i zinterpretować bez dostępu do kodu źródłowego ani konfiguracji - wystarczy plik `.desc`.
 - Narzędzie `xtrdb` może analizować dowolny artefakt bez dodatkowych parametrów.
 - Zmiana struktury strumienia (dodanie pola, zmiana typu) jest jawna i wersjonowalna.
 - Pole `TYPE` w deskryptorze decyduje o strategii składowania, co pozwala temu samemu silnikowi obsługiwać trwałe artefakty, ulotne efemerydy i zewnętrzne źródła danych bez zmiany logiki zapytań.
 
-**Plik metadanych (`.meta`) — wiarygodność serii czasowej**
+**Plik metadanych (`.meta`) - wiarygodność serii czasowej**
 
 Seria czasowa z dziurami, traktowana jako ciągła, prowadzi do błędnych obliczeń okien czasowych, błędnych agregacji i fałszywych korelacji. Plik `.meta` zapewnia:
 
-- Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) — semantycznie zupełnie różnych stanów.
-- Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych — plik binarny pozostaje gęsty i adresowalny pozycyjnie.
-- Kompresję RLE — typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
+- Odróżnienie rekordu z wartością zero od rekordu nieobecnego (null) - semantycznie zupełnie różnych stanów.
+- Rejestrację przerw w transmisji bez wstawiania fikcyjnych rekordów do pliku danych - plik binarny pozostaje gęsty i adresowalny pozycyjnie.
+- Kompresję RLE - typowe serie czasowe mają długie okresy bez null, więc koszt metadanych jest bliski zeru dla danych dobrej jakości.
 - Możliwość odtworzenia dokładnego harmonogramu rejestracji, w tym długości przerw, co jest niezbędne przy obliczaniu interwałów w algebrze strumieni.
 
-**Plik cienia (`.shadow`) — niedestruktywna korekta danych**
+**Plik cienia (`.shadow`) - niedestruktywna korekta danych**
 
 W systemach pomiarowych korekta błędnych próbek po fakcie jest standardową procedurą. Nadpisanie pliku binarnego jest nieodwracalne i usuwa dowód oryginalnego pomiaru. Plik cienia:
 
 - Pozwala skorygować dowolny historyczny rekord bez modyfikacji pliku głównego.
-- Zachowuje oryginalny pomiar jako domyślny — usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
+- Zachowuje oryginalny pomiar jako domyślny - usunięcie pliku `.shadow` w pełni przywraca stan wyjściowy.
 - Umożliwia scalenie (`merge`) korekt do pliku głównego wtedy, gdy jest to świadoma decyzja operatora, nie skutek uboczny zapisu.
 - Separuje dane certyfikowane (plik główny) od danych roboczych (plik cienia), co ma znaczenie w zastosowaniach wymagających audytowalności.
 
-**Plik cienia indeksu (`.meta.shadow`) — spójność metadanych przy korekcie**
+**Plik cienia indeksu (`.meta.shadow`) - spójność metadanych przy korekcie**
 
-Korekta rekordu w pliku cienia danych musi znaleźć odzwierciedlenie w indeksie null — inaczej `getNullBitset()` zwróciłoby przestarzały wzorzec z głównego `.meta`. Plik `.meta.shadow`:
+Korekta rekordu w pliku cienia danych musi znaleźć odzwierciedlenie w indeksie null - inaczej `getNullBitset()` zwróciłoby przestarzały wzorzec z głównego `.meta`. Plik `.meta.shadow`:
 
 - Utrzymuje spójność między parami: `plik główny ↔ .meta` oraz `.shadow ↔ .meta.shadow`.
 - Pozwala `getNullBitset()` zwrócić aktualny wzorzec null dla skorygowanego rekordu bez modyfikowania głównego indeksu.
-- Śledzi cykl życia pliku cienia danych — scalany i usuwany dokładnie razem z `.shadow`.
+- Śledzi cykl życia pliku cienia danych - scalany i usuwany dokładnie razem z `.shadow`.
 - Umożliwia pełne odtworzenie stanu po restarcie: nadpisania załadowane z `.meta.shadow` są natychmiast dostępne bez ponownego skanowania pliku cienia danych.

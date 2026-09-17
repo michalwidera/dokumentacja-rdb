@@ -1,6 +1,6 @@
-# Wizualizacja EKG i Detekcja Arytmii — baza MIT-BIH
+# Wizualizacja EKG i Detekcja Arytmii - baza MIT-BIH
 
-## Źródło danych — PhysioNet MIT-BIH Arrhythmia Database
+## Źródło danych - PhysioNet MIT-BIH Arrhythmia Database
 
 Baza MIT-BIH Arrhythmia Database jest publicznie dostępnym zbiorem nagrań elektrokardiograficznych opublikowanym przez PhysioNet pod adresem:
 
@@ -12,7 +12,7 @@ Zawiera 48 półgodzinnych nagrań dwukanałowych zebranych od 47 pacjentów w B
 
 ### Rekord 205
 
-Przykład korzysta z rekordu **205** — nagrania 59-letniego mężczyzny leczonego Digoksyną i Quinaglutem. Rekord zawiera przypadki częstoskurczu komorowego (VT) i jest często cytowany w literaturze jako trudny diagnostycznie ze względu na dwie morfologicznie odmienne formy dodatkowych pobudzeń komorowych (PVC).
+Przykład korzysta z rekordu **205** - nagrania 59-letniego mężczyzny leczonego Digoksyną i Quinaglutem. Rekord zawiera przypadki częstoskurczu komorowego (VT) i jest często cytowany w literaturze jako trudny diagnostycznie ze względu na dwie morfologicznie odmienne formy dodatkowych pobudzeń komorowych (PVC).
 
 Parametry nagrania:
 
@@ -82,7 +82,7 @@ SELECT ecg.MLII, ecg.V1 STREAM s205out FROM ecg VOLATILE
 
 Klauzula `STREAM ecg, 1/360` określa interwał czasowy jednej próbki jako 1/360 s, co odpowiada rzeczywistej częstotliwości próbkowania 360 Hz. Klauzula `TYPE DEVICE` w deskryptorze powoduje, że plik `rec205` jest czytany sekwencyjnie w pętli (po ostatniej próbce odczyt wraca do początku), co umożliwia ciągłe odtwarzanie nagrania.
 
-Strumień wyjściowy `s205out` jest zadeklarowany jako `VOLATILE`, dlatego nie jest zapisywany na dysk — dane trafiają wyłącznie do procesu konsumenta (`xqry`).
+Strumień wyjściowy `s205out` jest zadeklarowany jako `VOLATILE`, dlatego nie jest zapisywany na dysk - dane trafiają wyłącznie do procesu konsumenta (`xqry`).
 
 ## Wizualizacja na ekranie
 
@@ -109,7 +109,7 @@ Znaczenie parametrów:
 | `560,1360`          | Zakres osi Y (wartości ADC pasujące do rzeczywistego sygnału)              |
 | `--gnuplot-rtl`     | Najnowsze próbki po prawej stronie, wykres przesuwa się od prawej do lewej |
 
-Opcja `--gnuplot-rtl` jest parametrem `xqry` powodującym odwrócenie osi X gnuplota (`set xrange [720:0]`). Efekt jest taki, że najświeższe próbki pojawiają się po prawej stronie okna, a starsze przesuwają się w lewo — analogicznie do klasycznego wydruku EKG na taśmie papierowej.
+Opcja `--gnuplot-rtl` jest parametrem `xqry` powodującym odwrócenie osi X gnuplota (`set xrange [720:0]`). Efekt jest taki, że najświeższe próbki pojawiają się po prawej stronie okna, a starsze przesuwają się w lewo - analogicznie do klasycznego wydruku EKG na taśmie papierowej.
 
 Skrypt nadaje uruchamianemu serwerowi nazwę wyprowadzoną z katalogu roboczego i przekazuje
 ją do wszystkich wywołań `xqry --server`. Dzięki temu kilka celów wykresowych może działać
@@ -122,7 +122,7 @@ Okno przedstawione na Rys. 60 prezentuje 720 próbek, czyli dokładnie 2 sekundy
 
 ## Detekcja QRS i identyfikacja arytmii
 
-### Kontekst — algorytm Pan-Tompkins
+### Kontekst - algorytm Pan-Tompkins
 
 Detekcja zespołów QRS jest fundamentem automatycznej analizy EKG. Zespół QRS reprezentuje depolaryzację komór serca i odpowiada każdemu uderzeniu serca widocznemu jako ostry pik w sygnale. Znając położenia QRS w czasie, można wyliczyć interwały RR, a na ich podstawie rozpoznać podstawowe zaburzenia rytmu:
 
@@ -139,7 +139,7 @@ Algorytm Pan-Tompkins (1985) jest klasycznym, pięcioetapowym potokowym algorytm
 
 Algorytm wymaga dwóch zestawów współczynników FIR, przechowywanych jako pliki tekstowe (`bp_coef.txt`, `d_coef.txt`). Generowane są jednorazowo skryptami Pythona przed uruchomieniem detekcji.
 
-#### Filtr pasmowoprzepustowy — `gen_bp_coef.py`
+#### Filtr pasmowoprzepustowy - `gen_bp_coef.py`
 
 Krok 1 algorytmu wymaga filtru wycinającego szumy i artefakty poza pasmem QRS. Pasm przepustowe 5–15 Hz przy fs = 360 Hz daje odpowiedź zawierającą morfologię QRS przy jednoczesnym tłumieniu linii bazowej (< 5 Hz) i szumów mięśniowych (> 15 Hz).
 
@@ -151,9 +151,9 @@ h_bp[n] = (h_lp2[n] − h_lp1[n]) · w[n]
 
 gdzie:
 
-* `h_lp[n] = 2·fc·sinc(2·fc·(n−M))` — idealny filtr dolnoprzepustowy
-* `w[n] = 0,54 − 0,46·cos(2πn/(N−1))` — okno Hamminga tłumiące efekty Gibbsa
-* `M = (N−1)/2 = 12` — punkt centralny filtru (opóźnienie grupowe = 12 próbek)
+* `h_lp[n] = 2·fc·sinc(2·fc·(n−M))` - idealny filtr dolnoprzepustowy
+* `w[n] = 0,54 − 0,46·cos(2πn/(N−1))` - okno Hamminga tłumiące efekty Gibbsa
+* `M = (N−1)/2 = 12` - punkt centralny filtru (opóźnienie grupowe = 12 próbek)
 
 Parametry:
 
@@ -174,9 +174,9 @@ python3 gen_bp_coef.py
 # Suma (wzmocnienie DC): 5 / 1000 = 0.0050
 ```
 
-Współczynniki są symetryczne względem centrum (n=12), co potwierdza fazę liniową filtru — niezbędną właściwość przy analizie EKG, gdyż gwarantuje brak zniekształceń fazowych morfologii QRS.
+Współczynniki są symetryczne względem centrum (n=12), co potwierdza fazę liniową filtru - niezbędną właściwość przy analizie EKG, gdyż gwarantuje brak zniekształceń fazowych morfologii QRS.
 
-#### Filtr różniczkujący — `gen_d_coef.py`
+#### Filtr różniczkujący - `gen_d_coef.py`
 
 Krok 2 algorytmu stosuje filtr podkreślający strome zbocza QRS. Pan i Tompkins zaproponowali 5-punktowy estymator pochodnej:
 
@@ -194,9 +194,9 @@ Właściwości filtru:
 
 | Właściwość           | Wartość                                           |
 | -------------------- | ------------------------------------------------- |
-| Suma współczynników  | 0 (zerowe wzmocnienie DC — eliminuje offsety)     |
+| Suma współczynników  | 0 (zerowe wzmocnienie DC - eliminuje offsety)     |
 | Maksymalna odpowiedź | f ≈ 10–25 Hz (zakres zbocza QRS)                  |
-| Czynnik skali (1/8T) | 360/8 = 45 Hz (pomijany — nie wpływa na detekcję) |
+| Czynnik skali (1/8T) | 360/8 = 45 Hz (pomijany - nie wpływa na detekcję) |
 
 ```bash
 cd examples/ecg/rec205
@@ -206,7 +206,7 @@ python3 gen_d_coef.py
 # Suma (wzmocnienie DC): 0  (powinno być 0)
 ```
 
-### Implementacja potoku w RQL — `rec205-detect.rql`
+### Implementacja potoku w RQL - `rec205-detect.rql`
 
 Plik `rec205-detect.rql` implementuje kompletny pięcioetapowy potok dla dwóch kanałów EKG (MLII i V1):
 
@@ -222,11 +222,11 @@ DECLARE d_coef INTEGER[5]   STREAM df,  1 FILE 'd_coef.txt'
 SELECT ecg.MLII            STREAM mlii    FROM ecg VOLATILE
 SELECT ecg.V1              STREAM v1      FROM ecg VOLATILE
 
-# 1. Filtr pasmowoprzepustowy (5-15 Hz) — splot FIR 25-tap
+# 1. Filtr pasmowoprzepustowy (5-15 Hz) - splot FIR 25-tap
 SELECT mlii[_]*bpf[_]      STREAM bp_acc  FROM mlii@(1,25)+bpf VOLATILE
 SELECT int(bp_acc[0]/1000) STREAM bp_out  FROM SUMC(bp_acc) VOLATILE
 
-# 2. Różniczkowanie — splot FIR 5-tap
+# 2. Różniczkowanie - splot FIR 5-tap
 SELECT bp_out[_]*df[_]     STREAM d_acc   FROM bp_out@(1,5)+df VOLATILE
 SELECT int(d_acc[0])       STREAM d_out   FROM SUMC(d_acc) VOLATILE
 
@@ -236,7 +236,7 @@ SELECT d_out[0]^2/1000     STREAM sq_out  FROM d_out VOLATILE
 # 4. Całkowanie ruchome 30 próbek (~83 ms)
 SELECT int(sq_out[0])      STREAM mwi     FROM AVG(sq_out@(1,30)) VOLATILE
 
-# 5. Próg adaptacyjny — 2× średnia ruchoma 180 próbek (0,5 s)
+# 5. Próg adaptacyjny - 2× średnia ruchoma 180 próbek (0,5 s)
 SELECT int(mwi[0])         STREAM mwi_thr FROM AVG(mwi@(1,180)) VOLATILE
 
 # Wyjście: MLII wycentrowane, V1 wycentrowane, sygnał detekcji ×5
@@ -246,7 +246,7 @@ STREAM detect_out FROM mlii+v1+mwi+mwi_thr VOLATILE
 
 #### Uzasadnienie parametrów
 
-Operator `@(1,25)` tworzy ruchome okno 25 próbek bezpośrednio w `FROM`. Indeks `mlii[_]` rozwija się zgodnie z 25 slotami, które to okno wnosi do rekordu wejściowego, a `SUMC` sumuje iloczyny z `bpf[_]`. W ten sposób splot dyskretny nie wymaga osobnego zapytania `mlii_win`. Ten sam zapis tworzy pięcioelementowy splot różniczkujący — patrz rozdział [Przetwarzanie symbolu \_](../kompilacja-zapytan/przetwarzanie-symbolu-_.md).
+Operator `@(1,25)` tworzy ruchome okno 25 próbek bezpośrednio w `FROM`. Indeks `mlii[_]` rozwija się zgodnie z 25 slotami, które to okno wnosi do rekordu wejściowego, a `SUMC` sumuje iloczyny z `bpf[_]`. W ten sposób splot dyskretny nie wymaga osobnego zapytania `mlii_win`. Ten sam zapis tworzy pięcioelementowy splot różniczkujący - patrz rozdział [Przetwarzanie symbolu \_](../kompilacja-zapytan/przetwarzanie-symbolu-_.md).
 
 Kompilator wydziela okna i reduktory z rozbudowanej klauzuli `FROM` jako własne substraty. `VOLATILE` dotyczy strumienia nazwanego w danym `SELECT`, nie tych automatycznych węzłów. Dyrektywa `SUBSTRAT 'memory'` utrzymuje cały potok pośredni w pamięci; bez niej wygenerowane okna korzystałyby z domyślnego składowania dyskowego.
 
@@ -254,9 +254,9 @@ Dzielenie `bp_acc[0]/1000` w kroku 1 kompensuje skalę całkowitoliczbową wspó
 
 Potok liczy w arytmetyce całkowitej, dlatego każdy wynik reduktora wraca do `INTEGER` jawnym `int(...)` (skrót `to_integer`). `SUMC` i `AVG` nad polem `INTEGER` dają `RATIONAL`; bez rzutowania mianowniki rosną z etapu na etap (`/1000`, kwadrat, średnia z 30 próbek), aż `boost::rational<int>` przepełnia się bez ostrzeżenia.
 
-Wyrażenie wyjściowe `(mwi[0]-mwi_thr[0]*2)*5` implementuje próg adaptacyjny: wartość jest dodatnia tylko wówczas, gdy obwiednia MWI przekracza dwukrotność bieżącej średniej ruchomej — co wskazuje na wykryty QRS. Mnożnik `×5` skaluje sygnał detekcji do zakresu wizualnie porównywalnego z surowym EKG na wykresie.
+Wyrażenie wyjściowe `(mwi[0]-mwi_thr[0]*2)*5` implementuje próg adaptacyjny: wartość jest dodatnia tylko wówczas, gdy obwiednia MWI przekracza dwukrotność bieżącej średniej ruchomej - co wskazuje na wykryty QRS. Mnożnik `×5` skaluje sygnał detekcji do zakresu wizualnie porównywalnego z surowym EKG na wykresie.
 
-### Uruchomienie — ninja ecg-detect-qrs
+### Uruchomienie - ninja ecg-detect-qrs
 
 Proces uruchamia się jedną komendą z katalogu `build/Debug`:
 
@@ -283,23 +283,23 @@ Znaczenie parametrów:
 
 Skrypt `xplot.sh` uruchamia `xretractor` w tle (kompiluje i wykonuje zapytania), a następnie przez `xqry` przekazuje strumień `detect_out` do `gnuplot` w trybie ciągłym. Okno `gnuplot` odświeża się przy każdej nowej paczce próbek.
 
-### Opis rysunku — okno gnuplot
+### Opis rysunku - okno gnuplot
 
-<figure><img src="../assets/ninja-ecg-detect-qrs.png" data-pdf-width="58%" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 61. Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> — rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
+<figure><img src="../assets/ninja-ecg-detect-qrs.png" data-pdf-width="58%" alt="Okno gnuplot detekcji QRS: MLII, V1 i sygnał detekcji na rekordzie 205"><figcaption><p>Rys. 61. Okno gnuplot uruchomionego celem <code>ninja ecg-detect-qrs</code> - rekord 205 MIT-BIH, 720 próbek (2 s), RTL</p></figcaption></figure>
 
 Na Rys. 61 widoczne są trzy sygnały odpowiadające trzem polom strumienia `detect_out`:
 
-**\[detect-out-0] linia czerwona — MLII wycentrowane (mlii − 900)**
+**\[detect-out-0] linia czerwona - MLII wycentrowane (mlii − 900)**
 
-Surowy sygnał EKG z odprowadzenia MLII przesunięty o punkt bazowy 900 ADC tak, że oś zerowa odpowiada izolinii. Dwa ostre piki (amplituda ≈ 280 ADC ≈ 1,4 mV) w okolicach próbek 520 i 350 od prawej krawędzi reprezentują dwa kolejne zespoły QRS. Wyraźna morfologia QRS z dominującym pikiem R potwierdza prawidłowe działanie filtru pasmowoprzepustowego — szumy zostały stłumione, a pik zachował amplitudę.
+Surowy sygnał EKG z odprowadzenia MLII przesunięty o punkt bazowy 900 ADC tak, że oś zerowa odpowiada izolinii. Dwa ostre piki (amplituda ≈ 280 ADC ≈ 1,4 mV) w okolicach próbek 520 i 350 od prawej krawędzi reprezentują dwa kolejne zespoły QRS. Wyraźna morfologia QRS z dominującym pikiem R potwierdza prawidłowe działanie filtru pasmowoprzepustowego - szumy zostały stłumione, a pik zachował amplitudę.
 
-**\[detect-out-1] linia niebieska — V1 wycentrowane (v1 − 900)**
+**\[detect-out-1] linia niebieska - V1 wycentrowane (v1 − 900)**
 
-Sygnał z odprowadzenia V1 tego samego nagrania. Morfologia QRS w V1 jest z reguły mniej wyrażona niż w MLII, co widać na rysunku — sygnał niebieski wykazuje mniejszą amplitudę piku R przy podobnych pozycjach czasowych QRS. Jednoczesna obecność obu kanałów pozwala różnicować pobudzenia nadkomorowe (APC) od komorowych (PVC), ponieważ QRS komorowe wykazują odmienną morfologię w V1.
+Sygnał z odprowadzenia V1 tego samego nagrania. Morfologia QRS w V1 jest z reguły mniej wyrażona niż w MLII, co widać na rysunku - sygnał niebieski wykazuje mniejszą amplitudę piku R przy podobnych pozycjach czasowych QRS. Jednoczesna obecność obu kanałów pozwala różnicować pobudzenia nadkomorowe (APC) od komorowych (PVC), ponieważ QRS komorowe wykazują odmienną morfologię w V1.
 
-**\[detect-out-2] linia zielona — sygnał detekcji QRS ((mwi − 2·mwi\_thr) × 5)**
+**\[detect-out-2] linia zielona - sygnał detekcji QRS ((mwi − 2·mwi\_thr) × 5)**
 
-Sygnał wyniku algorytmu. Wartość **dodatnia** oznacza wykryty zespół QRS — obwiednia całkowania ruchomego przekroczyła dwukrotność progu adaptacyjnego. Na rysunku widoczne są dwa wyraźne dodatnie impulsy pokrywające się w czasie z pikami QRS na kanale MLII. Między uderzeniami linia pozostaje blisko zera lub nieznacznie poniżej — potwierdzając specyficzność detekcji.
+Sygnał wyniku algorytmu. Wartość **dodatnia** oznacza wykryty zespół QRS - obwiednia całkowania ruchomego przekroczyła dwukrotność progu adaptacyjnego. Na rysunku widoczne są dwa wyraźne dodatnie impulsy pokrywające się w czasie z pikami QRS na kanale MLII. Między uderzeniami linia pozostaje blisko zera lub nieznacznie poniżej - potwierdzając specyficzność detekcji.
 
 Odstęp między dwoma widocznymi QRS wynosi w przybliżeniu 170 próbek, co przy 360 Hz daje:
 
@@ -313,9 +313,9 @@ Wartość ta mieści się w zakresie odnotowanego w rekordzie 205 częstoskurczu
 
 Poniższy diagram (Rys. 62) pokazuje kompletny przepływ danych od surowego nagrania MIT-BIH do identyfikacji arytmii, ze wskazaniem miejsca, w którym RetractorDB realizuje algorytm Pan-Tompkins, oraz powiązania z klasycznymi metodami rozpoznawania arytmii:
 
-<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 62. Przepływ danych — od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
+<figure><img src="../assets/qrs_pipeline_arytmia.svg" alt="Schemat przepływu danych w procesie detekcji QRS i identyfikacji arytmii"><figcaption><p>Rys. 62. Przepływ danych - od nagrania MIT-BIH przez potok Pan-Tompkins w RQL do wizualizacji i identyfikacji arytmii</p></figcaption></figure>
 
-Prawa gałąź diagramu — **Identyfikacja arytmii** — reprezentuje klasyczne metody analizy po detekcji QRS, które można zbudować jako kolejne zapytania RQL nadbudowane na strumieniu `detect_out`:
+Prawa gałąź diagramu - **Identyfikacja arytmii** - reprezentuje klasyczne metody analizy po detekcji QRS, które można zbudować jako kolejne zapytania RQL nadbudowane na strumieniu `detect_out`:
 
 | Metoda           | Opis                                   | Powiązanie z QRS                |
 | ---------------- | -------------------------------------- | ------------------------------- |

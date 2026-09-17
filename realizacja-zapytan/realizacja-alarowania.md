@@ -1,6 +1,6 @@
 # Realizacja alarmowania
 
-Mechanizm alarmowania (dyrektywa `RULE`) jest nieodłączną częścią głównej pętli przetwarzania. Nie jest osobnym procesem działającym w tle — reguły są ewaluowane **synchronicznie**, w tej samej iteracji siatki czasowej co obliczenia `SELECT`. Daje to pewność, że alarm zawsze odnosi się do danych właśnie obliczonych, a nie z poprzedniego cyklu.
+Mechanizm alarmowania (dyrektywa `RULE`) jest nieodłączną częścią głównej pętli przetwarzania. Nie jest osobnym procesem działającym w tle - reguły są ewaluowane **synchronicznie**, w tej samej iteracji siatki czasowej co obliczenia `SELECT`. Daje to pewność, że alarm zawsze odnosi się do danych właśnie obliczonych, a nie z poprzedniego cyklu.
 
 ***
 
@@ -18,7 +18,7 @@ flowchart LR
 
 _Rys. 49. Kolejność kroków przetwarzania jednego zapytania_
 
-Krok czwarty — `constructRulesAndUpdate()` — to właśnie wykonanie wszystkich reguł przypiętych do bieżącego zapytania. Wywoływany jest po zapisaniu wyników `SELECT` na dysk, co oznacza, że reguła zawsze ocenia **gotową, właśnie obliczoną próbkę** strumienia.
+Krok czwarty - `constructRulesAndUpdate()` - to właśnie wykonanie wszystkich reguł przypiętych do bieżącego zapytania. Wywoływany jest po zapisaniu wyników `SELECT` na dysk, co oznacza, że reguła zawsze ocenia **gotową, właśnie obliczoną próbkę** strumienia.
 
 ***
 
@@ -26,11 +26,11 @@ Krok czwarty — `constructRulesAndUpdate()` — to właśnie wykonanie wszystki
 
 Każda reguła zawiera listę tokenów opisujących wyrażenie logiczne (pole `condition` struktury `rule`). W momencie ewaluacji system:
 
-1. Pobiera `outputPayload` bieżącego zapytania — to bieżąca próbka strumienia.
-2. Przekazuje warunek do silnika `expressionEvaluator::eval()` — **tego samego silnika**, który oblicza wyrażenia `SELECT`.
+1. Pobiera `outputPayload` bieżącego zapytania - to bieżąca próbka strumienia.
+2. Przekazuje warunek do silnika `expressionEvaluator::eval()` - **tego samego silnika**, który oblicza wyrażenia `SELECT`.
 3. Rzutuje wynik na wartość logiczną (`boolCast`): każda niezerowa wartość liczbowa to `true`, zero to `false`.
 
-Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM` lub `DO DUMP`). Jeśli niespełniony — reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 50.
+Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM` lub `DO DUMP`). Jeśli niespełniony - reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 50.
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -51,12 +51,12 @@ _Rys. 50. Przepływ ewaluacji reguły_
 
 ## Akcja DO SYSTEM
 
-Wywołanie `DO SYSTEM` jest najprostsze: system wywołuje `::system(polecenie)` bezpośrednio w wątku przetwarzania. Wywołanie jest **synchroniczne** — xretractor czeka na zakończenie procesu przed przejściem do następnej reguły.
+Wywołanie `DO SYSTEM` jest najprostsze: system wywołuje `::system(polecenie)` bezpośrednio w wątku przetwarzania. Wywołanie jest **synchroniczne** - xretractor czeka na zakończenie procesu przed przejściem do następnej reguły.
 
 Kod wyjścia polecenia jest sprawdzany:
-- `0` — sukces, brak wpisu w logu.
-- `≠ 0` — xretractor loguje błąd przez spdlog z kodem wyjścia.
-- Niepowodzenie `system()` (np. brak powłoki) — logowany jako błąd krytyczny.
+- `0` - sukces, brak wpisu w logu.
+- `≠ 0` - xretractor loguje błąd przez spdlog z kodem wyjścia.
+- Niepowodzenie `system()` (np. brak powłoki) - logowany jako błąd krytyczny.
 
 > **⚠️ Ostrzeżenie**
 >
@@ -65,22 +65,22 @@ Kod wyjścia polecenia jest sprawdzany:
 
 ***
 
-## Akcja DO DUMP — szczegółowy algorytm
+## Akcja DO DUMP - szczegółowy algorytm
 
 `DO DUMP` jest bardziej złożona, ponieważ wymaga zebrania danych **z przeszłości** (chwile przed zdarzeniem) i **z przyszłości** (chwile po zdarzeniu). Obsługuje to klasa `dumpManager`.
 
 <div class="timeline compact">
 
-- **Zdarzenie** — warunek `WHEN` prawdziwy dla próbki `t`, reguła wywołuje `dumpManager::registerTask()`
-- **Faza 1** — zapis `|step_back|` próbek historycznych z bufora strumienia (albo ustawienie opóźnienia startu)
-- **Faza 2** — w kolejnych iteracjach `processStreamChunk()` dopisuje próbki przyszłe
-- **Koniec** — `dumpedRecordsToGo` osiąga 0, plik zostaje zamknięty, zadanie opuszcza kolejkę
+- **Zdarzenie** - warunek `WHEN` prawdziwy dla próbki `t`, reguła wywołuje `dumpManager::registerTask()`
+- **Faza 1** - zapis `|step_back|` próbek historycznych z bufora strumienia (albo ustawienie opóźnienia startu)
+- **Faza 2** - w kolejnych iteracjach `processStreamChunk()` dopisuje próbki przyszłe
+- **Koniec** - `dumpedRecordsToGo` osiąga 0, plik zostaje zamknięty, zadanie opuszcza kolejkę
 
 </div>
 
 ### Faza 1: dane historyczne (przy rejestracji zadania)
 
-W chwili wyzwolenia reguły — zaraz po stwierdzeniu, że warunek jest prawdziwy — `dumpManager::registerTask()`:
+W chwili wyzwolenia reguły - zaraz po stwierdzeniu, że warunek jest prawdziwy - `dumpManager::registerTask()`:
 
 1. Tworzy plik docelowy na dysku (POSIX `open()` z flagą `O_CREAT | O_TRUNC`).
 2. Jeśli `step_back < 0`, odczytuje `|step_back|` próbek z historycznego bufora strumienia.  
@@ -101,9 +101,9 @@ Przykład: DUMP -3 TO 2
 Po rejestracji zadanie trafia do kolejki `bookOfTasks[streamName]`. W każdej kolejnej iteracji siatki czasowej (gdy strumień produkuje nową próbkę) wywoływane jest `dumpManager::processStreamChunk()`:
 
 1. Dla każdego aktywnego zadania w kolejce (`dumpedRecordsToGo > 0`):
-   - Jeśli `delayDumpRecordsToGo > 0` — dekrementuj i pomiń (opóźnienie startu).
-   - Wpp. — zapisz bieżącą próbkę do pliku i dekrementuj `dumpedRecordsToGo`.
-2. Gdy `dumpedRecordsToGo` osiągnie 0 — zamknij deskryptor pliku i usuń zadanie z kolejki.
+   - Jeśli `delayDumpRecordsToGo > 0` - dekrementuj i pomiń (opóźnienie startu).
+   - Wpp. - zapisz bieżącą próbkę do pliku i dekrementuj `dumpedRecordsToGo`.
+2. Gdy `dumpedRecordsToGo` osiągnie 0 - zamknij deskryptor pliku i usuń zadanie z kolejki.
 
 Pełna sekwencja dla `DUMP -3 TO 2` przedstawiona jest na Rys. 51.
 
@@ -115,7 +115,7 @@ sequenceDiagram
     participant SI as streamInstance
     participant DM as dumpManager
 
-    note over SI: Próbka t — warunek TRUE
+    note over SI: Próbka t - warunek TRUE
     SI->>DM: registerTask(stream, {-3, 2, retention=0})
     DM->>DM: Otwórz plik dump.tmp
     DM->>DM: Zapisz t-3, t-2, t-1 (historia)
@@ -126,7 +126,7 @@ sequenceDiagram
     note over SI: Próbka t+1
     SI->>DM: processStreamChunk(stream)
     DM->>DM: Zapisz t+1 → dumpedRecordsToGo = 0
-    DM->>DM: Zamknij plik — zadanie gotowe
+    DM->>DM: Zamknij plik - zadanie gotowe
 ```
 
 _Rys. 51. Sekwencja zbierania danych przez DO DUMP –3 TO 2_
@@ -142,19 +142,19 @@ Przykład: DUMP 2 TO 5
   Próbka t+1 → pomiń (delay=1→0)
   Próbka t+2 → zapisz (dumpedRecordsToGo = 3→2)
   Próbka t+3 → zapisz (dumpedRecordsToGo = 2→1)
-  Próbka t+4 → zapisz (dumpedRecordsToGo = 1→0) — koniec
+  Próbka t+4 → zapisz (dumpedRecordsToGo = 1→0) - koniec
 ```
 
 ***
 
 ## Retencja (RETENTION N)
 
-Bez klauzuli `RETENTION` każde wyzwolenie reguły nadpisuje jeden plik `<strumień>_<reguła>_dump.tmp`. Pojemność kolejki `bookOfTasks` wynosi wtedy 1 — nowe zadanie wypycha stare (i zamyka jego deskryptor).
+Bez klauzuli `RETENTION` każde wyzwolenie reguły nadpisuje jeden plik `<strumień>_<reguła>_dump.tmp`. Pojemność kolejki `bookOfTasks` wynosi wtedy 1 - nowe zadanie wypycha stare (i zamyka jego deskryptor).
 
 Z klauzulą `RETENTION N`:
 - Pojemność kolejki `bookOfTasks` ustawiana jest na `N`.
 - Numer pliku rotuje modulo `N`: `_dump_0.tmp`, `_dump_1.tmp`, …, `_dump_(N-1).tmp`.
-- Gdy `N`-te zadanie trafia do kolejki, najstarsze (jeszcze niezakończone) jest **usuwane** — destruktor `dumpTask` zamyka otwarty deskryptor.
+- Gdy `N`-te zadanie trafia do kolejki, najstarsze (jeszcze niezakończone) jest **usuwane** - destruktor `dumpTask` zamyka otwarty deskryptor.
 
 Oznacza to, że przy częstych zdarzeniach i małym `N` nieukończony zrzut może zostać przerwany. Wartość `N` powinna być dobrana tak, aby czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) był mniejszy niż interwał między zdarzeniami pomnożony przez `N`.
 
@@ -162,7 +162,7 @@ Oznacza to, że przy częstych zdarzeniach i małym `N` nieukończony zrzut moż
 
 ## Format pliku zrzutu
 
-Plik zawiera surowe rekordy binarne bez żadnego nagłówka — każdy rekord ma rozmiar określony przez deskryptor (`descriptor.getSizeInBytes()`). Format jest identyczny z formatem używanym przez artefakty strumienia, co pozwala odczytać go narzędziem `xtrdb` po ręcznym podaniu schematu:
+Plik zawiera surowe rekordy binarne bez żadnego nagłówka - każdy rekord ma rozmiar określony przez deskryptor (`descriptor.getSizeInBytes()`). Format jest identyczny z formatem używanym przez artefakty strumienia, co pozwala odczytać go narzędziem `xtrdb` po ręcznym podaniu schematu:
 
 ```
 $ xtrdb
@@ -174,9 +174,9 @@ $ xtrdb
 
 ***
 
-## Wiele reguł — kolejność ewaluacji
+## Wiele reguł - kolejność ewaluacji
 
-Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w jednej iteracji `constructRulesAndUpdate()`, w kolejności ich deklaracji w pliku `.rql`. Każda reguła jest niezależna — spełnienie jednej nie wpływa na ewaluację pozostałych (Rys. 52).
+Do jednego strumienia można przypiąć wiele reguł. Wszystkie ewaluowane są w jednej iteracji `constructRulesAndUpdate()`, w kolejności ich deklaracji w pliku `.rql`. Każda reguła jest niezależna - spełnienie jednej nie wpływa na ewaluację pozostałych (Rys. 52).
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -201,8 +201,8 @@ _Rys. 52. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
 
 | Sytuacja | Zachowanie |
 |---|---|
-| Warunek spełniony dwa razy z rzędu (np. pomiar stale powyżej progu) | Każda próbka rejestruje nowe zadanie DUMP — pliki nakładają się przy braku RETENTION |
-| Strumień wejściowy `DECLARE` jako cel `ON` | Błąd kompilacji — reguły można podpiąć wyłącznie pod `SELECT` |
+| Warunek spełniony dwa razy z rzędu (np. pomiar stale powyżej progu) | Każda próbka rejestruje nowe zadanie DUMP - pliki nakładają się przy braku RETENTION |
+| Strumień wejściowy `DECLARE` jako cel `ON` | Błąd kompilacji - reguły można podpiąć wyłącznie pod `SELECT` |
 | Niedostateczna historia (bufor krótszy niż `|step_back|`) | Zapis zawiera tyle próbek, ile jest dostępnych; brak błędu |
-| Plik docelowy niedostępny (brak katalogu STORAGE) | Błąd krytyczny `FatalError` — xretractor kończy działanie |
+| Plik docelowy niedostępny (brak katalogu STORAGE) | Błąd krytyczny `FatalError` - xretractor kończy działanie |
 | DO SYSTEM zwraca niezerowy kod | Błąd w logu spdlog; przetwarzanie kontynuuje |
