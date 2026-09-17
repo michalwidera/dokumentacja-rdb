@@ -52,11 +52,13 @@ except ImportError:
 # ---------------------------------------------------------------- KONFIGURACJA
 
 # Diagramy do wygenerowania: (reguła gramatyki, nazwa pliku wynikowego).
+# Krotka reguł rysowana jest jako alternatywa ich gałęzi — dyrektywy
+# konfiguracyjne to dwie reguły: compiler_option i default_statement.
 DIAGRAMS = [
     ("select_statement", "railroad-select.svg"),
     ("declare_statement", "railroad-declare.svg"),
     ("rule_statement", "railroad-rule.svg"),
-    ("compiler_option", "railroad-dyrektywy.svg"),
+    (("compiler_option", "default_statement"), "railroad-dyrektywy.svg"),
 ]
 
 # Reguły wstawiane wprost do diagramu nadrzędnego (zamiast prostokąta
@@ -550,6 +552,12 @@ def stack_rows(items):
 
 
 def build_diagram(grammar, entry_rule, labels):
+    if isinstance(entry_rule, tuple):
+        for rule in entry_rule:
+            if rule not in grammar.parser_rules:
+                raise GrammarError(f"brak reguły {rule!r} w gramatyce")
+        branches = [Renderer(grammar, rule, labels).conv(grammar.parser_rules[rule]) for rule in entry_rule]
+        return Diagram(Choice(0, *branches))
     if entry_rule not in grammar.parser_rules:
         raise GrammarError(f"brak reguły {entry_rule!r} w gramatyce")
     renderer = Renderer(grammar, entry_rule, labels)

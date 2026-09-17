@@ -20,7 +20,7 @@ ROTATION 'rotation_counter.txt'
 
 _Rys. 11. Diagram składni dyrektyw konfiguracyjnych_
 
-Diagram składni (railroad) przedstawiony na Rys. 11 został wygenerowany na podstawie reguły `compiler_option` z gramatyki ANTLR4 systemu (`RQL.g4`). Trzy pokazane dyrektywy mają identyczną budowę: jedno ze słów kluczowych STORAGE, SUBSTRAT lub ROTATION (zaokrąglone zielone pola), po którym następuje wartość ujęta w apostrofy — dowolny tekst (ścieżka katalogu dla STORAGE, nazwa pliku licznika dla ROTATION) albo nazwa jednego z predefiniowanych profili pamięci (dla SUBSTRAT).
+Diagram składni (railroad) przedstawiony na Rys. 11 został wygenerowany na podstawie reguł `compiler_option` i `default_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Trzy górne gałęzie (reguła `compiler_option`) mają identyczną budowę: jedno ze słów kluczowych STORAGE, SUBSTRAT lub ROTATION (zaokrąglone zielone pola), po którym następuje wartość ujęta w apostrofy — dowolny tekst (ścieżka katalogu dla STORAGE, nazwa pliku licznika dla ROTATION) albo nazwa jednego z predefiniowanych profili pamięci (dla SUBSTRAT). Dolna gałąź (reguła `default_statement`) to para słów kluczowych DEFAULT VOLATILE bez żadnej wartości.
 
 Storage służy do wskazania w którym katalogu systemowym powinny powstawać wszystkie pliki wynikowe. Bez tej dyrektywy, domyślnie pliki tworzone przez system umieszczane są w bieżącym katalogu w którym został uruchomiony główny proces systemu RetractorDB.
 
