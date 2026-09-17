@@ -209,7 +209,7 @@ $ xtrdb -s bufor
 │   Legend: [====] data  [----] partial null                   │
 │           [~~~~] nullfill  [XXXX] gap                        │
 ├──────────────────────────────────────────────────────────────┤
-│   SHADOW      bufor.shadow (missing)                    0 B │
+│   SHADOW      bufor.shadow (missing)                     0 B │
 └──────────────────────────────────────────────────────────────┘
 ```
 
