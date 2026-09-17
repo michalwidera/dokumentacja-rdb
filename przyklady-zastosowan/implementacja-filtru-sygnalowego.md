@@ -142,6 +142,6 @@ Należy pamiętać, że na ekranie komputera ten wykres przesuwa się w prawo ba
 
 Zapis ekranu w trakcie realizacji procesu przetwarzania przedstawia Rys. 59:
 
-<figure><img src="../assets/dsp-record (1).gif" width="75%" alt=""><figcaption><p>Rys. 59. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
+<figure><img src="../assets/dsp-record (1).gif" width="75%" data-pdf-link="https://dokumentacja.retractordb.com/przyklady-zastosowan/implementacja-filtru-sygnalowego.html" alt=""><figcaption><p>Rys. 59. Animacja procesu filtracji sygnału w czasie rzeczywistym</p></figcaption></figure>
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `dsp` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
