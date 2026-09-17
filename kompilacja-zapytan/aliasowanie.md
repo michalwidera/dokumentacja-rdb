@@ -8,7 +8,6 @@ Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```rql
 DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
-
 DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
 
 SELECT merged[0], merged[2], core0[0], core1[0] STREAM merged FROM core0 + core1
@@ -65,9 +64,12 @@ Okno i reduktor zmieniają liczbę slotów: `core0@(1,3)` wnosi trzy sloty, cho�
 Przykładowe komunikaty:
 
 ```
-Check result:Stream 'merged': stream 'core1' has 2 element(s) in its FROM clause, so 'core1[2]' is out of range
-Check result:Stream 'merged': the FROM record of 'merged' has 4 element(s), so 'merged[4]' is out of range
-Check result:Stream 'merged': rule 'alarm' reads the record of 'merged', which has 4 element(s), so 'merged[4]' is out of range
+Check result:Stream 'merged': stream 'core1' has 2 element(s)
+  in its FROM clause, so 'core1[2]' is out of range
+Check result:Stream 'merged': the FROM record of 'merged'
+  has 4 element(s), so 'merged[4]' is out of range
+Check result:Stream 'merged': rule 'alarm' reads the record of 'merged',
+  which has 4 element(s), so 'merged[4]' is out of range
 ```
 
 Indeks zwinięty z `$` w generatorze strumieni podlega tej samej kontroli i daje ten sam komunikat co indeks napisany ręcznie.

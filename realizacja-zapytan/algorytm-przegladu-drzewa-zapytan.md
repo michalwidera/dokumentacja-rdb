@@ -170,9 +170,10 @@ zwykłymi operandami `constructOutputPayload()`, dlatego można pisać na przyk�
 Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) — algorytm przedstawia Rys. 46:
 
 ```mermaid
-%% pdf-width: 50%
+%% pdf-width: 85%
+%% pdf-height: 45%
 %%{init: {"markdownAutoWrap": false}}%%
-flowchart TB
+flowchart LR
     A([inSet]) --> B["printRowValue()<br/>serializuj do Boost property_tree"]
     B --> C{klienci<br/>subskrybujący<br/>strumień?}
     C -->|tak| D["kolejka brcdbr&lt;id&gt;<br/>try_send(dane)"]
@@ -193,39 +194,17 @@ _Rys. 46. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 Rys. 47 przedstawia kompletną sekwencję wywołań dla czterech zapytań A, B, C, D rozłożonych na siatce czasowej z deltami {1/2, 1/3}.
 
 ```mermaid
-sequenceDiagram
-    participant TL as TimeLine
-    participant ES as executorsm
-    participant DM as dataModel
-    participant IPC as Boost IPC
-
-    ES->>DM: processZeroStep()
-    DM->>DM: A: revRead(0) → fire() [armed]
-    ES->>IPC: broadcast({A})
-
-    TL-->>ES: nextSlot = 1/3
-    ES->>DM: processRows({B})
-    DM->>DM: Przebieg 1: B → input(A) → windows → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B})
-
-    TL-->>ES: nextSlot = 1/2
-    ES->>DM: processRows({C})
-    DM->>DM: Przebieg 1: C → input(B) → windows → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({C})
-
-    TL-->>ES: nextSlot = 2/3
-    ES->>DM: processRows({B})
-    DM->>DM: Przebieg 1: B → input(A) → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B})
-
-    TL-->>ES: nextSlot = 1
-    ES->>DM: processRows({B, C, D})
-    DM->>DM: Przebieg 1 (topologicznie): B → C → D
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B, C, D})
+%% pdf-width: 85%
+%% pdf-height: 45%
+%%{init: {"markdownAutoWrap": false}}%%
+block-beta
+    columns 3
+    Z["1. t = 0<br/>ES → DM: processZeroStep()<br/>DM: A → revRead(0) → fire() [armed]<br/>ES → IPC: broadcast({A})"]
+    T13["2. t = 1/3<br/>ES → DM: processRows({B})<br/>Przebieg 1: B → input(A) → windows → output → write()<br/>Przebieg 2: A → flux → revRead(0) → fire()<br/>ES → IPC: broadcast({B})"]
+    T12["3. t = 1/2<br/>ES → DM: processRows({C})<br/>Przebieg 1: C → input(B) → windows → output → write()<br/>Przebieg 2: A → flux → revRead(0) → fire()<br/>ES → IPC: broadcast({C})"]
+    T23["4. t = 2/3<br/>ES → DM: processRows({B})<br/>Przebieg 1: B → input(A) → output → write()<br/>Przebieg 2: A → flux → revRead(0) → fire()<br/>ES → IPC: broadcast({B})"]
+    T1["5. t = 1<br/>ES → DM: processRows({B, C, D})<br/>Przebieg 1 (topologicznie): B → C → D<br/>Przebieg 2: A → flux → revRead(0) → fire()<br/>ES → IPC: broadcast({B, C, D})"]
+    space:1
 ```
 
 _Rys. 47. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}_

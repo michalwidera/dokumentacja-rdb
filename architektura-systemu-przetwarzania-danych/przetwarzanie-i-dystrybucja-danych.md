@@ -10,7 +10,6 @@ Do przeprowadzania procesu przetwarzania potrzebne będzie przygotowanie danych 
 
 ```rql
 DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile1.txt'
-
 DECLARE a BYTE STREAM core1, 0.2 FILE '/dev/urandom'
 
 SELECT str1[0], str1[0] + str1[1]/20 STREAM str1 FROM core0 + core1
@@ -118,4 +117,4 @@ Po wydaniu tego polecenia proces xretractor zakończy swoje działanie i przerwi
 
 Zapis procesu prezentowany na ekranie (Rys. 31) przedstawia się następująco:
 
-<figure><img src="../assets/simple-record.gif" width="100%" alt=""><figcaption><p>Rys. 31. Zapis procesu przetwarzania danych w czasie rzeczywistym</p></figcaption></figure>
+<figure><img src="../assets/simple-record.gif" width="100%" data-pdf-width="58%" alt=""><figcaption><p>Rys. 31. Zapis procesu przetwarzania danych w czasie rzeczywistym</p></figcaption></figure>

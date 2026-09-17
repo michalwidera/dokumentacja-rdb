@@ -38,7 +38,7 @@ $ xretractor -c -d -f -t -s query.rql > out.dot && dot -Tsvg out.dot -o out.svg
 
 Zakładając że w środowisku uruchomieniowym masz zainstalowany program dot z pakietu graphivz wygenerujesz tym poleceniem plik graficzny przedstawiający odpowiedź systemu w postaci grafu.
 
-<figure><img src="../assets/graf_plan_zapytania.svg" alt=""><figcaption><p>Rys. 27. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
+<figure><img src="../assets/graf_plan_zapytania.svg" data-pdf-width="60%" alt=""><figcaption><p>Rys. 27. Graficzna reprezentacja planu zapytania</p></figcaption></figure>
 
 System RetractorDB potrafi wygenerować rysunek jako odpowiedź na jeden ze zleconych ciągów przetwarzania danych. Prezentacja graficzna jest najbardziej odpowiednia w przypadku tworzenia i przedstawiania grafów przetwarzania danych. Niestety czytelność ucierpi w przypadku bardzo skomplikowanych schematów.
 
