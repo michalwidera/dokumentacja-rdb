@@ -22,8 +22,11 @@ FROM core0 + core1
 
 Po kompilacji otrzymamy:
 
-```
+```bash
 $ xretractor -c query.rql
+```
+
+```rasm
 {{#include ../regen/out/alias.txt}}
 ```
 

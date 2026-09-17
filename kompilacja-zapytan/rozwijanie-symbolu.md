@@ -24,8 +24,11 @@ FROM merged
 
 Skompilujmy i zobaczmy efekt:
 
-```
+```bash
 $ xretractor -c query.rql
+```
+
+```rasm
 {{#include ../regen/out/wildcard.txt}}
 ```
 

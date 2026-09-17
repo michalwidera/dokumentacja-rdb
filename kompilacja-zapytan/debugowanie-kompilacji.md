@@ -23,13 +23,13 @@ Kompilację można wywołać nawet gdy inny proces `xretractor` już działa —
 
 Dla kanonicznego `query.rql` z tego rozdziału plan wygląda następująco:
 
-```
+```rasm
 {{#include ../regen/out/debug.txt}}
 ```
 
 Każdy blok ma ustalony format:
 
-```
+```rasm
 nazwaStrumienia(delta)
         :- operacjaStrumieniowa(arg)
         nazwaPolaWyjściowego: TYP

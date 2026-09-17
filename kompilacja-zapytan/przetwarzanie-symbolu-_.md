@@ -17,8 +17,11 @@ FROM core0 + core1
 
 Po przeprowadzeniu kompilacji:
 
-```
+```bash
 $ xretractor -c query.rql
+```
+
+```rasm
 {{#include ../regen/out/underscore.txt}}
 ```
 

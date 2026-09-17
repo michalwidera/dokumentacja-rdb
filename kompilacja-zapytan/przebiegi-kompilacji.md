@@ -39,7 +39,7 @@ FROM merged
 
 Po przejściu przez wszystkie etapy `xretractor -c query.rql` drukuje:
 
-```
+```rasm
 {{#include ../regen/out/compile-flow.txt}}
 ```
 

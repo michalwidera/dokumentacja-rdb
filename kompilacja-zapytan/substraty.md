@@ -30,8 +30,11 @@ FROM (core0 # core1) + core2
 
 Kompilacja:
 
-```
+```bash
 $ xretractor -c query.rql
+```
+
+```rasm
 {{#include ../regen/out/substrate-hash.txt}}
 ```
 
@@ -46,7 +49,7 @@ SELECT merged2[0] STREAM merged2 FROM (core0 # core1) > 2
 Pełny plan po dołączeniu zapytania pokazuje niżej, że dochodzi jeden blok `merged2`, korzystający z już utworzonego
 substratu `STREAM_HASH_core0_core1`:
 
-```
+```rasm
 {{#include ../regen/out/substrate-hash-plus.txt}}
 ```
 
@@ -84,7 +87,7 @@ SELECT shifted[0] STREAM shifted FROM core0 > 2
 
 Bez redukcji kompilator wygenerowałby trzy strumienie: substrat `STREAM_TIMEMOVE_2_core0`, `merged` i `shifted`. Substrat i `shifted` mają identyczną strukturę — ten sam strumień źródłowy `core0` i tę samą operację `>2`. Po redukcji substrat jest usuwany, a odwołanie `PUSH_STREAM(STREAM_TIMEMOVE_2_core0)` w `merged` zostaje zastąpione przez `PUSH_STREAM(shifted)`:
 
-```
+```rasm
 {{#include ../regen/out/substrate-shift.txt}}
 ```
 
@@ -103,7 +106,7 @@ SELECT shifted2[0] STREAM shifted2 FROM core0 > 2
 
 Wynik kompilacji zachowa oba strumienie bez żadnej redukcji:
 
-```
+```rasm
 shifted1(1/10)
         :- PUSH_STREAM(core0)
         :- STREAM_TIMEMOVE(2)
@@ -404,7 +407,7 @@ SELECT * STREAM merged FROM s3+(s1+s2)
 
 Kompilator tworzy substrat `STREAM_ADD_s1_s2`. Strumień `merged` ma dwa źródła: `s3` (offset 0) i substrat `STREAM_ADD_s1_s2` (offset 1, bo s3 zajmuje pozycję 0). Funkcja `buildOutputSchema` zapisuje w `merged.lSchema` tokeny:
 
-```
+```rasm
 PUSH_ID(STREAM_ADD_s1_s2, 0)   ← pole a ze źródła na offsecie 1
 PUSH_ID(STREAM_ADD_s1_s2, 1)   ← pole b ze źródła na offsecie 1
 ```
@@ -420,7 +423,7 @@ Aby uniknąć tej rozbieżności, `deduplicateSubstrats()` po zaktualizowaniu to
 
 Po poprawce wyjście kompilatora dla powyższego przykładu wygląda poprawnie:
 
-```
+```rasm
 merged(1/1)
         :- PUSH_STREAM(mysum)
         :- PUSH_STREAM(s3)
