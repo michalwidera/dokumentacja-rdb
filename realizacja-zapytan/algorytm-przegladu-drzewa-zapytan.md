@@ -172,16 +172,16 @@ Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`
 
 ```mermaid
 %% pdf-width: 85%
-%% pdf-height: 45%
-%%{init: {"markdownAutoWrap": false}}%%
-flowchart LR
-    A([inSet]) --> B["printRowValue()<br/>serializuj do Boost property_tree"]
-    B --> C{klienci<br/>subskrybujący<br/>strumień?}
-    C -->|tak| D["kolejka brcdbr&lt;id&gt;<br/>try_send(dane)"]
-    D --> E{kolejka<br/>pełna?}
-    E -->|nie| F([wysłano])
-    E -->|tak - brak odbiorcy| G["usuń kolejkę<br/>usuń id2StreamName_"]
+%% pdf-height: 60%
+%%{init: {"markdownAutoWrap": false, "flowchart": {"nodeSpacing": 25, "rankSpacing": 30, "padding": 6}}}%%
+flowchart TB
+    A([inSet]) --> B["printRowValue()<br/>serializuj do<br/>Boost property_tree"]
+    B --> C{{"klienci subskrybujący<br/>strumień?"}}
     C -->|brak| H([pomiń])
+    C -->|tak| D["kolejka brcdbr&lt;id&gt;<br/>try_send(dane)"]
+    D --> E{{"kolejka pełna?"}}
+    E -->|nie| F([wysłano])
+    E -->|"tak - brak<br/>odbiorcy"| G["usuń kolejkę<br/>usuń id2StreamName_"]
 ```
 
 _Rys. 46. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
