@@ -36,8 +36,7 @@ Co się stanie po dołączeniu zapytania:
 SELECT merged2[0] STREAM merged2 FROM (core0 # core1) > 2
 ```
 
-Pełny plan po dołączeniu zapytania pokazuje niżej, że dochodzi jeden blok `merged2`, korzystający z już utworzonego
-substratu `STREAM_HASH_core0_core1`:
+Pełny plan po dołączeniu zapytania pokazuje niżej, że dochodzi jeden blok `merged2`, korzystający z już utworzonego substratu `STREAM_HASH_core0_core1`:
 
 ```rasm
 {{#include ../regen/out/substrate-hash-plus.txt}}
@@ -182,9 +181,7 @@ W programie zapytania macierzystego token operatora zastępowany jest tokenem `P
 
 ### Prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
 
-> **ℹ️ Info**
-> Polska nazwa jest świadomie opisowa i nie stanowi dosłownego tłumaczenia angielskiego terminu
-> *matched interleave-shift factorization*, pozostawionego w angielskiej wersji dokumentacji.
+> **ℹ️ Info** Polska nazwa jest świadomie opisowa i nie stanowi dosłownego tłumaczenia angielskiego terminu *matched interleave-shift factorization*, pozostawionego w angielskiej wersji dokumentacji.
 
 Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje regułę algebraiczną:
 
@@ -195,17 +192,9 @@ Po wyodrębnieniu substratów i rozwiązaniu ich interwałów kompilator stosuje
 
 Warunek \\(i\Delta_{a}=k\Delta_{b}\\) oznacza, że oba argumenty przeplotu są przesunięte o ten sam czas fizyczny. Bez tego warunku przekształcenie nie jest równoważne i kompilator pozostawia pierwotny plan.
 
-Niech zredukowany stosunek \\(\Delta_a/\Delta_b\\) będzie równy \\(p/q\\).
-Ogon przeplotu chroni wszystkie fazy okresu \\(p+q\\), bo kompilator przegląda
-ten okres slot po slocie i bierze maksimum wymaganego opóźnienia - wzór
-i uzasadnienie w rozdziale [Formalne podstawy
-i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
+Niech zredukowany stosunek \\(\Delta_a/\Delta_b\\) będzie równy \\(p/q\\). Ogon przeplotu chroni wszystkie fazy okresu \\(p+q\\), bo kompilator przegląda ten okres slot po slocie i bierze maksimum wymaganego opóźnienia - wzór i uzasadnienie w rozdziale [Formalne podstawy i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
-Przesunięcie jest opóźnieniem realizacji przyczynowej: przesuwa **początek
-logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) - nie zmienia
-ciągu rekordów i nie wstawia prefiksu. Dla
-\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje
-dokładnie:
+Przesunięcie jest opóźnieniem realizacji przyczynowej: przesuwa **początek logiczny** `O` o `N`, a swój ogon ustawia na \\(\max(0,W_S-N)\\) - nie zmienia ciągu rekordów i nie wstawia prefiksu. Dla \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) warunek dopasowania daje dokładnie:
 
 \\[
 \frac{i\Delta_a}{\Delta_c}
@@ -213,20 +202,13 @@ dokładnie:
 =i+k
 \\]
 
-Dlatego przesunięcie każdego wejścia odpowiada tej samej liczbie `i+k` slotów
-wyjścia i początek logiczny obu stron jest identyczny. **Ogony identyczne nie
-są.** Strona sfaktoryzowana czyta treść wprost z przeplotu, a strona
-niesfaktoryzowana - dopiero po własnym przesunięciu składowych, więc czeka
-dłużej:
+Dlatego przesunięcie każdego wejścia odpowiada tej samej liczbie `i+k` slotów wyjścia i początek logiczny obu stron jest identyczny. **Ogony identyczne nie są.** Strona sfaktoryzowana czyta treść wprost z przeplotu, a strona niesfaktoryzowana - dopiero po własnym przesunięciu składowych, więc czeka dłużej:
 
 \\[
 W_{\mathrm{RHS}}=\max\left(0,\;W_{\varphi(A,B)}-(i+k)\right)\le W_{\mathrm{LHS}}
 \\]
 
-Reguła zachowuje więc emitowany ciąg, interwał i `origin=`, a `tail=` może
-**zmniejszyć**. Jest optymalizacją opóźnienia, nie przepisaniem neutralnym;
-pełny dowód i kontrprzykład: [Formalne podstawy
-i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
+Reguła zachowuje więc emitowany ciąg, interwał i `origin=`, a `tail=` może **zmniejszyć**. Jest optymalizacją opóźnienia, nie przepisaniem neutralnym; pełny dowód i kontrprzykład: [Formalne podstawy i dowody](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
 
 Przed optymalizacją plan zawiera dwa substraty:
 
@@ -245,28 +227,9 @@ result = STREAM_HASH_A_B > (i + k)
 
 Przebieg `factorMatchedHashTimeMoves()` nie usuwa jawnych strumieni użytkownika ani substratów używanych przez innych konsumentów. Wykonuje się przed deduplikacją, dzięki czemu ujawniony substrat `A # B` może zostać następnie współdzielony z innym równoważnym planem.
 
-Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych
-kopiach plikowych źródeł danych. Obie strony są tu sfaktoryzowane do tej samej
-postaci, więc porównanie jest pełne: bajtowo artefakty `matched` i `CC`, ich
-metadane z pominięciem zarezerwowanego nagłówka, pełna sekwencja wobec wzorca
-wyprowadzonego z okresu przeplotu `B,A,A` oraz równość deklaracji
-(`origin=3` przy zerowym ogonie - \\(\tau_3\\) nad przeplotem o ogonie 2
-pochłania go w całości). Żadna strona nie emituje rekordów zastępczych.
-Osobno `computeRequiredCapacities()` przydziela źródłu deklarowanemu
-`N+1+2` rekordów historii: `N+1` na sam zakres odczytu oraz dwa na wyprzedzenie
-czoła deklaracji, którego adresowanie indeksem logicznym nie skraca.
+Test `issue202_hash_shift_e2e` wykonuje obie strony tożsamości na niezależnych kopiach plikowych źródeł danych. Obie strony są tu sfaktoryzowane do tej samej postaci, więc porównanie jest pełne: bajtowo artefakty `matched` i `CC`, ich metadane z pominięciem zarezerwowanego nagłówka, pełna sekwencja wobec wzorca wyprowadzonego z okresu przeplotu `B,A,A` oraz równość deklaracji (`origin=3` przy zerowym ogonie - \\(\tau_3\\) nad przeplotem o ogonie 2 pochłania go w całości). Żadna strona nie emituje rekordów zastępczych. Osobno `computeRequiredCapacities()` przydziela źródłu deklarowanemu `N+1+2` rekordów historii: `N+1` na sam zakres odczytu oraz dwa na wyprzedzenie czoła deklaracji, którego adresowanie indeksem logicznym nie skraca.
 
-Test `r1_identity_nulls` sprawdza tę samą tożsamość dla stosunku
-\\(\Delta_a/\Delta_b=3/2\\), który wymaga maksimum fazowego
-\\(H_{a,b}=2\\), chociaż pierwsza faza wymaga tylko jednego slotu. Porównuje
-przepisany plan, zablokowaną przed przepisaniem lewą stronę i jawną prawą
-stronę. Plan przepisany i jawna prawa strona są równe w pełni. Lewa strona
-**zablokowana** przed przepisaniem ma ten sam początek logiczny i tę samą treść,
-ale ogon ściśle większy - porównanie obejmuje wspólny prefiks payloadu i mapy
-`NULL`, a osobna asercja wymaga, żeby strona sfaktoryzowana była ściśle dłuższa.
-Niepusty, okresowy rekord w całości `NULL` chroni przed ukryciem błędnego ogona
-przez brak danych. Testy jednostkowe kompilatora
-obejmują również stosunki \\(3/5\\), \\(7/11\\) i \\(160/147\\).
+Test `r1_identity_nulls` sprawdza tę samą tożsamość dla stosunku \\(\Delta_a/\Delta_b=3/2\\), który wymaga maksimum fazowego \\(H_{a,b}=2\\), chociaż pierwsza faza wymaga tylko jednego slotu. Porównuje przepisany plan, zablokowaną przed przepisaniem lewą stronę i jawną prawą stronę. Plan przepisany i jawna prawa strona są równe w pełni. Lewa strona **zablokowana** przed przepisaniem ma ten sam początek logiczny i tę samą treść, ale ogon ściśle większy - porównanie obejmuje wspólny prefiks payloadu i mapy `NULL`, a osobna asercja wymaga, żeby strona sfaktoryzowana była ściśle dłuższa. Niepusty, okresowy rekord w całości `NULL` chroni przed ukryciem błędnego ogona przez brak danych. Testy jednostkowe kompilatora obejmują również stosunki \\(3/5\\), \\(7/11\\) i \\(160/147\\).
 
 ### Algorytm deduplikacji
 
@@ -318,13 +281,7 @@ Wyniesienie wspólnego przesunięcia czasu przed przeplot i deduplikacja muszą 
 
 Współdzielenie obliczeń `SELECT` następuje dopiero po rozwiązaniu referencji i rozwinięciu `[_]`, ponieważ porównuje gotowe programy pól. Musi jednak poprzedzać lokalizację offsetów, aby równoważne źródła nie wyglądały na różne wyłącznie z powodu kolejności w lokalnym buforze wejściowym.
 
-Każdy przebieg przepisujący (`factorMatchedHashTimeMoves`,
-`deduplicateSubstrats`, `shareEquivalentSelectComputations`) jest otoczony
-kontrolą `verifyUserFieldNamesPreserved()`. Nazwy pól publicznych strumieni
-są częścią deskryptora `.desc` i nie mogą zmienić się wskutek optymalizacji.
-Ogon jest liczony dopiero dla ostatecznego planu. Końcowe sortowanie
-topologiczne jest bezwarunkowe, ponieważ wcześniejsze sortowanie po interwale
-może umieścić szybszego konsumenta `#` przed jego producentami.
+Każdy przebieg przepisujący (`factorMatchedHashTimeMoves`, `deduplicateSubstrats`, `shareEquivalentSelectComputations`) jest otoczony kontrolą `verifyUserFieldNamesPreserved()`. Nazwy pól publicznych strumieni są częścią deskryptora `.desc` i nie mogą zmienić się wskutek optymalizacji. Ogon jest liczony dopiero dla ostatecznego planu. Końcowe sortowanie topologiczne jest bezwarunkowe, ponieważ wcześniejsze sortowanie po interwale może umieścić szybszego konsumenta `#` przed jego producentami.
 
 ### Efekt w grafie zależności
 

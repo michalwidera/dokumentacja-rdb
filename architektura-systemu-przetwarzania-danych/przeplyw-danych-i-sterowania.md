@@ -42,11 +42,7 @@ Proces xqry rozstrzyga instancję z opcji `--server` albo z magistrali, buduje k
 
 **2. xretractor odbiera polecenie i ustawia flagę zatrzymania**
 
-Wątek komunikacyjny obiektu `IpcServer` wybranej instancji stale nasłuchuje na swojej
-kolejce. Dyspozytor `executorsm::commandProcessor` po odebraniu komunikatu `kill` ustawia
-atomowy licznik `iLoopLimitCnt` na wartość `stop_now` i budzi pętlę wykonawczą. Ten sam
-mechanizm jest używany przez obsługę sygnałów systemowych - niezależnie od źródła efekt
-jest identyczny dla tej jednej instancji.
+Wątek komunikacyjny obiektu `IpcServer` wybranej instancji stale nasłuchuje na swojej kolejce. Dyspozytor `executorsm::commandProcessor` po odebraniu komunikatu `kill` ustawia atomowy licznik `iLoopLimitCnt` na wartość `stop_now` i budzi pętlę wykonawczą. Ten sam mechanizm jest używany przez obsługę sygnałów systemowych - niezależnie od źródła efekt jest identyczny dla tej jednej instancji.
 
 **3. Główna pętla przetwarzania wykrywa flagę i kończy bieżący cykl**
 
@@ -54,10 +50,7 @@ Pętla główna sprawdza `iLoopLimitCnt` przy każdej iteracji. Gdy wykryje wart
 
 **4. xretractor powiadamia wszystkich podłączonych klientów (broadcast OOB)**
 
-Po wyjściu z pętli xretractor wywołuje `IpcServer::broadcastOutOfBusiness()`. Obiekt IPC
-przegląda rejestr subskrypcji, w którym polecenie `show` zapisało PID klienta i nazwę
-strumienia. Dla każdego zarejestrowanego klienta wysyła do jego dedykowanej kolejki
-komunikat specjalny o wartości `OUT_OF_BUSSINESS`.
+Po wyjściu z pętli xretractor wywołuje `IpcServer::broadcastOutOfBusiness()`. Obiekt IPC przegląda rejestr subskrypcji, w którym polecenie `show` zapisało PID klienta i nazwę strumienia. Dla każdego zarejestrowanego klienta wysyła do jego dedykowanej kolejki komunikat specjalny o wartości `OUT_OF_BUSSINESS`.
 
 **5. Każdy klient xqry odbiera sygnał zakończenia i kończy działanie**
 
@@ -69,18 +62,11 @@ Na zakończenie xretractor usuwa własny segment odpowiedzi, kolejkę poleceń, 
 
 ### Błąd krytyczny i sprzątanie awaryjne
 
-Błąd krytyczny podczas startu albo w wątku komunikacyjnym przechodzi przez tę samą końcową
-politykę własności zasobów, ale nie próbuje kontynuować cyklu. Dziennik `spdlog` jest
-opróżniany, a nie niszczony przed procedurami `atexit`. Jeżeli błąd powstał w samym wątku
-komunikacyjnym, sprzątanie odłącza ten wątek zamiast próbować dołączyć go do niego samego.
-Następnie usuwa kolejki i pamięć IPC, a blokadę usługi zwalnia jako ostatnią.
+Błąd krytyczny podczas startu albo w wątku komunikacyjnym przechodzi przez tę samą końcową politykę własności zasobów, ale nie próbuje kontynuować cyklu. Dziennik `spdlog` jest opróżniany, a nie niszczony przed procedurami `atexit`. Jeżeli błąd powstał w samym wątku komunikacyjnym, sprzątanie odłącza ten wątek zamiast próbować dołączyć go do niego samego. Następnie usuwa kolejki i pamięć IPC, a blokadę usługi zwalnia jako ostatnią.
 
-Proces kończy się statusem 1. Dzięki temu kolejny start nie zastaje osieroconych zasobów ani
-blokady, a błąd pierwotny nie jest maskowany wtórnym `SIGSEGV` lub `SIGABRT` podczas
-zamykania.
+Proces kończy się statusem 1. Dzięki temu kolejny start nie zastaje osieroconych zasobów ani blokady, a błąd pierwotny nie jest maskowany wtórnym `SIGSEGV` lub `SIGABRT` podczas zamykania.
 
-> **_NOTE:_** Obie ścieżki - błąd podczas startu i błąd zgłoszony z wątku komunikacyjnego -
-> sprawdza test `fatal_exit_path`.
+> **_NOTE:_** Obie ścieżki - błąd podczas startu i błąd zgłoszony z wątku komunikacyjnego - sprawdza test `fatal_exit_path`.
 
 #### Co się dzieje przy wielu procesach xqry
 

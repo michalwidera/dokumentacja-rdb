@@ -34,7 +34,9 @@ Opcje:
                3. prebuilt binarkę mdbook-mermaid (bez instalowania Rusta),
                4. bibliotekę Pythona railroad-diagrams (generator diagramów
                   składni - scripts/generate-railroad.sh),
-               5. uruchamia 'mdbook-mermaid install .' oraz 'mdbook build',
+               5. bibliotekę Pythona markdown-it-py (łączenie zawiniętych
+                  akapitów - scripts/unwrap_paragraphs.py),
+               6. uruchamia 'mdbook-mermaid install .' oraz 'mdbook build',
                   generując stronę www do katalogu book/
   --with-pdf   jak --install, plus toolchain PDF/EPUB z workflow:
                pandoc, texlive-xetex, texlive-lang-polish, texlive-latex-extra,
@@ -89,6 +91,17 @@ report() { # report <nazwa> <komenda>
   fi
 }
 
+report_pylib() { # report_pylib <pakiet pip> <moduł>
+  if python3 -c "import $2" >/dev/null 2>&1; then
+    printf "  ${C_GREEN}[OK]${C_RESET}    %-14s %s\n" "$1" \
+      "$(python3 -c "from importlib.metadata import version; print(version('$1'))" 2>/dev/null)"
+    return 0
+  else
+    printf "  ${C_RED}[BRAK]${C_RESET}  %s\n" "$1 (biblioteka Pythona)"
+    return 1
+  fi
+}
+
 # --- tryb sprawdzania (bez parametrów) - nic nie zmienia ---------------------
 if [ "$DO_INSTALL" -eq 0 ]; then
   missing=0
@@ -101,13 +114,9 @@ if [ "$DO_INSTALL" -eq 0 ]; then
   report mdbook-mermaid mdbook-mermaid || missing=1
   echo "Generator diagramów railroad:"
   report python3 python3 || missing=1
-  if python3 -c "import railroad" >/dev/null 2>&1; then
-    printf "  ${C_GREEN}[OK]${C_RESET}    %-14s %s\n" "railroad-diagrams" \
-      "$(python3 -c 'from importlib.metadata import version; print(version("railroad-diagrams"))' 2>/dev/null)"
-  else
-    printf "  ${C_RED}[BRAK]${C_RESET}  %s\n" "railroad-diagrams (biblioteka Pythona)"
-    missing=1
-  fi
+  report_pylib railroad-diagrams railroad || missing=1
+  echo "Łączenie akapitów Markdown:"
+  report_pylib markdown-it-py markdown_it || missing=1
   case ":$PATH:" in
     *":$INSTALL_DIR:"*) ;;
     *) printf "  ${C_RED}[UWAGA]${C_RESET} %s nie jest w PATH\n" "$INSTALL_DIR"; missing=1 ;;
@@ -188,23 +197,29 @@ case ":$PATH:" in
   *) echo "UWAGA: $INSTALL_DIR nie jest w PATH - dodaj do ~/.bashrc: export PATH=\"$INSTALL_DIR:\$PATH\"" >&2 ;;
 esac
 
-# railroad-diagrams (biblioteka Pythona dla scripts/generate-railroad.sh)
-if python3 -c "import railroad" >/dev/null 2>&1; then
-  echo "railroad-diagrams już zainstalowany"
-else
+pip_install() { # pip_install <pakiet pip> <moduł> - pomija, gdy moduł już jest
+  if python3 -c "import $2" >/dev/null 2>&1; then
+    echo "$1 już zainstalowany"
+    return 0
+  fi
   python3 -m pip --version >/dev/null 2>&1 || apt_install python3-pip
   if python3 -c "import sys; sys.exit(0 if sys.prefix != sys.base_prefix else 1)"; then
     # aktywne środowisko wirtualne - instalujemy w nim (--user jest tam błędem)
-    python3 -m pip install railroad-diagrams
-  elif ! python3 -m pip install --user railroad-diagrams; then
-    echo "UWAGA: pip odmówił instalacji railroad-diagrams." >&2
+    python3 -m pip install "$1"
+  elif ! python3 -m pip install --user "$1"; then
+    echo "UWAGA: pip odmówił instalacji $1." >&2
     echo "       W Debianie/Ubuntu z PEP 668 użyj środowiska wirtualnego:" >&2
     echo "         python3 -m venv ~/.venv && source ~/.venv/bin/activate" >&2
-    echo "         python3 -m pip install railroad-diagrams" >&2
+    echo "         python3 -m pip install $1" >&2
     echo "       albo wymuś instalację do katalogu użytkownika:" >&2
-    echo "         python3 -m pip install --user --break-system-packages railroad-diagrams" >&2
+    echo "         python3 -m pip install --user --break-system-packages $1" >&2
   fi
-fi
+}
+
+# railroad-diagrams (biblioteka Pythona dla scripts/generate-railroad.sh)
+pip_install railroad-diagrams railroad
+# markdown-it-py (biblioteka Pythona dla scripts/unwrap_paragraphs.py)
+pip_install markdown-it-py markdown_it
 
 # opcjonalnie: toolchain PDF/EPUB (kroki [skippdf] z workflow)
 if [ "$WITH_PDF" -eq 1 ]; then
@@ -228,3 +243,4 @@ echo
 echo "Gotowe. Strona wyrenderowana w: $REPO_DIR/book/"
 echo "Podgląd na żywo:  mdbook serve --open   (z katalogu $REPO_DIR)"
 echo "Diagramy składni: scripts/generate-railroad.sh   (aktualizuje assets/railroad-*.svg)"
+echo "Akapity Markdown: scripts/unwrap_paragraphs.py --check   (zasada: akapit = jedna linia)"

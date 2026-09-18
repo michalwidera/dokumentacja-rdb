@@ -111,10 +111,7 @@ Znaczenie parametrów:
 
 Opcja `--gnuplot-rtl` jest parametrem `xqry` powodującym odwrócenie osi X gnuplota (`set xrange [720:0]`). Efekt jest taki, że najświeższe próbki pojawiają się po prawej stronie okna, a starsze przesuwają się w lewo - analogicznie do klasycznego wydruku EKG na taśmie papierowej.
 
-Skrypt nadaje uruchamianemu serwerowi nazwę wyprowadzoną z katalogu roboczego i przekazuje
-ją do wszystkich wywołań `xqry --server`. Dzięki temu kilka celów wykresowych może działać
-równocześnie bez przejęcia cudzej instancji. Opcjonalny piąty argument pozwala podać inną
-nazwę; jeżeli jest już zajęta, skrypt kończy się przed usunięciem katalogu wynikowego.
+Skrypt nadaje uruchamianemu serwerowi nazwę wyprowadzoną z katalogu roboczego i przekazuje ją do wszystkich wywołań `xqry --server`. Dzięki temu kilka celów wykresowych może działać równocześnie bez przejęcia cudzej instancji. Opcjonalny piąty argument pozwala podać inną nazwę; jeżeli jest już zajęta, skrypt kończy się przed usunięciem katalogu wynikowego.
 
 <figure><img src="../assets/ecg_in_retractor.png" data-pdf-width="58%" alt="Widok okna gnuplot z przebiegiem EKG odtwarzanym w RetractorDB"><figcaption><p>Rys. 60. Widok okna gnuplot z odtwarzanym sygnałem EKG (rekord 205)</p></figcaption></figure>
 

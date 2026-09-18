@@ -2,20 +2,11 @@
 
 Testy integracyjne weryfikują zachowanie systemu jako całości - uruchamiają rzeczywiste binaria (`xretractor`, `xqry`, `xtrdb`) i porównują ich wyjście z wzorcami lub sprawdzają konkretne właściwości plików wynikowych. Różnią się tym od testów jednostkowych, które za pomocą frameworka GTest testują izolowane klasy i funkcje bibliotek `rdb` i `retractor` (np. `payload`, `descriptor`, `crsMath`, `compiler`), nie wymagają uruchomionego serwera i nie produkują artefaktów na dysku. Testy integracyjne uruchamiają się poleceniem `ninja test` (lub `ctest`) w katalogu `build/Debug/`; pojedynczy test można uruchomić przez `ctest -R <nazwa> -V`.
 
-Wszystkie scenariusze znajdują się w jednym katalogu `test/IntegrationTest`. CMake przydziela
-większości katalogów jedną z szesnastu przestrzeni `RDB_NAMESPACE` oraz odpowiadającą jej
-blokadę zasobu. Rozdziela to magistralę, nazwę instancji, obiekty IPC i plik dziennika bez
-zmiany zapytań ani wzorców. Testy jednego katalogu pozostają wzajemnie wykluczone, ale różne
-katalogi mogą uruchamiać serwery równolegle. `RUN_SERIAL` zachowują tylko scenariusze badające
-produkcyjną tożsamość globalną i współpracę wielu serwerów.
+Wszystkie scenariusze znajdują się w jednym katalogu `test/IntegrationTest`. CMake przydziela większości katalogów jedną z szesnastu przestrzeni `RDB_NAMESPACE` oraz odpowiadającą jej blokadę zasobu. Rozdziela to magistralę, nazwę instancji, obiekty IPC i plik dziennika bez zmiany zapytań ani wzorców. Testy jednego katalogu pozostają wzajemnie wykluczone, ale różne katalogi mogą uruchamiać serwery równolegle. `RUN_SERIAL` zachowują tylko scenariusze badające produkcyjną tożsamość globalną i współpracę wielu serwerów.
 
 Poniższe tabele opisują **zamiar** każdego scenariusza. Nie są inwentarzem wykonywalnym: jeden katalog rejestruje zwykle kilka wpisów `ctest` (warianty `-run`, `-compile`, `-vg`, warianty nazwane), a lista rośnie z każdym wydaniem. Aktualny stan zwraca `ctest -N` w katalogu `build/Debug`.
 
-Po scaleniu drzew wszystkie testy integracyjne mają prefiks `it_`; dawny prefiks `pt_`
-nie opisuje już osobnej klasy. Testy skryptowe używają `st_`, a testy API dodatkowo etykiety
-`api` i są domyślnie pomijane przez `ninja test`. Dwa strażniki nadrzędne -
-`harness_guard-selftest` i `harness_command_integrity` - sprawdzają, że wrapper rzeczywiście
-uruchomił polecenie pod testem i nie zamaskował jego kodu wyjścia.
+Po scaleniu drzew wszystkie testy integracyjne mają prefiks `it_`; dawny prefiks `pt_` nie opisuje już osobnej klasy. Testy skryptowe używają `st_`, a testy API dodatkowo etykiety `api` i są domyślnie pomijane przez `ninja test`. Dwa strażniki nadrzędne - `harness_guard-selftest` i `harness_command_integrity` - sprawdzają, że wrapper rzeczywiście uruchomił polecenie pod testem i nie zamaskował jego kodu wyjścia.
 
 ## Scenariusze wykonawcze i usługowe
 
@@ -109,9 +100,7 @@ uruchomił polecenie pod testem i nie zamaskował jego kodu wyjścia.
 
 ## Scenariusze kompilacyjne i offline
 
-Poniższe katalogi rejestrują przede wszystkim warianty kompilacji, prezentacji planu albo
-operacji na artefaktach. Część z nich jest ta sama co w tabeli wykonawczej, ponieważ jeden
-`CMakeLists.txt` może rejestrować kilka niezależnych wpisów CTest.
+Poniższe katalogi rejestrują przede wszystkim warianty kompilacji, prezentacji planu albo operacji na artefaktach. Część z nich jest ta sama co w tabeli wykonawczej, ponieważ jeden `CMakeLists.txt` może rejestrować kilka niezależnych wpisów CTest.
 
 | Nazwa testu | Opis |
 |:--------|:----------------------------|

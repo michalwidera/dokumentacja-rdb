@@ -21,8 +21,7 @@ $ xtrdb --storagemap plik  # to samo co -s
 $ xtrdb -h                 # help i informacje o buildzie, potem zakończ
 ```
 
-Tryb `-n/--noprompt` usuwa kolorowanie, prompt `.` i komunikat `ok` - przydatny, gdy wejście pochodzi z pliku lub potoku.
-Wciąż działa też historyczny wariant pozycyjny `noprompt`.
+Tryb `-n/--noprompt` usuwa kolorowanie, prompt `.` i komunikat `ok` - przydatny, gdy wejście pochodzi z pliku lub potoku. Wciąż działa też historyczny wariant pozycyjny `noprompt`.
 
 ```
 $ xtrdb -n < script.xtrdb

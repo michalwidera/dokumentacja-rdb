@@ -10,9 +10,7 @@ Na Rys. 48 przedstawiono opisany powyżej przepływ sterowania. Plik z zapytania
 
 ### Co można dołączyć w locie
 
-Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLARE`
-albo `RULE`**. Dyrektywy kompilatora oraz program zawierający kilka poleceń są
-odrzucane bez zmiany aktywnego planu.
+Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLARE` albo `RULE`**. Dyrektywy kompilatora oraz program zawierający kilka poleceń są odrzucane bez zmiany aktywnego planu.
 
 Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 
@@ -20,57 +18,32 @@ Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 $ xqry -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
 ```
 
-Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja otrzymuje bazę
-indeksu logicznego w pierwszym należnym jej slocie.
-Jeżeli dołączone później zapytanie wymaga okna albo przesunięcia, emisja czeka,
-aż źródło zgromadzi pełną wymaganą historię. `HOLD` nie jest do tego potrzebny;
-pozostaje opcjonalną dyrektywą opóźniającą fizyczny odczyt. Ponowne `DECLARE`
-istniejącej nazwy jest odrzucane, a nie traktowane jako zmiana konfiguracji.
+Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja otrzymuje bazę indeksu logicznego w pierwszym należnym jej slocie. Jeżeli dołączone później zapytanie wymaga okna albo przesunięcia, emisja czeka, aż źródło zgromadzi pełną wymaganą historię. `HOLD` nie jest do tego potrzebny; pozostaje opcjonalną dyrektywą opóźniającą fizyczny odczyt. Ponowne `DECLARE` istniejącej nazwy jest odrzucane, a nie traktowane jako zmiana konfiguracji.
 
-Przy kilku działających instancjach samo `DECLARE` nie wskazuje właściciela,
-ponieważ nie ma klauzuli `FROM`. Trzeba wtedy podać cel jawnie:
+Przy kilku działających instancjach samo `DECLARE` nie wskazuje właściciela, ponieważ nie ma klauzuli `FROM`. Trzeba wtedy podać cel jawnie:
 
 ```
 $ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
 ```
 
-Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie
-jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
+Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
 
-Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM`
-pozostaje dostępne w pliku pełnego planu, ponieważ udostępnienie go przez IPC
-pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera.
-Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`. Reguła
-zaczyna działać dopiero po zgromadzeniu od chwili dołączenia całej wymaganej
-historii; jeżeli pamięciowy strumień przechowuje jej za mało, żądanie jest
-odrzucane.
+Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne w pliku pełnego planu, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`. Reguła zaczyna działać dopiero po zgromadzeniu od chwili dołączenia całej wymaganej historii; jeżeli pamięciowy strumień przechowuje jej za mało, żądanie jest odrzucane.
 
 ```bash
 xqry --server pomiary -a \
   "RULE alarm ON temperatura WHEN temperatura[0] > 80 DO DUMP -10 TO 5"
 ```
 
-Przy wielu instancjach klient kieruje `SELECT` według właścicieli strumieni z
-`FROM`, a `RULE` według strumienia z `ON`. Zapytanie łączące źródła z kilku
-serwerów jest odrzucane. Nowe nazwy strumieni i pliki magazynu są zgłaszane w
-magistrali przed modyfikacją aktywnego planu, więc ad hoc nie może nadpisać
-zasobu innej instancji.
+Przy wielu instancjach klient kieruje `SELECT` według właścicieli strumieni z `FROM`, a `RULE` według strumienia z `ON`. Zapytanie łączące źródła z kilku serwerów jest odrzucane. Nowe nazwy strumieni i pliki magazynu są zgłaszane w magistrali przed modyfikacją aktywnego planu, więc ad hoc nie może nadpisać zasobu innej instancji.
 
-Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia - także
-w instancji bezczynnej - służy `xqry --reset plik.rql`.
+Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia - także w instancji bezczynnej - służy `xqry --reset plik.rql`.
 
 ### Kiedy zaczyna się strumień dołożony ad hoc
 
-Plan zbudowany od początku pracy systemu numeruje rekordy od początku
-logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma
-takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym
-runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy:
-skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym
-zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet
-jeśli nowe zapytanie wnosi do systemu nowe tempo.
+Plan zbudowany od początku pracy systemu numeruje rekordy od początku logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy: skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet jeśli nowe zapytanie wnosi do systemu nowe tempo.
 
-> **_NOTE:_** Zachowanie to ma pokrycie w teście `issue227_join_alignment`
-> (przypadek `adhoc-origin`).
+> **_NOTE:_** Zachowanie to ma pokrycie w teście `issue227_join_alignment` (przypadek `adhoc-origin`).
 
 ### Przykład
 
@@ -130,9 +103,7 @@ Aby dołożyć do systemu kolejne zapytanie musimy wydać polecenie:
 $ xqry -a "SELECT * STREAM str2 FROM A#B"
 ```
 
-Polecenie w tej formie wysyła do procesu xretractor nowe zapytanie. Brak komunikatu i kod
-wyjścia `0` oznaczają przyjęcie. System otrzymując je prowadzi kompilację i złączy drzewa
-planów zapytań; przy odmowie `xqry` zwraca kod niezerowy i zapisuje przyczynę diagnostyczną.
+Polecenie w tej formie wysyła do procesu xretractor nowe zapytanie. Brak komunikatu i kod wyjścia `0` oznaczają przyjęcie. System otrzymując je prowadzi kompilację i złączy drzewa planów zapytań; przy odmowie `xqry` zwraca kod niezerowy i zapisuje przyczynę diagnostyczną.
 
 Jeśli zajrzymy ponownie do stanu systemu, zobaczymy następujący obraz:
 

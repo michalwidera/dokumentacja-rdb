@@ -39,6 +39,7 @@ mdbook build               # output → book/
 - **Callouts:** use blockquotes with bold prefix: `> **ℹ️ Info**` / `> **⚠️ Ostrzeżenie**` / `> **✅ Uwaga**`.
 - **Images:** paths relative to each `.md` file pointing to `assets/` (e.g. `../assets/foo.png` from a subdirectory).
 - No GitBook-specific syntax: no `{% hint %}`, no `{% tabs %}`, no `{% embed %}`, no YAML frontmatter.
+- **Line wrapping:** one paragraph or one list item is one line - never hard-wrap prose, it reads badly. Fenced code, tables, HTML blocks, Mermaid and `\\[...\\]` math keep their own line structure. `scripts/unwrap_paragraphs.py --check` lists files that break the rule; without `--check` it joins the lines, and the rendered book stays identical (needs `markdown-it-py`, installed by `scripts/install-local-tools.sh --install`).
 
 ## AI Watermark Hygiene (Text)
 
@@ -72,10 +73,7 @@ Substitute `git ls-files` for the staged-file listing to audit the whole tracked
 
 **Information callout - single selector only.** The accepted information icon is exactly `U+2139 U+FE0F`: the symbol followed by **one** variation selector. A doubled selector (`U+2139 U+FE0F U+FE0F`) is a watermark, not the icon: remove the extra `U+FE0F` so exactly one remains, and never strip the last one. `grep -rnP '\x{2139}\x{FE0F}\x{FE0F}'` lists the remaining cases; its output must be empty. The same holds after `U+26A0`: one selector is the icon, two are a finding.
 
-The `README.md` callouts also use the native emoji `U+2705` (check mark)
-and `U+1F4E5` (download), plus the accepted `U+2139 U+FE0F` information
-symbol. Keep these three icons unchanged; the native emoji need no variation
-selector and normally produce no scanner hit.
+The `README.md` callouts also use the native emoji `U+2705` (check mark) and `U+1F4E5` (download), plus the accepted `U+2139 U+FE0F` information symbol. Keep these three icons unchanged; the native emoji need no variation selector and normally produce no scanner hit.
 
 **Scripts are code, not prose - zero tolerance, strict mode.** `migrate_to_mdbook.py` and the `.sh` files get checked immediately after every edit, not at commit time:
 

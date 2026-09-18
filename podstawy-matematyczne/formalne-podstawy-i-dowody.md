@@ -275,25 +275,16 @@ Oba strumienie niosą ∆<sub>c</sub> = ∆<sub>a</sub>. Pokrywają się więc z
 
 Operacja przeplotu nie jest w ogólności przemienna: ponieważ 0 < z < 1, w punkcie n = 0 zawsze zachodzi gałąź równości w definicji przeplotu, więc strumień φ(A, B) zaczyna się od elementu b₀, a strumień φ(B, A) – od elementu a₀. Przeplot jest jednak ekwiwariantny względem przesunięć czasowych dopasowanych do temp strumieni – co jest cenne w optymalizacji planów zapytań.
 
-W realizacji przyczynowej strumień ma postać
-\\(\widehat{S}=((s_n,\Delta),W_S)\\), gdzie \\(W_S\\) jest ogonem startowym.
-Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
+W realizacji przyczynowej strumień ma postać \\(\widehat{S}=((s_n,\Delta),W_S)\\), gdzie \\(W_S\\) jest ogonem startowym. Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
 
 \\[
 \operatorname{conv}(w,\Delta_s,\Delta_o):=
 \left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
 \\]
 
-Ogon przeplotu o interwale
-\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) wyprowadza się wprost
-z definicji operatora, bez pośrednictwa jednego członu fazowego.
+Ogon przeplotu o interwale \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) wyprowadza się wprost z definicji operatora, bez pośrednictwa jednego członu fazowego.
 
-Rekord \\(i\\) strumienia \\(\varphi(A,B)\\) niesie treść rekordu \\(j(i)\\)
-jednej ze składowych - tej, którą w slocie \\(i\\) wybiera definicja przeplotu.
-Oznaczmy przez \\(\Delta_{s(i)}\\) i \\(W_{s(i)}\\) interwał oraz ogon wybranej
-składowej. Rekord \\(j(i)\\) jest określony w chwili
-\\(\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}\\), a slot \\(i\\) konsumenta kończy
-się w chwili \\((i+1+W)\Delta_c\\). Warunek przyczynowości dla każdego \\(i\\):
+Rekord \\(i\\) strumienia \\(\varphi(A,B)\\) niesie treść rekordu \\(j(i)\\) jednej ze składowych - tej, którą w slocie \\(i\\) wybiera definicja przeplotu. Oznaczmy przez \\(\Delta_{s(i)}\\) i \\(W_{s(i)}\\) interwał oraz ogon wybranej składowej. Rekord \\(j(i)\\) jest określony w chwili \\(\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}\\), a slot \\(i\\) konsumenta kończy się w chwili \\((i+1+W)\Delta_c\\). Warunek przyczynowości dla każdego \\(i\\):
 
 \\[
 W\ge
@@ -301,10 +292,7 @@ W\ge
 -1-i
 \\]
 
-Niech \\(\Delta_a/\Delta_b=p/q\\), gdzie \\(p,q\in\mathbb{N}_{>0}\\)
-i \\(\gcd(p,q)=1\\). Zarówno wybór składowej, jak i reszta wyznaczająca
-\\(j(i)\\) powtarzają się z okresem \\(p+q\\), więc maksimum prawej strony po
-**jednym** okresie jest maksimum po wszystkich rekordach:
+Niech \\(\Delta_a/\Delta_b=p/q\\), gdzie \\(p,q\in\mathbb{N}_{>0}\\) i \\(\gcd(p,q)=1\\). Zarówno wybór składowej, jak i reszta wyznaczająca \\(j(i)\\) powtarzają się z okresem \\(p+q\\), więc maksimum prawej strony po **jednym** okresie jest maksimum po wszystkich rekordach:
 
 \\[
 W_{\varphi(A,B)}
@@ -314,10 +302,7 @@ W_{\varphi(A,B)}
 \right)
 \\]
 
-Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej dla
-żadnego węzła. Przegląd okresu zaczyna się od zera - początek logiczny przesuwa
-indeks konsumenta i indeks składowej o tę samą liczbę slotów, więc okno
-\\([0,\,p+q)\\) daje tę samą wartość co okno przesunięte.
+Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej dla żadnego węzła. Przegląd okresu zaczyna się od zera - początek logiczny przesuwa indeks konsumenta i indeks składowej o tę samą liczbę slotów, więc okno \\([0,\,p+q)\\) daje tę samą wartość co okno przesunięte.
 
 Wcześniejsza postać zamknięta
 
@@ -332,17 +317,9 @@ W_{\varphi(A,B)}
 H_{a,b}=\left\lceil\frac{p+q-1}{p}\right\rceil
 \\]
 
-zabezpieczała najgorszą fazę odczytu drugiego argumentu, ale nie sprawdzała,
-czy ta faza w ogóle wypada na rekord czekający najdłużej - dlatego zawyżała
-ogon o slot dla części węzłów. Pozostała w implementacji jako wariant awaryjny
-dla \\(p+q\\) powyżej progu przeglądu (`kHashPhaseScanLimit` w
-`SOperations.hpp`): zawyżenie kosztuje jeden slot opóźnienia, podczas gdy
-zaniżenie oznaczałoby rekord wyemitowany przed określeniem jego zależności.
-Sloty ogona nie są rekordami.
+zabezpieczała najgorszą fazę odczytu drugiego argumentu, ale nie sprawdzała, czy ta faza w ogóle wypada na rekord czekający najdłużej - dlatego zawyżała ogon o slot dla części węzłów. Pozostała w implementacji jako wariant awaryjny dla \\(p+q\\) powyżej progu przeglądu (`kHashPhaseScanLimit` w `SOperations.hpp`): zawyżenie kosztuje jeden slot opóźnienia, podczas gdy zaniżenie oznaczałoby rekord wyemitowany przed określeniem jego zależności. Sloty ogona nie są rekordami.
 
-Przesunięcie \\(\tau_m\\) nie zmienia emitowanego ciągu rekordów, ale zmienia
-**indeks**, pod którym ten ciąg się pojawia: rekord \\(n\\) niesie treść rekordu
-\\(n-m\\). Rekordy o indeksie mniejszym od \\(O_S+m\\) nie mają definicji, więc
+Przesunięcie \\(\tau_m\\) nie zmienia emitowanego ciągu rekordów, ale zmienia **indeks**, pod którym ten ciąg się pojawia: rekord \\(n\\) niesie treść rekordu \\(n-m\\). Rekordy o indeksie mniejszym od \\(O_S+m\\) nie mają definicji, więc
 
 \\[
 O_{\tau_m(S)}=O_S+m,
@@ -350,19 +327,11 @@ O_{\tau_m(S)}=O_S+m,
 W_{\tau_m(S)}=\max\left(0,\;W_S-m\right)
 \\]
 
-Ogon **maleje**: rekord \\(n-m\\) jest starszy od bieżącego, więc dostępny tym
-bardziej - deficyt slotu wynosi \\(W_S-m\\) i jest stały. Szczegóły i pomiar:
-[Ogony, początki logiczne i obserwowalność
-operatorów](ogony-i-obserwowalnosc-operatorow.md).
+Ogon **maleje**: rekord \\(n-m\\) jest starszy od bieżącego, więc dostępny tym bardziej - deficyt slotu wynosi \\(W_S-m\\) i jest stały. Szczegóły i pomiar: [Ogony, początki logiczne i obserwowalność operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 > **✅ Uwaga**
 >
-> **Twierdzenie (R1, przemienność przesunięcia z przeplotem).** Jeśli liczby
-> i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty
-> przesunięte o ten sam czas), to przeplot strumieni przesuniętych i przeplot
-> strumieni pierwotnych przesunięty o sumę tych liczb mają **ten sam ciąg
-> rekordów, ten sam interwał i ten sam początek logiczny**. Ich ogony spełniają
-> nierówność - strona sfaktoryzowana nigdy nie jest późniejsza.
+> **Twierdzenie (R1, przemienność przesunięcia z przeplotem).** Jeśli liczby i, k ∈ ℕ wybrano tak, że i·∆<sub>a</sub> = k·∆<sub>b</sub> (oba argumenty przesunięte o ten sam czas), to przeplot strumieni przesuniętych i przeplot strumieni pierwotnych przesunięty o sumę tych liczb mają **ten sam ciąg rekordów, ten sam interwał i ten sam początek logiczny**. Ich ogony spełniają nierówność - strona sfaktoryzowana nigdy nie jest późniejsza.
 
 Formalnie, dla \\(L:=i+k\\):
 
@@ -376,15 +345,11 @@ Formalnie, dla \\(L:=i+k\\):
 W_{\mathrm{RHS}}=\max\left(0,\;W_{\varphi(A,B)}-L\right)\le W_{\mathrm{LHS}}
 \\]
 
-gdzie \\(\operatorname{Obs}\\) jest częścią wartościową obserwacji (interwał,
-początek logiczny, ciąg rekordów z mapą `NULL`, deskryptor, ślad luk, polityka
-materializacji) - patrz [Ogony, początki logiczne i obserwowalność
-operatorów](ogony-i-obserwowalnosc-operatorow.md).
+gdzie \\(\operatorname{Obs}\\) jest częścią wartościową obserwacji (interwał, początek logiczny, ciąg rekordów z mapą `NULL`, deskryptor, ślad luk, polityka materializacji) - patrz [Ogony, początki logiczne i obserwowalność operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 **Dowód.**
 
-*Interwał.* Obie strony powstają z tego samego przeplotu, więc mają
-\\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\).
+*Interwał.* Obie strony powstają z tego samego przeplotu, więc mają \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\).
 
 *Krok pomocniczy.* Z założenia \\(i\Delta_a=k\Delta_b\\) wynika
 
@@ -396,28 +361,11 @@ operatorów](ogony-i-obserwowalnosc-operatorow.md).
 =L\in\mathbb{N},
 \\]
 
-i symetrycznie \\(k\Delta_b/\Delta_c=L\\). Przesunięcie każdego argumentu
-o jego własną liczbę slotów odpowiada więc **tej samej** liczbie \\(L\\) slotów
-wyniku.
+i symetrycznie \\(k\Delta_b/\Delta_c=L\\). Przesunięcie każdego argumentu o jego własną liczbę slotów odpowiada więc **tej samej** liczbie \\(L\\) slotów wyniku.
 
-*Ciąg rekordów i początek logiczny.* W jednym okresie przeplot pobiera \\(i\\)
-rekordów z A i \\(k\\) rekordów z B, wypełniając dokładnie \\(L=i+k\\) slotów C.
-Przesunięcie A o \\(i\\) i B o \\(k\\) przesuwa zatem próg odwzorowania obu
-składowych o dokładnie \\(L\\) slotów wyniku, nie zmieniając ich wzajemnej fazy:
-\\(O_{\mathrm{LHS}}=O_{\varphi(A,B)}+L=O_{\mathrm{RHS}}\\). Treść rekordu
-o danym indeksie logicznym jest po obu stronach ta sama, bo wybór składowej
-zależy wyłącznie od fazy, a ta jest niezmieniona.
+*Ciąg rekordów i początek logiczny.* W jednym okresie przeplot pobiera \\(i\\) rekordów z A i \\(k\\) rekordów z B, wypełniając dokładnie \\(L=i+k\\) slotów C. Przesunięcie A o \\(i\\) i B o \\(k\\) przesuwa zatem próg odwzorowania obu składowych o dokładnie \\(L\\) slotów wyniku, nie zmieniając ich wzajemnej fazy: \\(O_{\mathrm{LHS}}=O_{\varphi(A,B)}+L=O_{\mathrm{RHS}}\\). Treść rekordu o danym indeksie logicznym jest po obu stronach ta sama, bo wybór składowej zależy wyłącznie od fazy, a ta jest niezmieniona.
 
-*Ogony.* Niech \\(s(n)\in\\{A,B\\}\\) oznacza składową wybraną w fazie
-\\(n\\), a \\(j(n)\\) jej indeks. Oznaczmy przesunięcia przez
-\\(t_A=i\\) i \\(t_B=k\\). Po przesunięciu ogon składowej wynosi
-\\(W_s^{\prime}=\max(0,W_s-t_s)\ge W_s-t_s\\). Nie zmieniają się interwały ani
-wybór składowej i jej indeks w danej fazie przeplotu. Niech \\(R_n\\)
-będzie wymaganiem dostępności z powyższego wzoru fazowego dla ogonów
-\\(W_A,W_B\\), a \\(R_n^{\prime}\\) wymaganiem dla \\(W_A^{\prime},W_B^{\prime}\\).
-Z kroku pomocniczego mamy \\(t_s\Delta_s/\Delta_c=L\in\mathbb{N}\\)
-dla obu składowych. Monotoniczność sufitu i jego zgodność z przesunięciem
-o całkowite \\(L\\) dają w każdej fazie:
+*Ogony.* Niech \\(s(n)\in\\{A,B\\}\\) oznacza składową wybraną w fazie \\(n\\), a \\(j(n)\\) jej indeks. Oznaczmy przesunięcia przez \\(t_A=i\\) i \\(t_B=k\\). Po przesunięciu ogon składowej wynosi \\(W_s^{\prime}=\max(0,W_s-t_s)\ge W_s-t_s\\). Nie zmieniają się interwały ani wybór składowej i jej indeks w danej fazie przeplotu. Niech \\(R_n\\) będzie wymaganiem dostępności z powyższego wzoru fazowego dla ogonów \\(W_A,W_B\\), a \\(R_n^{\prime}\\) wymaganiem dla \\(W_A^{\prime},W_B^{\prime}\\). Z kroku pomocniczego mamy \\(t_s\Delta_s/\Delta_c=L\in\mathbb{N}\\) dla obu składowych. Monotoniczność sufitu i jego zgodność z przesunięciem o całkowite \\(L\\) dają w każdej fazie:
 
 \\[
 \begin{aligned}
@@ -432,9 +380,7 @@ R_n^{\prime}
 \end{aligned}
 \\]
 
-Maksimum bierzemy po tym samym pełnym okresie \\(p+q\\), ponieważ
-przesunięcia nie zmieniają stosunku interwałów. Korzystając dodatkowo
-z nieujemności ogonów, otrzymujemy:
+Maksimum bierzemy po tym samym pełnym okresie \\(p+q\\), ponieważ przesunięcia nie zmieniają stosunku interwałów. Korzystając dodatkowo z nieujemności ogonów, otrzymujemy:
 
 \\[
 W_{\mathrm{LHS}}
@@ -443,37 +389,17 @@ W_{\mathrm{LHS}}
 =W_{\mathrm{RHS}}.
 \\]
 
-Powyżej progu przeglądu silnik stosuje opisane wcześniej oszacowanie
-awaryjne \\(O(1)\\). Dla niego tę samą nierówność uzyskujemy przez
-monotoniczność obu członów \\(\operatorname{conv}\\): dopasowane przesunięcie
-zmniejsza każdy z nich najwyżej o \\(L\\), a składnik \\(H_{a,b}\\)
-pozostaje bez zmian. Obie strony korzystają z tego samego wariantu obliczeń,
-bo interwały się nie zmieniają. Oszacowanie awaryjne nie musi być równe
-dokładnemu maksimum fazowemu. ∎
+Powyżej progu przeglądu silnik stosuje opisane wcześniej oszacowanie awaryjne \\(O(1)\\). Dla niego tę samą nierówność uzyskujemy przez monotoniczność obu członów \\(\operatorname{conv}\\): dopasowane przesunięcie zmniejsza każdy z nich najwyżej o \\(L\\), a składnik \\(H_{a,b}\\) pozostaje bez zmian. Obie strony korzystają z tego samego wariantu obliczeń, bo interwały się nie zmieniają. Oszacowanie awaryjne nie musi być równe dokładnemu maksimum fazowemu. ∎
 
 > **⚠️ Zakres twierdzenia**
 >
-> Równość ogonów **nie zachodzi**. Kontrprzykład: \\(\Delta_a=1/10\\),
-> \\(\Delta_b=1/5\\), \\(W_A=W_B=0\\), \\(H_{a,b}=2\\), \\(i=2\\), \\(k=1\\),
-> \\(L=3\\). Wtedy \\(W_{\mathrm{LHS}}=2\\), a \\(W_{\mathrm{RHS}}=\max(0,2-3)=0\\).
-> Strona niesfaktoryzowana czyta składowe **po** ich własnym przesunięciu, więc
-> na tę samą treść czeka dłużej; strona sfaktoryzowana czyta ją wprost
-> z przeplotu.
+> Równość ogonów **nie zachodzi**. Kontrprzykład: \\(\Delta_a=1/10\\), \\(\Delta_b=1/5\\), \\(W_A=W_B=0\\), \\(H_{a,b}=2\\), \\(i=2\\), \\(k=1\\), \\(L=3\\). Wtedy \\(W_{\mathrm{LHS}}=2\\), a \\(W_{\mathrm{RHS}}=\max(0,2-3)=0\\). Strona niesfaktoryzowana czyta składowe **po** ich własnym przesunięciu, więc na tę samą treść czeka dłużej; strona sfaktoryzowana czyta ją wprost z przeplotu.
 >
-> Konsekwencja praktyczna: reguła przepisywania
-> \\(\varphi(\tau_i(A),\tau_k(B))\to\tau_{i+k}(\varphi(A,B))\\) jest
-> **optymalizacją opóźnienia**, a nie przepisaniem neutralnym. Zachowuje całą
-> część wartościową obserwacji i nigdy nie emituje rekordu przed określeniem
-> jego zależności, ale wynik jest gotowy wcześniej.
+> Konsekwencja praktyczna: reguła przepisywania \\(\varphi(\tau_i(A),\tau_k(B))\to\tau_{i+k}(\varphi(A,B))\\) jest **optymalizacją opóźnienia**, a nie przepisaniem neutralnym. Zachowuje całą część wartościową obserwacji i nigdy nie emituje rekordu przed określeniem jego zależności, ale wynik jest gotowy wcześniej.
 >
-> Wcześniej obie strony miały ten sam ogon wyłącznie dlatego, że realizacja
-> \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zdjęto,
-> adresując producenta indeksem logicznym zamiast offsetem względnym. Regresje
-> strzegące tego zakresu: `it_r1_identity_nulls`,
-> `it_optimizer_ablation-factor-name-collision-semantic`.
+> Wcześniej obie strony miały ten sam ogon wyłącznie dlatego, że realizacja \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zdjęto, adresując producenta indeksem logicznym zamiast offsetem względnym. Regresje strzegące tego zakresu: `it_r1_identity_nulls`, `it_optimizer_ablation-factor-name-collision-semantic`.
 
-W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych
-strumieni, mapy wartości pustych i politykę materializacji.
+W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych strumieni, mapy wartości pustych i politykę materializacji.
 
 ## Dlaczego to ma znaczenie
 

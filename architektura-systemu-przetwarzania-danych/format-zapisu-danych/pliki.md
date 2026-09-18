@@ -95,36 +95,22 @@ Rozmiar rekordu `R` = suma rozmiarów wszystkich pól danych.
 
 ### Układ pola RATIONAL
 
-Pole `RATIONAL` przechowuje liczbę wymierną jako parę liczb całkowitych ze znakiem,
-zapisaną w rekordzie wprost, bez nagłówka i bez znacznika typu:
+Pole `RATIONAL` przechowuje liczbę wymierną jako parę liczb całkowitych ze znakiem, zapisaną w rekordzie wprost, bez nagłówka i bez znacznika typu:
 
 ```
 offset +0   int32   licznik
 offset +4   int32   mianownik
 ```
 
-Kolejność bajtów jest natywna dla maszyny - na x86-64 i ARM64 little-endian, tak samo
-jak dla pól `INTEGER` i `UINT`. Pole zajmuje 8 bajtów; dla pola tablicowego
-`RATIONAL nazwa[N]` pary leżą jedna za drugą, `8 × N` bajtów.
+Kolejność bajtów jest natywna dla maszyny - na x86-64 i ARM64 little-endian, tak samo jak dla pól `INTEGER` i `UINT`. Pole zajmuje 8 bajtów; dla pola tablicowego `RATIONAL nazwa[N]` pary leżą jedna za drugą, `8 × N` bajtów.
 
-Wartość jest zawsze zapisana w **postaci nieskracalnej**, a mianownik jest zawsze
-**dodatni** - znak liczby niesie wyłącznie licznik. Wynika to z arytmetyki
-`boost::rational`, która normalizuje wynik przy każdym przypisaniu, a nie z konwencji
-zapisu. W szczególności:
+Wartość jest zawsze zapisana w **postaci nieskracalnej**, a mianownik jest zawsze **dodatni** - znak liczby niesie wyłącznie licznik. Wynika to z arytmetyki `boost::rational`, która normalizuje wynik przy każdym przypisaniu, a nie z konwencji zapisu. W szczególności:
 
 * zero zapisuje się jako `0/1`, nigdy jako `0/0` ani `0/5`;
-* liczba całkowita zapisuje się jako `n/1` - pole `RATIONAL` o mianowniku 1 to
-  dokładnie liczba całkowita, bez zaokrągleń (na tym niezmienniku opiera się też test
-  podzielności slotu w [algorytmie przeglądu drzewa zapytań](../../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md));
+* liczba całkowita zapisuje się jako `n/1` - pole `RATIONAL` o mianowniku 1 to dokładnie liczba całkowita, bez zaokrągleń (na tym niezmienniku opiera się też test podzielności slotu w [algorytmie przeglądu drzewa zapytań](../../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md));
 * mianownik nigdy nie jest zerem, więc czytelnik nie musi tego przypadku obsługiwać.
 
-Pola typu `RATIONAL` produkują reduktory `MIN`, `MAX`, `AVG` i `SUMC`, gdy wartość wejściowa
-ma typ `BYTE`, `INTEGER`, `UINT` albo `RATIONAL`. Dotyczy to reduktorów bieżącego rekordu w
-`FROM`, wygaszanej notacji `.min`/`.max`/`.avg`/`.sumc` oraz agregatów historii
-`AGG(wyrażenie : W)` w liście `SELECT`. Wejście `FLOAT` lub `DOUBLE` zachowuje własny typ
-(→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)).
-Reduktor nad wejściem całkowitym lub wymiernym jest w praktyce głównym źródłem typu
-`RATIONAL` w artefakcie.
+Pola typu `RATIONAL` produkują reduktory `MIN`, `MAX`, `AVG` i `SUMC`, gdy wartość wejściowa ma typ `BYTE`, `INTEGER`, `UINT` albo `RATIONAL`. Dotyczy to reduktorów bieżącego rekordu w `FROM`, wygaszanej notacji `.min`/`.max`/`.avg`/`.sumc` oraz agregatów historii `AGG(wyrażenie : W)` w liście `SELECT`. Wejście `FLOAT` lub `DOUBLE` zachowuje własny typ (→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)). Reduktor nad wejściem całkowitym lub wymiernym jest w praktyce głównym źródłem typu `RATIONAL` w artefakcie.
 
 #### Przykład zmierzony
 
@@ -136,8 +122,7 @@ DECLARE v INTEGER STREAM src, 1 FILE 'data.txt'
 SELECT * STREAM ravg FROM AVG(src@(1,3))
 ```
 
-dla wejścia `-3, -3, -2, 7, 7, 7, …` daje deskryptor `{ RATIONAL avg }` i plik danych,
-w którym pierwszy rekord ma osiem bajtów:
+dla wejścia `-3, -3, -2, 7, 7, 7, …` daje deskryptor `{ RATIONAL avg }` i plik danych, w którym pierwszy rekord ma osiem bajtów:
 
 ```
 f8 ff ff ff   03 00 00 00
@@ -145,16 +130,11 @@ f8 ff ff ff   03 00 00 00
    -8            3            →  -8/3
 ```
 
-Czwarty rekord to `07 00 00 00 01 00 00 00`, czyli `7/1` - średnia z trzech siódemek
-zapisana jako liczba wymierna o mianowniku 1, a nie jako `INTEGER`.
+Czwarty rekord to `07 00 00 00 01 00 00 00`, czyli `7/1` - średnia z trzech siódemek zapisana jako liczba wymierna o mianowniku 1, a nie jako `INTEGER`.
 
 #### Odczyt bez rozbierania bajtów
 
-Układ pary trzeba znać tylko przy czytaniu pliku binarnego wprost. Sam fakt, że pole jest
-typu `RATIONAL` i zajmuje 8 bajtów, wypisuje `xtrdb -s nazwa` z deskryptora
-(→ [Narzędzie inspekcji](narzedzie-inspekcji.md)) - narzędzie pokazuje strukturę, nie wartości.
-Wartość odczytuje się natomiast, przepuszczając pole przez konwersję już w zapytaniu; trzy
-funkcje dają trzy różne kompromisy:
+Układ pary trzeba znać tylko przy czytaniu pliku binarnego wprost. Sam fakt, że pole jest typu `RATIONAL` i zajmuje 8 bajtów, wypisuje `xtrdb -s nazwa` z deskryptora (→ [Narzędzie inspekcji](narzedzie-inspekcji.md)) - narzędzie pokazuje strukturę, nie wartości. Wartość odczytuje się natomiast, przepuszczając pole przez konwersję już w zapytaniu; trzy funkcje dają trzy różne kompromisy:
 
 | Zapis w SELECT | Wynik dla `-8/3` | Uwaga |
 | -------------- | ---------------- | ----- |
@@ -162,9 +142,7 @@ funkcje dają trzy różne kompromisy:
 | `to_double(pole)` | pole `DOUBLE` o wartości `-2.6666…` | przybliżenie, ale bez utraty znaku i rzędu wielkości |
 | `to_integer(pole)` | pole `INTEGER` o wartości `-2` | **obcięcie w stronę zera**, nie podłoga - → [Wyrażenia pól i funkcje skalarne](../../konstrukcja-jezyka-zapytan/polecenie-select/wyrazenia-pol-i-funkcje-skalarne.md) |
 
-Do eksportu do systemów tekstowych właściwe jest `to_string`, bo zachowuje wartość
-dokładnie; `to_integer` jest wygodne, ale gubi część ułamkową i robi to inaczej, niż
-podłoguje Python - opis zaokrąglenia jest przy funkcjach wyrażeń.
+Do eksportu do systemów tekstowych właściwe jest `to_string`, bo zachowuje wartość dokładnie; `to_integer` jest wygodne, ale gubi część ułamkową i robi to inaczej, niż podłoguje Python - opis zaokrąglenia jest przy funkcjach wyrażeń.
 
 ### Pole TYPE a strategia składowania
 

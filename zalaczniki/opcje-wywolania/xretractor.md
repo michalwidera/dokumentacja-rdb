@@ -75,14 +75,9 @@ xretractor diagnostyka.rql --name diagnostyka --noanykey &
 xqry --bus
 ```
 
-Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak
-plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo
-plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name`
-zachowuje historyczną instancję bezimienną.
+Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name` zachowuje historyczną instancję bezimienną.
 
-Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać
-dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział
-[Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
+Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział [Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
 
 ### Przetwarzanie wsadowe bez zegara
 
@@ -92,22 +87,13 @@ Najprostszy przebieg całego pliku bez ręcznego dobierania liczby iteracji ma p
 xretractor query.rql --no-clock --until-eof --noanykey --quiet
 ```
 
-`--no-clock` usuwa wyłącznie uśpienia. Nie zmienia kolejności slotów ani zawartości
-artefaktów, dlatego nadaje się do szybkiej weryfikacji po zakończeniu procesu. Może jednak
-wyprzedzić klienta `xqry`, więc nie jest właściwym trybem do obserwacji na żywo.
+`--no-clock` usuwa wyłącznie uśpienia. Nie zmienia kolejności slotów ani zawartości artefaktów, dlatego nadaje się do szybkiej weryfikacji po zakończeniu procesu. Może jednak wyprzedzić klienta `xqry`, więc nie jest właściwym trybem do obserwacji na żywo.
 
-`--until-eof` sprawia, że źródło sekwencyjne nie wraca na początek pliku. Koniec jest
-sprawdzany po przetworzeniu slotu, dokładnie przed rekordem, który musiałby już powstać ze
-syntetycznego `NULL` za końcem danych. Przy wielu źródłach kończy pierwsze wyczerpane, aby
-plan nie kontynuował obliczeń z brakującym wejściem. Opcję można łączyć z `-m N`; działa
-warunek, który wystąpi wcześniej.
+`--until-eof` sprawia, że źródło sekwencyjne nie wraca na początek pliku. Koniec jest sprawdzany po przetworzeniu slotu, dokładnie przed rekordem, który musiałby już powstać ze syntetycznego `NULL` za końcem danych. Przy wielu źródłach kończy pierwsze wyczerpane, aby plan nie kontynuował obliczeń z brakującym wejściem. Opcję można łączyć z `-m N`; działa warunek, który wystąpi wcześniej.
 
-> **⚠️ Ostrzeżenie** Skróty zależą od trybu. W wykonaniu `-f` oznacza `--no-clock`, a `-u`
-> oznacza `--until-eof`. Przy `-c` te same litery oznaczają odpowiednio `--fields` i
-> `--rules` oraz nie uruchamiają przetwarzania.
+> **⚠️ Ostrzeżenie** Skróty zależą od trybu. W wykonaniu `-f` oznacza `--no-clock`, a `-u` oznacza `--until-eof`. Przy `-c` te same litery oznaczają odpowiednio `--fields` i `--rules` oraz nie uruchamiają przetwarzania.
 
-> **_NOTE:_** Równoważność wykonania taktowanego i offline sprawdza `noclock_offline`, a
-> zatrzymanie na pierwszym końcu danych i kontrolę zawijania sprawdza `untileof_stop`.
+> **_NOTE:_** Równoważność wykonania taktowanego i offline sprawdza `noclock_offline`, a zatrzymanie na pierwszym końcu danych i kontrolę zawijania sprawdza `untileof_stop`.
 
 ---
 
@@ -211,23 +197,15 @@ autoname = false
 
 ## Usługa i wymiana planu
 
-Start bez pliku `.rql` albo z pustym plikiem tworzy bezczynną instancję z działającym IPC.
-Pierwszy lub kolejny pełny plan można załadować bez restartu:
+Start bez pliku `.rql` albo z pustym plikiem tworzy bezczynną instancję z działającym IPC. Pierwszy lub kolejny pełny plan można załadować bez restartu:
 
 ```bash
 xqry --server service --reset plan.rql
 ```
 
-Serwer parsuje i kompiluje całą treść, sprawdza kolizje zasobów, rezerwuje nowy zestaw,
-a następnie przełącza plan na granicy slotu. Odmowa pozostawia poprzedni plan bez zmian.
-Pusty plik resetu przywraca stan bezczynny. W instancji usługowej zaakceptowana treść jest
-również zapisywana w pliku startowym usługi.
+Serwer parsuje i kompiluje całą treść, sprawdza kolizje zasobów, rezerwuje nowy zestaw, a następnie przełącza plan na granicy slotu. Odmowa pozostawia poprzedni plan bez zmian. Pusty plik resetu przywraca stan bezczynny. W instancji usługowej zaakceptowana treść jest również zapisywana w pliku startowym usługi.
 
-Alternatywna ścieżka `xretractor nowy-plan.rql` wykrywa działającą jednostkę systemd,
-weryfikuje zestaw, atomowo nadpisuje jej plik startowy i wywołuje restart. Jawne wskazanie
-innej tożsamości przez `--name` albo `--autoname` oznacza zamiast tego start osobnej
-instancji. W razie krytycznego błędu plan usługowy jest opróżniany, aby systemd uruchomił
-proces ponownie w bezpiecznym stanie bezczynnym.
+Alternatywna ścieżka `xretractor nowy-plan.rql` wykrywa działającą jednostkę systemd, weryfikuje zestaw, atomowo nadpisuje jej plik startowy i wywołuje restart. Jawne wskazanie innej tożsamości przez `--name` albo `--autoname` oznacza zamiast tego start osobnej instancji. W razie krytycznego błędu plan usługowy jest opróżniany, aby systemd uruchomił proces ponownie w bezpiecznym stanie bezczynnym.
 
 ---
 

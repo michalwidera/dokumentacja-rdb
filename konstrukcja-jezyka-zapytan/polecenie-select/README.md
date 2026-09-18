@@ -55,8 +55,7 @@ Wyrażenie indeksu generatora jest całkowite i może zawierać literały, `$`, 
 
 Ekspansja jest pierwszym przebiegiem kompilatora. Po niej plan jest taki sam jak plan z ręcznie rozpisanymi strumieniami `cell$0`...`cell$3`; runtime nie ma osobnego mechanizmu generatorów.
 
-Generator może obejmować kolejne stopnie tego samego potoku. Pozwala to opisać obliczenie
-raz i zastosować je niezależnie do każdego kanału wejściowego:
+Generator może obejmować kolejne stopnie tego samego potoku. Pozwala to opisać obliczenie raz i zastosować je niezależnie do każdego kanału wejściowego:
 
 ```rql
 DECLARE sample INTEGER[8] STREAM samples, 1/1000 FILE 'samples.txt'
@@ -65,14 +64,9 @@ SELECT sample[$]^2 STREAM square[8] FROM samples
 SELECT *           STREAM energy[8] FROM SUMC(square[$]@(25,100))
 ```
 
-Powstaje osiem par strumieni `square$N` i `energy$N`, po jednej na kanał. Symbol `$`
-wybiera numer instancji rodziny podczas rozwijania szablonu. Nie należy mylić go z `[_]`,
-które powiela wyrażenie pola wewnątrz jednego zapytania według płaskiego schematu wejścia.
+Powstaje osiem par strumieni `square$N` i `energy$N`, po jednej na kanał. Symbol `$` wybiera numer instancji rodziny podczas rozwijania szablonu. Nie należy mylić go z `[_]`, które powiela wyrażenie pola wewnątrz jednego zapytania według płaskiego schematu wejścia.
 
-> **_NOTE:_** Składnię generatora, w tym użycie `[$]`, sprawdzają test integracyjny
-> `stream_generator` oraz przypadki `ut_compiler` w `test/UnitTest/test_compiler.cpp`.
-> Agregaty okien rekordów sprawdza test `window_aggregate`. Testy integracyjne opisano
-> w załączniku [Testy integracyjne](../../zalaczniki/testy-integracyjne.md).
+> **_NOTE:_** Składnię generatora, w tym użycie `[$]`, sprawdzają test integracyjny `stream_generator` oraz przypadki `ut_compiler` w `test/UnitTest/test_compiler.cpp`. Agregaty okien rekordów sprawdza test `window_aggregate`. Testy integracyjne opisano w załączniku [Testy integracyjne](../../zalaczniki/testy-integracyjne.md).
 
 Klauzula VOLATILE - tworzy ulotną formę zapytania. Dane pozostają w buforze pamięciowym, którego pojemność kompilator dobiera do potrzeb planu; na dysku pojawia się tylko deskryptor opisujący strukturę danych.
 
@@ -92,10 +86,7 @@ Strumieniowe wyrażenie algebraiczne w klauzuli `FROM` może zawierać:
 | Okno AGSE | `A @ (k, w)` | Buduje ruchome okno danych - patrz [Ruchome okno danych AGSE](../../realizacja-zapytan/ruchome-okno-danych-agse/) |
 | Redukcja | `MIN(A)` / `MAX(A)` / `AVG(A)` / `SUMC(A)` | Redukuje wielopolowy rekord do jednej wartości - patrz [Operatory agregujące](operatory-agregujace.md) |
 
-Agregaty `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)` występują w liście `SELECT`, a nie w
-wyrażeniu strumieniowym `FROM`. Redukują historię W rekordów i mogą być operandem większego
-wyrażenia pola, na przykład `2*MIN(a : 5)+1`. Obie osie agregacji porównuje rozdział
-[Operatory agregujące](operatory-agregujace.md).
+Agregaty `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)` występują w liście `SELECT`, a nie w wyrażeniu strumieniowym `FROM`. Redukują historię W rekordów i mogą być operandem większego wyrażenia pola, na przykład `2*MIN(a : 5)+1`. Obie osie agregacji porównuje rozdział [Operatory agregujące](operatory-agregujace.md).
 
 ### Priorytet i łączność
 
@@ -114,10 +105,7 @@ Spacje wokół `#` nie zmieniają znaczenia: `A # B` i `A#B` są tym samym przep
 
 ## Wyrażenia pól
 
-Lista `SELECT` oraz warunki `RULE` używają wyrażeń skalarnych z odwołaniami do pól,
-operatorami arytmetycznymi, wartościami `NULL` i funkcjami. Pełną składnię, priorytety,
-listę funkcji oraz reguły konwersji opisuje rozdział
-[Wyrażenia pól i funkcje skalarne](wyrazenia-pol-i-funkcje-skalarne.md).
+Lista `SELECT` oraz warunki `RULE` używają wyrażeń skalarnych z odwołaniami do pól, operatorami arytmetycznymi, wartościami `NULL` i funkcjami. Pełną składnię, priorytety, listę funkcji oraz reguły konwersji opisuje rozdział [Wyrażenia pól i funkcje skalarne](wyrazenia-pol-i-funkcje-skalarne.md).
 
 ### Potęgowanie
 
@@ -139,5 +127,4 @@ Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma dokładnie 
 
 > **_NOTE:_** Propagacja wartości null przez wyrażenia SELECT ma pokrycie w teście: `issue121_null_propagation` opisanym w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
-Domyślną ulotność całego planu ustawia `DEFAULT VOLATILE`. Klauzula `PERSISTENT`
-wyłącza ją dla konkretnego wyniku. Szczegóły: [VOLATILE i PERSISTENT](klauzula-volatile.md).
+Domyślną ulotność całego planu ustawia `DEFAULT VOLATILE`. Klauzula `PERSISTENT` wyłącza ją dla konkretnego wyniku. Szczegóły: [VOLATILE i PERSISTENT](klauzula-volatile.md).

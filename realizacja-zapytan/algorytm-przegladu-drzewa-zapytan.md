@@ -81,8 +81,7 @@ Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlo
 
 ## Krok zerowy: `processZeroStep()`
 
-Przed wejściem w pętlę `executorsm::run()` wywołuje `dataModel::processZeroStep()`. Metoda
-przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
+Przed wejściem w pętlę `executorsm::run()` wywołuje `dataModel::processZeroStep()`. Metoda przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
 
 ```cpp
 for (auto &q : coreInstance_) {
@@ -152,17 +151,9 @@ Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania sk
 
 ### Okna rekordowe listy SELECT
 
-Jeżeli zapytanie zawiera `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)`, etap
-`computeWindowAggregates()` działa po zbudowaniu payloadu `FROM`, ale przed ewaluacją pól
-wynikowych. Dla indeksu logicznego `n` czyta rekordy wskazanego źródła od `n-(W-1)` do `n`.
-Gołe pole korzysta z bezpośredniego odczytu płaskiego slotu; ogólne wyrażenie jest obliczane
-osobno na payloadzie każdego rekordu historii.
+Jeżeli zapytanie zawiera `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)`, etap `computeWindowAggregates()` działa po zbudowaniu payloadu `FROM`, ale przed ewaluacją pól wynikowych. Dla indeksu logicznego `n` czyta rekordy wskazanego źródła od `n-(W-1)` do `n`. Gołe pole korzysta z bezpośredniego odczytu płaskiego slotu; ogólne wyrażenie jest obliczane osobno na payloadzie każdego rekordu historii.
 
-Wartości `NULL` są pomijane, a okno bez wartości obecnych zapisuje `NULL` dla wszystkich
-czterech statystyk. Grupy o tym samym źródle, programie wyrażenia i szerokości współdzielą
-jedno przejście po historii. Wyniki trafiają do `streamInstance::windowValues` i stają się
-zwykłymi operandami `constructOutputPayload()`, dlatego można pisać na przykład
-`2*MIN(a : 5)+1` albo `null2zero(AVG(a+b : 5))`.
+Wartości `NULL` są pomijane, a okno bez wartości obecnych zapisuje `NULL` dla wszystkich czterech statystyk. Grupy o tym samym źródle, programie wyrażenia i szerokości współdzielą jedno przejście po historii. Wyniki trafiają do `streamInstance::windowValues` i stają się zwykłymi operandami `constructOutputPayload()`, dlatego można pisać na przykład `2*MIN(a : 5)+1` albo `null2zero(AVG(a+b : 5))`.
 
 ***
 

@@ -7,8 +7,7 @@ Dostępne są cztery dyrektywy konfiguracyjne:
 * ROTATION
 * DEFAULT VOLATILE
 
-`STORAGE`, `SUBSTRAT` i `ROTATION` przyjmują parametr tekstowy w apostrofach.
-`DEFAULT VOLATILE` nie przyjmuje napisu. Przykład dyrektyw z parametrem:
+`STORAGE`, `SUBSTRAT` i `ROTATION` przyjmują parametr tekstowy w apostrofach. `DEFAULT VOLATILE` nie przyjmuje napisu. Przykład dyrektyw z parametrem:
 
 ```rql
 STORAGE 'temp_folder'
@@ -38,9 +37,4 @@ Ostatnia dyrektywa - Rotation to dyrektywa wskazująca na odmienny tryb kończen
 DEFAULT VOLATILE
 ```
 
-Ta dyrektywa (reguła `default_statement`) ustawia domyślny magazyn pamięciowy
-zarówno dla nazwanych wyników `SELECT`, jak i substratów kompilatora. Umieszcza
-się ją raz w nagłówku, przed `DECLARE`, `SELECT` i `RULE`. Jawny `SUBSTRAT`
-ma pierwszeństwo dla substratów; `PERSISTENT` lub jawne `STORAGE` przy `SELECT`
-zastępuje ustawienie domyślne dla jego wyniku. Źródła `DECLARE` pozostają bez zmian.
-Przykład i pełne zasady: [VOLATILE i PERSISTENT](polecenie-select/klauzula-volatile.md).
+Ta dyrektywa (reguła `default_statement`) ustawia domyślny magazyn pamięciowy zarówno dla nazwanych wyników `SELECT`, jak i substratów kompilatora. Umieszcza się ją raz w nagłówku, przed `DECLARE`, `SELECT` i `RULE`. Jawny `SUBSTRAT` ma pierwszeństwo dla substratów; `PERSISTENT` lub jawne `STORAGE` przy `SELECT` zastępuje ustawienie domyślne dla jego wyniku. Źródła `DECLARE` pozostają bez zmian. Przykład i pełne zasady: [VOLATILE i PERSISTENT](polecenie-select/klauzula-volatile.md).

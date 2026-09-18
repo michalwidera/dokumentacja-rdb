@@ -1,9 +1,6 @@
 # xqry
 
-Program `xqry` komunikuje się z działającym procesem `xretractor` przez Boost IPC.
-Odczytuje bieżące rekordy, pokazuje plan i schematy, dołącza pojedyncze polecenia RQL,
-wymienia cały plan oraz zatrzymuje wskazaną instancję. Wiele procesów `xqry` może działać
-równocześnie, także wobec różnych serwerów.
+Program `xqry` komunikuje się z działającym procesem `xretractor` przez Boost IPC. Odczytuje bieżące rekordy, pokazuje plan i schematy, dołącza pojedyncze polecenia RQL, wymienia cały plan oraz zatrzymuje wskazaną instancję. Wiele procesów `xqry` może działać równocześnie, także wobec różnych serwerów.
 
 ## Uruchomienie
 
@@ -51,20 +48,13 @@ xqry --server pomiary --select temperatura
 xqry --server pomiary --kill
 ```
 
-Bez tej opcji klient czyta magistralę `xrdbbus`. Przy jednej żywej instancji wybiera ją
-automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela
-podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`,
-`--reset`) są niejednoznaczne i wymagają `--server`.
+Bez tej opcji klient czyta magistralę `xrdbbus`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`.
 
-Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą
-należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach
-również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są
-odrzucane przed wysłaniem polecenia.
+Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są odrzucane przed wysłaniem polecenia.
 
 ## Lista instancji: `--bus`
 
-`xqry --bus` odczytuje magistralę bez kontaktowania się z serwerami. Wiersze są sortowane
-po nazwie, a `(unnamed)` oznacza zgodną wstecz instancję uruchomioną bez nazwy.
+`xqry --bus` odczytuje magistralę bez kontaktowania się z serwerami. Wiersze są sortowane po nazwie, a `(unnamed)` oznacza zgodną wstecz instancję uruchomioną bez nazwy.
 
 ```text
 $ xqry --bus
@@ -90,8 +80,7 @@ servers:
       - dsta
 ```
 
-Pusta magistrala daje poprawny dokument `servers: []` w YAML. Informacja diagnostyczna o
-braku instancji trafia na `stderr`.
+Pusta magistrala daje poprawny dokument `servers: []` w YAML. Informacja diagnostyczna o braku instancji trafia na `stderr`.
 
 ## Lista i szczegóły strumieni
 
@@ -105,13 +94,9 @@ core0 | 1/10     | -1   | 0     | datafile2.dat | 4
 str1  | 1/30     | 0    | 0     |               | 0
 ```
 
-`duration` jest dokładnym interwałem strumienia, `size` rozmiarem zapisanych danych,
-`count` liczbą rekordów, `location` plikiem źródła, a `cap` pojemnością historii wyliczoną
-przez kompilator. Dla deklarowanego źródła `size` ma wartość `-1`.
+`duration` jest dokładnym interwałem strumienia, `size` rozmiarem zapisanych danych, `count` liczbą rekordów, `location` plikiem źródła, a `cap` pojemnością historii wyliczoną przez kompilator. Dla deklarowanego źródła `size` ma wartość `-1`.
 
-`--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza
-`--dir`, `--detail` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym
-poleceniem. Nieznany strumień kończy działanie kodem `2`.
+`--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza `--dir`, `--detail` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym poleceniem. Nieznany strumień kończy działanie kodem `2`.
 
 ## Odbiór danych
 
@@ -122,9 +107,7 @@ poleceniem. Nieznany strumień kończy działanie kodem `2`.
 | `-n` / `--null` | Pomija rekordy, w których wszystkie wartości są `NULL`. |
 | `-c` / `--needctrlc` | Wymaga Ctrl+C zamiast zakończenia dowolnym klawiszem. |
 
-Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu
-serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest
-wykrywana przez timeout `timing.query_no_data_timeout_ms`.
+Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest wykrywana przez timeout `timing.query_no_data_timeout_ms`.
 
 ### Formaty prezentacyjne
 
@@ -136,8 +119,7 @@ wykrywana przez timeout `timing.query_no_data_timeout_ms`.
 | `-p` / `--gnuplot x,y` | Dane i polecenia do bezpośredniego zasilenia gnuplot. |
 | `-z` / `--gnuplot-rtl` | Modyfikator gnuplot umieszczający najnowsze próbki po prawej. |
 
-Można wybrać tylko jeden format. `--gnuplot-rtl` wymaga `--gnuplot`. Surowy format
-przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
+Można wybrać tylko jeden format. `--gnuplot-rtl` wymaga `--gnuplot`. Surowy format przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
 
 ## Polecenia ad hoc
 
@@ -148,33 +130,23 @@ xqry --server pomiary --adhoc \
   "SELECT AVG(value : 10) STREAM avg10 FROM sensor"
 ```
 
-Dyrektywy kompilatora i kilka poleceń w jednym żądaniu są odrzucane. Szczegóły początku
-logicznego, deklaracji źródeł, reguł i roszczeń zasobów opisano w rozdziale
-[Zapytania Ad hoc](../../realizacja-zapytan/zapytania-ad-hoc.md).
+Dyrektywy kompilatora i kilka poleceń w jednym żądaniu są odrzucane. Szczegóły początku logicznego, deklaracji źródeł, reguł i roszczeń zasobów opisano w rozdziale [Zapytania Ad hoc](../../realizacja-zapytan/zapytania-ad-hoc.md).
 
 ## Wymiana całego planu: `--reset`
 
-`--reset plik.rql` przesyła zawartość pliku i zastępuje cały plan wybranej instancji. To
-inna operacja niż ad hoc: pełny zestaw może zawierać wiele poleceń, reguły i dyrektywy
-`:STORAGE`, `:SUBSTRAT` oraz `:ROTATION`.
+`--reset plik.rql` przesyła zawartość pliku i zastępuje cały plan wybranej instancji. To inna operacja niż ad hoc: pełny zestaw może zawierać wiele poleceń, reguły i dyrektywy `:STORAGE`, `:SUBSTRAT` oraz `:ROTATION`.
 
 ```bash
 xqry --server service --reset plan.rql
 ```
 
-Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw oraz rezerwuje jego nazwy
-strumieni, pliki magazynu i licznik rotacji. Odmowa nie zatrzymuje starego planu. Przyjęty
-plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca,
-a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik
-przełącza serwer w stan bezczynny.
+Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw oraz rezerwuje jego nazwy strumieni, pliki magazynu i licznik rotacji. Odmowa nie zatrzymuje starego planu. Przyjęty plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca, a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik przełącza serwer w stan bezczynny.
 
-Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej
-pliku startowego, aby przetrwała restart procesu.
+Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej pliku startowego, aby przetrwała restart procesu.
 
 ## JSON Lines dla aplikacji
 
-`--jsonl` udostępnia wersjonowane wyjście maszynowe dla `--hello`, `--dir`, `--detail`
-i `--select`. Wymaga jednoznacznego serwera; aplikacje powinny zawsze podawać go jawnie.
+`--jsonl` udostępnia wersjonowane wyjście maszynowe dla `--hello`, `--dir`, `--detail` i `--select`. Wymaga jednoznacznego serwera; aplikacje powinny zawsze podawać go jawnie.
 
 ```bash
 xqry --server laboratory --jsonl --hello
@@ -183,28 +155,17 @@ xqry --server laboratory --jsonl --detail temperature
 xqry --server laboratory --jsonl --select temperature --elimitqry 10
 ```
 
-Każdy wiersz stdout jest kompletnym obiektem JSON z `version: 1` i polem `event`.
-Obsługiwane zdarzenia to `pong`, `streams`, `schema`, `record`, `end` i `error`.
-Diagnostyka trafia na `stderr`. `--idle-timeout N` podaje w milisekundach dopuszczalny
-czas bez rekordu dla subskrypcji; zero wyłącza limit.
+Każdy wiersz stdout jest kompletnym obiektem JSON z `version: 1` i polem `event`. Obsługiwane zdarzenia to `pong`, `streams`, `schema`, `record`, `end` i `error`. Diagnostyka trafia na `stderr`. `--idle-timeout N` podaje w milisekundach dopuszczalny czas bez rekordu dla subskrypcji; zero wyłącza limit.
 
-Polecenia modyfikujące, `--bus`, YAML, pozostałe formaty wyjścia, `--null` i
-`--wait-server` nie łączą się z JSONL. Pełny kontrakt oraz gotowe klienty Python i C++
-opisuje [API monitorowania strumieni](../api-monitorowania-strumieni.md).
+Polecenia modyfikujące, `--bus`, YAML, pozostałe formaty wyjścia, `--null` i `--wait-server` nie łączą się z JSONL. Pełny kontrakt oraz gotowe klienty Python i C++ opisuje [API monitorowania strumieni](../api-monitorowania-strumieni.md).
 
 ## Jedno polecenie naraz
 
-`--select`, `--detail`, `--adhoc`, `--reset`, `--dir`, `--bus` i `--hello` są różnymi
-poleceniami; podanie kilku naraz kończy się kodem `22`. `--kill` może być świadomie
-połączone z `--select -m N` albo z `--adhoc`, aby zatrzymać serwer po wykonaniu operacji.
+`--select`, `--detail`, `--adhoc`, `--reset`, `--dir`, `--bus` i `--hello` są różnymi poleceniami; podanie kilku naraz kończy się kodem `22`. `--kill` może być świadomie połączone z `--select -m N` albo z `--adhoc`, aby zatrzymać serwer po wykonaniu operacji.
 
 ## Czekanie na serwer
 
-`--wait-server` odpytuje dostępność IPC zgodnie z `timing.server_startup_wait_s` i
-`timing.server_startup_poll_ms`. Przy jawnej nazwie czeka na nią. Bez nazwy ponawia routing:
-historycznie czeka na instancję bezimienną, a po pojawieniu się jednej nazwanej instancji
-wybiera ją automatycznie. Niejednoznaczność przy wielu serwerach jest zgłaszana od razu.
-`--bus` nie wymaga serwera i ignoruje czekanie.
+`--wait-server` odpytuje dostępność IPC zgodnie z `timing.server_startup_wait_s` i `timing.server_startup_poll_ms`. Przy jawnej nazwie czeka na nią. Bez nazwy ponawia routing: historycznie czeka na instancję bezimienną, a po pojawieniu się jednej nazwanej instancji wybiera ją automatycznie. Niejednoznaczność przy wielu serwerach jest zgłaszana od razu. `--bus` nie wymaga serwera i ignoruje czekanie.
 
 Typowy wzorzec testowy:
 
@@ -215,6 +176,4 @@ xqry --server test --wait-server --select strumien --elimitqry 10
 
 ## Informacje o wersji
 
-Informacje pod listą pomocy zawierają nazwę odnogi, skrót commita, wersję kompilatora,
-czas i typ budowania oraz ścieżkę dziennika. Opis formatu znajduje się w rozdziale
-[xretractor - Informacje o wersji](xretractor.md#informacje-o-wersji).
+Informacje pod listą pomocy zawierają nazwę odnogi, skrót commita, wersję kompilatora, czas i typ budowania oraz ścieżkę dziennika. Opis formatu znajduje się w rozdziale [xretractor - Informacje o wersji](xretractor.md#informacje-o-wersji).

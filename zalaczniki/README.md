@@ -6,18 +6,11 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
 - **[Budowanie produkcyjne i warianty diagnostyczne](budowanie-produkcyjne-i-warianty-badawcze.md)**
 
-  Opis kontraktu bezpieczeństwa produkcyjnego `release` oraz izolowanych trybów
-  `release-ablation` i `probe`. Rozdział przedstawia kontrolę czystości źródeł,
-  jawne wartości przełączników optymalizatora, rozdzielenie katalogów CMake i
-  Conan, weryfikację konfiguracji gotowej binarki oraz niezmiennik zgodności
-  wyniku między wariantami.
+  Opis kontraktu bezpieczeństwa produkcyjnego `release` oraz izolowanych trybów `release-ablation` i `probe`. Rozdział przedstawia kontrolę czystości źródeł, jawne wartości przełączników optymalizatora, rozdzielenie katalogów CMake i Conan, weryfikację konfiguracji gotowej binarki oraz niezmiennik zgodności wyniku między wariantami.
 
 - **[API monitorowania strumieni](api-monitorowania-strumieni.md)**
 
-  Wersjonowany kontrakt JSON Lines oraz opcjonalne biblioteki Python i C++ do
-  obserwacji strumieni jawnie nazwanej instancji. Rozdział opisuje mapowanie typów,
-  cykl życia subskrypcji, timeouty, ograniczone bufory, obsługę błędów oraz osobne
-  cele budowania, instalowania i testowania API.
+  Wersjonowany kontrakt JSON Lines oraz opcjonalne biblioteki Python i C++ do obserwacji strumieni jawnie nazwanej instancji. Rozdział opisuje mapowanie typów, cykl życia subskrypcji, timeouty, ograniczone bufory, obsługę błędów oraz osobne cele budowania, instalowania i testowania API.
 
 - **[Geneza systemu](geneza-systemu/README.md)**
 
@@ -49,11 +42,7 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
   Katalog wszystkich testów integracyjnych systemu z opisem weryfikowanej funkcjonalności. Testy integracyjne uruchamiają rzeczywiste binaria (`xretractor`, `xqry`, `xtrdb`) i porównują wyniki z wzorcami - w odróżnieniu od testów jednostkowych GTest, które testują izolowane klasy bibliotek.
 
-  Scenariusze znajdują się we wspólnym drzewie **`test/IntegrationTest`**. Testy
-  uruchamiające serwer otrzymują jedną z szesnastu przestrzeni `RDB_NAMESPACE`
-  i blokadę zasobu CTest dla swojego katalogu, dzięki czemu większość z nich może
-  działać równolegle bez kolizji nazw strumieni, IPC ani plików roboczych. Tylko
-  scenariusze badające produkcyjną, globalną tożsamość pozostają `RUN_SERIAL`.
+  Scenariusze znajdują się we wspólnym drzewie **`test/IntegrationTest`**. Testy uruchamiające serwer otrzymują jedną z szesnastu przestrzeni `RDB_NAMESPACE` i blokadę zasobu CTest dla swojego katalogu, dzięki czemu większość z nich może działać równolegle bez kolizji nazw strumieni, IPC ani plików roboczych. Tylko scenariusze badające produkcyjną, globalną tożsamość pozostają `RUN_SERIAL`.
 
   Uruchomienie: `ninja test` lub `ctest -R <nazwa> -V` w katalogu `build/Debug/`.
 

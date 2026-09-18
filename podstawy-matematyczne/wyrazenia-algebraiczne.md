@@ -84,8 +84,7 @@ Wszystkie powyższe formy można łączyć w dowolnie złożone wyrażenia – j
 
 ## Pokrycie przykładów w testach integracyjnych
 
-Każda z przytoczonych form wyrażeń ma swój odpowiednik we wspólnym katalogu
-`test/IntegrationTest` repozytorium RetractorDB, wykonywany przy każdej kompilacji projektu:
+Każda z przytoczonych form wyrażeń ma swój odpowiednik we wspólnym katalogu `test/IntegrationTest` repozytorium RetractorDB, wykonywany przy każdej kompilacji projektu:
 
 | Wyrażenie z rozdziału | Forma w teście | Test integracyjny |
 |---|---|---|

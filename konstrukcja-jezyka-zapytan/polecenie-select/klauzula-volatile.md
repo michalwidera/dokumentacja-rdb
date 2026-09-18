@@ -4,9 +4,7 @@ Klauzula `VOLATILE` w poleceniu `SELECT` tworzy strumień przechowywany w pamię
 
 ## Domyślna ulotność i wyjątek PERSISTENT
 
-Dyrektywa `DEFAULT VOLATILE` ustawia przechowywanie w pamięci dla wyników
-`SELECT` bez jawnej polityki oraz dla substratów kompilatora. Zastępuje więc
-powtarzane `VOLATILE` i dyrektywę `SUBSTRAT 'memory'`:
+Dyrektywa `DEFAULT VOLATILE` ustawia przechowywanie w pamięci dla wyników `SELECT` bez jawnej polityki oraz dla substratów kompilatora. Zastępuje więc powtarzane `VOLATILE` i dyrektywę `SUBSTRAT 'memory'`:
 
 ```rql
 DEFAULT VOLATILE
@@ -15,20 +13,11 @@ SELECT sensor[0]*100 STREAM scaled  FROM sensor
 SELECT scaled[0]     STREAM history FROM scaled PERSISTENT
 ```
 
-`scaled` pozostaje w pamięci, a `history` zapisuje dane na dysku według zwykłych
-zasad `FILE`, `RETENTION` i `STORAGE`. `PERSISTENT` dotyczy tylko wyniku danego
-`SELECT`; jego substraty nadal dziedziczą domyślną ulotność.
+`scaled` pozostaje w pamięci, a `history` zapisuje dane na dysku według zwykłych zasad `FILE`, `RETENTION` i `STORAGE`. `PERSISTENT` dotyczy tylko wyniku danego `SELECT`; jego substraty nadal dziedziczą domyślną ulotność.
 
-Dyrektywa może wystąpić tylko raz, przed pierwszym `DECLARE`, `SELECT` lub `RULE`.
-Nie zmienia źródeł `DECLARE`. Bez niej dotychczasowe programy zachowują swoje
-ustawienia. `VOLATILE` i `PERSISTENT` są wzajemnie wykluczającymi się klauzulami.
+Dyrektywa może wystąpić tylko raz, przed pierwszym `DECLARE`, `SELECT` lub `RULE`. Nie zmienia źródeł `DECLARE`. Bez niej dotychczasowe programy zachowują swoje ustawienia. `VOLATILE` i `PERSISTENT` są wzajemnie wykluczającymi się klauzulami.
 
-Jawne `STORAGE profil` przy `SELECT` zastępuje ustawienie domyślne; np.
-`STORAGE DEFAULT` wybiera zwykły magazyn plikowy. Jawne `VOLATILE` zachowuje
-pierwszeństwo nad `STORAGE`, tak jak wcześniej. Połączenie `PERSISTENT STORAGE
-MEMORY` jest błędem. Jawne `SUBSTRAT 'profil'` wybiera magazyn substratów niezależnie
-od kolejności tych dwóch dyrektyw w nagłówku. Samo `FILE` lub `RETENTION` nie
-wyłącza domyślnej ulotności: do zapisu historii należy dodać `PERSISTENT`.
+Jawne `STORAGE profil` przy `SELECT` zastępuje ustawienie domyślne; np. `STORAGE DEFAULT` wybiera zwykły magazyn plikowy. Jawne `VOLATILE` zachowuje pierwszeństwo nad `STORAGE`, tak jak wcześniej. Połączenie `PERSISTENT STORAGE MEMORY` jest błędem. Jawne `SUBSTRAT 'profil'` wybiera magazyn substratów niezależnie od kolejności tych dwóch dyrektyw w nagłówku. Samo `FILE` lub `RETENTION` nie wyłącza domyślnej ulotności: do zapisu historii należy dodać `PERSISTENT`.
 
 ## Działanie
 
@@ -44,8 +33,7 @@ if (ctx->VOLATILE()) {
 }
 ```
 
-Następnie kompilator wyznacza pojemność wymaganą przez plan. Jeśli inny strumień czyta
-historię wyniku `VOLATILE`, bufor może pomieścić więcej niż jeden rekord. Oznacza to, że:
+Następnie kompilator wyznacza pojemność wymaganą przez plan. Jeśli inny strumień czyta historię wyniku `VOLATILE`, bufor może pomieścić więcej niż jeden rekord. Oznacza to, że:
 
 * bufor w pamięci przechowuje co najmniej ostatni rekord oraz historię potrzebną konsumentom,
 * dane nie trafiają na dysk,

@@ -96,20 +96,13 @@ c_{\left\lceil \frac{n\Delta_{a}}{\Delta_{b}}\right\rceil } & \Delta_{b}<\Delta_
 
 Te operacje oznaczać będziemy znakami + oraz -.
 
-Wykonanie przyczynowe rozszerza matematyczny strumień S = (s<sub>n</sub>, ∆)
-o **początek logiczny** O<sub>S</sub> ∈ ℕ oraz **ogon startowy**
-W<sub>S</sub> ∈ ℕ. Początek logiczny wskazuje indeks pierwszego rekordu, który
-w ogóle istnieje, a ogon określa, przez ile kolejnych slotów istniejący rekord
-nie jest jeszcze gotowy. Żaden z tych slotów nie jest rekordem: silnik nie
-wstawia zer ani zastępczych rekordów all-null.
+Wykonanie przyczynowe rozszerza matematyczny strumień S = (s<sub>n</sub>, ∆) o **początek logiczny** O<sub>S</sub> ∈ ℕ oraz **ogon startowy** W<sub>S</sub> ∈ ℕ. Początek logiczny wskazuje indeks pierwszego rekordu, który w ogóle istnieje, a ogon określa, przez ile kolejnych slotów istniejący rekord nie jest jeszcze gotowy. Żaden z tych slotów nie jest rekordem: silnik nie wstawia zer ani zastępczych rekordów all-null.
 
 \\[
 \widehat{S} := \left((s_n,\Delta),O_S,W_S\right)
 \\]
 
-Operację przesunięcia definiujemy jako odczyt starszego indeksu: rekord
-wynikowy \\(n\\) niesie treść rekordu \\(n-m\\) producenta. W realizacji
-przyczynowej:
+Operację przesunięcia definiujemy jako odczyt starszego indeksu: rekord wynikowy \\(n\\) niesie treść rekordu \\(n-m\\) producenta. W realizacji przyczynowej:
 
 \\[
 O_{\tau_m(S)}=O_S+m,
@@ -118,12 +111,7 @@ W_{\tau_m(S)}=\max(0,W_S-m),
 \qquad m\in\mathbb{N}
 \\]
 
-Przesunięcie nie odrzuca elementów źródła i nie wytwarza prefiksu. Przenosi
-opóźnienie do początku logicznego, a odczyt starszego rekordu może pochłonąć
-część ogona producenta. Kompilator raportuje obie wielkości jako `origin=` i
-`tail=`. Runtime nie emituje rekordów w żadnym ze slotów milczenia, których
-jest `origin + tail`. Szczegóły: [Ogony, początki logiczne i obserwowalność
-operatorów](ogony-i-obserwowalnosc-operatorow.md).
+Przesunięcie nie odrzuca elementów źródła i nie wytwarza prefiksu. Przenosi opóźnienie do początku logicznego, a odczyt starszego rekordu może pochłonąć część ogona producenta. Kompilator raportuje obie wielkości jako `origin=` i `tail=`. Runtime nie emituje rekordów w żadnym ze slotów milczenia, których jest `origin + tail`. Szczegóły: [Ogony, początki logiczne i obserwowalność operatorów](ogony-i-obserwowalnosc-operatorow.md).
 
 Operację przesunięcia oznaczać będę za pomocą >.
 
