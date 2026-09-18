@@ -30,6 +30,8 @@ Allowed options:
   -f [ --influxdb ]              influxDB output mode
   -p [ --gnuplot ] arg           x,y - gnuplot output mode
   -z [ --gnuplot-rtl ]           gnuplot output: newest samples on the right
+  --gnuplot-ohlc                 gnuplot output: row = open, high, low, close,
+                                 then the samples of that candle
   -e [ --config ] arg            config file (TOML); overrides search
   -h [ --help ]                  produce help message
   -c [ --needctrlc ]             force ctl+c for stop this tool
@@ -118,8 +120,9 @@ Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymian
 | `-f` / `--influxdb` | Line protocol InfluxDB. |
 | `-p` / `--gnuplot x,y` | Dane i polecenia do bezpośredniego zasilenia gnuplot. |
 | `-z` / `--gnuplot-rtl` | Modyfikator gnuplot umieszczający najnowsze próbki po prawej. |
+| `--gnuplot-ohlc` | Modyfikator gnuplot rysujący wykres świecowy: rekord to otwarcie, maksimum, minimum, zamknięcie i dalej próbki tej świecy. |
 
-Można wybrać tylko jeden format. `--gnuplot-rtl` wymaga `--gnuplot`. Surowy format przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
+Można wybrać tylko jeden format. `--gnuplot-rtl` i `--gnuplot-ohlc` wymagają `--gnuplot` i można je łączyć. W trybie `--gnuplot-ohlc` pierwszy parametr `-p` liczy próbki, a nie świece; układ rekordu i reguły rysowania opisuje przykład [Wykres świecowy (OHLC)](../../przyklady-zastosowan/wykres-swiecowy-ohlc.md). Surowy format przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
 
 ## Polecenia ad hoc
 

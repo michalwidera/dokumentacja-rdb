@@ -61,6 +61,7 @@
 * [Przykłady zastosowań](przyklady-zastosowan/README.md)
   * [Implementacja filtru sygnałowego](przyklady-zastosowan/implementacja-filtru-sygnalowego.md)
   * [Wizualizacja EKG i Detekcja Arytmii - baza MIT-BIH](przyklady-zastosowan/wizualizacja-ekg-mit-bih.md)
+  * [Wykres świecowy (OHLC)](przyklady-zastosowan/wykres-swiecowy-ohlc.md)
 * [Załączniki](zalaczniki/README.md)
   * [Budowanie produkcyjne i warianty diagnostyczne](zalaczniki/budowanie-produkcyjne-i-warianty-badawcze.md)
   * [API monitorowania strumieni](zalaczniki/api-monitorowania-strumieni.md)

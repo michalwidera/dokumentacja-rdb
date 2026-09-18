@@ -63,3 +63,16 @@ Wywołamy następnie ponownie program swirly zobaczymy bardziej dokładny rysune
 Na diagramie przedstawionym na rysunku Rys. 6 widać, które kulki zostały połączone i z których kulek powstały. Przypominam jednak że to obraz poprawiony ręcznie, dla celów tego opracowania – generator wbudowany w kompilator nie realizuje tej funkcjonalności.
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `Pattern1`, `issue167_triarg` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+
+## Ta sama nazwa w FROM więcej niż raz
+
+Strumień może wystąpić w wyrażeniu `FROM` więcej niż raz - wprost i pod innym operatorem, np. `bar + MAX(bar)` albo `src + src>1`, lub dwukrotnie pod różnymi operatorami, np. `src@(1,5) + src@(2,3)`. Rekord wejściowy zawiera wtedy osobny blok pól dla każdego wystąpienia, a odwołanie po nazwie (`bar[0]`, `src[4]`) oraz rozwinięcie `SELECT *` muszą wskazać jeden z nich. Kompilator wybiera pierwsze wystąpienie w stałej kolejności: najpierw bezpośrednie operandy wyrażenia w kolejności zapisu, dopiero potem strumienie ukryte pod operatorami (reduktorem, przesunięciem, oknem), również w kolejności zapisu. Tę samą kolejność stosuje kontrola zakresu indeksu, więc granica `src[k]` jest mierzona na tym wystąpieniu, które odwołanie przeczyta.
+
+```rql
+DECLARE v INTEGER[3] STREAM bar, 1/50 FILE 'a.txt'
+SELECT * STREAM chk FROM bar + MAX(bar)
+```
+
+Strumień `chk` ma cztery pola: trzy pola `bar` stojącego wprost w `FROM` i maksimum rekordu. Operand stojący wprost zawsze wskazuje własne pola, także wtedy, gdy zapisano go jako drugi: w `src>1 + src` odwołanie `src[0]` czyta próbkę bieżącą, a nie przesuniętą. W `src@(1,5) + src@(2,3)` nazwa `src` jest osiągalna tylko przez okna, więc wskazuje pierwsze z nich: `src[4]` jest poprawne, a `src[5]` jest błędem kompilacji. Aby odwołać się do pól drugiego wystąpienia, należy nadać mu własną nazwę osobnym zapytaniem, np. `SELECT * STREAM w2 FROM src@(2,3)`, i użyć `w2` w wyrażeniu `FROM`.
+
+> **_NOTE:_** Regułę pierwszego wystąpienia sprawdzają testy jednostkowe `ut_compiler`: `direct_operand_keeps_its_own_slots_beside_a_nested_occurrence` oraz `range_check_and_offset_agree_on_a_name_reached_twice`.

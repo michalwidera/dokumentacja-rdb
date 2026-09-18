@@ -32,4 +32,17 @@ Każdy przykład jest kompletny - zawiera opis problemu, projekt zapytań RQL, u
 
   Wynikiem jest działający detektor QRS przetwarzający dwukanałowy sygnał EKG (MLII + V1) z częstotliwością 360 Hz, realizowany wyłącznie zapytaniami RQL bez specjalistycznych bibliotek.
 
+- **[Wykres świecowy (OHLC)](wykres-swiecowy-ohlc.md)**
+
+  Przykład demonstruje, jak z regularnego strumienia próbek zbudować **świece OHLC** (otwarcie, maksimum, minimum, zamknięcie) i narysować je na żywo razem z próbkami, z których powstały. Ta sama konstrukcja pasuje do każdego sygnału, który ogląda się w przedziałach: notowań, pomiarów czujników, obciążenia.
+
+  Przykład obejmuje:
+
+  - wygładzenie szumu agregatem okna rekordowego `AVG(... : 25)`,
+  - okno rozłączne z agregacją lustrzaną `@(10,-10)`, które wyznacza granice świecy i kolejność jej próbek,
+  - reduktory `MAX` i `MIN` w klauzuli `FROM` oraz złożenie świecy i jej próbek w jeden rekord operatorem `+`,
+  - wizualizację w trybie `xqry --gnuplot-ohlc` uruchamianą celem `ninja candlestick`.
+
+  Wynikiem jest wykres 25 świec po 10 próbek, odświeżany co 0,2 s, w którym każda świeca stoi dokładnie nad próbkami, z których powstała.
+
 </div>
