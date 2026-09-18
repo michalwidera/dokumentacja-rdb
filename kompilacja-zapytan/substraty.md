@@ -336,7 +336,7 @@ Efekt uboczny: `mysum` staje się węzłem wspólnym - obsługuje zarówno włas
 
 ## Aktualizacja schematu po wchłonięciu
 
-Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuje w `lSchema` sekwencję instrukcji opisujących, jak zbudować wartość wyjściową każdego pola - w tym tokeny `PUSH_ID(nazwa_strumienia, N)`, które mówią: „weź N-te pole z bufora wejściowego o nazwie `nazwa_strumienia`". Gdy substrat zostaje wchłonięty, te tokeny wciąż odnoszą się do starej, usuniętej nazwy substratu. Krok `localizeFieldOffsets()` buduje mapę offsetów na podstawie tokenów `PUSH_STREAM` w programie - jeśli klucz z `PUSH_ID` nie pasuje do żadnego wpisu w mapie, domyślnie przyjmuje offset 0.
+Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuje w `lSchema` sekwencję instrukcji opisujących, jak zbudować wartość wyjściową każdego pola - w tym tokeny `PUSH_ID(nazwa_strumienia, N)`, które mówią: „weź N-te pole z bufora wejściowego o nazwie `nazwa_strumienia`". Gdy substrat zostaje wchłonięty, te tokeny wciąż odnoszą się do starej, usuniętej nazwy substratu. Krok `localizeFieldOffsets()` buduje mapę offsetów ze źródeł klauzuli `FROM` - tokenów `PUSH_STREAM` w programie oraz źródeł schowanych za substratami kompilatora - i według niej zamienia każdy `PUSH_ID(źródło, N)` na pozycję we własnym buforze wejściowym. Nazwa, której w mapie nie ma, przerywa kompilację błędem krytycznym, bo jej pozycji nie da się wyznaczyć.
 
 ### Scenariusz błędu przy niezerowym offsecie
 
@@ -351,14 +351,14 @@ SELECT * STREAM mysum  FROM s1+s2
 SELECT * STREAM merged FROM s3+(s1+s2)
 ```
 
-Kompilator tworzy substrat `STREAM_ADD_s1_s2`. Strumień `merged` ma dwa źródła: `s3` (offset 0) i substrat `STREAM_ADD_s1_s2` (offset 1, bo s3 zajmuje pozycję 0). Funkcja `buildOutputSchema` zapisuje w `merged.lSchema` tokeny:
+Kompilator tworzy substrat `STREAM_ADD_s1_s2`. Strumień `merged` ma dwa źródła: `s3` (offset 0) i substrat `STREAM_ADD_s1_s2` (offset 1, bo s3 zajmuje pozycję 0). Dla pól pochodzących z substratu funkcja `buildOutputSchema` zapisuje w `merged.lSchema` tokeny:
 
 ```rasm
-PUSH_ID(STREAM_ADD_s1_s2, 0)   ← pole a ze źródła na offsecie 1
-PUSH_ID(STREAM_ADD_s1_s2, 1)   ← pole b ze źródła na offsecie 1
+PUSH_ID(STREAM_ADD_s1_s2, 0)   ← pole STREAM_ADD_s1_s2_1 (a z s1)
+PUSH_ID(STREAM_ADD_s1_s2, 1)   ← pole STREAM_ADD_s1_s2_2 (b z s2)
 ```
 
-Po wchłonięciu `deduplicateSubstrats()` przepina `PUSH_STREAM` z `STREAM_ADD_s1_s2` na `mysum`. Jednak bez aktualizacji `lSchema` tokeny `PUSH_ID` wciąż noszą starą nazwę. Gdy `localizeFieldOffsets()` nie znajdzie `STREAM_ADD_s1_s2` w mapie offsetów, przyjmuje offset 0 - kolizję z polami `s3`. Efekt: pola `a` i `b` z `mysum` były odczytywane z offsetu 0 (pozycja `s3`) zamiast z offsetu 1 (pozycja `mysum`).
+Po wchłonięciu `deduplicateSubstrats()` przepina `PUSH_STREAM` z `STREAM_ADD_s1_s2` na `mysum`. Bez aktualizacji `lSchema` tokeny `PUSH_ID` nosiłyby jednak starą nazwę, której `localizeFieldOffsets()` nie znajdzie w mapie offsetów. Dziś kończy się to błędem krytycznym kompilacji. Do 2026-09-14 brakujący klucz dostawał po cichu offset 0, czyli pozycję `s3` - pola z `mysum` były wtedy odczytywane z offsetu 0 zamiast z offsetu 1, a kompilator o tym nie informował.
 
 ### Poprawka: aktualizacja lSchema w deduplicateSubstrats
 
@@ -367,20 +367,22 @@ Aby uniknąć tej rozbieżności, `deduplicateSubstrats()` po zaktualizowaniu to
 - tokeny `PUSH_ID(stara_nazwa, N)` na `PUSH_ID(nowa_nazwa, N)` - to przypadek pól z `buildOutputSchema` dla `STREAM_ADD`,
 - tokeny `PUSH_ID2("stara_nazwa[N]")` na `PUSH_ID2("nowa_nazwa[N]")` - to przypadek symbolicznych nazw tworzonych przez `buildOutputSchema` dla `STREAM_TIMEMOVE`, `STREAM_HASH`, `STREAM_SUBTRACT`.
 
-Po poprawce wyjście kompilatora dla powyższego przykładu wygląda poprawnie:
+Po poprawce wyjście kompilatora (`xretractor -c`) dla strumienia `merged` z powyższego przykładu wygląda poprawnie:
 
 ```rasm
 merged(1/1)
-        :- PUSH_STREAM(mysum)
         :- PUSH_STREAM(s3)
+        :- PUSH_STREAM(mysum)
         :- STREAM_ADD
-        a: INTEGER
+        s3_0: INTEGER
+                PUSH_ID(merged[0])
+        STREAM_ADD_s1_s2_1: INTEGER
                 PUSH_ID(merged[1])
-        b: INTEGER
+        STREAM_ADD_s1_s2_2: INTEGER
                 PUSH_ID(merged[2])
 ```
 
-Pola `a` i `b` z `mysum` mają offset 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` - po polu `c` ze strumienia `s3`.
+Pola pochodzące z `mysum` zaczynają się od offsetu 1 (`merged[1]`, `merged[2]`), co odpowiada faktycznej pozycji `mysum` w buforze `merged` - po polu `s3_0` ze strumienia `s3` na pozycji 0. Pola zachowują nazwę wchłoniętego substratu: nazwy pól strumieni użytkownika trafiają do deskryptora `.desc`, więc ustala się je przed optymalizacjami, a kontrola `verifyUserFieldNamesPreserved()` pilnuje, by deduplikacja ich nie zmieniła.
 
 ### Kaskadowe wchłonięcie
 
@@ -394,4 +396,4 @@ SELECT * STREAM shifted FROM (s1+s2)>1
 SELECT * STREAM merged  FROM s3+((s1+s2)>1)
 ```
 
-w pierwszej rundzie `mysum` wchłania `STREAM_ADD_s1_s2` i przepisuje jego nazwy - również w schemacie pośredniego substratu `STREAM_TIMEMOVE_STREAM_ADD_s1_s2`. Dzięki temu w drugiej rundzie `shifted` może wchłonąć ten substrat (warunek programowy jest teraz spełniony, bo oba wskazują na `mysum`). Po dwóch rundach w planie nie pozostaje żaden substrat automatyczny, a `merged` korzysta bezpośrednio z `s3` i `shifted`.
+w pierwszej rundzie `mysum` wchłania `STREAM_ADD_s1_s2` i przepisuje jego nazwy - również w schemacie pośredniego substratu `STREAM_TIMEMOVE_1_STREAM_ADD_s1_s2`. Dzięki temu w drugiej rundzie `shifted` może wchłonąć ten substrat (warunek programowy jest teraz spełniony, bo oba wskazują na `mysum`). Po dwóch rundach w planie nie pozostaje żaden substrat automatyczny, a `merged` korzysta bezpośrednio z `s3` i `shifted`.
