@@ -73,4 +73,5 @@
     * [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/geneza-systemu/dlaczego-wybrano-taka-nazwe-dla-systemu.md)
   * [Kolorowanie składni RQL](zalaczniki/kolorowanie-skladni/README.md)
   * [Testy integracyjne](zalaczniki/testy-integracyjne.md)
+  * [Proces instalacji](zalaczniki/proces-instalacji.md)
 * [Literatura](literatura.md)

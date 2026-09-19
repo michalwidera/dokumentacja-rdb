@@ -170,6 +170,8 @@ Polecenia modyfikujące, `--bus`, YAML, pozostałe formaty wyjścia, `--null` i 
 
 `--wait-server` odpytuje dostępność IPC zgodnie z `timing.server_startup_wait_s` i `timing.server_startup_poll_ms`. Przy jawnej nazwie czeka na nią. Bez nazwy ponawia routing: historycznie czeka na instancję bezimienną, a po pojawieniu się jednej nazwanej instancji wybiera ją automatycznie. Niejednoznaczność przy wielu serwerach jest zgłaszana od razu. `--bus` nie wymaga serwera i ignoruje czekanie.
 
+Gotowość wymaga otwieralnych obiektów IPC i żywej instancji w magistrali. Gdy magistrala jest niedostępna, sprawdzana jest utrzymywana blokada tożsamości IPC. Same obiekty pozostawione po awarii nie oznaczają gotowego serwera.
+
 Typowy wzorzec testowy:
 
 ```bash

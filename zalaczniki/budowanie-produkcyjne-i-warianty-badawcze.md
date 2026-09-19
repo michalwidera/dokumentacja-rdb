@@ -1,25 +1,28 @@
 # Budowanie produkcyjne i warianty diagnostyczne
 
-Skrypt `scripts/buildrdb.sh` rozdziela budowanie produkcyjne od kompilacji z wyłączanymi optymalizacjami oraz włączaną instrumentacją. Rozdzielenie obejmuje konfigurację CMake, katalogi wynikowe, generatory Conan oraz kontrolę gotowej binarki.
+Skrypt `scripts/buildrdb.sh` udostępnia produkcyjne budowanie `release` oraz tryby diagnostyczne. Warianty `release-ablation` i `probe` mają osobne konfiguracje CMake, katalogi wynikowe i generatory Conan. Kontrola gotowej binarki potwierdza użyte przełączniki. Przygotowanie narzędzi i instalację opisuje [Proces instalacji](proces-instalacji.md).
 
 > **⚠️ Ostrzeżenie**
 >
-> Binarki z `release-ablation` i `probe` są wariantami diagnostycznymi. Nie należy ich instalować ani pakować jako wydania produkcyjne.
+> Binarki z `release-dirty`, `release-ablation` i `probe` są wariantami diagnostycznymi. Nie należy ich instalować ani pakować jako wydania produkcyjne.
 
 ## Tryby budowania
 
 | Polecenie | Przeznaczenie | Katalog binarny |
 | --- | --- | --- |
 | `scripts/buildrdb.sh release` | zweryfikowane wydanie produkcyjne | `build/Release` |
+| `scripts/buildrdb.sh release-dirty` | diagnostyka lokalnych zmian, bez kwalifikacji produkcyjnej | `build/Release` |
 | `scripts/buildrdb.sh release-ablation` | wybrana konfiguracja optymalizatora i sondy | `build/Release-Ablation/<konfiguracja>` |
 | `scripts/buildrdb.sh probe` | diagnostyka z włączoną sondą | `build/Release-Probe` |
 
-Tryby diagnostyczne korzystają również z osobnych katalogów generatorów Conan:
+Tryby `release-ablation` i `probe` korzystają również z osobnych katalogów generatorów Conan:
 
 - `build/Conan-Release-Ablation/<konfiguracja>`,
 - `build/Conan-Release-Probe`.
 
 Dzięki temu ich cache CMake, definicje kompilatora i binaria nie są zapisywane w produkcyjnym `build/Release`.
+
+`release-dirty` dopuszcza niezatwierdzone zmiany i przebudowuje ten sam katalog `build/Release`, którego używa `release`. Nadal jawnie ustawia przełączniki optymalizatora i sprawdza `--build-info`, ale wynik służy do diagnostyki zmian przed commitem. Nie jest izolowanym wariantem ani wydaniem produkcyjnym; przed przygotowaniem wydania należy ponownie wykonać `release` z czystego drzewa.
 
 ## Kontrakt produkcyjnego `release`
 
@@ -181,6 +184,24 @@ scripts/buildrdb.sh release package
 
 Opcja `package` ponownie ustawia produkcyjne wartości przełączników i przebudowuje wybrany katalog przed uruchomieniem CPack. Nie należy uruchamiać pakowania na katalogach `Release-Ablation` ani `Release-Probe`.
 
+Pakiety mają różne przeznaczenie:
+
+| Wariant | Zawartość domyślna i ścieżki |
+| --- | --- |
+| Linux: `package` (DEB/TGZ) | Trzy programy pod `/usr/bin`, jednostka systemd, licencja, domyślny TOML i przykłady konfiguracji. |
+| Linux: `package-portable` | Ścieżki względne: `bin/`, `share/doc/retractordb/LICENSE`, `share/retractordb/retractor.toml`; bez jednostki systemd. Usługę może utworzyć instalator webowy. |
+| Rozwojowy port Apple: `package` (TGZ) | Prefiks `/usr/local`, bez komponentu usługowego systemd; brak dostarczonej konfiguracji launchd. |
+
+CPack nie generuje pakietu źródłowego. Test `it_packaging` sprawdza dokładną zawartość DEB, jeśli dostępne jest `dpkg-deb`, oraz archiwum portable. Skrypty przygotowania linuxowych zasobów wydania znajdują się w `scripts/release_package/`; ich wykonanie i publikacja są odrębne od lokalnej instalacji.
+
+## Możliwości platformy i sanitizery
+
+Konfiguracja CMake sprawdza dostępne funkcje platformy i zapisuje wyniki `RDB_HAS_*` w `generated/platformConfig.h`. Lista `RDB_PLATFORM_FALLBACKS` określa świadomie dopuszczone ścieżki zastępcze. Na Linuksie domyślnie jest pusta. Jeśli kontrolowana próba wybiera niezadeklarowaną ścieżkę, konfiguracja kończy się błędem; najpierw należy sprawdzić `CMakeFiles/CMakeConfigureLog.yaml`, zamiast automatycznie dopisywać brakującą funkcję do listy.
+
+Opcja CMake `-DRDB_SANITIZE=address,undefined` włącza AddressSanitizer i UndefinedBehaviorSanitizer; wykrycie niezdefiniowanego zachowania przerywa wykonanie. Jest to argument konfiguracji CMake, a nie dodatkowa opcja `buildrdb.sh`. Sanitizery wymagają przebudowania testowanych binariów.
+
+Na rozwojowym porcie Apple gotowym wejściem jest `scripts/macos-build.sh --sanitize`. Zwykły przebieg testów bez Valgrinda nie włącza sanitizerów automatycznie. `scripts/macos-build.sh release` wybiera konfigurację Release, ale nie realizuje produkcyjnego kontraktu `buildrdb.sh release`. Pełny przebieg i ograniczenia opisuje [środowisko rozwojowe Apple](proces-instalacji.md#środowisko-rozwojowe-apple).
+
 ## Opcjonalne API klienckie
 
 Katalog `api/` jest rozwijany i testowany razem z silnikiem, ale nie należy do domyślnego produktu. Zwykłe cele `ninja`, `ninja install`, `ninja test` oraz `ninja package` pozostawiają biblioteki i testy API poza wynikiem.
@@ -193,6 +214,6 @@ Jawne wejścia są rozdzielone:
 | `ninja test-api` | Buduje testowego klienta C++ i uruchamia testy z etykietą `api`. |
 | `cmake -DRDB_WITH_API=ON .` | Dołącza komponent `api` do pakietów CPack; zwykły cel `test` przestaje wtedy odfiltrowywać etykietę `api`. |
 
-Przełącznik pakowania musi być ustawiony podczas konfiguracji, ponieważ CPack ustala listę komponentów właśnie wtedy. Bez `RDB_WITH_API=ON` pakiety `.deb` i `.tar.gz` zawierają wyłącznie silnik, jednostkę systemd i przykłady konfiguracji. Test `it_packaging` chroni ten domyślny, minimalny zestaw.
+Przełącznik pakowania musi być ustawiony podczas konfiguracji, ponieważ CPack ustala listę komponentów właśnie wtedy. Bez `RDB_WITH_API=ON` pakiety nie zawierają bibliotek API; pozostała zawartość zależy od wariantu pakietu opisanego wyżej. Test `it_packaging` chroni domyślny zestaw Linux DEB i portable.
 
 Cele C++ API są zawsze znane CMake, ale mają `EXCLUDE_FROM_ALL`. Reguły instalacji należą do osobnego komponentu `api`, więc samo `ninja install` ich nie wykonuje. Szczegóły użycia bibliotek i kontraktu JSONL zawiera rozdział [API monitorowania strumieni](api-monitorowania-strumieni.md).

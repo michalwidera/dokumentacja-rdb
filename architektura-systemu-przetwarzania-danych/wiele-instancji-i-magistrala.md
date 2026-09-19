@@ -22,13 +22,17 @@ Jawne `--name` ma pierwszeństwo przed konfiguracją. Nazwa musi pasować do `[a
 
 Brak nazwy zachowuje historyczną tożsamość: nazwy obiektów IPC i pliku blokady nie mają sufiksu. Taka instancja również pojawia się w magistrali, jako `(unnamed)`, i uczestniczy w kontroli kolizji.
 
-Zmienna `RDB_NAMESPACE` tworzy osobną przestrzeń nazw instancji, magistrali i IPC oraz, jeżeli nie podano `--name` ani `--autoname`, staje się domyślną nazwą serwera i celem `xqry`. Jest używana przede wszystkim przez równoległe testy integracyjne. Jawne opcje `--name`, `--autoname` i `--server` pozostają nadrzędne. Również limit jednej usługi jest egzekwowany osobno w każdej takiej przestrzeni.
+Zmienna `RDB_NAMESPACE` wybiera osobny segment magistrali oraz, jeżeli nie podano `--name` ani `--autoname`, staje się domyślną nazwą serwera i celem `xqry`. Jest używana przede wszystkim przez równoległe testy integracyjne. Jawne opcje `--name`, `--autoname` i `--server` pozostają nadrzędne. Limit jednej usługi jest egzekwowany osobno w każdej przestrzeni magistrali. Różne wartości `RDB_NAMESPACE` przy tej samej jawnej nazwie serwera nie rozdzielają jednak obiektów IPC: o ich nazwach decyduje wybrana tożsamość instancji.
+
+Przed uruchomieniem instancja zajmuje blokadę swojego pliku w katalogu `paths.lock_dir` (domyślnie katalogu tymczasowym) oraz dodatkową blokadę tożsamości IPC pod `/tmp/xretractor_ipc.<nazwa-kolejki-poleceń>.lock`. Druga lokalizacja jest stała i niezależna od `TMPDIR` oraz `paths.lock_dir`. Zajęta tożsamość IPC blokuje start przed usuwaniem artefaktów i tworzeniem IPC, również gdy magistrala jest niedostępna. Zmiana katalogu blokad lub przestrzeni magistrali nie pozwala przejąć obiektów żywego serwera.
 
 ## Zasoby prywatne i wspólne
 
-Nazwane instancje mają rozłączne obiekty Boost.Interprocess. Nazwy bazowe kolejki poleceń, segmentu odpowiedzi i muteksu otrzymują sufiks instancji, a kolejka subskrybenta zawiera również PID klienta. Zatrzymanie jednej instancji usuwa wyłącznie jej IPC i kończy tylko jej subskrypcje.
+Nazwane instancje mają rozłączne obiekty Boost.Interprocess. Nazwy bazowe kolejki poleceń, segmentu odpowiedzi i muteksu otrzymują sufiks instancji, a kolejka subskrybenta zawiera również PID klienta. Zatrzymanie jednej instancji kończy tylko jej subskrypcje i usuwa jej IPC; może również posprzątać porzucone zasoby po martwych procesach. Zasoby żywych instancji pozostają chronione.
 
 Magistrala jest wspólna dla hosta lub przestrzeni `RDB_NAMESPACE`. Każdy żywy serwer publikuje w niej nazwę, PID, tryby pracy, plik planu i nazwy strumieni. Slot jest uznawany za żywy tylko wtedy, gdy PID oraz czas startu zgadzają się z `/proc`; proces zombie nie blokuje zasobów.
+
+Bieżąca wersja układu używa segmentu `xrdbbus_v6`, a w przestrzeni testowej `xrdbbus_v6_<RDB_NAMESPACE>`. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v5 i v6 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
 
 Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 
@@ -42,7 +46,7 @@ Przy `xqry --reset` zasoby nowego planu są najpierw rezerwowane. Dopiero po pop
 
 > **⚠️ Ostrzeżenie**
 >
-> Niedostępność lub uszkodzenie magistrali nie zatrzymuje pojedynczego serwera. Start jest dopuszczany z ostrzeżeniem, ale globalna ochrona przed kolizjami nie jest wtedy egzekwowana. To tryb awaryjny, a nie poprawna konfiguracja wieloserwerowa.
+> Niedostępność lub uszkodzenie magistrali nie zatrzymuje pojedynczego serwera, o ile może on zająć blokady instancji i tożsamości IPC. Start jest dopuszczany z ostrzeżeniem, ale globalna ochrona nazw strumieni i ścieżek magazynu nie jest wtedy egzekwowana. Blokada tożsamości IPC nadal obowiązuje. To tryb awaryjny, a nie poprawna konfiguracja wieloserwerowa.
 
 ## Routing poleceń `xqry`
 

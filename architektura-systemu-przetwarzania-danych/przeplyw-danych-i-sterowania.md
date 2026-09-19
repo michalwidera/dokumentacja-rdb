@@ -58,7 +58,9 @@ Każda subskrypcja xqry ma własną kolejkę zawierającą nazwę serwera i PID 
 
 **6. Sprzątanie zasobów IPC**
 
-Na zakończenie xretractor usuwa własny segment odpowiedzi, kolejkę poleceń, muteks i kolejki swoich klientów, zwalnia plik blokady oraz slot w magistrali. Zasoby innych instancji pozostają nietknięte.
+Na zakończenie xretractor usuwa własny segment odpowiedzi, kolejkę poleceń, muteks i kolejki swoich klientów oraz zwalnia slot magistrali i blokady. Właściciel usuwa pliki blokad przed ich zwolnieniem. Dodatkowe sprzątanie przy wyjściu usuwa dostępne porzucone zasoby martwych instancji; zasoby żywych procesów pozostają nietknięte. Ostatni użytkownik segmentu magistrali może go usunąć po uzyskaniu wyłącznej blokady obecności.
+
+Po `SIGKILL` procedury wyjścia nie działają i zasoby mogą pozostać. Polecenie `xretractor --cleanup` pozwala posprzątać rozpoznane pozostałości bez uruchamiania planu. Jego zakres, ograniczenia i liczniki opisano w [opcjach xretractor](../zalaczniki/opcje-wywolania/xretractor.md#sprzątanie-pozostałości). Nie usuwa ono kolejek odpowiedzi klientów ani segmentów starszych wersji magistrali.
 
 ### Błąd krytyczny i sprzątanie awaryjne
 

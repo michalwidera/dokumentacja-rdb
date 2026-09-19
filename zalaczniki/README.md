@@ -42,8 +42,12 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
   Katalog wszystkich testów integracyjnych systemu z opisem weryfikowanej funkcjonalności. Testy integracyjne uruchamiają rzeczywiste binaria (`xretractor`, `xqry`, `xtrdb`) i porównują wyniki z wzorcami - w odróżnieniu od testów jednostkowych GTest, które testują izolowane klasy bibliotek.
 
-  Scenariusze znajdują się we wspólnym drzewie **`test/IntegrationTest`**. Testy uruchamiające serwer otrzymują jedną z szesnastu przestrzeni `RDB_NAMESPACE` i blokadę zasobu CTest dla swojego katalogu, dzięki czemu większość z nich może działać równolegle bez kolizji nazw strumieni, IPC ani plików roboczych. Tylko scenariusze badające produkcyjną, globalną tożsamość pozostają `RUN_SERIAL`.
+  Scenariusze znajdują się we wspólnym drzewie **`test/IntegrationTest`**. Testy uruchamiające serwer otrzymują jedną z szesnastu przestrzeni `RDB_NAMESPACE` i blokadę zasobu CTest dla swojego katalogu, dzięki czemu większość z nich może działać równolegle bez kolizji nazw strumieni, IPC ani plików roboczych. Scenariusze badające globalną tożsamość, współpracę wielu serwerów i sprzątanie pozostałości mogą wymagać `RUN_SERIAL`.
 
   Uruchomienie: `ninja test` lub `ctest -R <nazwa> -V` w katalogu `build/Debug/`.
+
+- **[Proces instalacji](proces-instalacji.md)**
+
+  Instalacja gotowego wydania na Linuksie przez `curl` lub apt, aktualizacja i usuwanie, budowanie ze źródeł oraz weryfikacja konfiguracji. Osobna sekcja opisuje Apple wyłącznie jako środowisko rozwojowe.
 
 </div>

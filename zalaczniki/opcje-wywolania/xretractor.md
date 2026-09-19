@@ -30,6 +30,7 @@ Available options:
   -q [ --queryfile ] arg      query set file
   -r [ --quiet ]              no output on screen, skip presenter
   -s [ --status ]             check service status
+  --cleanup                   remove leftovers of dead instances and exit
   -v [ --verbose ]            verbose mode (show stream params)
   -x [ --xqrywait ]           wait with processing for first query
   -n [ --name ] arg           instance name; own IPC area and lock
@@ -53,6 +54,7 @@ Available options:
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
 | `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
 | `status` | Sprawdzenie blokady instancji wskazanej przez `--name`, `RDB_NAMESPACE` albo historyczną pustą nazwę. Wynik `Running` oznacza, że inny proces utrzymuje tę samą tożsamość. |
+| `cleanup` | Usuwa rozpoznane pozostałości martwych instancji i kończy działanie bez uruchamiania planu. Chroni zasoby żywych właścicieli; zakres i ograniczenia opisano poniżej. |
 | `verbose` | Tryb zwiększonej komunikatywności - wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana. |
 | `xqrywait` | Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu `xqry`. Wymagane przy jednoczesnym użyciu `-m N` w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie `xqry` aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od `xqry` (np. `-d` lub `-s`) odblokowuje pętlę przetwarzania. |
 | `name arg` | Nadaje instancji stałą nazwę. Nazwa wybiera osobny plik blokady i obszar IPC oraz pozwala kierować polecenia przez `xqry --server`. Dopuszczalne są najwyżej 32 znaki: małe litery, cyfry, `_` i `-`, przy czym pierwszy znak musi być literą. |
@@ -78,6 +80,30 @@ xqry --bus
 Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name` zachowuje historyczną instancję bezimienną.
 
 Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział [Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
+
+### Sprzątanie pozostałości
+
+```bash
+xretractor --cleanup
+```
+
+Polecenie nie uruchamia planu. Próbuje zająć blokady rozpoznanych zasobów i usuwa wyłącznie te, których nie utrzymuje żywy właściciel. Ten sam mechanizm działa przy wyjściu instancji.
+
+| Zakres | Działanie |
+| --- | --- |
+| Pliki blokad instancji | Przegląd katalogu `paths.lock_dir` wybranego konfiguracją, domyślnie katalogu tymczasowego procesu. |
+| Tożsamości IPC | Przegląd wspólnego `/tmp`; usunięcie porzuconej blokady oraz odpowiadającej jej kolejki poleceń, segmentu odpowiedzi i muteksu mapy. |
+| Magistrala | Usunięcie nieużywanych segmentów bieżącej wersji `xrdbbus_v6`, chronionych blokadą obecności. |
+
+Zakres nie jest ograniczony do jednej instancji wskazanej przez `--name` ani jednej przestrzeni `RDB_NAMESPACE`. Dostęp do zasobów nadal podlega uprawnieniom systemu plików. Polecenie nie wylicza i nie usuwa kolejek odpowiedzi klientów; nie usuwa też segmentów v5 i starszych, które nie uczestniczą w protokole blokady obecności.
+
+Wynik zawiera liczniki usuniętych blokad instancji, zestawów tożsamości IPC i segmentów, np.:
+
+```text
+Removed leftovers of dead instances: 1 instance lock(s), 1 IPC identity set(s), 1 bus segment(s).
+```
+
+Licznik zestawów IPC nie jest liczbą pojedynczych kolejek. Zakończenie polecenia nie dowodzi usunięcia zasobów spoza jego zakresu. Przy niestandardowym katalogu blokad należy wskazać właściwy TOML przez `--config`.
 
 ### Przetwarzanie wsadowe bez zegara
 
@@ -166,7 +192,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | `timing.server_startup_poll_ms` | `100` | Interwał odpytywania podczas oczekiwania na start serwera. |
 | `timing.query_no_data_timeout_ms` | `10000` | Czas braku danych, po którym klient `xqry` uznaje serwer za martwy. |
 | `scheduling.rt_priority` | `50` | Priorytet `SCHED_FIFO` w trybie `--realtime`; dopuszczalny zakres 1–99. |
-| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na pliki blokad instancji. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. |
+| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na pliki blokad instancji. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. Nie zmienia stałego katalogu `/tmp` blokad tożsamości IPC. |
 | `server.autoname` | `false` | Generuje nazwę, gdy nie podano `--name` ani `--autoname`. Jawne `--name` wygrywa. Wartość `false` zachowuje historyczną instancję bezimienną. |
 | `service.query_file` | _(wartość z konfiguracji budowania)_ | Plik zapytań nadpisywany przy przekazaniu zestawu działającej usłudze. Używany wyłącznie jako zapasowy, gdy usługa nie zaraportowała własnego `QUERYFILE` w pliku blokady. Musi być zgodny z argumentem `ExecStart` jednostki systemd - konfiguracja nie zmienia `ExecStart`. |
 

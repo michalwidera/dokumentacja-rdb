@@ -46,7 +46,7 @@ Wszystkie funkcje przyjmują jeden argument wyrażeniowy. Jedynym wyjątkiem jes
 
 ### Konwersje
 
-`to_integer`, `to_float` i `to_double` konwertują wartość liczbową albo tekstową do wskazanego typu. `NULL` przechodzi bez zmiany. `to_integer` obcina część ułamkową w stronę zera, nie podłoguje: `to_integer(-8/3)` daje `-2`.
+`to_integer`, `to_float` i `to_double` konwertują wartość liczbową albo tekstową do wskazanego typu. `NULL` przechodzi bez zmiany. `to_integer` obcina część ułamkową w stronę zera, nie podłoguje: `to_integer(-8/3)` daje `-2`. Wartość zmiennoprzecinkowa, której `INTEGER` nie pomieści - także `NaN` i nieskończoność - daje `NULL`, tak samo jak przepełnienie arytmetyki. Ta sama reguła obejmuje funkcje matematyczne nad polem całkowitym, których wynik wraca do typu argumentu: `Sqrt(-4)` i `log(0)` nad polem `INTEGER` dają `NULL`. Zakres jest sprawdzany po obcięciu części ułamkowej: dla argumentu typu `DOUBLE` wartość `2147483647.5` daje `2147483647`, natomiast `2147483648.0` daje `NULL`.
 
 `to_string` tworzy pole tekstowe. Bez drugiego członu jego szerokość wynosi 32 bajty; postać `to_string(x : N)` deklaruje N bajtów. Separatorem jest dwukropek, ponieważ przecinek rozdziela pola listy `SELECT`:
 
