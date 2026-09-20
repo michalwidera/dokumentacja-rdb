@@ -432,7 +432,7 @@ _Rys. 19. Persystencja i odtwarzanie stanu po restarcie_
 ### Interfejs zapytań
 
 | Metoda | Opis         |
-| ----   | ------------ |
+| -------- | ----------------- |
 | `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Metoda wirtualna: w wariancie `storageShadow` najpierw sprawdza nadpisania w `metaShadow` (od końca - ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
 | `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" zamiast rzucać wyjątkiem. Pozwala `storage::read()` nakładać metadane null bez kontroli zakresu. |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
@@ -447,7 +447,7 @@ _Rys. 19. Persystencja i odtwarzanie stanu po restarcie_
 Metody klasy `storageShadow` - wariantu indeksu wstrzykiwanego przez `makeMetaIndex()` dla magazynów utrzymujących plik cienia danych. Bazowy `metaData` ich nie ma; nie ma też przełącznika trybu, bo o obecności cienia decyduje wybór klasy przy inicjalizacji magazynu.
 
 | Metoda | Opis         |
-| ----   | ------------ |
+| -------- | ----------------- |
 | konstruktor | Wczytuje istniejące nadpisania z pliku `.meta.shadow` (`metaShadow::load()`), przywracając stan cienia po restarcie procesu. |
 | `mergeShadow()` | Scala nadpisania z cienia do głównego indeksu (aplikuje każde nadpisanie w kolejności zapisu - ostatnie wygrywa), a następnie usuwa plik `.meta.shadow`. Odpowiednik `merge()` dla pliku cienia danych. |
 | `discardShadow()` | Czyści listę nadpisań w pamięci i usuwa plik `.meta.shadow`. Wywoływany przy odrzuceniu cienia danych (purge, reset, rotacja). |

@@ -70,6 +70,9 @@ jobs:
           \floatplacement{figure}{H}
           \setkeys{Gin}{keepaspectratio}
           \usepackage{amssymb}
+          \usepackage{fvextra}
+          \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},breaklines,breakanywhere,breaknonspaceingroup}
+          \AtBeginDocument{\RecustomVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breakanywhere}}
           \usepackage{tcolorbox}
           \usepackage{eso-pic}
           \let\origmaketitle\maketitle
@@ -179,13 +182,15 @@ jobs:
 
           cat > /tmp/table_breaks.lua << 'TABLELUAEOF'
           local function break_long_code(el)
-            if not el.text:match('[._]') then return nil end
+            if not el.text:match('[._/:]') then return nil end
 
             local result = pandoc.List()
             local start = 1
             for i = 1, #el.text do
               local char = el.text:sub(i, i)
-              if char == '.' or char == '_' then
+              local next_char = el.text:sub(i + 1, i + 1)
+              if (char == '.' or char == '_' or char == '/' or char == ':')
+                  and next_char ~= ':' then
                 result:insert(pandoc.Code(el.text:sub(start, i), el.attr))
                 result:insert(pandoc.RawInline('latex', '\\allowbreak{}'))
                 start = i + 1
@@ -215,6 +220,8 @@ jobs:
             elseif #element.colspecs == 2 and first_heading == "Opcja"
                 and pandoc.utils.stringify(element):find("xqrywait", 1, true) then
               widths = {0.23, 0.77}
+            elseif #element.colspecs == 2 and first_heading == "Obszar" then
+              widths = {0.26, 0.74}
             else
               return
             end
@@ -238,14 +245,18 @@ jobs:
             return first_heading == "Dziedzina"
           end
 
+          function Code(element)
+            if not FORMAT:match('latex') then return nil end
+            return break_long_code(element)
+          end
+
           function Table(element)
             if not FORMAT:match('latex') then return nil end
             local needs_space = customize_table_layout(element)
-            local result = element:walk({ Code = break_long_code })
             if needs_space then
-              return {pandoc.RawBlock("latex", "\\Needspace{20\\baselineskip}"), result}
+              return {pandoc.RawBlock("latex", "\\Needspace{20\\baselineskip}"), element}
             end
-            return result
+            return element
           end
           TABLELUAEOF
 

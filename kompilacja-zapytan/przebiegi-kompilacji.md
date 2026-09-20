@@ -113,7 +113,7 @@ Przekształca odwołania do pól ze schematów źródłowych na indeksy płaskie
 
 #### resolveWindowAggregates
 
-Wyodrębnia program argumentu każdego `MIN`/`MAX`/`AVG`/`SUMC(wyrażenie : W)` z listy `SELECT` do tabeli `query::windowGroups`. Sprawdza dodatnią szerokość, typ liczbowy, jedno źródło historii, obecność odwołania do pola oraz zakazy zagnieżdżania i użycia w `RULE`. Identyczne trójki źródło–wyrażenie–szerokość współdzielą grupę i jedno przejście po historii. Token agregatu staje się bezargumentowym operandem wskazującym obliczony wynik grupy.
+Wyodrębnia program argumentu każdego agregatu okna - `MIN`, `MAX`, `AVG` albo `SUMC(wyrażenie : W)` - z listy `SELECT` do tabeli `query::windowGroups`. Sprawdza dodatnią szerokość, typ liczbowy, jedno źródło historii, obecność odwołania do pola oraz zakazy zagnieżdżania i użycia w `RULE`. Identyczne trójki źródło–wyrażenie–szerokość współdzielą grupę i jedno przejście po historii. Token agregatu staje się bezargumentowym operandem wskazującym obliczony wynik grupy.
 
 #### inferFieldShapes
 
