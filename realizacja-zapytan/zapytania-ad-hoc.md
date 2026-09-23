@@ -28,7 +28,7 @@ $ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
 
 Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
 
-Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne w pliku pełnego planu, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`. Reguła zaczyna działać dopiero po zgromadzeniu od chwili dołączenia całej wymaganej historii; jeżeli pamięciowy strumień przechowuje jej za mało, żądanie jest odrzucane.
+Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne tylko w pliku planu, z którego instancja startuje, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Ta sama granica obowiązuje na kanale `xqry --reset`, który też przenosi pełny plan, ale też nie niesie autorstwa: plan z regułą `DO SYSTEM` jest tam odrzucany w całości, chyba że operator świadomie ustawi `service.unrestricted = true` (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Kanał ad hoc odmawia bezwarunkowo i tego klucza nie czyta. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`. Reguła zaczyna działać dopiero po zgromadzeniu od chwili dołączenia całej wymaganej historii; jeżeli pamięciowy strumień przechowuje jej za mało, żądanie jest odrzucane.
 
 ```bash
 xqry --server pomiary -a \

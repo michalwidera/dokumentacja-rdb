@@ -108,7 +108,9 @@ Wartość jest zawsze zapisana w **postaci nieskracalnej**, a mianownik jest zaw
 
 * zero zapisuje się jako `0/1`, nigdy jako `0/0` ani `0/5`;
 * liczba całkowita zapisuje się jako `n/1` - pole `RATIONAL` o mianowniku 1 to dokładnie liczba całkowita, bez zaokrągleń (na tym niezmienniku opiera się też test podzielności slotu w [algorytmie przeglądu drzewa zapytań](../../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md));
-* mianownik nigdy nie jest zerem, więc czytelnik nie musi tego przypadku obsługiwać.
+* mianownik nigdy nie jest zerem - żadna droga zapisu w systemie takiej pary nie produkuje.
+
+Niezmiennik opisuje jednak zapis, a nie każdy plik, który silnikowi można podstawić. Od 23 września 2026 odczyt sprawdza go na granicy bajty–wartość: para, której mianownik jest mniejszy lub równy zeru, daje `NULL`, a nie liczbę wymierną. Obejmuje to wyzerowany rekord (`0/0`), mianownik równy `INT_MIN` i parę `INT_MIN/-1`, czyli dokładnie te bajty, na których poprzednia wersja kończyła przerwaniem procesu przez `SIGFPE`. Odczyt przechodzi też przez normalizację, więc para zapisana w pliku uszkodzonym w postaci skracalnej wraca skrócona (`2/4` jako `1/2`, `1/-2` jako `-1/2`). Dla pliku zapisanego przez system nie zmienia to nic - takich par nie ma w nim żadna.
 
 Pola typu `RATIONAL` produkują reduktory `MIN`, `MAX`, `AVG` i `SUMC`, gdy wartość wejściowa ma typ `BYTE`, `INTEGER`, `UINT` albo `RATIONAL`. Dotyczy to reduktorów bieżącego rekordu w `FROM`, wygaszanej notacji `.min`/`.max`/`.avg`/`.sumc` oraz agregatów historii `AGG(wyrażenie : W)` w liście `SELECT`. Wejście `FLOAT` lub `DOUBLE` zachowuje własny typ (→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)). Reduktor nad wejściem całkowitym lub wymiernym jest w praktyce głównym źródłem typu `RATIONAL` w artefakcie.
 
@@ -180,6 +182,14 @@ DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
 ```
 
 Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.
+
+### Odczyt rekordu, którego nie ma
+
+Żądanie indeksu leżącego za ostatnim rekordem - albo odczyt z pustego magazynu - nie jest odczytem udanym. Od 23 września 2026 `storage::read()` i `storage::revRead()` oddają w takim razie osobny status `NoSuchRecord`, zerują bufor docelowy i ustawiają **cały wzorzec null na jedynki**: rekord, którego nie ma, jest wartością nieokreśloną, nie rekordem zerowym. Jest to ta sama konwencja, którą `dataModel::fetchBack()` i `fetchForward()` stosują dla odczytu poza zgromadzoną historią.
+
+Ma to znaczenie dla wyniku, nie tylko dla diagnostyki. Wcześniej ta gałąź zwracała powodzenie i oznaczała wyzerowany rekord jawnie jako **nie**-null, więc semantyka pochłaniania `NULL`-i się nie włączała i reduktory `MIN`, `MAX`, `SUMC` i `AVG` składały sfałszowane zero do wyniku zamiast pominąć brakujący rekord (→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)). Narzędzie `xtrdb` odróżnia teraz ten przypadek od danych: `read` zostawia payload w stanie `error`, a `list` wypisuje `fetch error` (→ [xtrdb](../../zalaczniki/opcje-wywolania/xtrdb.md)).
+
+Wzorzec null żyje w payloadzie i w indeksie `.meta`, czyli wewnątrz silnika. Zrzut `DO DUMP` go nie niesie - rekord nieistniejący zapisuje się w nim jako zera nieodróżnialne od danych (→ [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw)).
 
 ---
 
@@ -434,7 +444,7 @@ _Rys. 19. Persystencja i odtwarzanie stanu po restarcie_
 | Metoda | Opis         |
 | -------- | ----------------- |
 | `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Metoda wirtualna: w wariancie `storageShadow` najpierw sprawdza nadpisania w `metaShadow` (od końca - ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
-| `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" zamiast rzucać wyjątkiem. Pozwala `storage::read()` nakładać metadane null bez kontroli zakresu. |
+| `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" zamiast rzucać wyjątkiem. Pozwala `storage::read()` nałożyć metadane null na rekord, który w pliku danych jest, a w indeksie jeszcze go nie ma. Rekordu, którego nie ma w samym pliku danych, ten wzorzec nie dotyczy - `storage::read()` zgłasza wtedy brak rekordu i sam ustawia wzorzec all-null (→ [Odczyt rekordu, którego nie ma](#odczyt-rekordu-którego-nie-ma)). |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
 | `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Nie obejmuje nadpisań z `.meta.shadow`. Służy do inspekcji i testów. |
 | `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |

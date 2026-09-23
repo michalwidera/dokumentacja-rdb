@@ -104,6 +104,8 @@ DO SYSTEM 'curl -s http://monitoring/alert'
 
 W poleceniu można użyć dowolnego programu dostępnego w `PATH`: skryptów powłoki, programów Pythona, wywołań REST, wysyłki powiadomień, etc.
 
+Regułę `DO SYSTEM` wolno zamówić **tylko w pliku planu**, z którego instancja startuje - autorem tego pliku jest ten, kto uruchamia usługę. Oba kanały IPC odmawiają: `xqry --adhoc` przyjmuje z reguł wyłącznie `DO DUMP`, a `xqry --reset` odrzuca cały plan zawierający `DO SYSTEM`, bo kanał ten nie niesie autorstwa (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Operator, który świadomie oddaje kanał reset, ustawia `service.unrestricted = true` w konfiguracji TOML (→ [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#plik-konfiguracyjny-toml)).
+
 ## Akcja DO DUMP
 
 Akcja `DO DUMP` zapisuje okno próbek strumienia do pliku binarnego w momencie spełnienia warunku. Pozwala zachować kontekst zdarzenia: dane przed jego wystąpieniem i dane po nim.
@@ -135,6 +137,8 @@ Pliki są tworzone w katalogu konfigurowanym przez dyrektywę `STORAGE`. Konwenc
 ```
 
 Format pliku to surowe dane binarne zgodne z deskryptorem strumienia (bez nagłówka). Do odczytu pliku można użyć narzędzia `xtrdb`.
+
+Zrzut niesie **wyłącznie wartości**. Nie towarzyszy mu ani `.desc`, ani `.meta`, więc schemat trzeba podać z zewnątrz, a mapa `NULL` i przerwy w transmisji nie mają w nim żadnej reprezentacji: pole `NULL` zapisuje się wartością zastępczą swojego typu, a rekord, którego silnik nie miał, zerami. Informacje o braku i o przerwie są pojęciami wnętrza silnika i na zewnątrz nie wychodzą - pełny kontrakt wraz z drogami, które wierność zachowują, opisuje [Realizacja alarmowania](../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw).
 
 ### Opcja RETENTION
 

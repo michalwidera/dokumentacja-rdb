@@ -124,6 +124,8 @@ Przykłady:
 | `append`  | Dołącz bieżący payload jako nowy rekord na końcu pliku.    |
 | `purge`   | Usuń wszystkie rekordy z pliku (skróć plik do 0 rekordów). |
 
+Rekord, którego w magazynie nie ma - indeks za ostatnim rekordem albo odczyt z pustego pliku - nie jest odczytem udanym: `read` i `rread` zostawiają wtedy payload w stanie `error` (widocznym przez `status`), a `list` i `rlist` wypisują w tym wierszu `fetch error` i przechodzą do następnego. Wcześniej narzędzie pokazywało w takim miejscu rekord wyzerowany, nieodróżnialny od danych.
+
 ---
 
 ## Przeglądanie zawartości
@@ -202,6 +204,8 @@ $ xtrdb
 .list 6
 .quit
 ```
+
+Zrzut nie ma też pliku `.meta`, więc polecenia `meta` i `metaraw` nie mają w nim czego pokazać. Znaczy to, że wypisane wartości są wszystkim, co plik niesie: zero w zrzucie może być prawdziwym zerem, polem `NULL` albo rekordem, którego silnik nie miał, a przerwa w transmisji nie ma tam żadnego znacznika. Kontrakt zrzutu opisuje [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw).
 
 ### Skrypt wsadowy
 

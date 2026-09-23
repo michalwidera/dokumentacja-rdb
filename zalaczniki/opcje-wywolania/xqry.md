@@ -147,6 +147,19 @@ Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw oraz rezerwuje 
 
 Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej pliku startowego, aby przetrwała restart procesu.
 
+### Reguła `DO SYSTEM` nie przechodzi tym kanałem
+
+Plan zawierający regułę `DO SYSTEM` jest odrzucany **w całości**, z podaniem nazwy reguły i powodu:
+
+```
+$ xqry --reset z-regula-systemowa.rql --server service
+xqry: plan reload refused at reset-commit: Rejected: rule 'evil' on stream 'alpha' uses DO SYSTEM; ...
+```
+
+Powód jest ten sam, dla którego odmawia kanał ad hoc: `DO SYSTEM` wykonuje dowolne polecenie powłoki na koncie instancji, a kanał IPC nie niesie autorstwa, więc nadawcy resetu nie czyni operatorem usługi. Regułę taką wolno zamówić wyłącznie w pliku planu, z którego instancja startuje. Odmowa obejmuje cały zestaw, a nie samą regułę, ponieważ przyjęty tekst jest zapisywany do pliku startowego usługi, którego start już żadnego sprawdzenia nie przechodzi - reguła wycięta w locie wróciłaby uzbrojona po najbliższym restarcie.
+
+Operator, który świadomie oddaje ten kanał, ustawia `service.unrestricted = true` w konfiguracji TOML (→ [xretractor](xretractor.md#plik-konfiguracyjny-toml)). Instancja zostawia wtedy ostrzeżenie w dzienniku przy każdym starcie, a kanał ad hoc pozostaje zamknięty niezależnie od tej wartości.
+
 ## JSON Lines dla aplikacji
 
 `--jsonl` udostępnia wersjonowane wyjście maszynowe dla `--hello`, `--dir`, `--detail` i `--select`. Wymaga jednoznacznego serwera; aplikacje powinny zawsze podawać go jawnie.

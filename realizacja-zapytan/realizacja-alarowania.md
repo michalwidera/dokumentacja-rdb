@@ -172,6 +172,27 @@ $ xtrdb
 > quit
 ```
 
+### Kontrakt zrzutu: same wartości, bez NULL i bez przerw
+
+Zrzut jest **bezgłowym blokiem bajtów**. `dumpManager` zapisuje wprost `payload->span()`, rekord po rekordzie, i nie tworzy przy nim żadnego pliku towarzyszącego: nie ma `.desc`, więc schemat trzeba znać z zewnątrz, i nie ma `.meta`, więc mapa `NULL` oraz przerwy w transmisji nie mają gdzie trafić. Rozszerzenie `.tmp` sugeruje plik roboczy, ale to artefakt końcowy - po zamknięciu deskryptora nie następuje żadne przemianowanie.
+
+Wynika z tego jedna konsekwencja, którą trzeba znać przed użyciem zrzutu jako wejścia dla czegokolwiek:
+
+| Co silnik wie o rekordzie | Co widzi czytelnik zrzutu |
+| ------------------------- | ------------------------- |
+| pole ma wartość `NULL` - z nullfill, z luki transmisji, z przepełnienia arytmetyki, z dzielenia przez zero | wartość zastępcza typu: `0` dla `BYTE`, `INTEGER`, `UINT`, `FLOAT` i `DOUBLE`, `0/1` dla `RATIONAL`, bajty zerowe dla `STRING` |
+| przed rekordem była przerwa w transmisji (wpis `gap` w indeksie `.meta`) | nic - rekordy leżą jeden za drugim, bez znacznika |
+| rekordu nie ma w ogóle, bo żądane okno sięga głębiej niż zgromadzona historia | rekord wyzerowany, nieodróżnialny od rekordu o wartościach zerowych |
+
+Zero w pliku zrzutu jest więc **nierozróżnialne** od prawdziwego zera, od `NULL` i od rekordu, którego silnik nigdy nie miał. Nie jest to przeoczenie implementacji, lecz granica formatu: `NULL` i przerwa są pojęciami **wnętrza silnika** - żyją w mapie `NULL` payloadu i w indeksie `.meta` towarzyszącym artefaktowi, tam są przechowywane i tam są przetwarzane - a jednolitego sposobu zapisania ich na zewnątrz system na dziś nie ma. Zrzut jest migawką wartości, nie zapisem tego, co silnik wiedział.
+
+Gdy potrzebna jest wierność, informację o braku niosą dwie inne drogi:
+
+* **artefakt strumienia** (`SELECT … STREAM`) wraz ze swoim plikiem `.meta` - `xtrdb` wypisuje mapę `NULL` i przerwy poleceniami `meta` oraz `metaraw` (→ [Pliki](../architektura-systemu-przetwarzania-danych/format-zapisu-danych/pliki.md));
+* **kanał klienta** `xqry --jsonl`, w którym brak wartości jest osobnym `null` JSON-owym, per element pola tablicowego (→ [API monitorowania strumieni](../zalaczniki/api-monitorowania-strumieni.md)).
+
+Funkcja `null2zero` w zapytaniu trzecią drogą nie jest: zamienia brak na zero jawnie i w zapytaniu, więc jest konwersją stratną, a nie sposobem eksportu informacji o braku (→ [Operatory agregujące](../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)).
+
 ***
 
 ## Wiele reguł - kolejność ewaluacji

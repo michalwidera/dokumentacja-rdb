@@ -63,6 +63,8 @@ Pliki cienia i plik metadanych są opcjonalne. Przy ciągłym napływie danych b
 
 Efemerydy **nie mają własnego pliku danych** - ich źródłem jest obiekt zewnętrzny (plik tekstowy, urządzenie), którego system nie tworzy ani nie usuwa. Powstaje dla nich natomiast deskryptor `.desc` opisujący schemat odczytu. Indeks `.meta` nie powstaje: dla źródeł deklarowanych wstrzykiwany jest inertny wariant indeksu metadanych, działający wyłącznie w pamięci.
 
+Plik zrzutu tworzony przez regułę `DO DUMP` do tego zestawu **nie należy**, choć rekordy ma w tym samym układzie. Nie towarzyszy mu ani `.desc`, ani `.meta`, ani żaden nagłówek, więc niesie same wartości: informacja o `NULL` i o przerwie w transmisji zostaje wewnątrz silnika i do zrzutu nie dociera. Kontrakt zrzutu opisuje [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw).
+
 ***
 
 ## Rozdziały

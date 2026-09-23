@@ -78,6 +78,8 @@ $ xtrdb
 > quit
 ```
 
+Wypisane wartości są wszystkim, co plik niesie: zrzut nie ma też pliku `.meta`, więc `NULL` i przerwa w transmisji nie mają w nim reprezentacji, a zero może być prawdziwym zerem, polem `NULL` albo rekordem, którego silnik nie miał (→ [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw)).
+
 ## Przykład 3: rotacja zrzutów (DO DUMP z RETENTION)
 
 Bez `RETENTION` każde kolejne wyzwolenie reguły nadpisuje ten sam plik. Gdy zdarzenia powtarzają się, użyj `RETENTION N` aby zachować ostatnie N zrzutów w osobnych plikach.
