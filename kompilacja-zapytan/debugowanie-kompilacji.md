@@ -89,6 +89,10 @@ Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna),
 
 ## Typowe błędy kompilacji
 
+### Niepoprawny literal lub interwał
+
+Liczba spoza zakresu typu docelowego kończy parsowanie komunikatem `numeric literal ... is out of range` w `Parse result:`. Zerowy mianownik daje `fraction ... has a zero denominator`, a interwał równy zero - `interval ... must be greater than zero`. Dotyczy to zarówno pliku startowego, jak i żądania ad hoc; w drugim przypadku odmowa nie zatrzymuje serwera. Popraw liczbę lub wybierz dodatni interwał. Sam komunikat `Circular dependency` oznacza cykl zależności, a nie zerowy interwał.
+
 ### Cykl w grafie zależności
 
 ```

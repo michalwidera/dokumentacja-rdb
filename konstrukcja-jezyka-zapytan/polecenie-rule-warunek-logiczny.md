@@ -21,6 +21,8 @@ Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewal
 | `OR`     | alternatywa - wystarczy jeden warunek        |
 | `NOT`    | negacja - warunek musi być niespełniony      |
 
+Warunek z samym polem `STRING` jest prawdziwy, gdy napis nie jest pusty. Porównanie napisów i `NOT` nad napisem zwracają `INTEGER` 1 albo 0. `AND` i `OR` używają typu lewego operandu, a jeśli jest on `NULL` - prawego; wynik oparty na napisie jest `INTEGER`. Dlatego `WHEN NOT status[0]` jest prawdziwe dla pustego napisu, a fałszywe porównanie napisu nie uruchamia reguły przez `OR`. Wartość `NULL` nadal podlega trójwartościowej logice warunku.
+
 ## Struktura wyrażenia
 
 Warunek buduje się z pól schematu strumienia wskazanego w klauzuli `ON`. Pola identyfikowane są tak samo jak w `SELECT` - przez nazwę strumienia z indeksem:

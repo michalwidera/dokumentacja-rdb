@@ -187,7 +187,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | `storage.dir` | _(brak)_ | Domyślny katalog artefaktów. Stosowany **tylko** gdy zestaw RQL nie zawiera dyrektywy `:STORAGE` - RQL ma pierwszeństwo. Katalog musi istnieć i być zapisywalny, inaczej program kończy się błędem `Configuration error: storage.dir …`. |
 | `ipc.queue_buffer_seconds` | `10` | Głębokość kolejki IPC wyrażona w sekundach strumienia; liczba elementów to `sekundy / interwał`. |
 | `ipc.min_queue_elements` | `100` | Dolna granica pojemności kolejki, niezależna od interwału strumienia. |
-| `ipc.client_response_max_fails` | `300` | Liczba prób odczytu odpowiedzi z pamięci współdzielonej przez `xqry`. Efektywny czas oczekiwania to iloczyn tej wartości i interwału odpytywania. |
+| `ipc.client_response_max_fails` | `300` | Mnożnik budżetu czasu dla odpowiedzi `xqry`. Termin jest wyznaczany zegarem monotonicznym jako ta wartość razy interwał odpytywania (10 ms) i obejmuje zarówno oczekiwanie na miejsce w kolejce poleceń, jak i na odpowiedź. |
 | `timing.server_startup_wait_s` | `30` | Maksymalny czas oczekiwania `xqry --wait-server` na gotowość serwera. |
 | `timing.server_startup_poll_ms` | `100` | Interwał odpytywania podczas oczekiwania na start serwera. |
 | `timing.query_no_data_timeout_ms` | `10000` | Czas braku danych, po którym klient `xqry` uznaje serwer za martwy. |

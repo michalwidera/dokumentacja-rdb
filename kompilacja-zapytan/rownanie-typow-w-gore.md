@@ -41,9 +41,9 @@ Do września 2026 na to samo pytanie odpowiadały cztery reguły lokalne, z któ
 
 **Operator dwuargumentowy** (`+`, `-`, `*`, `/`, `^`) daje typ o wyższym miejscu w porządku `BYTE < INTEGER < UINT < RATIONAL < FLOAT < DOUBLE` - z jednym wyjątkiem: **`BYTE` z `BYTE` daje `INTEGER`**. Nie jest to decyzja projektowa, tylko odwzorowanie języka: `uint8_t + uint8_t` promuje się w C++ do `int` i właśnie `int` ląduje w wyniku. Ta sama promocja obowiązuje potęgę typu dokładnego, bo `a^k` jest liczone tym samym mnożeniem, co zapisany wprost iloczyn.
 
-**Operator jednoargumentowy** (`-x`, `NOT x`) zachowuje typ argumentu - tu promocji nie ma.
+**Operator jednoargumentowy** (`-x`, `NOT x`) zachowuje typ argumentu, z wyjątkiem `NOT` nad napisem: wynik logiczny ma typ `INTEGER`.
 
-**Porównania** dają typ operandów po zrównaniu, bez promocji `BYTE`. Nie sięgają one listy `SELECT`: żyją w warunku `RULE`.
+**Porównania** liczbowe dają typ operandów po zrównaniu, bez promocji `BYTE`. Porównanie napisów oraz `NOT` nad napisem dają `INTEGER` o wartości 1 albo 0. `AND` i `OR` biorą typ wyniku z lewego operandu, a gdy ten jest `NULL` - z prawego; jeżeli wybrany operand jest napisem, wynikiem jest `INTEGER`. Operatory te nie sięgają listy `SELECT`: żyją w warunku `RULE`.
 
 **Funkcje** mają jedną wspólną politykę:
 

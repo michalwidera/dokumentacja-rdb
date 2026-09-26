@@ -100,6 +100,8 @@ str1  | 1/30     | 0    | 0     |               | 0
 
 `--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza `--dir`, `--detail` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym poleceniem. Nieznany strumień kończy działanie kodem `2`.
 
+Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budżet czasu `ipc.client_response_max_fails` obejmuje wysłanie polecenia i odebranie odpowiedzi; pełna kolejka poleceń kończy się odmową po upływie tego terminu. Odpowiedź porzucona przez zabitego klienta może zostać odzyskana bez blokowania kolejnych klientów.
+
 ## Odbiór danych
 
 | Opcja | Znaczenie |

@@ -4,7 +4,7 @@ Program `xtrdb` to interaktywne narzędzie do analizy artefaktów i substratów 
 
 > **⚠️ Ostrzeżenie**
 >
-> Wywołanie `xtrdb` blokuje uruchomiony równolegle `xretractor` - przed użyciem `xtrdb` zatrzymaj serwer lub poczekaj na zakończenie pracy systemu. Narzędzie samo wykrywa blokadę i zgłosi błąd, jeśli `xretractor` działa.
+> Tryb interaktywny i wsadowy `xtrdb` odmawiają pracy, gdy w katalogu blokad działa dowolna instancja `xretractor`, także nazwana. Przed ich użyciem zatrzymaj te instancje lub poczekaj na zakończenie. Narzędzie czyta ten sam `paths.lock_dir` z konfiguracji TOML co silnik (domyślnie katalog tymczasowy procesu), przegląda rodzinę `xretractor_service*.lock` i sprawdza, czy blokada jest trzymana. Sam porzucony plik blokady nie powoduje odmowy. Przy niestandardowym katalogu uruchom `xtrdb` z tą samą konfiguracją co serwer. Opcje `--help` i `--storagemap` kończą działanie przed tą kontrolą; `--storagemap` tylko odczytuje stan składowania.
 
 
 ---

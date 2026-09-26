@@ -12,6 +12,8 @@ Na Rys. 48 przedstawiono opisany powyżej przepływ sterowania. Plik z zapytania
 
 Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLARE` albo `RULE`**. Dyrektywy kompilatora oraz program zawierający kilka poleceń są odrzucane bez zmiany aktywnego planu.
 
+Błąd składni lub niepoprawna wartość jest odsyłana klientowi wraz z powodem, a serwer nadal obsługuje następne polecenia. Parser odrzuca m.in. literały liczbowe poza zakresem, zerowy mianownik, interwał równy zero (w `DECLARE` oraz przy `&`, `%` i `-`) i pustą nazwę `FILE`. Jeśli dołączenie nie powiedzie się po imporcie, serwer przywraca poprzedni plan i wycofuje nowe roszczenia nazw strumieni i plików w magistrali. Tę samą komendę można ponowić po usunięciu przyczyny błędu.
+
 Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 
 ```

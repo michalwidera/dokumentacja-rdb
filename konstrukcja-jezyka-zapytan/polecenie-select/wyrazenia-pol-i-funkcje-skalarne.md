@@ -18,6 +18,8 @@ Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma semantykę 
 
 Wartość `NULL` jest propagowana przez zwykłą arytmetykę. Dzielenie przez zero daje `NULL` dla każdego typu liczbowego i nie zatrzymuje dalszego przetwarzania strumienia. Reguły porównań i trójwartościowej logiki warunku `RULE` opisuje rozdział [Warunek logiczny](../polecenie-rule-warunek-logiczny.md).
 
+Dodawanie, odejmowanie i mnożenie pól `UINT` są sprawdzane: suma lub iloczyn poza zakresem 32-bitowej liczby bez znaku oraz ujemna różnica dają `NULL` zamiast zawiniętej wartości. Ta sama zasada braku reprezentacji obowiązuje po promocji operandów, np. ujemny `INTEGER` promowany do `UINT` daje `NULL`. Arytmetyka `INTEGER` i `RATIONAL` również zwraca `NULL` przy przepełnieniu.
+
 > **⚠️ Ostrzeżenie** Po przeplocie `A#B` nie wolno odwoływać się do jego składowych przez `A[0]`, `A.pole`, `A[_]` ani `A.*`. Przeplot ma jeden wspólny schemat; należy użyć nazwy strumienia wynikowego albo odzyskać składową operatorem `&` lub `%`. Szczegóły opisuje rozdział [Aliasowanie](../../kompilacja-zapytan/aliasowanie.md).
 
 ## Dostępne funkcje skalarne
@@ -47,6 +49,8 @@ Wszystkie funkcje przyjmują jeden argument wyrażeniowy. Jedynym wyjątkiem jes
 ### Konwersje
 
 `to_integer`, `to_float` i `to_double` konwertują wartość liczbową albo tekstową do wskazanego typu. `NULL` przechodzi bez zmiany. `to_integer` obcina część ułamkową w stronę zera, nie podłoguje: `to_integer(-8/3)` daje `-2`. Wartość zmiennoprzecinkowa, której `INTEGER` nie pomieści - także `NaN` i nieskończoność - daje `NULL`, tak samo jak przepełnienie arytmetyki. Ta sama reguła obejmuje funkcje matematyczne nad polem całkowitym, których wynik wraca do typu argumentu: `Sqrt(-4)` i `log(0)` nad polem `INTEGER` dają `NULL`. Zakres jest sprawdzany po obcięciu części ułamkowej: dla argumentu typu `DOUBLE` wartość `2147483647.5` daje `2147483647`, natomiast `2147483648.0` daje `NULL`. Reguła nie kończy się na typach całkowitych: `NaN` i nieskończoność nie mają przybliżenia wymiernego, więc wartość zmiennoprzecinkowa zapisywana do pola `RATIONAL` daje `NULL` tak samo jak w `INTEGER`, a nie zero.
+
+Konwersja wartości całkowitej lub wymiernej do węższego typu całkowitego także daje `NULL`, jeżeli wynik nie mieści się w typie docelowym: dotyczy to liczby ujemnej kierowanej do `UINT`, `UINT` większego od `INT_MAX` kierowanego do `INTEGER` lub `RATIONAL` oraz wartości poza zakresem 0..255 kierowanej do `BYTE`. Przy konwersji `RATIONAL` do typu całkowitego najpierw obcina się część ułamkową w stronę zera, a potem sprawdza zakres. Niepoprawny tekst liczbowy daje `NULL`. Przybliżanie skończonej liczby zmiennoprzecinkowej do `RATIONAL` zatrzymuje się na ostatnim ułamku, którego licznik i mianownik mieszczą się w `int`.
 
 `to_string` tworzy pole tekstowe. Bez drugiego członu jego szerokość wynosi 32 bajty; postać `to_string(x : N)` deklaruje N bajtów. Separatorem jest dwukropek, ponieważ przecinek rozdziela pola listy `SELECT`:
 
