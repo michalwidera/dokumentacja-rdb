@@ -17,7 +17,7 @@ SELECT scaled[0]     STREAM history FROM scaled PERSISTENT
 
 Dyrektywa może wystąpić tylko raz, przed pierwszym `DECLARE`, `SELECT` lub `RULE`. Nie zmienia źródeł `DECLARE`. Bez niej dotychczasowe programy zachowują swoje ustawienia. `VOLATILE` i `PERSISTENT` są wzajemnie wykluczającymi się klauzulami.
 
-Jawne `STORAGE profil` przy `SELECT` zastępuje ustawienie domyślne; np. `STORAGE DEFAULT` wybiera zwykły magazyn plikowy. Jawne `VOLATILE` zachowuje pierwszeństwo nad `STORAGE`, tak jak wcześniej. Połączenie `PERSISTENT STORAGE MEMORY` jest błędem. Jawne `SUBSTRAT 'profil'` wybiera magazyn substratów niezależnie od kolejności tych dwóch dyrektyw w nagłówku. Samo `FILE` lub `RETENTION` nie wyłącza domyślnej ulotności: do zapisu historii należy dodać `PERSISTENT`.
+Jawne `STORAGE profil` przy `SELECT` zastępuje ustawienie domyślne; np. `STORAGE DEFAULT` wybiera zwykły magazyn plikowy. Jawne `VOLATILE` zachowuje pierwszeństwo nad `STORAGE`, tak jak wcześniej. Połączenie `PERSISTENT STORAGE MEMORY` jest błędem. Jawne `SUBSTRAT 'profil'` wybiera magazyn substratów niezależnie od kolejności tych dwóch dyrektyw w nagłówku. Samo `FILE` lub `RETENTION` nie wyłącza domyślnej ulotności: do zapisu historii należy dodać `PERSISTENT`. `RETENTION pojemność segmenty` przy strumieniu w pamięci jest błędem kompilacji z tą podpowiedzią.
 
 ## Działanie
 
@@ -25,11 +25,11 @@ Jawne `STORAGE profil` przy `SELECT` zastępuje ustawienie domyślne; np. `STORA
 SELECT wyrażenie STREAM nazwa FROM źródło VOLATILE
 ```
 
-Parser ustawia typ przechowywania na `MEMORY` z początkową pojemnością `1`:
+Parser ustawia typ przechowywania na `MEMORY` z początkową pojemnością `1` albo `n` z klauzuli `RETENTION n`:
 
 ```cpp
-if (ctx->VOLATILE()) {
-    qry.policy = std::make_pair("MEMORY", 1);
+if (ctx->VOLATILE() != nullptr || inheritVolatile) {
+    qry.policy = std::make_pair("MEMORY", std::max<size_t>(qry.policy.second, 1));
 }
 ```
 
@@ -43,8 +43,10 @@ Następnie kompilator wyznacza pojemność wymaganą przez plan. Jeśli inny str
 
 | Cecha                | `VOLATILE`                                      | `STORAGE MEMORY`                        |
 | -------------------- | ----------------------------------------------- | --------------------------------------- |
-| Pojemność bufora     | początkowo 1 rekord; może wzrosnąć według planu | zależna od `RETENTION` i potrzeb planu  |
-| Klauzula `RETENTION` | ignorowana                                      | stosowana                               |
+| Pojemność bufora     | 1 rekord albo `RETENTION n`; może wzrosnąć według planu | 1 rekord albo `RETENTION n`; może wzrosnąć według planu |
+| Klauzula `RETENTION n` | rozmiar pierścienia                           | rozmiar pierścienia                     |
+| Klauzula `RETENTION n s` | błąd kompilacji                             | błąd kompilacji                         |
+| Pierwszeństwo nad `STORAGE` | tak                                      | -                                       |
 | Deskryptor na dysku  | tak                                             | tak                                     |
 | Dane na dysku        | nie                                             | nie                                     |
 
