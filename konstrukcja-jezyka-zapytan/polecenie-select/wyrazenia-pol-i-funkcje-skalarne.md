@@ -18,7 +18,7 @@ Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma semantykę 
 
 Wartość `NULL` jest propagowana przez zwykłą arytmetykę. Dzielenie przez zero daje `NULL` dla każdego typu liczbowego i nie zatrzymuje dalszego przetwarzania strumienia. Reguły porównań i trójwartościowej logiki warunku `RULE` opisuje rozdział [Warunek logiczny](../polecenie-rule-warunek-logiczny.md).
 
-Dodawanie, odejmowanie i mnożenie pól `UINT` są sprawdzane: suma lub iloczyn poza zakresem 32-bitowej liczby bez znaku oraz ujemna różnica dają `NULL` zamiast zawiniętej wartości. Ta sama zasada braku reprezentacji obowiązuje po promocji operandów, np. ujemny `INTEGER` promowany do `UINT` daje `NULL`. Arytmetyka `INTEGER` i `RATIONAL` również zwraca `NULL` przy przepełnieniu.
+Dodawanie, odejmowanie i mnożenie pól `UINT` są sprawdzane: suma lub iloczyn poza zakresem 32-bitowej liczby bez znaku oraz ujemna różnica dają `NULL` zamiast zawiniętej wartości. Działanie na parze `INTEGER` i `UINT` jest liczone na wartościach dokładnych, a do `UINT` trafia dopiero wynik: `NULL` pojawia się tylko wtedy, gdy wynik się w nim nie mieści. Dla `u = 10` i `i = -2` wyrażenie `u + i` daje `8`, a `u * i` daje `NULL`; porównanie takiej pary, np. `i < u`, też jest dokładne. Arytmetyka `INTEGER` i `RATIONAL` również zwraca `NULL` przy przepełnieniu.
 
 > **⚠️ Ostrzeżenie** Po przeplocie `A#B` nie wolno odwoływać się do jego składowych przez `A[0]`, `A.pole`, `A[_]` ani `A.*`. Przeplot ma jeden wspólny schemat; należy użyć nazwy strumienia wynikowego albo odzyskać składową operatorem `&` lub `%`. Szczegóły opisuje rozdział [Aliasowanie](../../kompilacja-zapytan/aliasowanie.md).
 
