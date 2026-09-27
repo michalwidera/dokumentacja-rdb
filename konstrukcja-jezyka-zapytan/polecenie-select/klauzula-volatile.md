@@ -39,6 +39,8 @@ Następnie kompilator wyznacza pojemność wymaganą przez plan. Jeśli inny str
 * dane nie trafiają na dysk,
 * deskryptor `.desc` jest tworzony - inne procesy mogą poznać schemat strumienia.
 
+Pierścień ma pojemność `max(RETENTION n, potrzeba planu, 1)` i wlicza się do budżetu `[limits] history_memory_mib`. Przy dołączaniu reguły ad hoc `DO DUMP` serwer odmawia zakresu, który sięga poza już utworzony pierścień; jego pojemności nie można powiększyć w działającym planie. Zobacz [Granice wymiarów planu](../../kompilacja-zapytan/granice-wymiarow-planu.md#budżet-historii-w-ram).
+
 ## Różnica względem `STORAGE MEMORY`
 
 | Cecha                | `VOLATILE`                                      | `STORAGE MEMORY`                        |

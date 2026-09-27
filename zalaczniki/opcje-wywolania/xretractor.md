@@ -147,6 +147,7 @@ Available options:
   -p [ --transparent ]   make dot background transparent
   -w [ --diagram ] arg   create diagram output
   -z [ --shmbudget ]     show shared memory budget of the compiled plan
+  -g [ --config ] arg    config file (TOML); overrides search
 ```
 
 W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych opisywanych szerzej w opracowaniu.
@@ -170,12 +171,13 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 | `transparent` | Generuje wykres z przezroczystym tłem. |
 | `diagram` | Generuje diagramy kulkowe. Argument w postaci `typ:ilość_cykli`: `typ` (`0` lub `1`) określa, czy diagramy prezentują znaczniki czasu; `ilość_cykli` określa liczbę cykli na diagramie. |
 | `shmbudget` | Raportuje stałą rezerwację IPC, pojemność i wolne miejsce systemu plików `shm_open` (zwykle `/dev/shm`) oraz koszt jednej kolejki klienta dla każdej delty planu. Pozwala oszacować liczbę równoczesnych subskrypcji przed uruchomieniem serwera. |
+| `config` | Wskazuje jawny plik TOML także w trybie `-c`; ustawienia retencji i budżetu historii obowiązują podczas kompilacji. |
 
 ---
 
 ## Plik konfiguracyjny (TOML)
 
-Opcja `--config` wskazuje plik konfiguracyjny; bez niej program przeszukuje warstwowo dwie lokalizacje, w podanej kolejności, a każda kolejna warstwa nadpisuje klucze poprzedniej:
+Opcja `--config` (skrót `-g`) wskazuje plik konfiguracyjny także przy `-c`; bez niej program przeszukuje warstwowo dwie lokalizacje, w podanej kolejności, a każda kolejna warstwa nadpisuje klucze poprzedniej:
 
 1. `/etc/retractor/retractor.toml` - warstwa systemowa,
 2. `$XDG_CONFIG_HOME/retractor/retractor.toml` (lub `~/.config/retractor/retractor.toml`) - warstwa użytkownika.
@@ -185,6 +187,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | Klucz | Domyślnie | Znaczenie |
 | ----- | --------- | --------- |
 | `storage.dir` | _(brak)_ | Domyślny katalog artefaktów. Stosowany **tylko** gdy zestaw RQL nie zawiera dyrektywy `:STORAGE` - RQL ma pierwszeństwo. Katalog musi istnieć i być zapisywalny, inaczej program kończy się błędem `Configuration error: storage.dir …`. |
+| `storage.default_retention` | _(brak)_ | Para `[pojemność, segmenty]`, obie dodatnie. Nadaje ograniczoną retencję strumieniom plikowym `DEFAULT` i `DIRECT` bez własnego `RETENTION`, także substratom. Nie zmienia `MEMORY`, magazynów bez retencji ani jawnej retencji. Niepoprawna wartość daje ostrzeżenie i brak retencji domyślnej. |
 | `ipc.queue_buffer_seconds` | `10` | Głębokość kolejki IPC wyrażona w sekundach strumienia; liczba elementów to `sekundy / interwał`. |
 | `ipc.min_queue_elements` | `100` | Dolna granica pojemności kolejki, niezależna od interwału strumienia. |
 | `ipc.client_response_max_fails` | `300` | Mnożnik budżetu czasu dla odpowiedzi `xqry`. Termin jest wyznaczany zegarem monotonicznym jako ta wartość razy interwał odpytywania (10 ms) i obejmuje zarówno oczekiwanie na miejsce w kolejce poleceń, jak i na odpowiedź. |
@@ -196,6 +199,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | `server.autoname` | `false` | Generuje nazwę, gdy nie podano `--name` ani `--autoname`. Jawne `--name` wygrywa. Wartość `false` zachowuje historyczną instancję bezimienną. |
 | `service.query_file` | _(wartość z konfiguracji budowania)_ | Plik zapytań nadpisywany przy przekazaniu zestawu działającej usłudze. Używany wyłącznie jako zapasowy, gdy usługa nie zaraportowała własnego `QUERYFILE` w pliku blokady. Musi być zgodny z argumentem `ExecStart` jednostki systemd - konfiguracja nie zmienia `ExecStart`. |
 | `service.unrestricted` | `false` | Dopuszcza regułę `DO SYSTEM` w planie przyjmowanym kanałem `xqry --reset`. Wartość domyślna odrzuca taki plan w całości (→ [xqry](xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Przy `true` instancja zostawia ostrzeżenie w dzienniku przy każdym starcie, a każdy, kto potrafi otworzyć jej obiekty IPC, wykona polecenie powłoki na jej koncie. Klucz czytany jest przy starcie procesu, więc ustawia go ten sam autorytet, który pisze plik planu usługi; kanału ad hoc nie otwiera w żadnym wypadku. |
+| `limits.history_memory_mib` | `1024` | Łączny budżet historii źródeł `DECLARE` i magazynów `MEMORY` w MiB. Przekroczenie odrzuca plan przy starcie, w `-c`, ad hoc i przy `--reset`. Wartość musi być dodatnia; niepoprawna daje ostrzeżenie i wartość domyślną. Szczegóły: [Granice wymiarów planu](../../kompilacja-zapytan/granice-wymiarow-planu.md#budżet-historii-w-ram). |
 
 Obiekty IPC tworzone przez serwer - segment mapy odpowiedzi, muteks mapy, kolejka komend, kolejki odpowiedzi i segment magistrali - dostają jawny tryb `0600`, więc granicą zaufania jest konto, na którym biegnie instancja, a nie umask jednostki systemd. Klientowi to nic nie zabiera: `xqry` otwiera te obiekty wyłącznie trybem `open_only`, czyli i tak musi działać na tym koncie.
 
@@ -206,6 +210,10 @@ Przykładowy plik:
 ```toml
 [storage]
 dir = "/var/lib/retractor"
+default_retention = [1000, 4]
+
+[limits]
+history_memory_mib = 1024
 
 [ipc]
 queue_buffer_seconds = 30

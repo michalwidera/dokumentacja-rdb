@@ -137,6 +137,18 @@ Instalator portable kopiuje domyślny TOML wyłącznie wtedy, gdy pliku jeszcze 
 
 Instalacja przez `cmake --install` umieszcza domyślny TOML w `<prefix>/share/retractordb/retractor.toml`; nie aktywuje go jako konfiguracji użytkownika. Można skopiować go do swojej lokalizacji konfiguracji albo wskazać przez `--config`.
 
+W konfiguracji operator może ograniczyć historię w RAM i wzrost plików strumieni `DEFAULT`/`DIRECT` bez własnej retencji:
+
+```toml
+[limits]
+history_memory_mib = 1024
+
+[storage]
+default_retention = [1000, 4]
+```
+
+`history_memory_mib` jest dodatnim budżetem MiB dla źródeł i pierścieni `MEMORY`; zbyt duży plan zostaje odrzucony podczas kompilacji. `default_retention` wymaga dwóch dodatnich liczb `[pojemność, segmenty]`, dotyczy też substratów plikowych i nie zastępuje jawnego `RETENTION`. Bez tego klucza strumienie plikowe bez retencji nadal rosną; `xretractor` wymienia je przy starcie i w `-c`. Plik TOML może też zawierać `server.autoname` (domyślnie `false`) oraz `service.unrestricted` (domyślnie `false`, dopuszcza `DO SYSTEM` przez `xqry --reset`); ich skutki i zasady pierwszeństwa opisują [opcje xretractor](opcje-wywolania/xretractor.md#plik-konfiguracyjny-toml).
+
 ## Środowisko rozwojowe Apple
 
 Port macOS służy do rozwoju i testowania. Ogólny kontrakt systemu, opis usług i procedury produkcyjne w tej instrukcji dotyczą Linuksa. Instalator `curl` opisany powyżej obsługuje Linux; na Apple buduje się ze źródeł.

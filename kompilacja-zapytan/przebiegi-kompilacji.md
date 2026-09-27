@@ -31,7 +31,7 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 
 ## Łańcuch etapów
 
-Łańcuch dwudziestu trzech etapów definiuje funkcja `compiler::compile()`:
+Łańcuch dwudziestu pięciu etapów definiuje funkcja `compiler::compile()`:
 
 <div class="timeline compact">
 
@@ -57,6 +57,8 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 - `computeRequiredCapacities` - wymagana historia buforów
 - `validateConstraints` - kontrola semantyczna planu
 - `applyCapacitiesToStreams` - zastosowanie pojemności
+- `checkHistoryMemory` - budżet historii w RAM
+- `applyDiskRetention` - domyślna retencja plikowa i dostępność historii
 - `topologicalSort` - końcowy porządek producent–konsument
 
 </div>
@@ -74,6 +76,8 @@ Odrzuca reduktor strumieniowy (`MIN`, `MAX`, `AVG`, `SUMC` bez szerokości okna)
 #### expandStreamGenerators
 
 Rozwija każdy szablon `SELECT ... STREAM nazwa[N] ...` na `N` zwykłych zapytań o nazwach `nazwa$0`...`nazwa$(N-1)` i podstawia numer instancji pod `$` w polach, wartościach oraz odwołaniach klauzuli `FROM`. Jest pierwszym przebiegiem przepisującym plan (poprzedzają go tylko kontrole `checkFunctionCalls` i `checkStreamReducerFieldRefs`): po nim pozostała część kompilatora otrzymuje plan nieodróżnialny od ręcznie rozpisanych zapytań. Składnię i ograniczenia opisuje [Polecenie SELECT](../konstrukcja-jezyka-zapytan/polecenie-select/README.md#generatory-strumieni).
+
+Przed kopiowaniem szablonu sprawdza też liczbę strumieni po rozwinięciu: najwyżej 128. Pozostałe granice opisuje [Granice wymiarów planu](granice-wymiarow-planu.md).
 
 #### snapshotNamedSourceRefs
 
@@ -167,7 +171,7 @@ Weryfikuje poprawność semantyczną skompilowanego planu: zgodność typów i p
 
 #### applyCapacitiesToStreams
 
-Aplikuje obliczone pojemności do obiektów strumieni.
+Aplikuje obliczone pojemności do obiektów strumieni. Magazyn `MEMORY` zachowuje większą z wartości `RETENTION n` i potrzeby planu; dla źródeł zadeklarowanych pojemność wynika z potrzeb konsumentów.
 
 Dla przeplotu kompilator redukuje stosunek \\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\) i przegląda **jeden pełny okres fazowy** \\(p+q\\). Dla każdego slotu \\(i\\) tego okresu ustala, którą składową wybiera przeplot i pod jakim indeksem \\(j(i)\\), po czym bierze maksimum wymaganego opóźnienia:
 
@@ -182,6 +186,14 @@ W_{\\#}
 Wynik jest dokładny - ani nie zaniża, ani nie zawyża granicy przyczynowej. Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn \\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int` już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit` (`SOperations.hpp`) koszt przeglądu przestaje być akceptowalny i wraca poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\), która zawyża ogon o slot - wybór bezpieczny, bo zaniżenie oznaczałoby emisję rekordu przed określeniem jego zależności.
 
 Regresje obejmują między innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\) i \\(160/147\\), w tym okresowe rekordy w całości `NULL` w nieprzepisanej lewej stronie tożsamości R1; wzór operatorowy pilnuje test `ut_h10aGate`.
+
+#### checkHistoryMemory
+
+Sumuje koszt historii źródeł `DECLARE` i pierścieni `MEMORY`, po ustaleniu ich pojemności. Jeśli przekracza `[limits] history_memory_mib`, zwraca błąd z liczbą bajtów i strumieniem o największym udziale. Magazyny plikowe nie wchodzą do tej sumy.
+
+#### applyDiskRetention
+
+Stosuje `[storage] default_retention` do strumieni `DEFAULT` i `DIRECT` bez jawnej retencji, także substratów. Dla ograniczonej liczby segmentów sprawdza, czy historia potrzebna planowi mieści się w najkrótszym stanie po rotacji: `(segmenty - 1) * pojemność + 1` rekordów. Jeśli nie, odmawia kompilacji ze wskazaniem strumienia, retencji i potrzebnej głębokości. `segmenty = 0` oznacza historię bez ograniczenia i nie podlega tej kontroli.
 
 #### topologicalSort
 

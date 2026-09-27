@@ -54,6 +54,8 @@ Konwersja wartości całkowitej lub wymiernej do węższego typu całkowitego ta
 
 `to_string` tworzy pole tekstowe. Bez drugiego członu jego szerokość wynosi 32 bajty; postać `to_string(x : N)` deklaruje N bajtów. Separatorem jest dwukropek, ponieważ przecinek rozdziela pola listy `SELECT`:
 
+`N` musi należeć do zakresu `1..65536`. `to_string(x : 0)` jest błędem parsera (`to_string width 0 must be greater than zero`), a wynikowa konkatenacja napisów również musi zmieścić się w granicy pola. Zobacz [Granice wymiarów planu](../../kompilacja-zapytan/granice-wymiarow-planu.md).
+
 ```rql
 SELECT to_string(value : 10), Length(label), null2zero(optional) \
 STREAM converted FROM source

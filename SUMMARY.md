@@ -40,6 +40,7 @@
   * [Podsumowanie](architektura-systemu-przetwarzania-danych/podsumowanie.md)
 * [Kompilacja zapytań](kompilacja-zapytan/README.md)
   * [Przebiegi kompilacji](kompilacja-zapytan/przebiegi-kompilacji.md)
+  * [Granice wymiarów planu](kompilacja-zapytan/granice-wymiarow-planu.md)
   * [Budowa drzewa zależności](kompilacja-zapytan/budowa-drzewa-zaleznosci.md)
   * [Substraty](kompilacja-zapytan/substraty.md)
   * [Rozwijanie symbolu \*](kompilacja-zapytan/rozwijanie-symbolu.md)
