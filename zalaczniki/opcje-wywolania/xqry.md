@@ -50,39 +50,54 @@ xqry --server pomiary --select temperatura
 xqry --server pomiary --kill
 ```
 
-Bez tej opcji klient czyta magistralę `xrdbbus`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`.
+Bez tej opcji klient czyta magistralę bieżącej przestrzeni nazw: domyślną `xrdbbus_v6` albo `xrdbbus_v6_<namespace>` przy ustawionym `RDB_NAMESPACE`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`. Zbiorcza lista `--bus` opisana niżej nie zmienia tego routingu.
 
 Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są odrzucane przed wysłaniem polecenia.
 
 ## Lista instancji: `--bus`
 
-`xqry --bus` odczytuje magistralę bez kontaktowania się z serwerami. Wiersze są sortowane po nazwie, a `(unnamed)` oznacza zgodną wstecz instancję uruchomioną bez nazwy.
+`xqry --bus` bez ustawiania `RDB_NAMESPACE` wykrywa dostępne magistrale bieżącej wersji i wypisuje osobną sekcję `NAMESPACE:` dla każdej z co najmniej jedną żywą instancją. Działa tak samo przy ustawionym `RDB_NAMESPACE`: lista obejmuje wszystkie dostępne przestrzenie nazw, podczas gdy pozostałe polecenia nadal używają bieżącej przestrzeni. `(default)` oznacza magistralę bez przestrzeni nazw, a `(unnamed)` - zgodną wstecz instancję uruchomioną bez nazwy. Sekcje są uporządkowane według nazwy magistrali, domyślna jest pierwsza, a instancje w sekcji są sortowane po nazwie.
+
+Klient odczytuje rejestry w pamięci dzielonej bez kontaktowania się z serwerami. Pomija segmenty bez żywych instancji. Uprawnienia obiektów pamięci dzielonej ograniczają wykrywanie do magistral dostępnych dla bieżącego konta.
 
 ```text
 $ xqry --bus
+NAMESPACE: (default)
 SERVER | PID    | MODE | QUERY              | STREAMS
--------+--------+------+--------------------+-----------
-alfa   | 249247 | N    | .../plans/alfa.rql | srca, dsta
-beta   | 249248 | FS   | .../plans/beta.rql | srcb, dstb
+-------+--------+------+--------------------+--------
+alfa   | 249247 | N    | .../plans/alfa.rql | srca
+       |        |      |                    | dsta
+MODE: N=normal, R=realtime, F=no-clock, U=until-eof, M=llimitqry, X=xqrywait, S=service
+
+NAMESPACE: bus_probe
+SERVER | PID    | MODE | QUERY | STREAMS
+-------+--------+------+-------+--------
+probe  | 249249 | N    | -     | -
 MODE: N=normal, R=realtime, F=no-clock, U=until-eof, M=llimitqry, X=xqrywait, S=service
 ```
 
-Ścieżka w tabeli jest skracana dla czytelności. `--bus --yaml` zachowuje pełną ścieżkę:
+Ścieżka w tabeli jest skracana dla czytelności. `--bus --yaml` zachowuje pełną ścieżkę i jedną listę `servers`, w której pole `namespace` wskazuje magistralę każdej instancji. `null` oznacza magistralę domyślną, a nazwa przestrzeni jest cytowanym napisem:
 
 ```yaml
 ---
 apiVersion: xqry/v1
 servers:
   - name: alfa
+    namespace: null
     pid: 249247
     modes: N
     query: "/home/user/plans/alfa.rql"
     streams:
       - srca
       - dsta
+  - name: probe
+    namespace: "bus_probe"
+    pid: 249249
+    modes: N
+    streams: []
 ```
 
-Pusta magistrala daje poprawny dokument `servers: []` w YAML. Informacja diagnostyczna o braku instancji trafia na `stderr`.
+Gdy żadna dostępna magistrala nie ma żywej instancji, wynik tabelaryczny na `stdout` jest pusty, a YAML zawiera `servers: []`. Komunikat `xqry: no live xretractor instance` trafia na `stderr`.
 
 ## Lista i szczegóły strumieni
 

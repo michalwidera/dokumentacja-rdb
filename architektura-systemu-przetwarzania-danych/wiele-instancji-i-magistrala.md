@@ -34,7 +34,7 @@ Każdy obiekt IPC zakładany przez serwer - kolejka poleceń, kolejki odpowiedzi
 
 Magistrala jest wspólna dla hosta lub przestrzeni `RDB_NAMESPACE`. Każdy żywy serwer publikuje w niej nazwę, PID, tryby pracy, plik planu i nazwy strumieni. Slot jest uznawany za żywy tylko wtedy, gdy PID oraz czas startu zgadzają się z `/proc`; proces zombie nie blokuje zasobów.
 
-Bieżąca wersja układu używa segmentu `xrdbbus_v6`, a w przestrzeni testowej `xrdbbus_v6_<RDB_NAMESPACE>`. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v5 i v6 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
+Bieżąca wersja układu używa segmentu `xrdbbus_v6`, a przy ustawionym `RDB_NAMESPACE` segmentu `xrdbbus_v6_<RDB_NAMESPACE>`. Każda przestrzeń ma osobny rejestr i osobną kontrolę kolizji. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v5 i v6 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
 
 Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 
@@ -52,7 +52,7 @@ Przy `xqry --reset` zasoby nowego planu są najpierw rezerwowane. Dopiero po pop
 
 ## Routing poleceń `xqry`
 
-`xqry` rozstrzyga cel na podstawie jednej migawki magistrali, bez odpytywania kolejnych serwerów i bez czekania na ich timeouty.
+`xqry` rozstrzyga cel na podstawie jednej migawki magistrali bieżącej przestrzeni `RDB_NAMESPACE`, bez odpytywania kolejnych serwerów i bez czekania na ich timeouty. Zbiorczy przegląd `--bus` nie rozszerza zasięgu routingu pozostałych poleceń.
 
 | Sytuacja | Wynik |
 | --- | --- |
@@ -68,7 +68,7 @@ Zapytanie ad hoc nie może łączyć źródeł z różnych instancji. RetractorD
 
 ## Przegląd magistrali
 
-Polecenie `xqry --bus` nie kontaktuje się z żadnym serwerem. Pokazuje nazwę, PID, tryb, plik zapytań i strumienie każdej żywej instancji. Modyfikator `--yaml` daje dokument `apiVersion: xqry/v1`, dogodny do przetwarzania przez skrypty.
+Polecenie `xqry --bus` nie kontaktuje się z żadnym serwerem. Bez ustawiania `RDB_NAMESPACE` wykrywa wszystkie dostępne dla bieżącego konta magistrale bieżącej wersji, które mają żywe instancje. Dla każdej wypisuje osobną sekcję `NAMESPACE:` z nazwami instancji, PID, trybem, plikiem zapytań i strumieniami; `(default)` oznacza magistralę bez przestrzeni nazw. Modyfikator `--yaml` daje jeden dokument `apiVersion: xqry/v1` z listą `servers`; każdy wpis ma pole `namespace`, równe `null` dla magistrali domyślnej albo cytowanej nazwie przestrzeni. Gdy nie ma żywych instancji, tabela jest pusta, a YAML zawiera `servers: []`.
 
 Kolumna `MODE` może zawierać kilka liter:
 
