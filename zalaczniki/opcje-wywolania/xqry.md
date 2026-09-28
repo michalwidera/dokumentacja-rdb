@@ -141,6 +141,8 @@ Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymian
 
 Można wybrać tylko jeden format. `--gnuplot-rtl` i `-o` / `--gnuplot-ohlc` wymagają `--gnuplot` i można je łączyć. W trybie `--gnuplot-ohlc` pierwszy parametr `-p` liczy próbki, a nie świece; układ rekordu i reguły rysowania opisuje przykład [Wykres świecowy (OHLC)](../../przyklady-zastosowan/wykres-swiecowy-ohlc.md). Surowy format przesyła wszystkie elementy pól tablicowych; mapa `NULL` jest zachowywana per element.
 
+W wyjściu OHLC rekordy bez poprawnych wartości świecy nie tworzą świec, ale nadal mogą tworzyć linię próbek. Gdy w całym aktualnym oknie nie ma poprawnych świec, `xqry` wysyła tylko serię próbek; gdy nie ma poprawnych próbek, tylko serię świec. Okno bez żadnego poprawnego punktu nie wysyła pustego polecenia `plot` do gnuplota.
+
 ## Polecenia ad hoc
 
 `--adhoc` dołącza dokładnie jedno `SELECT`, `DECLARE` albo `RULE` do aktywnego planu:
@@ -160,7 +162,9 @@ Dyrektywy kompilatora i kilka poleceń w jednym żądaniu są odrzucane. Szczeg�
 xqry --server service --reset plan.rql
 ```
 
-Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw oraz rezerwuje jego nazwy strumieni, pliki magazynu i licznik rotacji. Odmowa nie zatrzymuje starego planu. Przyjęty plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca, a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik przełącza serwer w stan bezczynny.
+Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw, sprawdza możliwość otwarcia plików wyjściowych na dysku oraz rezerwuje jego nazwy strumieni, pliki magazynu i licznik rotacji. Kontrola plików nie tworzy ich podczas walidacji; odmowa, np. `cannot open output file`, nie zatrzymuje starego planu. Przyjęty plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca, a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik przełącza serwer w stan bezczynny.
+
+Kontrola plików jest wstępna: między odpowiedzią `OK` na `--reset` a rzeczywistym otwarciem magazynu ścieżka może się zmienić. Późny błąd otwarcia podczas wymiany planu nie jest obecnie odsyłany klientowi jako odmowa i może zatrzymać serwer; odpowiedź `OK` nie gwarantuje powodzenia tej późniejszej operacji.
 
 Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej pliku startowego, aby przetrwała restart procesu.
 

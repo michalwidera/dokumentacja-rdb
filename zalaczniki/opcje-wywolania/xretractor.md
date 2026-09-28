@@ -30,7 +30,7 @@ Available options:
   -q [ --queryfile ] arg      query set file
   -r [ --quiet ]              no output on screen, skip presenter
   -s [ --status ]             check service status
-  --cleanup                   remove leftovers of dead instances and exit
+  -o [ --cleanup ]            remove leftovers of dead instances and exit
   -v [ --verbose ]            verbose mode (show stream params)
   -x [ --xqrywait ]           wait with processing for first query
   -n [ --name ] arg           instance name; own IPC area and lock
@@ -54,8 +54,8 @@ Available options:
 | `queryfile` | Nazwa pliku z zapytaniami do kompilacji i uruchomienia. |
 | `quiet` | Pominięcie wyświetlania wyników na ekranie. Przetwarzanie działa normalnie, ale prezenter wyników nie jest uruchamiany. |
 | `status` | Sprawdzenie blokady instancji wskazanej przez `--name`, `RDB_NAMESPACE` albo historyczną pustą nazwę. Wynik `Running` oznacza, że inny proces utrzymuje tę samą tożsamość. |
-| `cleanup` | Usuwa rozpoznane pozostałości martwych instancji i kończy działanie bez uruchamiania planu. Chroni zasoby żywych właścicieli; zakres i ograniczenia opisano poniżej. |
-| `verbose` | Tryb zwiększonej komunikatywności - wyświetla parametry strumieni. Pozostałość po fazie rozwojowej; prawdopodobnie zostanie zachowana. |
+| `cleanup` | Usuwa rozpoznane pozostałości martwych instancji i kończy działanie bez uruchamiania planu. Dostępny także jako `-o`. Chroni zasoby żywych właścicieli; zakres i ograniczenia opisano poniżej. |
+| `verbose` | Wyświetla parametry strumieni oraz dodaje na `stderr` komunikat o strumieniach rosnących bez ograniczenia na dysku. Osobny wpis w dzienniku zależy od poziomu logowania. |
 | `xqrywait` | Kompiluje zapytania i wstrzymuje pętlę przetwarzania do chwili nadejścia pierwszego zapytania z procesu `xqry`. Wymagane przy jednoczesnym użyciu `-m N` w skryptach i testach: bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient zdąży się podłączyć, co skutkuje brakiem danych i oczekiwaniem po stronie `xqry` aż do przekroczenia limitu czasowego. Pierwsze polecenie odebrane od `xqry` (np. `-d` lub `-s`) odblokowuje pętlę przetwarzania. |
 | `name arg` | Nadaje instancji stałą nazwę. Nazwa wybiera osobny plik blokady i obszar IPC oraz pozwala kierować polecenia przez `xqry --server`. Dopuszczalne są najwyżej 32 znaki: małe litery, cyfry, `_` i `-`, przy czym pierwszy znak musi być literą. |
 | `autoname` | Generuje nazwę instancji w stylu nazw kontenerów i wypisuje ją przy starcie. Wzajemnie wyklucza się z `--name`. |
@@ -137,6 +137,7 @@ Available options:
   -c [ --onlycompile ]   compile only mode
   -q [ --queryfile ] arg query set file
   -r [ --quiet ]         no output on screen, skip presenter
+  -v [ --verbose ]       verbose mode (show stream params)
   -d [ --dot ]           create dot output
   -m [ --csv ]           create csv output
   -f [ --fields ]        show fields in dot file
@@ -150,7 +151,7 @@ Available options:
   -g [ --config ] arg    config file (TOML); overrides search
 ```
 
-W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych opisywanych szerzej w opracowaniu.
+W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych opisywanych szerzej w opracowaniu. `-v` jest dostępne również przy kompilacji bez uruchamiania planu.
 
 ### Opcje wizualizacji i diagnostyki
 
@@ -271,5 +272,7 @@ Log: /tmp/xretractor.log
 ```
 
 Plik `/tmp/xretractor.log` rejestruje historię wywołań i zdarzeń wewnętrznych systemu. W środowisku produkcyjnym należy zadbać o regularne czyszczenie lub rotację tego pliku.
+
+Linia `Config: Defaults` oznacza brak wczytanych plików TOML. Jeżeli konfiguracja została wczytana, `Config:` wypisuje ścieżki plików w kolejności ładowania. Przy błędzie składni planu ładowanego z pliku wpis parsera w dzienniku podaje także ścieżkę tego pliku.
 
 Ostatnia linia zawiera informację o licencji MIT, która umożliwia bezpieczne użycie kodu w zastosowaniach korporacyjnych.

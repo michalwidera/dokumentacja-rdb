@@ -102,6 +102,8 @@ open nazwa_pliku { TYP pole TYP pole ... }
 
 Jeśli plik `.desc` istnieje - schemat jest z niego odczytany. Jeśli nie istnieje - schemat należy podać w nawiasach `{}`.
 
+Jeśli otwarcie pliku danych nie powiedzie się, `open` wypisuje przyczynę (np. `cannot open output file`) i pozostawia magazyn nieotwarty, zamiast kończyć proces. Gdy próba utworzyła nowy `.desc`, a otwarcie danych zawiodło, plik deskryptora jest usuwany. Po usunięciu przyczyny można ponowić `open`.
+
 Tablicowe typy pól: `STRING name[8]` oznacza pole tekstowe o długości 8 bajtów (array multiplicity = 8).
 
 Przykłady:

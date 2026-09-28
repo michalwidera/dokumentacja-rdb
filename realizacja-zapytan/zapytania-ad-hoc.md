@@ -14,6 +14,8 @@ Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLA
 
 Błąd składni lub niepoprawna wartość jest odsyłana klientowi wraz z powodem, a serwer nadal obsługuje następne polecenia. Parser odrzuca m.in. literały liczbowe poza zakresem, zerowy mianownik, interwał równy zero (w `DECLARE` oraz przy `&`, `%` i `-`) i pustą nazwę `FILE`. Jeśli dołączenie nie powiedzie się po imporcie, serwer przywraca poprzedni plan i wycofuje nowe roszczenia nazw strumieni i plików w magistrali. Tę samą komendę można ponowić po usunięciu przyczyny błędu.
 
+Przed dołączeniem `SELECT` zapisującego wynik na dysku serwer sprawdza, czy może otworzyć jego plik danych i, dla odpowiednich profili, plik `.shadow`. Kontrola nie tworzy nowych plików; dla nieistniejącego pliku sprawdza katalog nadrzędny. Odmowa zwraca klientowi przyczynę, np. `cannot open output file`, bez zmiany planu. Jeśli katalog przestanie być dostępny po tej kontroli, błąd otwarcia akcesora POSIX, POSIXSHD lub segmentu DEFAULT/DIRECT również wraca jako odmowa: serwer wycofuje import i nowe roszczenia w magistrali, pozostaje uruchomiony i pozwala ponowić polecenie. Ta obsługa późnego błędu nie obejmuje profilu `STORAGE GENERIC`.
+
 Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 
 ```
@@ -43,7 +45,7 @@ Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia - t
 
 ### Kiedy zaczyna się strumień dołożony ad hoc
 
-Plan zbudowany od początku pracy systemu numeruje rekordy od początku logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy: skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet jeśli nowe zapytanie wnosi do systemu nowe tempo.
+Plan zbudowany od początku pracy systemu numeruje rekordy od początku logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy: skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet jeśli nowe zapytanie wnosi do systemu nowe tempo. Ten sam zamek chroni krok zerowy od zebrania nazw deklaracji do publikacji pierwszych rekordów, więc import ad hoc czeka na koniec tego kroku.
 
 > **_NOTE:_** Zachowanie to ma pokrycie w teście `issue227_join_alignment` (przypadek `adhoc-origin`).
 
