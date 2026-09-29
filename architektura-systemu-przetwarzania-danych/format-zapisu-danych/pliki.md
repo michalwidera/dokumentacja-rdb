@@ -218,6 +218,8 @@ Każdy wpis opisuje ciąg kolejnych rekordów z identycznym wzorcem null:
 | `bitsetSize`  | 8 B (size\_t) | liczba pól (N)                   |
 | `bitset`      | ⌈N/8⌉ B       | bit i = pole i ma wartość null   |
 
+Wzorzec null dotyczy konkretnego rekordu: bit ustawiony dla jednego pola nie zmienia pozostałych pól ani innych rekordów opisanych tym samym deskryptorem. Liczbowe pole tablicowe `T[N]` jest jednym wpisem deskryptora i ma jeden wspólny bit null dla wszystkich N elementów; ustawiony bit oznacza null całego pola. Przy przekształceniu N pól skalarnych w jedno `T[N]` null w dowolnym z nich ustawia ten wspólny bit.
+
 ### Kompresja RLE
 
 Kolejne rekordy z tym samym wzorcem null są scalane w jeden wpis przez zwiększenie `recordCount`. Nowy wpis tworzony jest dopiero gdy wzorzec się zmienia.
