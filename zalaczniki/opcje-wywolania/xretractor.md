@@ -241,9 +241,11 @@ Start bez pliku `.rql` albo z pustym plikiem tworzy bezczynną instancję z dzia
 xqry --server service --reset plan.rql
 ```
 
-Serwer parsuje i kompiluje całą treść, sprawdza kolizje zasobów, rezerwuje nowy zestaw, a następnie przełącza plan na granicy slotu. Odmowa pozostawia poprzedni plan bez zmian. Pusty plik resetu przywraca stan bezczynny. W instancji usługowej zaakceptowana treść jest również zapisywana w pliku startowym usługi.
+Serwer parsuje i kompiluje całą treść, sprawdza zachowane pliki `.desc`, zgodność magazynów przy `:ROTATION` oraz kolizje zasobów, rezerwuje nowy zestaw, a następnie przełącza plan na granicy slotu. Błędny składniowo, pusty albo niezgodny z planem deskryptor powoduje odmowę z przyczyną; poprzedni plan i plik startowy usługi pozostają bez zmian. Pusty plik resetu przywraca stan bezczynny. W instancji usługowej zaakceptowana treść jest również zapisywana w pliku startowym usługi.
 
-Alternatywna ścieżka `xretractor nowy-plan.rql` wykrywa działającą jednostkę systemd, weryfikuje zestaw, atomowo nadpisuje jej plik startowy i wywołuje restart. Jawne wskazanie innej tożsamości przez `--name` albo `--autoname` oznacza zamiast tego start osobnej instancji. W razie krytycznego błędu plan usługowy jest opróżniany, aby systemd uruchomił proces ponownie w bezpiecznym stanie bezczynnym.
+Alternatywna ścieżka `xretractor nowy-plan.rql` wykrywa działającą jednostkę systemd, weryfikuje zestaw i zachowane magazyny oraz deskryptory **przed** atomowym nadpisaniem jej pliku startowego i zleceniem restartu. Odmowa kończy się kodem `71` i komunikatem `nothing was changed`; działająca usługa zachowuje plan. Jawne wskazanie innej tożsamości przez `--name` albo `--autoname` oznacza zamiast tego start osobnej instancji.
+
+Przy zwykłym starcie niepoprawny `.desc` daje diagnostykę zawierającą ścieżkę pliku, a błąd składni również wiersz i kolumnę; plan jest odrzucany przed uruchomieniem przetwarzania. Istniejące deskryptory źródeł `DECLARE` są sprawdzane zawsze, a deskryptory wyników `SELECT` i substratów tylko wtedy, gdy `:ROTATION` zachowuje ich pliki. W jednostce systemd odmowa planu przed startem z powodu parsowania, kompilacji, niezgodnego zachowanego magazynu lub `.desc` opróżnia plik zapytań usługi. Po restarcie jednostka przechodzi w stan bezczynny zamiast ponawiać wadliwy plan; tak samo opróżniany jest plik po błędzie krytycznym `FatalError`. Poza jednostką plik `.rql` pozostaje nietknięty. Tryb `-c` nie czyta zachowanych `.desc` i nie opróżnia pliku zapytań, także gdy jest uruchomiony w jednostce.
 
 ---
 
