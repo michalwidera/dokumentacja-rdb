@@ -93,7 +93,7 @@ Polecenie nie uruchamia planu. Próbuje zająć blokady rozpoznanych zasobów i 
 | --- | --- |
 | Pliki blokad instancji | Przegląd katalogu `paths.lock_dir` wybranego konfiguracją, domyślnie katalogu tymczasowego procesu. |
 | Tożsamości IPC | Przegląd wspólnego `/tmp`; usunięcie porzuconej blokady oraz odpowiadającej jej kolejki poleceń, segmentu odpowiedzi i muteksu mapy. |
-| Magistrala | Usunięcie nieużywanych segmentów bieżącej wersji `xrdbbus_v6`, chronionych blokadą obecności. |
+| Magistrala | Usunięcie nieużywanych segmentów bieżącej wersji `xrdbbus_v7`, chronionych blokadą obecności. |
 
 Zakres nie jest ograniczony do jednej instancji wskazanej przez `--name` ani jednej przestrzeni `RDB_NAMESPACE`. Dostęp do zasobów nadal podlega uprawnieniom systemu plików. Polecenie nie wylicza i nie usuwa kolejek odpowiedzi klientów; nie usuwa też segmentów v5 i starszych, które nie uczestniczą w protokole blokady obecności.
 

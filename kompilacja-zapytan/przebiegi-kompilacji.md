@@ -77,7 +77,7 @@ Odrzuca reduktor strumieniowy (`MIN`, `MAX`, `AVG`, `SUMC` bez szerokości okna)
 
 Rozwija każdy szablon `SELECT ... STREAM nazwa[N] ...` na `N` zwykłych zapytań o nazwach `nazwa$0`...`nazwa$(N-1)` i podstawia numer instancji pod `$` w polach, wartościach oraz odwołaniach klauzuli `FROM`. Jest pierwszym przebiegiem przepisującym plan (poprzedzają go tylko kontrole `checkFunctionCalls` i `checkStreamReducerFieldRefs`): po nim pozostała część kompilatora otrzymuje plan nieodróżnialny od ręcznie rozpisanych zapytań. Składnię i ograniczenia opisuje [Polecenie SELECT](../konstrukcja-jezyka-zapytan/polecenie-select/README.md#generatory-strumieni).
 
-Przed kopiowaniem szablonu sprawdza też liczbę strumieni po rozwinięciu: najwyżej 128. Pozostałe granice opisuje [Granice wymiarów planu](granice-wymiarow-planu.md).
+Przed kopiowaniem szablonu sprawdza też liczbę strumieni po rozwinięciu: najwyżej 148. Pozostałe granice opisuje [Granice wymiarów planu](granice-wymiarow-planu.md).
 
 #### snapshotNamedSourceRefs
 

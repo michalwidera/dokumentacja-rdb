@@ -50,7 +50,7 @@ xqry --server pomiary --select temperatura
 xqry --server pomiary --kill
 ```
 
-Bez tej opcji klient czyta magistralę bieżącej przestrzeni nazw: domyślną `xrdbbus_v6` albo `xrdbbus_v6_<namespace>` przy ustawionym `RDB_NAMESPACE`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`. Zbiorcza lista `--bus` opisana niżej nie zmienia tego routingu.
+Bez tej opcji klient czyta magistralę bieżącej przestrzeni nazw: domyślną `xrdbbus_v7` albo `xrdbbus_v7_<namespace>` przy ustawionym `RDB_NAMESPACE`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`. Zbiorcza lista `--bus` opisana niżej nie zmienia tego routingu.
 
 Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są odrzucane przed wysłaniem polecenia.
 

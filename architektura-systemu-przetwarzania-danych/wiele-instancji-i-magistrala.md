@@ -34,7 +34,7 @@ Każdy obiekt IPC zakładany przez serwer - kolejka poleceń, kolejki odpowiedzi
 
 Magistrala jest wspólna dla hosta lub przestrzeni `RDB_NAMESPACE`. Każdy żywy serwer publikuje w niej nazwę, PID, tryby pracy, plik planu i nazwy strumieni. Slot jest uznawany za żywy tylko wtedy, gdy PID oraz czas startu zgadzają się z `/proc`; proces zombie nie blokuje zasobów.
 
-Bieżąca wersja układu używa segmentu `xrdbbus_v6`, a przy ustawionym `RDB_NAMESPACE` segmentu `xrdbbus_v6_<RDB_NAMESPACE>`. Każda przestrzeń ma osobny rejestr i osobną kontrolę kolizji. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v5 i v6 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
+Bieżąca wersja układu używa segmentu `xrdbbus_v7`, a przy ustawionym `RDB_NAMESPACE` segmentu `xrdbbus_v7_<RDB_NAMESPACE>`. Każda przestrzeń ma osobny rejestr i osobną kontrolę kolizji. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v6 i v7 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
 
 Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 

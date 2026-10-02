@@ -9,7 +9,7 @@ RetractorDB odrzuca plan, którego wymiary przekraczają bezpieczny zakres parse
 | Długość pola | `1..65536` | `TYP[N]`, `STRING[N]`, `to_string(x : N)`; parser DESC stosuje tę samą granicę pól. |
 | Zasięg historii | do `65536` | Krok i wartość bezwzględna szerokości `@(step, window)`, szerokość okna rekordowego, przesunięcie `>N` i granice `DUMP -L TO R`. Krok i szerokości muszą być dodatnie; przesunięcie i granice `DUMP` mogą być zerem. |
 | `DUMP ... RETENTION` | `0..256` | Liczba jednocześnie pamiętanych zadań zrzutu; `0` oznacza brak retencji zadań. |
-| Rozmiar generatora | `1..128` | `STREAM nazwa[N]`; po rozwinięciu generatorów cały plan może mieć najwyżej 128 strumieni. |
+| Rozmiar generatora | `1..148` | `STREAM nazwa[N]`; po rozwinięciu generatorów cały plan może mieć najwyżej 148 strumieni. |
 
 Pojemność `RETENTION` magazynu musi być dodatnia. W dwuczłonowej postaci liczba segmentów może wynosić `0`, co oznacza brak limitu segmentów na dysku. Literał poza zakresem typu liczbowego jest błędem parsera, a przekroczenie powyższej granicy daje komunikat w rodzaju `AGSE step 65537 exceeds the limit 65536`. `to_string(x : 0)` daje `to_string width 0 must be greater than zero`; nie tworzy pola o zerowej szerokości.
 
@@ -23,7 +23,7 @@ Pojemność `RETENTION` magazynu musi być dodatnia. W dwuczłonowej postaci lic
 | Suma płaskich elementów rekordów w planie | `2^18` (`262144`) | Ogranicza koszt rozbudowy deskryptorów i wykonania, także przy wielu małych polach. |
 | Początek logiczny i ogon startowy | `INT_MAX` (`2147483647`) slotów każdy | Wyniki obliczeń kompilatora muszą mieścić się w reprezentacji `int` używanej przez plan. |
 
-Kontrola liczby 128 strumieni po rozwinięciu dotyczy planu z generatorem i następuje przed kopiowaniem jego instancji. Plan bez generatora może przejść ten etap, lecz limit slotu magistrali jest sprawdzany przy rejestracji lub wymianie planu. Rozmiary rekordów i pól są sprawdzane przed budową potencjalnie dużych deskryptorów.
+Kontrola liczby 148 strumieni po rozwinięciu dotyczy planu z generatorem i następuje przed kopiowaniem jego instancji. Plan bez generatora może przejść ten etap, lecz limit slotu magistrali jest sprawdzany przy rejestracji lub wymianie planu. Rozmiary rekordów i pól są sprawdzane przed budową potencjalnie dużych deskryptorów.
 
 Kompilator podaje strumień oraz przekroczony wymiar, np. `Stream 'x' reads an input record of 1048577 bytes; the limit is 1048576`, `Plan needs 262145 record elements; the limit is 262144 (reached at stream 'x')`, `Stream 'x' has a logical origin of ... slots; the limit is 2147483647` lub analogiczny komunikat o `startup latency`.
 
