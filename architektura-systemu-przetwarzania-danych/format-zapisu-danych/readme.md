@@ -18,8 +18,9 @@ Pole `TYPE` w deskryptorze (lub dyrektywa `STORAGE` w RQL) wybiera implementacj�
 | `POSIXSHD`           | `posixBinaryFileWithShadow`            | POSIX z plikiem cienia                                            |
 | `MEMORY`             | `memoryFile`                           | Składowanie wyłącznie w RAM (efemerydy)                           |
 | `GENERIC`            | `genericBinaryFile`                    | Ogólny akcesor binarny                                            |
-| `DEVICE`             | `binaryDeviceRO`                       | Zewnętrzne urządzenie binarnych danych wejściowych (tylko odczyt) |
-| `TEXTSOURCE`         | `textSourceRO`                         | Tekstowe źródło danych wejściowych (tylko odczyt)                 |
+| `BINFILE`            | `binaryDeviceRO`                       | Zwykły plik binarny danych wejściowych, `DECLARE ... BINFILE` (tylko odczyt) |
+| `DEVICE`             | `binaryDeviceRO`                       | Urządzenie znakowe albo FIFO, `DECLARE ... DEVICE` (tylko odczyt) |
+| `TEXTSOURCE`         | `textSourceRO`                         | Tekstowe źródło danych wejściowych, `DECLARE ... TEXTFILE` (tylko odczyt) |
 
 ***
 

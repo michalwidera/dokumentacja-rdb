@@ -7,7 +7,7 @@ Jego składnia opisana jest następująco:
 ```rql
 DECLARE pole typ[N] [, pole typ[N]]
 STREAM nazwa, szybkość
-FILE źródło
+BINFILE | TEXTFILE | DEVICE źródło
 [DISPOSABLE]
 [ONESHOT]
 [HOLD]
@@ -17,7 +17,39 @@ FILE źródło
 
 _Rys. 3. Diagram składni polecenia DECLARE_
 
-Diagram składni (railroad) przedstawiony na Rys. 3 został wygenerowany na podstawie reguły `declare_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Pętla powracająca przez przecinek oznacza, że deklaracji pól może być wiele; rozgałęzienie przy szybkości pokazuje, że można ją zapisać ułamkiem (licznik/mianownik) lub pojedynczą liczbą; tory omijające DISPOSABLE, ONESHOT i HOLD oznaczają, że każda z tych dyrektyw jest opcjonalna.
+Diagram składni (railroad) przedstawiony na Rys. 3 został wygenerowany na podstawie reguły `declare_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Pętla powracająca przez przecinek oznacza, że deklaracji pól może być wiele; rozgałęzienie przy szybkości pokazuje, że można ją zapisać ułamkiem (licznik/mianownik) lub pojedynczą liczbą; rozgałęzienie przed źródłem to wybór rodzaju źródła (`BINFILE`, `TEXTFILE`, `DEVICE` albo przestarzałe `FILE`); tory omijające DISPOSABLE, ONESHOT i HOLD oznaczają, że każda z tych dyrektyw jest opcjonalna.
+
+## Rodzaje źródeł
+
+Format danych wynika ze słowa kluczowego, nigdy z nazwy ani rozszerzenia ścieżki:
+
+| Słowo      | Co czyta                                                                                      | Rodzaj pliku pod ścieżką      | Po końcu danych                                   |
+| ---------- | --------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------- |
+| `BINFILE`  | surowe rekordy binarne o rozmiarze wynikającym z pól                                          | wyłącznie plik zwykły         | powrót na początek (pętla), z `ONESHOT` koniec źródła |
+| `TEXTFILE` | tekst: wartości rozdzielone białymi znakami, token `NULL` oznacza brak wartości              | wyłącznie plik zwykły         | jak `BINFILE`                                     |
+| `DEVICE`   | surowe rekordy binarne ze źródła żywego; nie interpretuje tekstu ani tokenu `NULL`, bajt zero jest zerem | urządzenie znakowe albo FIFO  | -                                                 |
+
+```rql
+DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 BINFILE 'rec205'
+DECLARE bp_coef INTEGER[25] STREAM bpf, 1 TEXTFILE 'bp_coef.txt'
+DECLARE sample BYTE STREAM sensor, 0.02 DEVICE '/dev/urandom'
+```
+
+Rozszerzenie niczego nie wybiera: `BINFILE 'bajty.txt'` czyta surowe bajty, a `TEXTFILE 'wartosci.dat'` parsuje tekst.
+
+`DEVICE` jest źródłem żywym, dlatego nie przyjmuje `DISPOSABLE`, `ONESHOT` ani `HOLD` - te dyrektywy dotyczą plików odtwarzanych (`BINFILE`, `TEXTFILE`), patrz [Opcje odczytu](polecenie-declare-opcje-odczytu.md). Otwarcie FIFO zadeklarowanego jako `DEVICE` czeka na pisarza, więc pisarz musi pojawić się przed startem planu.
+
+Słowa `BINFILE`, `TEXTFILE` i `DEVICE` są zastrzeżone - żaden strumień nie może się tak nazywać (również pisane małymi literami).
+
+### Kontrola rodzaju pliku
+
+Przed startem planu - także przy przeładowaniu planu (`xqry --reset`) i imporcie ad hoc (`xqry -a`) - system sprawdza rodzaj pliku pod ścieżką każdej deklaracji, bez otwierania go. Ścieżka niewłaściwego rodzaju (katalog, urządzenie blokowe, gniazdo, FIFO dla `BINFILE`/`TEXTFILE`, zwykły plik dla `DEVICE`) daje odmowę planu z nazwą strumienia i ścieżką, np.:
+
+```
+xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file
+```
+
+Ścieżka, której nie ma, nie jest odmową: strumień daje wtedy rekordy `NULL`, a dziennik ostrzeżenie. Kompilacja w trybie `-c` tej kontroli nie wykonuje - nie musi biec na maszynie z danymi.
 
 ## Typy pól
 
@@ -37,7 +69,7 @@ Każde pole ma nazwę i typ. Dostępne typy:
 Do każdego pola można dodać mnożnik tablicowy `[N]` - pole zajmuje `N × rozmiar_typu` bajtów i tworzy `N` kolejnych pozycji w schemacie rekordu:
 
 ```rql
-DECLARE coef INTEGER[25] STREAM filter, 1 FILE 'coefficients.txt'
+DECLARE coef INTEGER[25] STREAM filter, 1 TEXTFILE 'coefficients.txt'
 ```
 
 Pole `coef INTEGER[25]` tworzy rekord o rozmiarze 25 × 4 = 100 bajtów i daje dostęp do indeksów `filter[0]` … `filter[24]`. Jest to standardowy sposób przekazywania tablic współczynników (np. filtry FIR) do systemu.
@@ -47,7 +79,7 @@ Wiele pól różnych typów można łączyć w jednym rekordzie:
 ```rql
 DECLARE id UINT, wartosc FLOAT, nazwa STRING[16] \
 STREAM pomiar, 0.1 \
-FILE 'czujnik.dat'
+BINFILE 'czujnik.dat'
 ```
 
 Rozmiar rekordu: 4 + 4 + 16 = 24 bajty.
@@ -57,24 +89,59 @@ System RetractorDB działając pod kontrolą systemu Linux pobiera i zapisuje da
 Przykładem polecenia tworzącego w systemie RetractorDB obiekt zwracający wartości przypadkowe ze strumienia /dev/random 10 razy na sekundę o wartościach typu int wygląda następująco
 
 ```rql
-DECLARE pole_przypadkowe INTEGER STREAM random_stream, 0.1 FILE ‘/dev/random’
+DECLARE pole_przypadkowe INTEGER STREAM random_stream, 0.1 DEVICE '/dev/random'
 ```
 
-Wspominane w poleceniu źródło, jeśli zostanie zadeklarowane jako plik tekstowy z rozszerzeniem .txt zostanie zinterpretowane przez system jako ciągły i nieskończony plik danych czytany wiersz po wierszu. Po napotkaniu końca pliku, odczyt danych zaczyna się od początku. Ta funkcjonalność została wbudowana w system RetractorDB. Zapewnione jest podstawowe wsparcie dla formatu – jeśli podamy dwa pola całkowite w deklaracji a w pliku po spacji podamy dwie wartości całkowite – wartości te trafią jako kolejne elementy czytanego rekordu.
+Plik zadeklarowany jako `TEXTFILE` jest interpretowany jako ciągły i nieskończony plik danych czytany wiersz po wierszu. Po napotkaniu końca pliku odczyt danych zaczyna się od początku. Zapewnione jest podstawowe wsparcie dla formatu - jeśli podamy dwa pola całkowite w deklaracji, a w pliku po spacji podamy dwie wartości całkowite, wartości te trafią jako kolejne elementy czytanego rekordu.
 
 ```rql
-DECLARE pole_1 INTEGER STREAM cykliczny_stream, 0.1 FILE ‘plik.txt’
+DECLARE pole_1 INTEGER STREAM cykliczny_stream, 0.1 TEXTFILE 'plik.txt'
 ```
-
-Aby parsowanie pliku nastąpiło automatycznie, plik musi nosić rozszerzenie .txt. Na chwilę ta funkcjonalność została zaimplementowana na stałe i nie podlega parametryzacji. Planuję to zmienić w przyszłości.
 
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `Pattern7` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
-Jeśli plik danych wejściowych będzie nosić rozszerzenie .dat – plik ten zostanie potraktowany jako plik binarny a odczyt danych z niego zostanie również zapętlony. Zapętlenie polega na tym że po przeczytaniu ostatniej wartości z pliku źródłowego, pozycja odczytu pliku kierowana jest na początek. Dane z takiego pliku czytane są w nieskończonej pętli, po zakończeniu wracając do początku.
+Plik zadeklarowany jako `BINFILE` jest czytany jako ciąg surowych rekordów, również w pętli: po przeczytaniu ostatniego rekordu pozycja odczytu wraca na początek pliku.
 
-Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródła danych - szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
+Trzy opcjonalne dyrektywy (`ONESHOT`, `DISPOSABLE`, `HOLD`) sterują cyklem życia źródeł plikowych - szczegółowy opis i tabela porównawcza znajdują się w rozdziale [Opcje odczytu](polecenie-declare-opcje-odczytu.md).
+
+## Forma przestarzała `FILE`
+
+`DECLARE ... FILE 'ścieżka'` jest nadal przyjmowane dla wstecznej zgodności. Rodzaj źródła wybiera wtedy stała reguła ze ścieżki - ta sama, którą system stosował, zanim pojawiły się jawne słowa. Wiersze tabeli sprawdzane są po kolei:
+
+| Ścieżka w `FILE`                                                                       | Rodzaj po tłumaczeniu |
+| -------------------------------------------------------------------------------------- | --------------------- |
+| zawiera `.txt` w dowolnym miejscu, bez względu na wielkość liter (`dane.txt`, `X.TXT`, `/x.txt.d/rec`) | `TEXTFILE`            |
+| zaczyna się od `/dev/`                                                                 | `DEVICE`              |
+| każda inna                                                                             | `BINFILE`             |
+
+Po tłumaczeniu obowiązują reguły wybranego rodzaju, łącznie z kontrolą rodzaju pliku. `FILE` wskazujący FIFO spoza `/dev` daje odmowę z podpowiedzią właściwego słowa:
+
+```
+xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file (deprecated FILE resolved this path as BINFILE; declare it with DEVICE)
+```
+
+Deklaracja `FILE` rozstrzygnięta jako `DEVICE` przyjmuje `ONESHOT`, ale nie `DISPOSABLE` ani `HOLD`. Nowe plany powinny używać jawnych słów - forma `FILE` zostanie w przyszłości usunięta z języka. `FILE` w poleceniu `SELECT` nadal tylko nazywa plik wyniku i nie jest formą przestarzałą.
+
+Ostrzeżenie o formie przestarzałej jest domyślnie wyciszone, więc istniejące plany nie zmieniają wyjścia programu. Z opcją `--verbose` (`-v`) `xretractor` wypisuje na stderr jedno ostrzeżenie na deklarację - przy starcie i w trybie `-c`:
+
+```
+xretractor: warning: line 3: DECLARE core: FILE 'dane.txt' is deprecated, resolved as TEXTFILE
+```
+
+Przy imporcie ad hoc (`xqry -a`) i przeładowaniu planu (`xqry --reset`) decyduje `--verbose` serwera, a ostrzeżenie trafia na jego stderr.
+
+## Deskryptor źródła
+
+System zapisuje deskryptor każdej deklaracji w katalogu magazynu jako `<nazwa_strumienia>.desc`: pola, ścieżkę (`REF`) i typ (`TYPE BINFILE`, `TYPE TEXTSOURCE` albo `TYPE DEVICE`). Deskryptor zostaje między uruchomieniami i przy następnym starcie musi pasować do planu także w typie i ścieżce. Zmiana rodzaju źródła albo ścieżki przy zachowanym deskryptorze jest odmową planu z nazwą strumienia:
+
+```
+xretractor: stream 'src': temp/src.desc was written for source 'v.txt' and the plan reads 'w.txt'; remove temp/src.desc to start the stream afresh
+```
+
+Wyjątkiem jest deskryptor zapisany przez wcześniejsze wersje systemu dla zwykłego pliku binarnego: miał on `TYPE DEVICE`. Jeśli poza typem zgadza się z planem, start zastępuje go deskryptorem z `TYPE BINFILE`.
+
+> **_NOTE:_** Rodzaje źródeł, kontrola rodzaju pliku, forma przestarzała i deskryptor mają pokrycie w teście `source_kinds`.
 
 > **ℹ️ Info**
 >
 > Obsługa wartości NULL (per-pole) jest zaimplementowana w systemie RetractorDB. Metadane null przechowywane są w pliku `.meta` obok danych binarnych, zarządzanym przez klasę `metaData`.
-

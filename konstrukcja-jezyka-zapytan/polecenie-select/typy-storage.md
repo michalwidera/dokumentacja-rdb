@@ -12,8 +12,16 @@ Klauzula `STORAGE` w poleceniu `SELECT` oraz dyrektywa `SUBSTRAT` przyjmują jed
 | `POSIX`        | `posixBinaryFile`                     | nie      | nie    | Pojedynczy plik binarny; bez retencji           |
 | `POSIXSHD`     | `posixBinaryFileWithShadow`           | nie      | tak    | Pojedynczy plik z ochroną shadow; bez retencji  |
 | `GENERIC`      | `genericBinaryFile`                   | nie      | nie    | Generyczny plik binarny                         |
-| `DEVICE`       | `binaryDeviceRO`                      | nie      | nie    | Urządzenie binarne; tylko odczyt; pętla zależna od `ONESHOT` |
-| `TEXTSOURCE`   | `textSourceRO`                        | nie      | nie    | Plik tekstowy; tylko odczyt; pętla zależna od `ONESHOT` |
+
+Inna wartość w `STORAGE` albo `SUBSTRAT` jest błędem kompilacji. Typy źródeł `DECLARE` - `BINFILE`, `TEXTSOURCE` i `DEVICE`, zapisywane w polu `TYPE` deskryptora źródła - nie są profilami magazynu: ich akcesory (`binaryDeviceRO`, `textSourceRO`) są tylko do odczytu, więc wynik `SELECT` nie może w nich powstać. Rodzaj źródła wybiera słowo kluczowe w [DECLARE](../polecenie-declare.md#rodzaje-źródeł).
+
+Odmowa nazywa strumień i dopuszczalne profile:
+
+```
+STORAGE DEVICE of stream dst is not a storage profile but a source kind of DECLARE; use DEFAULT, MEMORY, DIRECT, POSIX, POSIXSHD or GENERIC
+```
+
+W klauzuli `STORAGE` profil, jak każde słowo kluczowe, ma dwie pisownie - wielkimi albo małymi literami (`MEMORY`, `memory`); `Memory` jest błędem. Wartość dyrektywy `SUBSTRAT` jest napisem i wielkość liter nie ma w niej znaczenia.
 
 **Retencja** - artefakty rotowane, starsze pliki usuwane automatycznie (wymaga `RETENTION pojemność segmenty` w `SELECT`).\
 **Shadow** - każda modyfikacja zapisywana jest do osobnego pliku `.shadow`; dane historyczne są chronione przed nadpisaniem.
@@ -43,7 +51,7 @@ Wybór zależy od wymagań środowiska:
 * **Środowisko produkcyjne, dane krytyczne** → `DEFAULT` (retencja + shadow)
 * **Środowisko produkcyjne, dane nieistotne historycznie** → `MEMORY` (zero dysku, retencja w RAM)
 * **Rozwój i debugowanie** → `DEFAULT` lub `DIRECT` (dane widoczne na dysku)
-* **Odczyt z urządzenia lub pliku tekstowego** → `DEVICE` / `TEXTSOURCE` (odpowiednio)
+* **Odczyt z pliku binarnego, pliku tekstowego lub urządzenia** → nie przez `STORAGE`, lecz przez rodzaj źródła w `DECLARE` (`BINFILE`, `TEXTFILE`, `DEVICE`)
 
 ## Przykład
 

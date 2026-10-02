@@ -45,7 +45,7 @@ SELECT m[0]*2 STREAM o FROM m
 Liczbowa deklaracja `T[N]` jest jednym wpisem deskryptora, ale zajmuje `N` płaskich slotów rekordu. Reduktor odwiedza wszystkie te sloty. Dlatego poniższe zapytanie liczy minimum ze wszystkich 24 ogniw bieżącego rekordu, a nie tylko z `cells[0]`:
 
 ```rql
-DECLARE cells INTEGER[24] STREAM battery, 1 FILE 'cells.txt'
+DECLARE cells INTEGER[24] STREAM battery, 1 TEXTFILE 'cells.txt'
 SELECT * STREAM cell_min FROM MIN(battery)
 ```
 
@@ -76,7 +76,7 @@ Odbiorca pola `RATIONAL` musi znać układ pary licznik-mianownik (→ [Układ p
 ### Przykład: średnia z rekordu okna AGSE
 
 ```rql
-DECLARE val INTEGER STREAM src, 1 FILE 'data.txt'
+DECLARE val INTEGER STREAM src, 1 TEXTFILE 'data.txt'
 
 # AGSE buduje rekord z pięciu próbek, AVG redukuje jego pięć pól
 SELECT * STREAM ma5 FROM AVG(src@(1,5))
@@ -98,7 +98,7 @@ Okno znajduje się bezpośrednio w `FROM`, więc nie wymaga osobnego zapytania. 
 ### Przykład: MIN i MAX
 
 ```rql
-DECLARE v INTEGER STREAM src, 0.1 FILE '/dev/urandom'
+DECLARE v INTEGER STREAM src, 0.1 DEVICE '/dev/urandom'
 SELECT * STREAM min10 FROM MIN(src@(1,10))
 SELECT * STREAM max10 FROM MAX(src@(1,10))
 ```
@@ -125,7 +125,7 @@ SELECT 2*MIN(a : 5)+1, null2zero(AVG(a+b : 5))-10 STREAM transformed FROM src
 Nie wolno jedynie zagnieżdżać agregatu okna w argumencie innego agregatu okna. `szerokość` jest dodatnią liczbą rekordów. Dla rekordu wynikowego o indeksie logicznym `n` agregat oblicza `wartość_rekordu` osobno na rekordach źródła od `n-(szerokość-1)` do `n`, a następnie redukuje dokładnie te wartości. Okno jest stemplowane końcem i przesuwa się o jeden rekord. Interwał wyniku pozostaje równy interwałowi źródła, początek logiczny przesuwa się o `szerokość-1`, a ogon startowy jest dziedziczony ze źródła.
 
 ```rql
-DECLARE a INTEGER, b INTEGER STREAM src, 1 FILE 'data.txt'
+DECLARE a INTEGER, b INTEGER STREAM src, 1 TEXTFILE 'data.txt'
 
 SELECT MIN(a : 5), MAX(a : 5), AVG(a+b : 5), SUMC(a : 5) STREAM stats FROM src
 ```
@@ -150,7 +150,7 @@ Dla `DECLARE a INTEGER[3]` trzeba wskazać jeden kanał, na przykład `MIN(a[0] 
 Obie osie można składać bez serializacji tablicy i bez ręcznego tworzenia osobnego strumienia dla każdego kanału:
 
 ```rql
-DECLARE value INTEGER[24] STREAM sensors, 1/10 FILE 'sensors.txt'
+DECLARE value INTEGER[24] STREAM sensors, 1/10 TEXTFILE 'sensors.txt'
 
 SELECT *                    STREAM row_min      FROM MIN(sensors)
 SELECT MIN(row_min[0] : 10) STREAM interval_min FROM row_min
@@ -202,7 +202,7 @@ Parametr `szerokość` (liczba naturalna po dwukropku `:`) określa szerokość 
 ### Przykład
 
 ```rql
-DECLARE v INTEGER STREAM src, 1 FILE 'data.txt'
+DECLARE v INTEGER STREAM src, 1 TEXTFILE 'data.txt'
 
 SELECT to_string(src[0]:10) STREAM labels FROM src
 ```

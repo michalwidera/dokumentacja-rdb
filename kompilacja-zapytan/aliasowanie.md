@@ -7,8 +7,8 @@ Możemy jednak użyć też nazw z jakich strumień powstał. Na wartość wskazy
 Przykład używa kanonicznych deklaracji z całego rozdziału:
 
 ```rql
-DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 TEXTFILE 'sensor_b.txt'
 
 SELECT merged[0], merged[2], core0[0], core1[0] STREAM merged FROM core0 + core1
 ```

@@ -5,8 +5,8 @@ Do systemu napływają i są przetwarzane w nim dane. Określenie kolejności ic
 Na początku przeanalizujmy następujące zapytanie:
 
 ```rql
-DECLARE a BYTE STREAM A, 1 FILE 'data1.txt'
-DECLARE a BYTE STREAM B, 2 FILE 'data2.txt'
+DECLARE a BYTE STREAM A, 1 TEXTFILE 'data1.txt'
+DECLARE a BYTE STREAM B, 2 TEXTFILE 'data2.txt'
 SELECT * STREAM str1 FROM A+B
 ```
 
@@ -69,7 +69,7 @@ Na diagramie przedstawionym na rysunku Rys. 6 widać, które kulki zostały poł
 Strumień może wystąpić w wyrażeniu `FROM` więcej niż raz - wprost i pod innym operatorem, np. `bar + MAX(bar)` albo `src + src>1`, lub dwukrotnie pod różnymi operatorami, np. `src@(1,5) + src@(2,3)`. Rekord wejściowy zawiera wtedy osobny blok pól dla każdego wystąpienia, a odwołanie po nazwie (`bar[0]`, `src[4]`) oraz rozwinięcie `SELECT *` muszą wskazać jeden z nich. Kompilator wybiera pierwsze wystąpienie w stałej kolejności: najpierw bezpośrednie operandy wyrażenia w kolejności zapisu, dopiero potem strumienie ukryte pod operatorami (reduktorem, przesunięciem, oknem), również w kolejności zapisu. Tę samą kolejność stosuje kontrola zakresu indeksu, więc granica `src[k]` jest mierzona na tym wystąpieniu, które odwołanie przeczyta.
 
 ```rql
-DECLARE v INTEGER[3] STREAM bar, 1/50 FILE 'a.txt'
+DECLARE v INTEGER[3] STREAM bar, 1/50 TEXTFILE 'a.txt'
 SELECT * STREAM chk FROM bar + MAX(bar)
 ```
 

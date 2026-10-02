@@ -11,9 +11,9 @@ Parser akceptuje zarówno formę z nawiasami, jak i łańcuchy bez nawiasów, np
 Przykład używa kanonicznych deklaracji z całego rozdziału - trzy strumienie o różnych typach i interwałach:
 
 ```rql
-DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
-DECLARE e INTEGER STREAM core2, 0.3 FILE 'sensor_c.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 TEXTFILE 'sensor_b.txt'
+DECLARE e INTEGER STREAM core2, 0.3 TEXTFILE 'sensor_c.txt'
 
 SELECT merged[0] STREAM merged FROM (core0 # core1) + core2
 ```
@@ -67,8 +67,8 @@ Redukcja substratu do zapytania użytkownika następuje wtedy i tylko wtedy, gdy
 Rozważmy zapytanie z kanonicznymi deklaracjami:
 
 ```rql
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 TEXTFILE 'sensor_b.txt'
 
 SELECT merged[0]  STREAM merged  FROM (core0 > 2) + core1
 SELECT shifted[0] STREAM shifted FROM core0 > 2
@@ -87,7 +87,7 @@ Redukcja dotyczy wyłącznie substratów wygenerowanych przez kompilator (`isSub
 Przykład - dwa zapytania użytkownika o tej samej operacji:
 
 ```rql
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE 'sensor_a.txt'
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
 
 SELECT shifted1[0] STREAM shifted1 FROM core0 > 2
 SELECT shifted2[0] STREAM shifted2 FROM core0 > 2
@@ -288,8 +288,8 @@ Każdy przebieg przepisujący (`factorMatchedHashTimeMoves`, `deduplicateSubstra
 Rozważmy zapytania:
 
 ```rql
-DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
-DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
+DECLARE a UINT STREAM core0, 0.1 TEXTFILE 'datafile1.txt'
+DECLARE a UINT STREAM core1, 0.1 TEXTFILE 'datafile2.txt'
 SELECT str4[0] STREAM str4 FROM (core0+core1)>2
 SELECT str5[0] STREAM str5 FROM (core0+core1)>3
 ```
@@ -313,8 +313,8 @@ Pętla wewnętrzna w `deduplicateSubstrats()` nie sprawdza flagi `isSubstrat` dl
 Rozważmy zapytanie zawierające wyłącznie złożone wyrażenie:
 
 ```rql
-DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
-DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
+DECLARE a UINT STREAM core0, 0.1 TEXTFILE 'datafile1.txt'
+DECLARE a UINT STREAM core1, 0.1 TEXTFILE 'datafile2.txt'
 SELECT str4[0] STREAM str4 FROM (core0+core1)>2
 ```
 
@@ -343,9 +343,9 @@ Samo przepięcie tokenów `PUSH_STREAM` to za mało. Każdy strumień przechowuj
 Rozważmy zapytanie:
 
 ```rql
-DECLARE a INTEGER STREAM s1, 1 FILE 'data1.dat'
-DECLARE b INTEGER STREAM s2, 1 FILE 'data2.dat'
-DECLARE c INTEGER STREAM s3, 1 FILE 'data3.dat'
+DECLARE a INTEGER STREAM s1, 1 BINFILE 'data1.dat'
+DECLARE b INTEGER STREAM s2, 1 BINFILE 'data2.dat'
+DECLARE c INTEGER STREAM s3, 1 BINFILE 'data3.dat'
 
 SELECT * STREAM mysum  FROM s1+s2
 SELECT * STREAM merged FROM s3+(s1+s2)

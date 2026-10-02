@@ -7,8 +7,8 @@ Liczba kopii nie wynika wyłącznie z własnego schematu strumienia. `x[_]` ozna
 Przykład używa kanonicznych deklaracji z całego rozdziału - `core0` ma dwa pola (BYTE, INTEGER), `core1` ma dwa pola (INTEGER, FLOAT), schematy są równoliczne:
 
 ```rql
-DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 FILE ‘sensor_a.txt’
-DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 FILE ‘sensor_b.txt’
+DECLARE a BYTE, b INTEGER   STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT  STREAM core1, 0.2 TEXTFILE 'sensor_b.txt'
 
 SELECT core0[_] * core1[_] STREAM scaled FROM core0 + core1
 ```
@@ -30,8 +30,8 @@ Symbol `_` rozwinął się w dwa pola: `scaled[0] * scaled[2]` (czyli `a * c`) i
 Jednopolowy strumień `src` wnosi pięć slotów, gdy w `FROM` znajduje się jego okno `src@(1,5)`. Dzięki temu splot FIR można zapisać bez osobnego, nazwanego strumienia okna:
 
 ```rql
-DECLARE value INTEGER STREAM src, 1/500 FILE 'data.txt'
-DECLARE coef INTEGER[5] STREAM filter, 1 FILE 'coef.txt'
+DECLARE value INTEGER STREAM src, 1/500 TEXTFILE 'data.txt'
+DECLARE coef INTEGER[5] STREAM filter, 1 TEXTFILE 'coef.txt'
 
 SELECT src[_] * filter[_] STREAM products FROM src@(1,5)+filter
 SELECT products[0]        STREAM output   FROM SUMC(products)

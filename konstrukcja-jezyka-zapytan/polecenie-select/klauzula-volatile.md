@@ -8,7 +8,7 @@ Dyrektywa `DEFAULT VOLATILE` ustawia przechowywanie w pamięci dla wyników `SEL
 
 ```rql
 DEFAULT VOLATILE
-DECLARE a INTEGER STREAM sensor, 0.1 FILE '/dev/sensor0'
+DECLARE a INTEGER STREAM sensor, 0.1 DEVICE '/dev/sensor0'
 SELECT sensor[0]*100 STREAM scaled  FROM sensor
 SELECT scaled[0]     STREAM history FROM scaled PERSISTENT
 ```
@@ -57,7 +57,7 @@ Pierścień ma pojemność `max(RETENTION n, potrzeba planu, 1)` i wlicza się d
 ## Przykład
 
 ```rql
-DECLARE a INTEGER STREAM sensor, 0.1 FILE '/dev/sensor0'
+DECLARE a INTEGER STREAM sensor, 0.1 DEVICE '/dev/sensor0'
 
 SELECT sensor[0] * 100 STREAM scaled FROM sensor VOLATILE
 ```

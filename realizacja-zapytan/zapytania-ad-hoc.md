@@ -19,7 +19,7 @@ Przed dołączeniem `SELECT` zapisującego wynik na dysku serwer sprawdza, czy m
 Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 
 ```
-$ xqry -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
+$ xqry -a "DECLARE a BYTE STREAM C, 1 TEXTFILE 'data3.txt'"
 ```
 
 Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja otrzymuje bazę indeksu logicznego w pierwszym należnym jej slocie. Jeżeli dołączone później zapytanie wymaga okna albo przesunięcia, emisja czeka, aż źródło zgromadzi pełną wymaganą historię. `HOLD` nie jest do tego potrzebny; pozostaje opcjonalną dyrektywą opóźniającą fizyczny odczyt. Ponowne `DECLARE` istniejącej nazwy jest odrzucane, a nie traktowane jako zmiana konfiguracji.
@@ -27,7 +27,7 @@ Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja otrzym
 Przy kilku działających instancjach samo `DECLARE` nie wskazuje właściciela, ponieważ nie ma klauzuli `FROM`. Trzeba wtedy podać cel jawnie:
 
 ```
-$ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 FILE 'data3.txt'"
+$ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 TEXTFILE 'data3.txt'"
 ```
 
 Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
@@ -54,8 +54,8 @@ Plan zbudowany od początku pracy systemu numeruje rekordy od początku logiczne
 Przykład rozpoczniemy od przygotowania prostego zapytania:
 
 ```rql
-DECLARE a BYTE STREAM A, 1 FILE 'data1.txt'
-DECLARE a BYTE STREAM B, 2 FILE 'data2.txt'
+DECLARE a BYTE STREAM A, 1 TEXTFILE 'data1.txt'
+DECLARE a BYTE STREAM B, 2 TEXTFILE 'data2.txt'
 SELECT * STREAM str1 FROM A+B
 ```
 

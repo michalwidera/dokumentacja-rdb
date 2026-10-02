@@ -7,7 +7,7 @@ Taka konstrukcja to graf skierowany. Graf, który posiada wiele korzeni i wiele 
 Na początku rozważmy następujące trywialne zapytanie:
 
 ```rql
-DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
+DECLARE a UINT STREAM core0, 0.1 TEXTFILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 ```
 
@@ -24,8 +24,8 @@ Pełny opis flag `-d -f -s` i interpretacja wyjścia - patrz [Debugowanie kompil
 Skomplikujmy trochę ten graf dodając dwie deklaracje efemerydów i dodatkowy artefakt.
 
 ```rql
-DECLARE a UINT STREAM core0, 0.1 FILE 'datafile1.txt'
-DECLARE a UINT STREAM core1, 0.1 FILE 'datafile2.txt'
+DECLARE a UINT STREAM core0, 0.1 TEXTFILE 'datafile1.txt'
+DECLARE a UINT STREAM core1, 0.1 TEXTFILE 'datafile2.txt'
 SELECT str1[0] STREAM str1 FROM core0
 SELECT str2[0] STREAM str2 FROM core0 + core1
 ```

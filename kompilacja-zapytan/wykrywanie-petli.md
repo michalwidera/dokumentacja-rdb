@@ -7,8 +7,8 @@ Graf zależności zapytań musi być acyklicznym grafem skierowanym (DAG). Jeśl
 ## Przykład pętli
 
 ```rql
-DECLARE a BYTE, b INTEGER STREAM core0, 0.1 FILE 'sensor_a.txt'
-DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 FILE 'sensor_b.txt'
+DECLARE a BYTE, b INTEGER STREAM core0, 0.1 TEXTFILE 'sensor_a.txt'
+DECLARE c INTEGER, d FLOAT STREAM core1, 0.2 TEXTFILE 'sensor_b.txt'
 
 SELECT merged[0]*10, merged[2]+10 STREAM merged FROM core0 + core1
 SELECT *                          STREAM agg    FROM MAX(merged)

@@ -88,6 +88,14 @@ MAX_ROW_WIDTH = 760
 #   overrides      - ręczne definicje reguł, tam gdzie dokumentacja świadomie
 #                    upraszcza gramatykę (patrz komentarze); zmiana gramatyki
 #                    tych reguł NIE trafi na diagram bez zmiany definicji tutaj
+# Alternatywy, ktore gramatyka przyjmuje WYLACZNIE po to, zeby odrzucic je czytelnym bledem
+# semantycznym z nazwa strumienia - np. `STORAGE DEVICE` w SELECT (retractordb #346): bez nich
+# parser bral reszte instrukcji za dyrektywe STORAGE i zglaszal mylacy blad skladni. Diagram
+# pokazuje, co jezyk PRZYJMUJE, wiec tych galezi na nim nie ma. Klucz: (regula, etykieta elementu).
+REJECTED_ALTERNATIVES = {
+    ("select_statement", "type_name"): {"DEVICE", "BINFILE", "TEXTFILE", "ID"},
+}
+
 LANGUAGES = {
     "pl": {
         "rules": {
@@ -472,6 +480,13 @@ class Renderer:
             _, label, atom = node
             if atom[0] == "tok":
                 return self.token_item(atom[1], label)
+            rejected = REJECTED_ALTERNATIVES.get((self.entry_rule, label))
+            if rejected and atom[0] == "alt":
+                # Alternatywa z jednego tokenu bywa w AST splaszczona do ("tok", NAZWA), bez "seq".
+                single = [s[1] if len(s) == 2 and s[0] == "seq" else s for s in atom[1:]]
+                atom = ("alt",) + tuple(
+                    s for s, one in zip(atom[1:], single) if not (one[0] == "tok" and one[1] in rejected)
+                )
             return self.conv(atom)
         if kind == "rul":
             name = node[1]

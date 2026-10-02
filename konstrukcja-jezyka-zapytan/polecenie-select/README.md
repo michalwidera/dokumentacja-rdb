@@ -37,7 +37,7 @@ Tak zbudowane zapytanie zakłada że ktoś zadeklarował strumienie A i B. Opera
 Opcjonalny rozmiar po nazwie w klauzuli `STREAM` rozwija jeden szablon na podaną liczbę zapytań. Symbol `$` oznacza numer instancji liczony od zera:
 
 ```rql
-DECLARE cell INTEGER[4] STREAM cells, 1/10 FILE 'cells.txt'
+DECLARE cell INTEGER[4] STREAM cells, 1/10 TEXTFILE 'cells.txt'
 
 SELECT cells[$] STREAM cell[4] FROM cells
 SELECT *        STREAM grouped FROM cell[0]#cell[1]#cell[2]#cell[3]
@@ -58,7 +58,7 @@ Ekspansja jest pierwszym przebiegiem kompilatora. Po niej plan jest taki sam jak
 Generator może obejmować kolejne stopnie tego samego potoku. Pozwala to opisać obliczenie raz i zastosować je niezależnie do każdego kanału wejściowego:
 
 ```rql
-DECLARE sample INTEGER[8] STREAM samples, 1/1000 FILE 'samples.txt'
+DECLARE sample INTEGER[8] STREAM samples, 1/1000 TEXTFILE 'samples.txt'
 
 SELECT sample[$]^2 STREAM square[8] FROM samples
 SELECT *           STREAM energy[8] FROM SUMC(square[$]@(25,100))

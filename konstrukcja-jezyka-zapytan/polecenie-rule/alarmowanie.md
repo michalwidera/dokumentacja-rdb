@@ -9,7 +9,7 @@ Prezentacji składni polecenia RULE na stronie 24 wspomina o tej funkcjonalnośc
 Budując przykład przedstawiający zasadę działania alarmowania stwórzmy następujący plik zapytania – query.rql:
 
 ```rql
-DECLARE a UINT STREAM core0, 1 FILE 'datafile1.txt'
+DECLARE a UINT STREAM core0, 1 TEXTFILE 'datafile1.txt'
 SELECT str4[0] STREAM str4 FROM core0>1
 
 RULE regulation1 \

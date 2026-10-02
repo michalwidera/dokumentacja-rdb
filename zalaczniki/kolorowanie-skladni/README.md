@@ -29,10 +29,10 @@ Po instalacji VS Code automatycznie rozpozna pliki `.rql` i zastosuje kolorowani
 ```rql
 STORAGE 'temp'
 
-DECLARE a INTEGER STREAM core0, 0.1 FILE '/dev/urandom'
+DECLARE a INTEGER STREAM core0, 0.1 DEVICE '/dev/urandom'
 
 # Wybierz kolumnę i jej połowę
-SELECT str[0], str[0] / 2 STREAM str1 FROM core0
+SELECT core0[0], core0[0] / 2 STREAM str1 FROM core0
 ```
 
 ![Podswietlenie - zrzut okna](../../assets/vscode-podswietlenie-rql.png)
@@ -92,10 +92,10 @@ au BufRead,BufNewFile *.rql set filetype=rql
 
 | Grupa Vima | Przykłady                                                                 |
 | ---------- | ------------------------------------------------------------------------- |
-| `Keyword`  | `SELECT`, `DECLARE`, `STREAM`, `FROM`, `FILE`, `RULE`, `ON`, `WHEN`, `DO` |
+| `Keyword`  | `SELECT`, `DECLARE`, `STREAM`, `FROM`, `BINFILE`, `TEXTFILE`, `DEVICE`, `FILE`, `RULE`, `ON`, `WHEN`, `DO` |
 | `PreProc`  | `STORAGE`, `ROTATION`, `SUBSTRAT`                                         |
 | `Operator` | `AND`, `OR`, `NOT`                                                        |
-| `Constant` | `MEMORY`, `POSIX`, `DIRECT`, `GENERIC`, `TEXTSOURCE`                      |
+| `Constant` | `MEMORY`, `POSIX`, `DIRECT`, `GENERIC`                                    |
 | `Type`     | `INTEGER`, `FLOAT`, `BYTE`, `CHAR`, `UINT`, `STRING`, `DOUBLE`            |
 | `Function` | `MIN`, `MAX`, `AVG`, `SUMC`, `Sqrt`, `Abs`, `Length`, `null2zero`         |
 | `Comment`  | `# komentarz`, `// komentarz`, `/* blok */`                               |
@@ -105,8 +105,8 @@ au BufRead,BufNewFile *.rql set filetype=rql
 **Przykład pliku zapytania z zaznaczonymi fragmentami:**
 
 ```rql
-DECLARE a UINT STREAM core0, 1 FILE 'datafile1.txt'
-DECLARE a UINT STREAM core1, 2 FILE 'datafile2.txt' ONESHOT
+DECLARE a UINT STREAM core0, 1 TEXTFILE 'datafile1.txt'
+DECLARE a UINT STREAM core1, 2 TEXTFILE 'datafile2.txt' ONESHOT
 
 SELECT str4[0] STREAM str4 FROM core0#core1
 
@@ -196,7 +196,7 @@ Dla pliku `query.rql` zawierającego:
 ```rql
 STORAGE 'temp'
 
-DECLARE a INTEGER STREAM core0, 0.1 FILE 'datafile2.dat'
+DECLARE a INTEGER STREAM core0, 0.1 BINFILE 'datafile2.dat'
 
 SELECT str1[0] STREAM str1 FROM core0
 

@@ -75,12 +75,12 @@ Wynikiem są trzy pliki w katalogu `examples/ecg/rec205/`:
 Plik `rec205-replay.rql` definiuje dwa strumienie:
 
 ```rql
-DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 FILE 'rec205'
+DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 BINFILE 'rec205'
 
 SELECT ecg.MLII, ecg.V1 STREAM s205out FROM ecg VOLATILE
 ```
 
-Klauzula `STREAM ecg, 1/360` określa interwał czasowy jednej próbki jako 1/360 s, co odpowiada rzeczywistej częstotliwości próbkowania 360 Hz. Klauzula `TYPE DEVICE` w deskryptorze powoduje, że plik `rec205` jest czytany sekwencyjnie w pętli (po ostatniej próbce odczyt wraca do początku), co umożliwia ciągłe odtwarzanie nagrania.
+Klauzula `STREAM ecg, 1/360` określa interwał czasowy jednej próbki jako 1/360 s, co odpowiada rzeczywistej częstotliwości próbkowania 360 Hz. Słowo `BINFILE` (w deskryptorze `TYPE BINFILE`) powoduje, że plik `rec205` jest czytany jako surowe rekordy binarne, sekwencyjnie w pętli (po ostatniej próbce odczyt wraca do początku), co umożliwia ciągłe odtwarzanie nagrania.
 
 Strumień wyjściowy `s205out` jest zadeklarowany jako `VOLATILE`, dlatego nie jest zapisywany na dysk - dane trafiają wyłącznie do procesu konsumenta (`xqry`).
 
@@ -211,9 +211,9 @@ Plik `rec205-detect.rql` implementuje kompletny pięcioetapowy potok dla dwóch 
 # Okna wydzielone automatycznie z FROM mają pozostać w pamięci
 SUBSTRAT 'memory'
 
-DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 FILE 'rec205'
-DECLARE bp_coef INTEGER[25] STREAM bpf, 1 FILE 'bp_coef.txt'
-DECLARE d_coef INTEGER[5]   STREAM df,  1 FILE 'd_coef.txt'
+DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 BINFILE 'rec205'
+DECLARE bp_coef INTEGER[25] STREAM bpf, 1 TEXTFILE 'bp_coef.txt'
+DECLARE d_coef INTEGER[5]   STREAM df,  1 TEXTFILE 'd_coef.txt'
 
 # Wyodrębnienie kanałów
 SELECT ecg.MLII            STREAM mlii    FROM ecg VOLATILE

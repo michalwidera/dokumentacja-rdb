@@ -119,7 +119,7 @@ Pola typu `RATIONAL` produkują reduktory `MIN`, `MAX`, `AVG` i `SUMC`, gdy wart
 Plan liczący średnią z okna trzech próbek:
 
 ```rql
-DECLARE v INTEGER STREAM src, 1 FILE 'data.txt'
+DECLARE v INTEGER STREAM src, 1 TEXTFILE 'data.txt'
 
 SELECT * STREAM ravg FROM AVG(src@(1,3))
 ```
@@ -178,7 +178,7 @@ Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Oper
 ### Przykład
 
 ```rql
-DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 FILE 'data.dat'
+DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 BINFILE 'data.dat'
 ```
 
 Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.

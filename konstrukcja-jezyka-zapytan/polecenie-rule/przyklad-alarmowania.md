@@ -45,7 +45,7 @@ Tworzymy plik `query.rql`:
 ```rql
 STORAGE 'temp'
 
-DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
+DECLARE a INTEGER STREAM core0, 1 TEXTFILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
 RULE zapis_anomalii ON str1 WHEN str1[0] > 24 DO DUMP -3 TO 3
@@ -87,7 +87,7 @@ Bez `RETENTION` każde kolejne wyzwolenie reguły nadpisuje ten sam plik. Gdy zd
 ```rql
 STORAGE 'temp'
 
-DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
+DECLARE a INTEGER STREAM core0, 1 TEXTFILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
 RULE zapis_anomalii ON str1 WHEN str1[0] > 24 DO DUMP -3 TO 3 RETENTION 5
@@ -112,7 +112,7 @@ Do jednego strumienia można przypiąć dowolną liczbę reguł. Poniższy przyk
 ```rql
 STORAGE 'temp'
 
-DECLARE a INTEGER STREAM core0, 1 FILE 'datafile1.txt'
+DECLARE a INTEGER STREAM core0, 1 TEXTFILE 'datafile1.txt'
 SELECT str1[0] STREAM str1 FROM core0
 
 RULE prog_dolny \

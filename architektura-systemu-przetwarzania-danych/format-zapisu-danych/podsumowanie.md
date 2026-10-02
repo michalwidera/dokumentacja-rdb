@@ -4,7 +4,7 @@ Rozdział zbiera wnioski z wszystkich części dokumentacji formatu zapisu danyc
 
 ## Zestaw plików i typy akcesorów
 
-Każdy artefakt lub substrat składa się z maksymalnie pięciu plików - plik danych binarnych, deskryptor `.desc`, indeks `.meta`, plik cienia danych `.shadow` i plik cienia indeksu `.meta.shadow`. Dwa ostatnie tworzą parę: cień danych zachowuje oryginalną zarejestrowaną treść, a cień indeksu - odpowiadające jej wzorce null, dzięki czemu korekta rekordu nie rozspójnia danych z metadanymi. Pole `TYPE` w deskryptorze wybiera implementację `FileInterface`: `DEFAULT` (dane + cień + retencja), `MEMORY` (wyłącznie RAM, efemerydy), `DEVICE` / `TEXTSOURCE` (zewnętrzne źródła tylko do odczytu) i warianty pośrednie. Wybór akcesora następuje raz przy inicjalizacji `storage` - logika zapytań RQL nie zna szczegółów składowania.
+Każdy artefakt lub substrat składa się z maksymalnie pięciu plików - plik danych binarnych, deskryptor `.desc`, indeks `.meta`, plik cienia danych `.shadow` i plik cienia indeksu `.meta.shadow`. Dwa ostatnie tworzą parę: cień danych zachowuje oryginalną zarejestrowaną treść, a cień indeksu - odpowiadające jej wzorce null, dzięki czemu korekta rekordu nie rozspójnia danych z metadanymi. Pole `TYPE` w deskryptorze wybiera implementację `FileInterface`: `DEFAULT` (dane + cień + retencja), `MEMORY` (wyłącznie RAM, efemerydy), `BINFILE` / `TEXTSOURCE` / `DEVICE` (zewnętrzne źródła tylko do odczytu) i warianty pośrednie. Wybór akcesora następuje raz przy inicjalizacji `storage` - logika zapytań RQL nie zna szczegółów składowania.
 
 ## Pliki artefaktu
 
