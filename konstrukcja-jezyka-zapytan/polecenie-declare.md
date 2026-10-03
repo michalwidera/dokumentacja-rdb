@@ -8,6 +8,7 @@ Jego składnia opisana jest następująco:
 DECLARE pole typ[N] [, pole typ[N]]
 STREAM nazwa, szybkość
 BINFILE | TEXTFILE | DEVICE źródło
+[TIMEOUT czas]
 [DISPOSABLE]
 [ONESHOT]
 [HOLD]
@@ -17,7 +18,7 @@ BINFILE | TEXTFILE | DEVICE źródło
 
 _Rys. 3. Diagram składni polecenia DECLARE_
 
-Diagram składni (railroad) przedstawiony na Rys. 3 został wygenerowany na podstawie reguły `declare_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Pętla powracająca przez przecinek oznacza, że deklaracji pól może być wiele; rozgałęzienie przy szybkości pokazuje, że można ją zapisać ułamkiem (licznik/mianownik) lub pojedynczą liczbą; rozgałęzienie przed źródłem to wybór rodzaju źródła (`BINFILE`, `TEXTFILE`, `DEVICE` albo przestarzałe `FILE`); tory omijające DISPOSABLE, ONESHOT i HOLD oznaczają, że każda z tych dyrektyw jest opcjonalna.
+Diagram składni (railroad) przedstawiony na Rys. 3 został wygenerowany na podstawie reguły `declare_statement` z gramatyki ANTLR4 systemu (`RQL.g4`). Diagram czyta się, podążając liniami od lewej do prawej: zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika. Pętla powracająca przez przecinek oznacza, że deklaracji pól może być wiele; rozgałęzienie przy szybkości pokazuje, że można ją zapisać ułamkiem (licznik/mianownik) lub pojedynczą liczbą; rozgałęzienie przed źródłem to wybór rodzaju źródła (`BINFILE`, `TEXTFILE`, `DEVICE` albo przestarzałe `FILE`); tor omijający TIMEOUT oznacza, że termin odczytu jest opcjonalny, a jego wartość - jak szybkość - zapisuje się ułamkiem albo liczbą; tory omijające DISPOSABLE, ONESHOT i HOLD oznaczają, że każda z tych dyrektyw jest opcjonalna.
 
 ## Rodzaje źródeł
 
@@ -27,7 +28,7 @@ Format danych wynika ze słowa kluczowego, nigdy z nazwy ani rozszerzenia ście�
 | ---------- | --------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------- |
 | `BINFILE`  | surowe rekordy binarne o rozmiarze wynikającym z pól                                          | wyłącznie plik zwykły         | powrót na początek (pętla), z `ONESHOT` koniec źródła |
 | `TEXTFILE` | tekst: wartości rozdzielone białymi znakami, token `NULL` oznacza brak wartości              | wyłącznie plik zwykły         | jak `BINFILE`                                     |
-| `DEVICE`   | surowe rekordy binarne ze źródła żywego; nie interpretuje tekstu ani tokenu `NULL`, bajt zero jest zerem | urządzenie znakowe albo FIFO  | -                                                 |
+| `DEVICE`   | surowe rekordy binarne ze źródła żywego; nie interpretuje tekstu ani tokenu `NULL`, bajt zero jest zerem | urządzenie znakowe albo FIFO  | brak pisarza: rekordy `NULL` do powrotu danych; z `ONESHOT` koniec źródła |
 
 ```rql
 DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 BINFILE 'rec205'
@@ -37,9 +38,9 @@ DECLARE sample BYTE STREAM sensor, 0.02 DEVICE '/dev/urandom'
 
 Rozszerzenie niczego nie wybiera: `BINFILE 'bajty.txt'` czyta surowe bajty, a `TEXTFILE 'wartosci.dat'` parsuje tekst.
 
-`DEVICE` jest źródłem żywym, dlatego nie przyjmuje `DISPOSABLE`, `ONESHOT` ani `HOLD` - te dyrektywy dotyczą plików odtwarzanych (`BINFILE`, `TEXTFILE`), patrz [Opcje odczytu](polecenie-declare-opcje-odczytu.md). Otwarcie FIFO zadeklarowanego jako `DEVICE` czeka na pisarza, więc pisarz musi pojawić się przed startem planu.
+`DEVICE` jest źródłem żywym, dlatego nie przyjmuje `DISPOSABLE` ani `HOLD` - te dyrektywy dotyczą plików odtwarzanych (`BINFILE`, `TEXTFILE`), patrz [Opcje odczytu](polecenie-declare-opcje-odczytu.md). Przyjmuje natomiast `ONESHOT` oraz własną klauzulę `TIMEOUT`, opisane w punkcie [Odczyt źródła DEVICE i TIMEOUT](#odczyt-źródła-device-i-timeout). Otwarcie FIFO zadeklarowanego jako `DEVICE` nie czeka na pisarza - plan startuje, a pisarz może podłączyć się później.
 
-Słowa `BINFILE`, `TEXTFILE` i `DEVICE` są zastrzeżone - żaden strumień nie może się tak nazywać (również pisane małymi literami).
+Słowa `BINFILE`, `TEXTFILE`, `DEVICE` i `TIMEOUT` są zastrzeżone - żaden strumień ani pole nie może się tak nazywać (również pisane małymi literami).
 
 ### Kontrola rodzaju pliku
 
@@ -50,6 +51,46 @@ xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file
 ```
 
 Ścieżka, której nie ma, nie jest odmową: strumień daje wtedy rekordy `NULL`, a dziennik ostrzeżenie. Kompilacja w trybie `-c` tej kontroli nie wykonuje - nie musi biec na maszynie z danymi.
+
+## Odczyt źródła DEVICE i TIMEOUT
+
+Odczyt źródła `DEVICE` nigdy nie czeka bez końca i nie wstrzymuje reszty systemu. Urządzenie albo FIFO jest otwierane i czytane bez blokowania, a jedyne czekanie odbywa się przed obliczeniem slotu, poza blokadami modelu danych. Klient `xqry` dostaje więc odpowiedź także wtedy, gdy silnik czeka na dane urządzenia, a czas czekania nie wchodzi do mierzonego czasu obliczeń slotu (E1).
+
+Opcjonalna klauzula `TIMEOUT` podaje termin odczytu w sekundach. Wartość zapisuje się tak samo jak szybkość strumienia - ułamkiem, liczbą z kropką albo liczbą całkowitą:
+
+```rql
+DECLARE a BYTE STREAM s0, 1/50 DEVICE '/dev/sensor0'
+DECLARE b BYTE STREAM s1, 1/50 DEVICE '/dev/sensor1' TIMEOUT 1/100
+DECLARE c BYTE STREAM s2, 1/50 DEVICE '/dev/sensor2' TIMEOUT 0
+```
+
+| Wartość | Znaczenie |
+| ------- | --------- |
+| `TIMEOUT 0` | próba natychmiastowa: brak pełnego rekordu w należnym takcie daje rekord `NULL` bez czekania |
+| `TIMEOUT t`, `t > 0` | jeden termin na cały rekord, liczony od początku należnego slotu; po nim rekord `NULL` |
+| brak klauzuli | termin z klucza `timeout_s` w sekcji `[sources]` pliku `retractor.toml`, a bez tego klucza 0 |
+
+Jawna klauzula wygrywa z konfiguracją - także jawne `TIMEOUT 0`, które wyłącza dodatnią wartość z `retractor.toml` dla jednego źródła. Wartość ujemna jest błędem: nie istnieje termin „czekaj bez końca". Błędem planu jest też termin dłuższy od doby oraz `TIMEOUT` przy `BINFILE`, `TEXTFILE` i przestarzałym `FILE` (przy `FILE` z podpowiedzią, żeby zadeklarować źródło jawnym `DEVICE`). Klucz konfiguracji opisuje rozdział [Opcje wywołania - xretractor](../zalaczniki/opcje-wywolania/xretractor.md#plik-konfiguracyjny-toml).
+
+Właściwości odczytu:
+
+- **Termin się nie odnawia.** Przerwanie wywołania systemowego sygnałem ani fałszywe przebudzenie nie przedłużają czekania - termin jest stały od początku slotu.
+- **Wiele źródeł czeka równolegle.** Wszystkie należne w danym slocie źródła `DEVICE` czekają razem, więc slot wydłuża się najwyżej o największy termin, a nie o ich sumę.
+- **Niepełny rekord przeżywa termin.** Bajty, które przyszły przed terminem, czekają w buforze źródła; rekord dokończony później trafia do pierwszego kolejnego należnego taktu. Tylko rekord niepełny w chwili, gdy pisarz się odłącza, jest odrzucany z ostrzeżeniem - granica rekordu zginęła razem z pisarzem, więc następny pisarz zaczyna od nowego rekordu.
+- **Chwila odczytu.** Rekord `DEVICE` konsumowany w slocie k jest czytany na początku slotu k, a nie na końcu slotu poprzedniego, jak w przypadku `BINFILE` i `TEXTFILE`. Indeksy logiczne rekordów są te same: te same bajty podane jako `BINFILE` i przez FIFO jako `DEVICE` dają te same wyniki, także za operatorami łączącymi strumienie o różnych szybkościach.
+- **Koniec danych.** O końcu danych decyduje wyłącznie odczyt zwracający zero bajtów (FIFO bez pisarza, zawieszony terminal). Bez `ONESHOT` oznacza to „w tej chwili nie ma pisarza": takt dostaje rekord `NULL`, źródło zostaje otwarte, a ponowne podłączenie pisarza wznawia dane. Z `ONESHOT` (także w trybie `--until-eof`) wyczerpaniem jest pierwszy koniec danych **po** otrzymaniu co najmniej jednego bajtu - koniec przed pierwszymi danymi to pisarz, który jeszcze się nie podłączył. Pisarz, który podłączy się i odłączy bez zapisu, nie kończy więc przebiegu.
+- **Błąd odczytu** inny niż chwilowy brak danych (np. odłączone urządzenie USB) daje rekordy `NULL` i ostrzeżenie przy zmianie stanu, bez wyczerpania źródła. Ponowne otwarcie odłączonego urządzenia nie jest obsługiwane.
+- **Tryb bez zegara.** W trybie `--no-clock` (`-f`) termin każdego źródła `DEVICE` wynosi 0: sekundy rzeczywiste nie mają przelicznika na czas wirtualny. Jedna próba natychmiastowa w każdym należnym takcie zostaje, więc FIFO z danymi zapisanymi z góry daje przebieg powtarzalny.
+
+Efektywny termin każdego źródła `DEVICE` i jego pochodzenie (`RQL`, `config`, `default` albo `no-clock`) trafia do dziennika silnika przy starcie planu i przy imporcie ad hoc, np. `DEVICE stream 's1': effective TIMEOUT 0.01 s (RQL)`. Wydruk `xretractor -c` pokazuje jawną klauzulę w tej samej postaci co szybkość, np. `timeout=1/100`.
+
+> **⚠️ Ostrzeżenie** Granice czasu rzeczywistego:
+>
+> * Odczyt bez blokowania nie chroni przed sterownikiem, który blokuje wewnątrz wywołania odczytu mimo trybu nieblokującego. Takie urządzenie wymaga izolacji w osobnym procesie lub wątku.
+> * Termin dłuższy od szybkości strumienia przekracza slot. Kompilacja wypisuje wtedy ostrzeżenie, np. `DECLARE s1: TIMEOUT 0.05 s (RQL) is longer than the interval 0.02 s; waiting overruns the slot`, uwzględniając także wartość z `retractor.toml`.
+> * Bez opcji `--realtime` kolejny slot jest planowany względem końca poprzedniego, więc czas czekania na źródło `DEVICE` przesuwa wszystkie następne sloty - tak samo jak czas obliczeń. Opcja `--realtime` planuje sloty względem stałej kotwicy osi czasu i czekanie mieszczące się w slocie go nie przesuwa.
+
+> **_NOTE:_** Odczyt źródła `DEVICE`, `TIMEOUT` i koniec danych mają pokrycie w teście `device_timeout` i w teście jednostkowym `ut_faccbindev`.
 
 ## Typy pól
 
@@ -120,7 +161,7 @@ Po tłumaczeniu obowiązują reguły wybranego rodzaju, łącznie z kontrolą ro
 xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file (deprecated FILE resolved this path as BINFILE; declare it with DEVICE)
 ```
 
-Deklaracja `FILE` rozstrzygnięta jako `DEVICE` przyjmuje `ONESHOT`, ale nie `DISPOSABLE` ani `HOLD`. Nowe plany powinny używać jawnych słów - forma `FILE` zostanie w przyszłości usunięta z języka. `FILE` w poleceniu `SELECT` nadal tylko nazywa plik wyniku i nie jest formą przestarzałą.
+Deklaracja `FILE` rozstrzygnięta jako `DEVICE` dostaje cały opisany wyżej odczyt źródła `DEVICE` i przyjmuje `ONESHOT`, ale nie `DISPOSABLE`, `HOLD` ani `TIMEOUT` - jej termin pochodzi wyłącznie z `[sources] timeout_s` albo wynosi 0. Nowe plany powinny używać jawnych słów - forma `FILE` zostanie w przyszłości usunięta z języka. `FILE` w poleceniu `SELECT` nadal tylko nazywa plik wyniku i nie jest formą przestarzałą.
 
 Ostrzeżenie o formie przestarzałej jest domyślnie wyciszone, więc istniejące plany nie zmieniają wyjścia programu. Z opcją `--verbose` (`-v`) `xretractor` wypisuje na stderr jedno ostrzeżenie na deklarację - przy starcie i w trybie `-c`:
 

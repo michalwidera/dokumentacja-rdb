@@ -62,8 +62,8 @@ Available options:
 | `noanykey` | Dowolny klawisz nie przerywa pętli przetwarzania. Bez tej opcji naciśnięcie dowolnego klawisza zatrzymuje system. |
 | `service` | Tryb usługowy: dziennik trafia na `stderr` (przechwytywany przez journald), bez pliku dziennika w katalogu tymczasowym, bez własnego znacznika czasu i bez kodów ANSI. Tryb można włączyć również zmienną środowiskową `XRETRACTOR_SERVICE` o dowolnej wartości poza pustą i `0` - wygodne w jednostce systemd przez `Environment=`. |
 | `realtime` | Włącza szeregowanie czasu rzeczywistego: `SCHED_FIFO`, `mlockall` i absolutne uśpienie wątku przetwarzającego. Wymaga uprawnień `CAP_SYS_NICE` i `CAP_IPC_LOCK` (lub root). Zalecane w środowisku produkcyjnym przy wymogu deterministycznego czasu reakcji. |
-| `no-clock` | Tryb offline: zachowuje racjonalną oś czasu, indeksy logiczne, początki i ogony planu, ale pomija oczekiwanie na zegar ścienny. Nie może być łączony z `--realtime`. |
-| `until-eof` | Przełącza deklarowane źródła plikowe w tryb bez zawijania i kończy przebieg, gdy pierwsze z nich wyczerpie dane. Źródło `DEVICE` nie ma końca pliku. |
+| `no-clock` | Tryb offline: zachowuje racjonalną oś czasu, indeksy logiczne, początki i ogony planu, ale pomija oczekiwanie na zegar ścienny. Termin `TIMEOUT` każdego źródła `DEVICE` wynosi wtedy 0. Nie może być łączony z `--realtime`. |
+| `until-eof` | Przełącza deklarowane źródła w tryb `ONESHOT` i kończy przebieg, gdy pierwsze z nich wyczerpie dane. Dla źródła `DEVICE` wyczerpaniem jest pierwszy koniec danych po otrzymaniu danych, czyli odejście pisarza. |
 | `config` | Ścieżka do pliku konfiguracyjnego w formacie TOML. Pomija standardową kolejność wyszukiwania (`/etc/retractor/retractor.toml`, następnie `$XDG_CONFIG_HOME/retractor/retractor.toml` lub `~/.config/retractor/retractor.toml`). Brak pliku konfiguracyjnego jest stanem poprawnym - program startuje z ustawieniami domyślnymi. |
 | `llimitqry` | Ogranicza liczbę iteracji w pętli realizacji zapytań. Wartość `0` oznacza brak limitu. |
 
@@ -115,7 +115,7 @@ xretractor query.rql --no-clock --until-eof --noanykey --quiet
 
 `--no-clock` usuwa wyłącznie uśpienia. Nie zmienia kolejności slotów ani zawartości artefaktów, dlatego nadaje się do szybkiej weryfikacji po zakończeniu procesu. Może jednak wyprzedzić klienta `xqry`, więc nie jest właściwym trybem do obserwacji na żywo.
 
-`--until-eof` sprawia, że źródło sekwencyjne nie wraca na początek pliku. Koniec jest sprawdzany po przetworzeniu slotu, dokładnie przed rekordem, który musiałby już powstać ze syntetycznego `NULL` za końcem danych. Przy wielu źródłach kończy pierwsze wyczerpane, aby plan nie kontynuował obliczeń z brakującym wejściem. Opcję można łączyć z `-m N`; działa warunek, który wystąpi wcześniej.
+`--until-eof` sprawia, że źródło sekwencyjne nie wraca na początek pliku. Koniec jest sprawdzany po przetworzeniu slotu, dokładnie przed rekordem, który musiałby już powstać ze syntetycznego `NULL` za końcem danych. Źródło `DEVICE` jest czytane na początku slotu, więc jego wyczerpanie jest sprawdzane przed slotem - z tym samym skutkiem. Przy wielu źródłach kończy pierwsze wyczerpane, aby plan nie kontynuował obliczeń z brakującym wejściem. Opcję można łączyć z `-m N`; działa warunek, który wystąpi wcześniej.
 
 > **⚠️ Ostrzeżenie** Skróty zależą od trybu. W wykonaniu `-f` oznacza `--no-clock`, a `-u` oznacza `--until-eof`. Przy `-c` te same litery oznaczają odpowiednio `--fields` i `--rules` oraz nie uruchamiają przetwarzania.
 
@@ -189,6 +189,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | ----- | --------- | --------- |
 | `storage.dir` | _(brak)_ | Domyślny katalog artefaktów. Stosowany **tylko** gdy zestaw RQL nie zawiera dyrektywy `:STORAGE` - RQL ma pierwszeństwo. Katalog musi istnieć i być zapisywalny, inaczej program kończy się błędem `Configuration error: storage.dir …`. |
 | `storage.default_retention` | _(brak)_ | Para `[pojemność, segmenty]`, obie dodatnie. Nadaje ograniczoną retencję strumieniom plikowym `DEFAULT` i `DIRECT` bez własnego `RETENTION`, także substratom. Nie zmienia `MEMORY`, magazynów bez retencji ani jawnej retencji. Niepoprawna wartość daje ostrzeżenie i brak retencji domyślnej. |
+| `sources.timeout_s` | _(brak, czyli 0)_ | Termin odczytu w sekundach dla źródeł `DEVICE` bez klauzuli `TIMEOUT` (→ [Odczyt źródła DEVICE i TIMEOUT](../../konstrukcja-jezyka-zapytan/polecenie-declare.md#odczyt-źródła-device-i-timeout)). Jawna klauzula w RQL wygrywa, także `TIMEOUT 0`. W trybie `--no-clock` termin wynosi 0. Nie zmienia `BINFILE`, `TEXTFILE` ani `timing.query_no_data_timeout_ms`. Wartość ujemna, nieliczbowa albo większa od 86400 kończy start błędem `Configuration error: sources.timeout_s …`. |
 | `ipc.queue_buffer_seconds` | `10` | Głębokość kolejki IPC wyrażona w sekundach strumienia; liczba elementów to `sekundy / interwał`. |
 | `ipc.min_queue_elements` | `100` | Dolna granica pojemności kolejki, niezależna od interwału strumienia. |
 | `ipc.client_response_max_fails` | `300` | Mnożnik budżetu czasu dla odpowiedzi `xqry`. Termin jest wyznaczany zegarem monotonicznym jako ta wartość razy interwał odpytywania (10 ms) i obejmuje zarówno oczekiwanie na miejsce w kolejce poleceń, jak i na odpowiedź. |
@@ -204,7 +205,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 
 Obiekty IPC tworzone przez serwer - segment mapy odpowiedzi, muteks mapy, kolejka komend, kolejki odpowiedzi i segment magistrali - dostają jawny tryb `0600`, więc granicą zaufania jest konto, na którym biegnie instancja, a nie umask jednostki systemd. Klientowi to nic nie zabiera: `xqry` otwiera te obiekty wyłącznie trybem `open_only`, czyli i tak musi działać na tym koncie.
 
-Wartości spoza sensownego zakresu nie zatrzymują usługi: program zapisuje ostrzeżenie w dzienniku i używa wartości domyślnej. Wyjątkiem jest `storage.dir`, którego niepoprawność jest błędem twardym - wskazywałaby, że wyniki trafiłyby w niezamierzone miejsce lub nigdzie.
+Wartości spoza sensownego zakresu nie zatrzymują usługi: program zapisuje ostrzeżenie w dzienniku i używa wartości domyślnej. Wyjątkami są `storage.dir`, którego niepoprawność wskazywałaby, że wyniki trafiłyby w niezamierzone miejsce lub nigdzie, oraz `sources.timeout_s`, którego cicha zamiana na wartość domyślną zmieniłaby sposób czekania na źródła - obie są błędem twardym `xretractor`. `xqry` klucza `sources.timeout_s` nie sprawdza.
 
 Przykładowy plik:
 
@@ -212,6 +213,9 @@ Przykładowy plik:
 [storage]
 dir = "/var/lib/retractor"
 default_retention = [1000, 4]
+
+[sources]
+timeout_s = 0.01
 
 [limits]
 history_memory_mib = 1024
@@ -229,7 +233,7 @@ lock_dir = "/var/run/retractor"
 autoname = false
 ```
 
-> **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir` - test integracyjny `config_storage_validation`.
+> **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir` - test integracyjny `config_storage_validation`, a pierwszeństwo i odrzucenie `sources.timeout_s` - test integracyjny `device_timeout`.
 
 ---
 

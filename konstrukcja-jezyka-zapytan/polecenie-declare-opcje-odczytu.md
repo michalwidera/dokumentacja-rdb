@@ -9,7 +9,7 @@ DECLARE pole typ STREAM nazwa, szybkość BINFILE | TEXTFILE źródło
     [HOLD]
 ```
 
-Dyrektywy są niezależne i można je łączyć w dowolny sposób. Dotyczą wyłącznie plików odtwarzanych (`BINFILE`, `TEXTFILE`). Źródło żywe `DEVICE` nie przyjmuje żadnej z nich - patrz [macierz](#macierz-opcji-i-rodzajów-źródeł) na końcu rozdziału.
+Dyrektywy są niezależne i można je łączyć w dowolny sposób. Dotyczą plików odtwarzanych (`BINFILE`, `TEXTFILE`). Źródło żywe `DEVICE` przyjmuje z nich tylko `ONESHOT`, w znaczeniu opisanym niżej - patrz [macierz](#macierz-opcji-i-rodzajów-źródeł) na końcu rozdziału. Termin odczytu `DEVICE` ustala osobna klauzula `TIMEOUT`, opisana w rozdziale [Polecenie DECLARE](polecenie-declare.md#odczyt-źródła-device-i-timeout).
 
 ## ONESHOT
 
@@ -21,7 +21,13 @@ DECLARE pomiar INTEGER STREAM burst, 0.1 BINFILE 'dane.dat' ONESHOT
 
 Zastosowanie: jednorazowe załadowanie danych historycznych do systemu.
 
-Opcja `--until-eof` (`-u`) programu `xretractor` czyta wszystkie pliki tak, jakby każda deklaracja niosła `ONESHOT`, i zatrzymuje przetwarzanie po wyczerpaniu pierwszego z nich.
+Przy źródle `DEVICE` nie ma pliku do przewinięcia, więc `ONESHOT` zmienia wyłącznie znaczenie końca danych. Bez `ONESHOT` koniec danych oznacza brak pisarza: takt dostaje rekord `NULL`, a ponowne podłączenie pisarza wznawia dane. Z `ONESHOT` wyczerpaniem jest pierwszy koniec danych po otrzymaniu co najmniej jednego bajtu; później źródło zwraca już tylko rekordy `NULL`, także gdy podłączy się kolejny pisarz.
+
+```rql
+DECLARE probka INTEGER STREAM nagranie, 1/100 DEVICE '/tmp/nagranie.fifo' ONESHOT
+```
+
+Opcja `--until-eof` (`-u`) programu `xretractor` czyta wszystkie źródła tak, jakby każda deklaracja niosła `ONESHOT`, i zatrzymuje przetwarzanie po wyczerpaniu pierwszego z nich. Przy źródle `DEVICE` wyczerpanie jest sprawdzane przed slotem, który dostałby rekord `NULL` zza końca danych, więc taki rekord nie trafia do żadnego strumienia.
 
 ## DISPOSABLE
 
@@ -56,10 +62,10 @@ Zastosowanie: zachowanie początku nagrania do chwili pierwszego zapotrzebowania
 
 | Opcja        | `BINFILE` | `TEXTFILE` | `DEVICE` |
 | ------------ | :-------: | :--------: | :------: |
-| `ONESHOT`    | tak       | tak        | nie      |
+| `ONESHOT`    | tak       | tak        | tak      |
 | `DISPOSABLE` | tak       | tak        | nie      |
 | `HOLD`       | tak       | tak        | nie      |
 
-`DEVICE` z którąkolwiek z tych dyrektyw jest błędem kompilacji z nazwą strumienia i opcji, np. `DECLARE s: DEVICE does not take HOLD`. Powody: żywe źródło nie ma początku, do którego można wrócić; wstrzymanie odczytu nie zatrzymuje producenta, tylko gromadzi zaległość; a `DISPOSABLE` usuwałby ścieżkę urządzenia albo FIFO, której cykl życia nie należy do czytnika.
+`DEVICE` z `DISPOSABLE` albo `HOLD` jest błędem kompilacji z nazwą strumienia i opcji, np. `DECLARE s: DEVICE does not take HOLD`. Powody: wstrzymanie odczytu nie zatrzymuje producenta, tylko gromadzi zaległość, a `DISPOSABLE` usuwałby ścieżkę urządzenia albo FIFO, której cykl życia nie należy do czytnika. `ONESHOT` przy `DEVICE` nie przewija pliku, tylko wyznacza koniec danych - patrz [ONESHOT](#oneshot).
 
-Przestarzała forma `FILE` rozstrzygnięta jako `DEVICE` (ścieżka `/dev/...`) odrzuca `DISPOSABLE` i `HOLD`, a `ONESHOT` przyjmuje bez zmian - patrz [Forma przestarzała FILE](polecenie-declare.md#forma-przestarzała-file).
+Przestarzała forma `FILE` rozstrzygnięta jako `DEVICE` (ścieżka `/dev/...`) zachowuje się tak samo: odrzuca `DISPOSABLE` i `HOLD`, a `ONESHOT` przyjmuje - patrz [Forma przestarzała FILE](polecenie-declare.md#forma-przestarzała-file).
