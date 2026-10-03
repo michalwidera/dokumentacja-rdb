@@ -24,7 +24,7 @@ Proces xretractor obsługuje sygnały systemowe i kończy pracę w kontrolowany 
 | `SIGTERM` | `kill <pid>`       | standardowe zakończenie procesu       |
 | `SIGHUP`  | `kill -HUP <pid>`  | zakończenie przy zamknięciu terminala |
 
-Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown - pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.
+Wszystkie trzy sygnały powodują ten sam efekt: graceful shutdown - pętla przetwarzania kończy bieżący cykl i zatrzymuje się. Sygnał, który zastanie pętlę w oczekiwaniu na termin kolejnego slotu, kończy ją od razu, a slot, którego termin jeszcze nie nadszedł, nie jest już liczony (patrz [Harmonogram slotów](../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md#harmonogram-slotów)). Pozwala to bezpiecznie zamknąć xretractor działającego jako usługa bez ryzyka uszkodzenia plików artefaktów.
 
 ### Zatrzymanie przez xqry
 

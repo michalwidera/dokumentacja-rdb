@@ -88,7 +88,8 @@ Efektywny termin każdego źródła `DEVICE` i jego pochodzenie (`RQL`, `config`
 >
 > * Odczyt bez blokowania nie chroni przed sterownikiem, który blokuje wewnątrz wywołania odczytu mimo trybu nieblokującego. Takie urządzenie wymaga izolacji w osobnym procesie lub wątku.
 > * Termin dłuższy od szybkości strumienia przekracza slot. Kompilacja wypisuje wtedy ostrzeżenie, np. `DECLARE s1: TIMEOUT 0.05 s (RQL) is longer than the interval 0.02 s; waiting overruns the slot`, uwzględniając także wartość z `retractor.toml`.
-> * Bez opcji `--realtime` kolejny slot jest planowany względem końca poprzedniego, więc czas czekania na źródło `DEVICE` przesuwa wszystkie następne sloty - tak samo jak czas obliczeń. Opcja `--realtime` planuje sloty względem stałej kotwicy osi czasu i czekanie mieszczące się w slocie go nie przesuwa.
+> * Każdy tryb taktowany, z opcją `--realtime` i bez niej, planuje sloty względem stałej kotwicy osi czasu. Czekanie na źródło `DEVICE`, które razem z obliczeniami mieści się w slocie, nie przesuwa następnych slotów. Dłuższe czekanie opóźnia kolejne sloty, które potem są nadrabiane bez snu; jeżeli czekanie i obliczenia stale przekraczają okres, zaległość narasta - patrz [Harmonogram slotów](../realizacja-zapytan/algorytm-przegladu-drzewa-zapytan.md#harmonogram-slotów).
+> * Harmonogram nie synchronizuje zegara urządzenia. Producent stale szybszy od planu nadal tworzy zaległość w buforze źródła. Stale wolniejszemu brakuje próbek: daje to rekordy `NULL` w taktach, w których rekord nie zdążył nadejść, a `TIMEOUT` może najwyżej zamienić je na opóźnienie narastające razem z niedoborem.
 
 > **_NOTE:_** Odczyt źródła `DEVICE`, `TIMEOUT` i koniec danych mają pokrycie w teście `device_timeout` i w teście jednostkowym `ut_faccbindev`.
 

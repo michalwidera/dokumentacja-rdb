@@ -10,7 +10,8 @@ Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące
 flowchart TD
     A([Inicjalizacja]) --> B
     B["processZeroStep()<br/>Tylko DECLARE: revRead(0) → fire()"] --> C
-    C["TimeLine::getNextTimeSlot()<br/>Wyznacz następny slot czasowy"] --> D
+    C["TimeLine::getNextTimeSlot()<br/>Wyznacz następny slot czasowy"] --> W
+    W["rtAbsoluteSleep()<br/>Czekaj do terminu: kotwica + czas slotu"] --> D
     D["getAwaitedStreamsSet()<br/>Filtruj: rInterval dzieli bieżący slot"] --> E
     E["dataModel::processRows(inSet)<br/>Przebieg 1: nie-deklaracje → input → okna SELECT → output → zapis<br/>Przebieg 2: deklaracje → odblokowanie"] --> F
     F["broadcast(inSet)<br/>Kolejki Boost IPC → klienci xqry"] --> C
@@ -98,6 +99,23 @@ Po tym kroku każda deklaracja ma `bufferState = armed` - dane z fizycznego źr�
 ***
 
 ## Główna pętla: filtrowanie i przetwarzanie
+
+### Harmonogram slotów
+
+Przed przetworzeniem slotu pętla czeka na jego termin \\(T_k = T_0 + t_k\\). \\(T_0\\) to kotwica epoki, odczytana z zegara monotonicznego (`CLOCK_MONOTONIC`) tuż przed pierwszym slotem, a \\(t_k\\) to czas logiczny slotu zwrócony przez `TimeLine::getNextTimeSlot()`. Pętla śpi tylko przez czas pozostały do terminu (`rtAbsoluteSleep()`), w każdym trybie taktowanym - z opcją `--realtime` i bez niej. Termin jest wyznaczany od nowa z wymiernej osi planu z dokładnością do milisekundy: ułamek milisekundy obcina się w każdym terminie osobno, więc błąd zaokrąglenia się nie sumuje.
+
+- **Czas pracy slotu nie przesuwa harmonogramu.** Obliczenia, reguły i czekanie na źródło `DEVICE` zużywają część okresu. Dopóki mieszczą się w okresie, następny slot zaczyna się w swoim terminie, a opóźnienie nie narasta.
+- **Chwilowe spóźnienie jest nadrabiane.** Jeżeli slot skończy się po terminie następnego (np. długie czekanie na `DEVICE` albo reguła `DO SYSTEM`), zaległe sloty są przetwarzane kolejno i bez snu, aż wykonanie dogoni harmonogram. Potem pętla znów śpi do terminów pierwotnej siatki. Żaden slot ani rekord nie jest pomijany, a kolejność przetwarzania się nie zmienia.
+- **Trwałe przeciążenie nie jest ukrywane.** Gdy średni czas pracy slotu przekracza jego okres, zaległość rośnie bez końca: sloty są nadal liczone wszystkie i w tej samej kolejności, ale coraz później względem terminów. Kotwica nie jest przesuwana, więc opóźnienie pozostaje widoczne (np. w sondzie `wake_lag_ns`). Nadrobienie następuje dopiero wtedy, gdy praca slotów znów mieści się w okresie z zapasem.
+- **Wstrzymanie procesu zostawia zaległość.** Proces wznowiony po `SIGSTOP` od razu przetwarza zaległe sloty seriami. Na Linuksie `CLOCK_MONOTONIC` nie płynie w czasie uśpienia systemu; na macOS płynie, więc tam także uśpienie maszyny zostawia zaległość do odrobienia.
+
+Kotwica należy do epoki planu. Przyjęcie nowego planu (`xqry --reset`) buduje nową oś czasu i odczytuje nową kotwicę, więc nowa epoka nie dziedziczy zaległości poprzedniej. Import ad hoc nie przewija osi: nowe interwały dołączają do bieżącej osi od pierwszego wystąpienia po bieżącym slocie, a ich terminy liczą się od tej samej kotwicy.
+
+Termin `TIMEOUT` źródła `DEVICE` liczy się od chwili rzeczywistej pobudki slotu, nie od jego terminu. W trybie `--no-clock` pętla nie śpi wcale. Opcja `--realtime` nie zmienia harmonogramu, tylko dodaje szeregowanie `SCHED_FIFO`, blokowanie stron pamięci i powinowactwo CPU (patrz *Opcje wywołania - xretractor*).
+
+Sygnał zatrzymania (`SIGINT`, `SIGTERM`, `SIGHUP`), który przerwie sen pętli, kończy przebieg przed slotem, którego termin jeszcze nie nadszedł. Sen przerwany w inny sposób jest ponawiany do tego samego terminu, bez wyznaczania nowego okresu. Na Linuksie sygnał wysłany do procesu przerywa sen pętli; na macOS może trafić do wątku komunikacyjnego i wtedy, podobnie jak przy `xqry -k`, przebieg kończy się dopiero po bieżącym okresie.
+
+> **_NOTE:_** Harmonogram slotów ma pokrycie w teście integracyjnym `slot_schedule` i w teście jednostkowym `ut_executor_rt`.
 
 ### Filtrowanie zapytań: `getAwaitedStreamsSet()`
 
