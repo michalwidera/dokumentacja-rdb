@@ -80,7 +80,7 @@ help|h                          show this help
 | Polecenie           | Opis                                                             |
 | ------------------- | ---------------------------------------------------------------- |
 | `exit`, `quit`, `q` | Zakończ narzędzie. Dane niezapisane w bazie pozostają na dysku.  |
-| `quitdrop`, `qd`    | Zakończ i usuń otwarte pliki artefaktu (dane, `.desc`, `.meta`). |
+| `quitdrop`, `qd`    | Zakończ i usuń otwarte pliki artefaktu (dane, `.desc`, `.meta`). Plik danych wskazany przez `REF` z `.desc` poza katalogiem magazynu i `storage.ref_dirs` zostaje - usuwany jest tylko `.desc`. |
 
 ---
 
@@ -103,6 +103,8 @@ open nazwa_pliku { TYP pole TYP pole ... }
 Jeśli plik `.desc` istnieje - schemat jest z niego odczytany. Jeśli nie istnieje - schemat należy podać w nawiasach `{}`.
 
 Jeśli otwarcie pliku danych nie powiedzie się, `open` wypisuje przyczynę (np. `cannot open output file`) i pozostawia magazyn nieotwarty, zamiast kończyć proces. Gdy próba utworzyła nowy `.desc`, a otwarcie danych zawiodło, plik deskryptora jest usuwany. Po usunięciu przyczyny można ponowić `open`.
+
+Pole `REF` w istniejącym `.desc` wskazuje plik danych i może prowadzić poza katalog ustawiony poleceniem `storage` - tak silnik opisuje zewnętrzne źródła `BINFILE`, `TEXTFILE` i `DEVICE`, które `xtrdb` czyta bez ograniczeń. Magazynu zapisywalnego (`DEFAULT`, `DIRECT`, `POSIX` i pozostałe) z `REF` poza tym katalogiem `open` nie otwiera: kończy się odmową z nazwą `.desc` i pliku, zanim plik zostanie utworzony. Taki zapis dopuszcza klucz `storage.ref_dirs` konfiguracji TOML - lista bezwzględnych ścieżek katalogów, w których `REF` z `.desc` może umieścić plik danych (patrz [opcje xretractor](xretractor.md#plik-konfiguracyjny-toml)). Niepoprawny wpis tej listy zatrzymuje start `xtrdb` błędem `Configuration error: storage.ref_dirs …`. `REF` podany w schemacie `open nazwa { … }` jest decyzją operatora i nie podlega temu ograniczeniu.
 
 Tablicowe typy pól: `STRING name[8]` oznacza pole tekstowe o długości 8 bajtów (array multiplicity = 8).
 
@@ -177,7 +179,7 @@ Kontrakt stanu zapisu i odmowy dopisania sprawdza test integracyjny `it_xtrdb_wr
 
 | Polecenie            | Opis                                                                                     |
 | -------------------- | ---------------------------------------------------------------------------------------- |
-| `rox`                | Przełącz flagę „remove on exit" - po zakończeniu narzędzia usuwa dane, `.desc`, `.meta`. |
+| `rox`                | Przełącz flagę „remove on exit" - po zakończeniu narzędzia usuwa dane, `.desc`, `.meta`; plik danych spoza katalogu magazynu i `storage.ref_dirs` zostaje jak przy `quitdrop`. |
 | `cap N`              | Ustaw pojemność bufora cofania (backread) dla urządzeń strumiennych.                     |
 | `dropfile f1 f2 … }` | Usuń wymienione pliki. Lista kończy się tokenem `}`.                                     |
 | `echo tekst`         | Wypisz tekst na terminal (przydatne w skryptach).                                        |
