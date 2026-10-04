@@ -66,7 +66,9 @@ Siedem funkcji o niewymiernej przeciwdziedzinie - `Sqrt`, `sin`, `cos`, `exp`, `
 
 ## Propagacja przez plan
 
-Operatory, które **kopiują** schemat operandu - `SELECT *`, przesunięcie `>N`, decymacja `-r`, przeplot `#`, rozploty `&` i `%` oraz suma strumieni `+` - niosą kształt pola producenta slot po slocie. Typ przechodzi przez dowolnie długi łańcuch strumieni pośrednich.
+Operatory, które **kopiują** schemat operandu - `SELECT *`, przesunięcie `>N`, decymacja `-r` oraz rozploty `&` i `%` - niosą kształt pola producenta slot po slocie. Suma strumieni `+` skleja schematy obu wejść. Typ przechodzi przez dowolnie długi łańcuch strumieni pośrednich.
+
+Przeplot `#` **uzgadnia schematy obu wejść** na każdej pozycji płaskiej. Wybiera wyższy typ, dla pozycji liczbowej jego szerokość, a dla napisów większą długość. Różniące się układy są konwertowane pole po polu; na przykład `RATIONAL` wraz z `FLOAT` daje `FLOAT` i może utracić dokładność. Dokładność wyboru indeksów przez przeplot i rozplot nie odwraca konwersji typu. Odtworzenie co do bajta wymaga wspólnego układu zachowującego reprezentacje obu wejść.
 
 Operatory, które schemat **syntetyzują**, zachowują własny: reduktor `MIN`/`MAX`/`AVG`/`SUMC` w klauzuli `FROM` daje jedno pole: `RATIONAL` dla źródła całkowitego lub wymiernego, `FLOAT` dla `FLOAT` i `DOUBLE` dla `DOUBLE`. Okno `@(krok, szerokość)` daje pola typu najszerszego z rekordu źródła.
 
