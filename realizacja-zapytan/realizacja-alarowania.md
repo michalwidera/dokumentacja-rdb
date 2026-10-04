@@ -149,14 +149,17 @@ Przykład: DUMP 2 TO 5
 
 ## Retencja (RETENTION N)
 
-Bez klauzuli `RETENTION` każde wyzwolenie reguły nadpisuje jeden plik `<strumień>_<reguła>_dump.tmp`. Pojemność kolejki `bookOfTasks` wynosi wtedy 1 - nowe zadanie wypycha stare (i zamyka jego deskryptor).
+Bez klauzuli `RETENTION` każde wyzwolenie reguły zapisuje zrzut pod jedną nazwą `<strumień>_<reguła>_dump.tmp`. Z klauzulą `RETENTION N` numer pliku rotuje modulo `N`: `_dump_0.tmp`, `_dump_1.tmp`, …, `_dump_(N-1).tmp`.
 
-Z klauzulą `RETENTION N`:
-- Pojemność kolejki `bookOfTasks` ustawiana jest na `N`.
-- Numer pliku rotuje modulo `N`: `_dump_0.tmp`, `_dump_1.tmp`, …, `_dump_(N-1).tmp`.
-- Gdy `N`-te zadanie trafia do kolejki, najstarsze (jeszcze niezakończone) jest **usuwane** - destruktor `dumpTask` zamyka otwarty deskryptor.
+Plik zrzutu zawsze powstaje od nowa. Silnik kasuje to, co leży pod jego nazwą - także dowiązanie symboliczne albo twarde, za którym nie podąża - i tworzy nowy plik na wyłączność (`O_EXCL | O_NOFOLLOW`). Zapis nigdy więc nie trafia do pliku poza katalogiem magazynu, a proces, który trzymał poprzedni zrzut otwarty, nadal widzi jego dawną zawartość. Gdy pliku nie da się utworzyć, silnik kończy pracę błędem krytycznym z nazwą pliku i przyczyną.
 
-Oznacza to, że przy częstych zdarzeniach i małym `N` nieukończony zrzut może zostać przerwany. Wartość `N` powinna być dobrana tak, aby czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) był mniejszy niż interwał między zdarzeniami pomnożony przez `N`.
+Zadania zrzutu czekają w kolejce `bookOfTasks`, jednej na strumień i wspólnej dla wszystkich jego reguł `DO DUMP`. Jej pojemność to największe wymaganie wśród tych reguł: `N` dla reguły z `RETENTION N`, 1 dla reguły bez tej klauzuli. Pojemność tylko rośnie - zmniejszenie skasowałoby zadania już przyjęte. Gdy kolejka jest pełna, nowe zadanie wypycha najstarsze niezakończone, niezależnie od tego, z której reguły pochodzi, a destruktor `dumpTask` zamyka jego deskryptor.
+
+Wynikają z tego dwa przypadki dla reguły bez `RETENTION`:
+- Jest jedyną regułą `DO DUMP` na strumieniu: pojemność wynosi 1, więc nowe wyzwolenie przerywa poprzedni, nieukończony zrzut.
+- Na tym samym strumieniu inna reguła ma `RETENTION N`: kolejne wyzwolenia mogą zbierać dane równocześnie. Każde pisze do własnego pliku, pod nazwą `_dump.tmp` zostaje zrzut najnowszego, a starsze dokańczają zapis do plików już usuniętych z katalogu.
+
+Przy częstych zdarzeniach i małej pojemności nieukończony zrzut może zostać przerwany. Pojemność powinna być dobrana tak, aby czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) był mniejszy niż interwał między zdarzeniami pomnożony przez pojemność.
 
 ***
 
