@@ -9,12 +9,13 @@ Algorytm przeglądu drzewa zapytań realizowany jest przez dwa współpracujące
 %%{init: {"markdownAutoWrap": false}}%%
 flowchart TD
     A([Inicjalizacja]) --> B
-    B["processZeroStep()<br/>Tylko DECLARE: revRead(0) → fire()"] --> C
+    B["processZeroStep()<br/>BINFILE i TEXTFILE: bootstrapDeclaration()<br/>Rozgłoś deklaracje plikowe"] --> C
     C["TimeLine::getNextTimeSlot()<br/>Wyznacz następny slot czasowy"] --> W
-    W["rtAbsoluteSleep()<br/>Czekaj do terminu: kotwica + czas slotu"] --> D
-    D["getAwaitedStreamsSet()<br/>Filtruj: rInterval dzieli bieżący slot"] --> E
-    E["dataModel::processRows(inSet)<br/>Przebieg 1: nie-deklaracje → input → okna SELECT → output → zapis<br/>Przebieg 2: deklaracje → odblokowanie"] --> F
-    F["broadcast(inSet)<br/>Kolejki Boost IPC → klienci xqry"] --> C
+    W["rtAbsoluteSleep()<br/>Czekaj do terminu: kotwica + czas slotu"] --> V
+    V["DEVICE: migawka należnych źródeł pod blokadą epoki<br/>awaitRecords() poza blokadami modelu"] --> D
+    D["collectAwaitedStreams()<br/>Pod blokadami epoki i core: dueMask_ oraz dueNames_"] --> E
+    E["dataModel::processRows(dueMask_, currentTimeSlot)<br/>Przebieg 1: deklaracje - bootstrap i publikacja DEVICE<br/>Przebieg 2: nie-deklaracje - obliczenia i zapis<br/>Przebieg 3: deklaracje plikowe - odczyt na następny slot"] --> F
+    F["broadcast(dueNames_, formatRow)<br/>Kolejki Boost IPC do klientów xqry<br/>Zwolnij blokadę epoki"] --> C
 ```
 
 _Rys. 42. Algorytm przeglądu drzewa zapytań – przegląd ogólny_
@@ -61,15 +62,15 @@ Wejście: {1/2, 1/3}  →  Wyjście: {1/2, 1/3}
 timeline
     title Sloty czasowe dla delt {1/2, 1/3}
     section t = 1/3
-        B (rInterval=1/3)
+        A (rInterval=1/3) : B (rInterval=1/3)
     section t = 1/2
         C (rInterval=1/2)
     section t = 2/3
-        B (rInterval=1/3)
+        A (rInterval=1/3) : B (rInterval=1/3)
     section t = 1
-        B (rInterval=1/3) : C (rInterval=1/2) : D (rInterval=1)
+        A (rInterval=1/3) : B (rInterval=1/3) : C (rInterval=1/2) : D (rInterval=1)
     section t = 4/3
-        B (rInterval=1/3)
+        A (rInterval=1/3) : B (rInterval=1/3)
     section t = 3/2
         C (rInterval=1/2)
 ```
@@ -82,19 +83,17 @@ Sprawdzenie `isThisDeltaAwaitCurrentTimeSlot(inDelta)` zwraca `true`, gdy `ctSlo
 
 ## Krok zerowy: `processZeroStep()`
 
-Przed wejściem w pętlę `executorsm::run()` wywołuje `dataModel::processZeroStep()`. Metoda przetwarza **wyłącznie deklaracje** (strumienie wejściowe `DECLARE`):
+Przed wejściem w pętlę `executorsm::run()` wywołuje `dataModel::processZeroStep()`. Metoda przetwarza **wyłącznie deklaracje plikowe** (`BINFILE` i `TEXTFILE`):
 
 ```cpp
-for (auto &q : coreInstance_) {
-    if (!q.isDeclaration()) continue;
-    qSet[q.id]->bufferState = flux;   // odblokuj odczyt fizyczny
-    qSet[q.id]->revRead(0);           // wczytaj z indeksu 0
-    qSet[q.id]->fire();               // przepisz chamber_ → outputPayload
-    assert(qSet[q.id]->bufferState == armed);
-}
+for (const auto &q : coreInstance_)
+    if (q.isDeclaration() && q.kind != sourceKind::device)
+        bootstrapDeclaration(q);
 ```
 
-Po tym kroku każda deklaracja ma `bufferState = armed` - dane z fizycznego źródła są w `outputPayload`.
+`bootstrapDeclaration()` przełącza bufor ze stanu `empty` do `flux`, wykonuje `revRead(0)` i `fire()`, po czym sprawdza stan `armed`. Po kroku zerowym rekord deklaracji plikowej jest w `outputPayload`, gotowy dla konsumentów. Pod tą samą blokadą epoki następuje rozgłoszenie deklaracji plikowych.
+
+`DEVICE` nie ma kroku zerowego ani rozgłoszenia w tej fazie. Jego pierwszy rekord trafia do modelu dopiero na początku pierwszego należnego slotu, przed obliczeniem zależnych zapytań. Deklaracja plikowa dołączona ad hoc jest inicjalizowana przed konsumentami w swoim pierwszym należnym slocie, ponieważ nie uczestniczyła w kroku zerowym.
 
 ***
 
@@ -117,55 +116,59 @@ Sygnał zatrzymania (`SIGINT`, `SIGTERM`, `SIGHUP`), który przerwie sen pętli,
 
 > **_NOTE:_** Harmonogram slotów ma pokrycie w teście integracyjnym `slot_schedule` i w teście jednostkowym `ut_executor_rt`.
 
-### Filtrowanie zapytań: `getAwaitedStreamsSet()`
+### Filtrowanie zapytań: `collectAwaitedStreams()`
 
-Dla bieżącego slotu `tl` (`executorsm.cpp`, linia \~88):
+Dla bieżącego slotu `executorsm::collectAwaitedStreams()` tworzy dwie równoległe reprezentacje należnych zapytań:
 
 ```cpp
-std::set<std::string> retVal;
-for (auto &q : *coreInstancePtr)
-    if (TimeLine::isThisDeltaAwaitCurrentTimeSlot(q.rInterval))
-        retVal.insert(q.id);
-return retVal;
+dueMask_.assign(coreInstancePtr->size(), 0);
+dueNames_.clear();
+std::size_t position = 0;
+for (const auto &q : *coreInstancePtr) {
+    if (tl.isThisDeltaAwaitCurrentTimeSlot(q.rInterval)) {
+        dueMask_[position] = 1;
+        dueNames_.emplace_back(q.id);
+    }
+    ++position;
+}
 ```
 
-Wynik `inSet` to identyfikatory zapytań aktywnych w tym slocie - podzbiór wszystkich zapytań.
+`dueMask_` jest wektorem `char` o długości całego planu: element równy 1 wskazuje należne zapytanie na tej samej pozycji w `qTree`. `dueNames_` jest wektorem `std::string_view` z nazwami tych zapytań, używanym do rozgłaszania. Oba wektory zachowują pojemność między slotami.
 
-### Przetwarzanie: `processRows(inSet)`
+Maska musi opisywać **ten sam układ planu**, który przetworzy `processRows()`. Dlatego powstaje pod blokadami w kolejności `plan_epoch_mutex`, potem `core_mutex`; blokada epoki pozostaje zajęta przez obliczenie slotu i rozgłoszenie. Import ad hoc może zmienić kolejność topologiczną planu, więc wyznaczenie maski przed zajęciem blokady epoki naruszałoby ten warunek. Ochrona epoki zabezpiecza również czas życia widoków nazw.
 
-Funkcja wykonuje **dwa przejścia** przez `inSet` (`dataModel.cpp`, linia \~98), co ilustruje Rys. 45:
+### Przetwarzanie: `processRows(dueMask, currentTimeSlot)`
+
+`dataModel::processRows(std::span<const char> dueMask, currentTimeSlot)` zajmuje `core_mutex`, sprawdza długość maski i odświeża tablicę uchwytów instancji po zmianie `qTree::planRevision()`. Uchwyty odpowiadają pozycjom w planie, co eliminuje powtarzane wyszukiwanie nazw w obliczeniach slotu. Instancje są przechowywane w `qSet` przez `std::unique_ptr`, więc zmiana układu mapy zachowuje ich adresy.
+
+Przed wywołaniem `processRows()` wykonawca zbiera migawkę należnych źródeł `DEVICE` pod krótką blokadą epoki, a następnie wywołuje `rdb::awaitRecords()` **poza blokadami modelu**. Oczekiwanie wypełnia prywatne bufory akcesorów; publikacja danych do modelu odbywa się dopiero w `processRows()`.
+
+Funkcja wykonuje **trzy przejścia** po planie, uwzględniając tylko pozycje zaznaczone w masce (Rys. 45):
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
-flowchart LR
-    S([processRows - inSet]) --> P1
+flowchart TB
+    S([processRows - dueMask]) --> P1
+    P1["Przebieg 1 - należne deklaracje<br/>Bootstrap źródeł w stanie empty<br/>DEVICE: publikacja rekordu bieżącego slotu"] --> P2
 
-    subgraph P1["Przebieg 1 - nie-deklaracje (kolejność topologiczna)"]
+    subgraph P2["Przebieg 2 - należne nie-deklaracje w kolejności topologicznej"]
         direction TB
+        X0{"Minęły origin i ogon?<br/>Dostępne wejście dla pierwszego rekordu ad hoc?"} -->|tak| X1
+        X0 -->|nie| X5([pomiń zapytanie])
         X1["constructInputPayload()<br/>buduje dane wejściowe z FROM"] --> XW
         XW["computeWindowAggregates()<br/>redukuje historię dla okien SELECT"] --> X2
         X2["constructOutputPayload()<br/>ewaluuje wyrażenia SELECT"] --> X3
-        X3["write()<br/>zapis na dysk / pamięć"] --> X4
+        X3["write()<br/>zapis na dysk lub do pamięci"] --> X4
         X4["constructRulesAndUpdate()<br/>ewaluuje klauzule RULE"]
     end
 
-    P1 --> P2
-
-    subgraph P2["Przebieg 2 - deklaracje (odblokowanie na następny slot)"]
-        direction TB
-        Y1{"bufferState<br/>== armed?"} -->|tak| Y2
-        Y2["bufferState = flux<br/>odblokuj odczyt"] --> Y3
-        Y3["revRead(0)<br/>odczytaj nowe dane"] --> Y4
-        Y4["fire()<br/>przypisz do outputPayload"]
-        Y1 -->|nie| Y5([pomiń])
-    end
-
-    P2 --> E([koniec])
+    P2 --> P3
+    P3["Przebieg 3 - należne deklaracje plikowe w stanie armed<br/>flux, revRead(0), fire()<br/>Pobierz rekord na następny należny slot<br/>DEVICE jest pomijany"] --> E([koniec])
 ```
 
-_Rys. 45. Algorytm processRows – dwa przejścia przetwarzania_
+_Rys. 45. Algorytm processRows - trzy przejścia przetwarzania_
 
-Deklaracje są odblokowywane dopiero po tym, jak wszystkie zależne zapytania skonsumowały ich `outputPayload` w przejściu 1.
+Rekordy `DEVICE` są publikowane przed konsumentami bieżącego slotu. Deklaracje plikowe przechodzą do kolejnego rekordu dopiero po konsumentach, i tylko w slotach należnych danemu źródłu. Zapytanie zaznaczone w masce może jeszcze nie emitować wyniku z powodu ogona lub początku logicznego (`origin`).
 
 ### Okna rekordowe listy SELECT
 
@@ -177,14 +180,14 @@ Wartości `NULL` są pomijane, a okno bez wartości obecnych zapisuje `NULL` dla
 
 ## Rozgłaszanie wyników: `broadcast()`
 
-Po każdym `processRows()` wywoływane jest `broadcast(inSet)` (`executorsm.cpp`, linia \~449) - algorytm przedstawia Rys. 46:
+Po każdym `processRows()` wywoływane jest `broadcast(dueNames_, formatRow)` pod nadal zajętą blokadą epoki - algorytm przedstawia Rys. 46:
 
 ```mermaid
 %% pdf-width: 85%
 %% pdf-height: 60%
 %%{init: {"markdownAutoWrap": false, "flowchart": {"nodeSpacing": 25, "rankSpacing": 30, "padding": 6}}}%%
 flowchart TB
-    A([inSet]) --> B["printRowValue()<br/>serializuj do<br/>Boost property_tree"]
+    A([dueNames_]) --> B["printRowValue()<br/>serializuj do<br/>Boost property_tree"]
     B --> C{{"klienci subskrybujący<br/>strumień?"}}
     C -->|brak| H([pomiń])
     C -->|tak| D["kolejka brcdbr&lt;id&gt;<br/>try_send(dane)"]
@@ -201,7 +204,7 @@ _Rys. 46. Algorytm broadcast – rozsyłanie wyników przez Boost IPC_
 
 ## Pełny przykład: zapytania A, B, C, D dla delt {1/2, 1/3}
 
-Rys. 47 przedstawia kompletną sekwencję wywołań dla czterech zapytań A, B, C, D rozłożonych na siatce czasowej z deltami {1/2, 1/3}.
+Rys. 47 przedstawia wybór należnych zapytań i kolejność faz dla planu `[A, B, C, D]` z grafu na Rys. 43. A jest źródłem plikowym z interwałem `1/3`. Diagram opisuje harmonogram; faktyczna emisja wyniku zależy również od ogona i początku logicznego zapytania.
 
 ```mermaid
 %% pdf-width: 85%
@@ -214,37 +217,38 @@ sequenceDiagram
     participant IPC as Boost IPC
 
     ES->>DM: processZeroStep()
-    DM->>DM: A: revRead(0) → fire() [armed]
-    ES->>IPC: broadcast({A})
+    DM->>DM: A: bootstrapDeclaration() [armed]
+    ES->>IPC: broadcast(A)
 
     TL-->>ES: nextSlot = 1/3
-    ES->>DM: processRows({B})
-    DM->>DM: Przebieg 1: B → input(A) → windows → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B})
+    ES->>DM: processRows([1,1,0,0], 1/3)
+    DM->>DM: Przebieg 2: B, jeśli minęły origin i ogon
+    DM->>DM: Przebieg 3: A pobiera następny rekord
+    ES->>IPC: broadcast(A, B)
 
     TL-->>ES: nextSlot = 1/2
-    ES->>DM: processRows({C})
-    DM->>DM: Przebieg 1: C → input(B) → windows → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({C})
+    ES->>DM: processRows([0,0,1,0], 1/2)
+    DM->>DM: Przebieg 2: C, jeśli minęły origin i ogon
+    Note over DM: A nie jest należne - bez odczytu
+    ES->>IPC: broadcast(C)
 
     TL-->>ES: nextSlot = 2/3
-    ES->>DM: processRows({B})
-    DM->>DM: Przebieg 1: B → input(A) → output → write()
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B})
+    ES->>DM: processRows([1,1,0,0], 2/3)
+    DM->>DM: Przebieg 2: B, jeśli minęły origin i ogon
+    DM->>DM: Przebieg 3: A pobiera następny rekord
+    ES->>IPC: broadcast(A, B)
 
     TL-->>ES: nextSlot = 1
-    ES->>DM: processRows({B, C, D})
-    DM->>DM: Przebieg 1 (topologicznie): B → C → D
-    DM->>DM: Przebieg 2: A → flux → revRead(0) → fire()
-    ES->>IPC: broadcast({B, C, D})
+    ES->>DM: processRows([1,1,1,1], 1)
+    DM->>DM: Przebieg 2: B, C, D w kolejności topologicznej
+    Note over DM: Każde zapytanie sprawdza origin i ogon
+    DM->>DM: Przebieg 3: A pobiera następny rekord
+    ES->>IPC: broadcast(A, B, C, D)
 ```
 
-_Rys. 47. Pełny przykład wykonania dla zapytań A, B, C, D przy deltach {1/2, 1/3}_
+_Rys. 47. Harmonogram przetwarzania zapytań A, B, C, D przy deltach {1/2, 1/3}_
 
-Drzewo zależności determinuje kolejność przejścia 1. Interwały czasowe z algebry Beatty'ego wyznaczają, które węzły drzewa są aktywne w danym slocie.
+Nazwy przy `broadcast` oznaczają argument `dueNames_`, a nie gwarancję wysłania rekordu przez każde zapytanie. Drzewo zależności determinuje kolejność obliczeń w przejściu 2, a interwały wyznaczają maskę aktywnych węzłów. Gdy A jest źródłem `DEVICE`, pomija krok zerowy, oczekuje na dane przed obliczeniem należnego slotu i publikuje rekord w przejściu 1; przejście 3 wtedy go pomija.
 
 ***
 

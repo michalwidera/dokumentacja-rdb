@@ -128,6 +128,10 @@ Przykłady:
 
 Rekord, którego w magazynie nie ma - indeks za ostatnim rekordem albo odczyt z pustego pliku - nie jest odczytem udanym: `read` i `rread` zostawiają wtedy payload w stanie `error` (widocznym przez `status`), a `list` i `rlist` wypisują w tym wierszu `fetch error` i przechodzą do następnego. Wcześniej narzędzie pokazywało w takim miejscu rekord wyzerowany, nieodróżnialny od danych.
 
+Udane `write N` lub `append` ustawia stan payloadu na `stored`. Próba `append` do zadeklarowanego źródła `BINFILE`, `TEXTFILE` albo `DEVICE`, które obsługuje tylko odczyt, ustawia stan `error`: dane źródła i liczba jego rekordów pozostają bez zmian, a `xtrdb` nadal przyjmuje polecenia. Stan payloadu raportowany przez `status` jest oddzielny od kodu zakończenia procesu; taka odmowa nie wymusza zakończenia z błędem. Pozostałe błędy zapisu, np. błąd wejścia/wyjścia, mogą zakończyć proces.
+
+Kontrakt stanu zapisu i odmowy dopisania sprawdza test integracyjny `it_xtrdb_write_status-run`.
+
 ---
 
 ## Przeglądanie zawartości
@@ -153,7 +157,7 @@ Rekord, którego w magazynie nie ma - indeks za ostatnim rekordem albo odczyt z 
 | `setpos N wartość` | Ustaw pole o indeksie N (0-based) w buforze payload.                               |
 | `getpos N`         | Wypisz wartość pola o indeksie N z bieżącego payload.                              |
 | `input`            | Interaktywne wypełnienie payload - wpisz wartości po kolei dla każdego pola.       |
-| `status`           | Wypisz stan payload: `clean`, `fetched`, `changed`, `stored`.                      |
+| `status`           | Wypisz stan payload: `clean`, `fetched`, `changed`, `stored`, `error`.                      |
 | `hex` / `dec`      | Przełącz format wejścia/wyjścia pól liczbowych między szesnastkowym a dziesiętnym. |
 
 ---

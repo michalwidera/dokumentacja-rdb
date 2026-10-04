@@ -50,7 +50,7 @@ Przed startem planu - także przy przeładowaniu planu (`xqry --reset`) i imporc
 xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file
 ```
 
-Ścieżka, której nie ma, nie jest odmową: strumień daje wtedy rekordy `NULL`, a dziennik ostrzeżenie. Kompilacja w trybie `-c` tej kontroli nie wykonuje - nie musi biec na maszynie z danymi.
+Ścieżka, której nie ma, nie jest odmową: strumień daje wtedy rekordy `NULL`. Widoczność ostrzeżeń odczytu zależy od trybu budowania, jak opisano poniżej dla `DEVICE`. Kompilacja w trybie `-c` tej kontroli nie wykonuje - nie musi biec na maszynie z danymi.
 
 ## Odczyt źródła DEVICE i TIMEOUT
 
@@ -76,11 +76,13 @@ Właściwości odczytu:
 
 - **Termin się nie odnawia.** Przerwanie wywołania systemowego sygnałem ani fałszywe przebudzenie nie przedłużają czekania - termin jest stały od początku slotu.
 - **Wiele źródeł czeka równolegle.** Wszystkie należne w danym slocie źródła `DEVICE` czekają razem, więc slot wydłuża się najwyżej o największy termin, a nie o ich sumę.
-- **Niepełny rekord przeżywa termin.** Bajty, które przyszły przed terminem, czekają w buforze źródła; rekord dokończony później trafia do pierwszego kolejnego należnego taktu. Tylko rekord niepełny w chwili, gdy pisarz się odłącza, jest odrzucany z ostrzeżeniem - granica rekordu zginęła razem z pisarzem, więc następny pisarz zaczyna od nowego rekordu.
+- **Niepełny rekord przeżywa termin.** Bajty, które przyszły przed terminem, czekają w buforze źródła; rekord dokończony później trafia do pierwszego kolejnego należnego taktu. Tylko rekord niepełny w chwili, gdy pisarz się odłącza, jest odrzucany - granica rekordu zginęła razem z pisarzem, więc następny pisarz zaczyna od nowego rekordu.
 - **Chwila odczytu.** Rekord `DEVICE` konsumowany w slocie k jest czytany na początku slotu k, a nie na końcu slotu poprzedniego, jak w przypadku `BINFILE` i `TEXTFILE`. Indeksy logiczne rekordów są te same: te same bajty podane jako `BINFILE` i przez FIFO jako `DEVICE` dają te same wyniki, także za operatorami łączącymi strumienie o różnych szybkościach.
 - **Koniec danych.** O końcu danych decyduje wyłącznie odczyt zwracający zero bajtów (FIFO bez pisarza, zawieszony terminal). Bez `ONESHOT` oznacza to „w tej chwili nie ma pisarza": takt dostaje rekord `NULL`, źródło zostaje otwarte, a ponowne podłączenie pisarza wznawia dane. Z `ONESHOT` (także w trybie `--until-eof`) wyczerpaniem jest pierwszy koniec danych **po** otrzymaniu co najmniej jednego bajtu - koniec przed pierwszymi danymi to pisarz, który jeszcze się nie podłączył. Pisarz, który podłączy się i odłączy bez zapisu, nie kończy więc przebiegu.
-- **Błąd odczytu** inny niż chwilowy brak danych (np. odłączone urządzenie USB) daje rekordy `NULL` i ostrzeżenie przy zmianie stanu, bez wyczerpania źródła. Ponowne otwarcie odłączonego urządzenia nie jest obsługiwane.
+- **Błąd odczytu** inny niż chwilowy brak danych (np. odłączone urządzenie USB) daje rekordy `NULL`, bez wyczerpania źródła. Ponowne otwarcie odłączonego urządzenia nie jest obsługiwane.
 - **Tryb bez zegara.** W trybie `--no-clock` (`-f`) termin każdego źródła `DEVICE` wynosi 0: sekundy rzeczywiste nie mają przelicznika na czas wirtualny. Jedna próba natychmiastowa w każdym należnym takcie zostaje, więc FIFO z danymi zapisanymi z góry daje przebieg powtarzalny.
+
+Odrzucenie niepełnego rekordu oraz zmiany stanu połączenia `DEVICE` (brak pisarza, wznowienie danych, błąd odczytu) mają diagnostykę na poziomie `WARN`. W kompilacji `Debug` te ostrzeżenia są dostępne w dzienniku; w `Release` są wyłączone już podczas kompilacji przez `SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR`. Brak ostrzeżenia w `Release` nie potwierdza więc poprawnego odczytu ani kompletności rekordów. Komunikaty na poziomie `ERROR` pozostają dostępne.
 
 Efektywny termin każdego źródła `DEVICE` i jego pochodzenie (`RQL`, `config`, `default` albo `no-clock`) trafia do dziennika silnika przy starcie planu i przy imporcie ad hoc, np. `DEVICE stream 's1': effective TIMEOUT 0.01 s (RQL)`. Wydruk `xretractor -c` pokazuje jawną klauzulę w tej samej postaci co szybkość, np. `timeout=1/100`.
 

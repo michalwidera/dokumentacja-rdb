@@ -128,6 +128,12 @@ Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budż
 
 Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest wykrywana przez timeout `timing.query_no_data_timeout_ms`.
 
+### Błąd odbioru lub renderowania
+
+Wyjątek w pętli odbioru i renderowania danych w formatach prezentacyjnych kończy subskrypcję błędem klienta, także wtedy, gdy część rekordów została już wypisana. Klient zatrzymuje odbiór, czeka na zakończenie wątku odbierającego i zwraca wynik `renderFailed`. Na standardowym wyjściu błędów pojawia się komunikat `select loop failed in the client; reason in the client log`, a dziennik klienta zawiera nazwę strumienia i przyczynę wyjątku. Kod zakończenia odpowiada `EINTR` (`interrupted`). Otrzymane przed błędem rekordy są wynikiem częściowym i nie oznaczają udanego zakończenia subskrypcji.
+
+Diagnostykę i kod zakończenia tej ścieżki sprawdza test integracyjny `it_select_loop_failure-run`.
+
 ### Formaty prezentacyjne
 
 | Opcja | Format |

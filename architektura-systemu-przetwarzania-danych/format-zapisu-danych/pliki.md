@@ -367,7 +367,11 @@ _Rys. 17. Sekwencja rejestracji przerwy - onTransmissionGap_
 
 ### Mechanizm bezpieczeństwa: `flushCurrentEntry()` i nadpisywanie (tail_.dirty)
 
-Klasa `storage` wywołuje `flushCurrentEntry()` po **każdym** wywołaniu `write()`, aby zagwarantować przeżycie awarii procesu. Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu - powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
+Klasa `storage` wywołuje `flushCurrentEntry()` po **udanym fizycznym dopisaniu rekordu**, po aktualizacji metadanych przez `onRecordAppended()`. Rekord pochłonięty przez mechanizm przerwy transmisji oraz odmowa dopisania do źródła tylko do odczytu kończą `write()` wcześniej. Nadpisanie istniejącego rekordu wywołuje `onRecordModified()`, które aktualizuje indeks główny albo jego cień, zależnie od rodzaju magazynu.
+
+`flushCurrentEntry()` zapisuje bieżący wpis indeksu do pliku, ograniczając ilość metadanych pozostających wyłącznie w pamięci procesu. Ten zapis nie obejmuje `fsync` po każdym rekordzie ani transakcyjnego zatwierdzenia danych wraz z indeksem, więc sam w sobie nie gwarantuje spójności po awarii procesu lub utracie zasilania. Test `ut_metaData_usage` sprawdza sekwencję dopisania i jawnego flushu; nie symuluje awarii procesu.
+
+Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu - powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
 
 Rozwiązanie: mechanizm **lazy overwrite** oznaczany flagą `tail_.dirty`.
 
@@ -721,7 +725,7 @@ Najprostszy możliwy zapis serii czasowej to sekwencja surowych wartości w plik
 - Każda modyfikacja historycznego rekordu niszczy dane oryginalne nieodwracalnie.
 - Zmiana struktury rekordu unieważnia cały plik.
 
-RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, gdzie przerwy zasilania, zaniki sygnału i konieczność retrospektywnej korekty danych są normalnym zjawiskiem eksploatacyjnym, nie wyjątkiem. Struktura czterech plików odpowiada bezpośrednio na każde z tych ograniczeń.
+RetractorDB rejestruje dane z czujników działających w czasie rzeczywistym, gdzie przerwy zasilania, zaniki sygnału i konieczność retrospektywnej korekty danych są normalnym zjawiskiem eksploatacyjnym, nie wyjątkiem. Struktura pięciu plików odpowiada bezpośrednio na każde z tych ograniczeń.
 
 ## Co wnosi każdy plik
 
