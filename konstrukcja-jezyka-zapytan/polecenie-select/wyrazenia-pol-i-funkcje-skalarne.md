@@ -22,6 +22,35 @@ Dodawanie, odejmowanie i mnożenie pól `UINT` są sprawdzane: suma lub iloczyn 
 
 > **⚠️ Ostrzeżenie** Po przeplocie `A#B` nie wolno odwoływać się do jego składowych przez `A[0]`, `A.pole`, `A[_]` ani `A.*`. Przeplot ma jeden wspólny schemat; należy użyć nazwy strumienia wynikowego albo odzyskać składową operatorem `&` lub `%`. Szczegóły opisuje rozdział [Aliasowanie](../../kompilacja-zapytan/aliasowanie.md).
 
+## Operatory jednoargumentowe
+
+Obsługa opisana w tej sekcji wymaga wersji silnika zawierającej poprawkę [#328](https://github.com/michalwidera/retractordb/issues/328).
+
+Operatory `+`, `-` i `~` można stosować do pola, wyniku funkcji albo wyrażenia w nawiasach. Każdy element listy `SELECT` nadal tworzy jedno pole wynikowe, a operand w warunku `RULE` pozostaje częścią tego warunku.
+
+| Operator | Typ operandu | Wynik |
+| -------- | ------------ | ----- |
+| `+a` | Dowolny typ wartości, także `STRING` | Wartość i typ `a` bez zmiany |
+| `-a` | `INTEGER`, `RATIONAL`, `FLOAT`, `DOUBLE` | Negacja arytmetyczna, bez zmiany typu |
+| `-a` | `BYTE`, `UINT` | Negacja bitowa, bez zmiany typu; taki sam wynik jak `~a` |
+| `~a` | `BYTE`, `UINT` | Odwrócenie wszystkich bitów w szerokości typu operandu |
+
+Dla `BYTE` o wartości 0 zarówno `-a`, jak i `~a` dają 255; dla wartości 1 dają 254, a dla 255 dają 0. Dla `UINT` odpowiednie wyniki dla 0 i 1 to 4294967295 i 4294967294. Nie jest to odejmowanie od zera ani negacja logiczna `NOT`. Jeśli potrzebna jest ujemna wartość arytmetyczna pola bez znaku, należy najpierw jawnie zmienić jego typ, na przykład `-to_double(a)`.
+
+Typ dotyczy obliczonego operandu, a nie samego pola źródłowego. Literał `-1` jest ujemną liczbą typu `INTEGER`; nie korzysta z reguły negacji bitowej dla `BYTE` lub `UINT`. `NULL` przechodzi przez dozwolony operator bez zmiany. Negacja arytmetyczna z przepełnieniem `INTEGER` lub `RATIONAL` daje `NULL`; na przykład dla `INTEGER` o wartości -2147483648 wyrażenie `-a` daje `NULL`.
+
+Operand operatora jednoargumentowego obejmuje potęgowanie, mnożenie i dzielenie, ale zatrzymuje się przed dwuargumentowym `+` lub `-`. Dlatego `-a+1` oznacza `(-a)+1`, a `-(a+1)` neguje całą sumę. `-a*b` oznacza `-(a*b)`; aby zanegować wyłącznie `a`, trzeba napisać `(-a)*b`. Ta różnica może zmienić typ operandu, wynik negacji bitowej lub miejsce przepełnienia. Tak samo `~a*b` oznacza `~(a*b)`. Pozostaje różnica przy potęgowaniu: `-2^2` daje 4, natomiast `-a^2` oznacza `-(a^2)`; kwadrat zanegowanego pola zapisuje się jako `(-a)^2`.
+
+```rql
+DECLARE b BYTE, u UINT, i INTEGER STREAM src, 1 TEXTFILE 'source.txt'
+SELECT -src[0], ~src[0], -src[1], ~src[1], +src[2], -(src[2]+1), -src[2]+1 STREAM unary FROM src
+RULE negative ON unary WHEN -unary[4] < 0 DO DUMP -1 TO 0
+```
+
+Dla wejścia `0 1 5` wynik ma siedem pól: `255, 255, 4294967294, 4294967294, 5, -6, -4`. Reguła sprawdza negację piątego pola, czyli `-5 < 0`.
+
+`-a` nad `STRING` oraz `~a` nad `INTEGER`, `RATIONAL`, `FLOAT`, `DOUBLE` lub `STRING` są odrzucane podczas kompilacji, zarówno w `SELECT`, jak i w warunku `RULE`. Komunikaty podają przyczynę: `unary '-' is not defined for STRING` albo `unary '~' is defined only for BYTE and UINT, not for ...`. Przy sprawdzaniu pliku przez `xretractor -c` powód pojawia się w `Check result:`. Odmowa takiego zapytania ad hoc (`xqry -a`) pozostawia działający plan i usługę aktywne.
+
 ## Dostępne funkcje skalarne
 
 Jedyną listą nazw i arności wspólną dla kompilatora i ewaluatora jest tabela `rqlFunctions.hpp`. Nazwy są dopasowywane bez względu na wielkość liter, a w planie zapisywana jest postać kanoniczna. Nieznana funkcja albo błędna arność zatrzymuje kompilację; błąd nie jest odkładany do wykonania.
