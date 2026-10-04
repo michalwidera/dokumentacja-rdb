@@ -15,7 +15,7 @@ Rotacja i usuwanie nie dotyczą efemerydów (`DECLARE`). Nie znaczy to, że efem
 Dyrektywa `ROTATION` włącza tryb zachowania historii. Przyjmuje ścieżkę do pliku przechowującego trwały licznik sesji:
 
 ```rql
-ROTATION rdb_counter
+ROTATION 'rdb_counter'
 ```
 
 Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCount()` = `N`) i zapisuje `N+1` przy zamknięciu. Licznik rośnie monotonicznie z każdą sesją `xretractor`.

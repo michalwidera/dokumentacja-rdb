@@ -28,7 +28,7 @@ _Rys. 8. Diagram składni polecenia RULE_
 
 Diagram składni (railroad) przedstawiony na Rys. 8 został wygenerowany na podstawie reguły `rule_statement` z gramatyki ANTLR4 systemu (`RQL.g4`) i obejmuje obie przedstawione formy polecenia jednym torem: rozgałęzienie za słowem DO prowadzi albo do wariantu DUMP (ze zrzutem okna danych i opcjonalną retencją), albo do wariantu SYSTEM (z poleceniem systemowym w apostrofach). Zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika; tory omijające znak minus i klauzulę RETENTION oznaczają ich opcjonalność.
 
-Tak zdefiniowane zdarzenia podpinają się do zdefiniowanych strumieni danych. Nazwa reguły powinna być unikalna. Strumień danych powinien zostać zdefiniowany przed pojawieniem się polecenia stworzenia reguły w pliku rql.
+Tak zdefiniowane zdarzenia podpinają się do zdefiniowanych strumieni danych. Nazwa reguły musi być unikalna w obrębie strumienia wskazanego przez `ON`; różne strumienie mogą mieć reguły o tej samej nazwie. Strumień danych powinien zostać zdefiniowany przed pojawieniem się polecenia stworzenia reguły w pliku rql.
 
 W obu wersjach polecenia RULE tworzona jest nazwa reguły, warunek logiczny oraz nazwa strumienia do którego proces uruchamiany poleceniem DO jest podłączany. Warunek logiczny powinien odwoływać się do zmiennych dostępnych w schemacie strumienia danych występującego po klauzuli ON.
 
@@ -125,7 +125,7 @@ Parametry zakresu:
 
 Całkowita liczba zrzucanych rekordów: `abs(step_forward - step_back)`. Przykład: `DUMP -5 TO 5` → 10 rekordów (5 historycznych + 5 kolejnych). `DUMP 0 TO 1` → 1 rekord (bieżąca próbka).
 
-Zakres `step_back` musi być mniejszy lub równy `step_forward`. Wartość `step_back` może być ujemna (historia) lub nieujemna (opóźnienie). Obie wartości ujemne nie są obsługiwane.
+Granica `step_back` musi być ściśle mniejsza od `step_forward`. Równe lub odwrócone granice są odrzucane przez parser, także przy dołączaniu reguły ad hoc. Wartość `step_back` może być ujemna (historia) lub nieujemna (opóźnienie). Obie wartości ujemne nie są obsługiwane.
 
 ### Pliki zrzutu
 

@@ -20,7 +20,7 @@ Każdy artefakt lub substrat składa się z maksymalnie pięciu plików - plik d
 
 ## Mechanizm rotacji
 
-Dyrektywa `ROTATION rdb_counter` włącza tryb zachowania historii sesji. `PersistentCounter` przechowuje monotonicznie rosnący numer sesji `N`. Rotacja jest procesem rozłożonym w czasie: przy **starcie** sesji N funkcja `detectStartupState()` wykrywa niezgodność (plik danych pusty, `.meta` niepusty) i przemianowuje `.meta` na `.meta.oldN`; przy **zamknięciu** sesji destruktor `posixBinaryFile` przemianowuje plik danych na `.oldN` i plik cienia na `.shadow.oldN`. Konsekwencją tej kolejności jest przesunięcie o 1: `.meta.oldN` zawiera metadane sesji `N−1`, a `.oldN` - dane sesji `N`. Bez dyrektywy `ROTATION` pliki artefaktów są usuwane przy każdym starcie.
+Dyrektywa `ROTATION 'rdb_counter'` włącza tryb zachowania historii sesji. `PersistentCounter` przechowuje monotonicznie rosnący numer sesji `N`. Rotacja jest procesem rozłożonym w czasie: przy **starcie** sesji N funkcja `detectStartupState()` wykrywa niezgodność (plik danych pusty, `.meta` niepusty) i przemianowuje `.meta` na `.meta.oldN`; przy **zamknięciu** sesji destruktor `posixBinaryFile` przemianowuje plik danych na `.oldN` i plik cienia na `.shadow.oldN`. Konsekwencją tej kolejności jest przesunięcie o 1: `.meta.oldN` zawiera metadane sesji `N−1`, a `.oldN` - dane sesji `N`. Bez dyrektywy `ROTATION` pliki artefaktów są usuwane przy każdym starcie.
 
 ## Narzędzie inspekcji `xtrdb -s`
 

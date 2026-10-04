@@ -79,7 +79,7 @@ help|h                          show this help
 
 | Polecenie           | Opis                                                             |
 | ------------------- | ---------------------------------------------------------------- |
-| `exit`, `quit`, `q` | Zakończ narzędzie. Dane niezapisane w bazie pozostają na dysku.  |
+| `exit`, `quit`, `q` | Zakończ narzędzie. Zapisane rekordy pozostają na dysku, o ile nie włączono usuwania przez `rox`; zmiany wyłącznie w buforze payload nie są automatycznie zapisywane. |
 | `quitdrop`, `qd`    | Zakończ i usuń otwarte pliki artefaktu (dane, `.desc`, `.meta`). Plik danych wskazany przez `REF` z `.desc` poza katalogiem magazynu i `storage.ref_dirs` zostaje - usuwany jest tylko `.desc`. |
 
 ---
@@ -90,6 +90,8 @@ help|h                          show this help
 | ------------------- | ------------------------------------------------------------------------------------------- |
 | `storage [ścieżka]` | Ustaw katalog roboczy. Kolejne polecenie `open` szuka pliku w tej ścieżce.                  |
 | `policy [nazwa]`    | Ustaw politykę przechowywania (`DEFAULT`, `DIRECT`, `POSIX`, `MEMORY`, …). Musi poprzedzać `open`. |
+
+Konfiguracja TOML jest wczytywana ze standardowych lokalizacji: `/etc/retractor/retractor.toml`, następnie `$XDG_CONFIG_HOME/retractor/retractor.toml` lub `~/.config/retractor/retractor.toml`. `xtrdb` nie ma opcji `--config`; przy niestandardowym katalogu blokad lub ustawieniu `storage.ref_dirs` należy umieścić te klucze w jednej z tych warstw.
 
 ---
 
@@ -128,7 +130,7 @@ Przykłady:
 | `append`  | Dołącz bieżący payload jako nowy rekord na końcu pliku.    |
 | `purge`   | Usuń wszystkie rekordy z pliku (skróć plik do 0 rekordów). |
 
-Rekord, którego w magazynie nie ma - indeks za ostatnim rekordem albo odczyt z pustego pliku - nie jest odczytem udanym: `read` i `rread` zostawiają wtedy payload w stanie `error` (widocznym przez `status`), a `list` i `rlist` wypisują w tym wierszu `fetch error` i przechodzą do następnego. Wcześniej narzędzie pokazywało w takim miejscu rekord wyzerowany, nieodróżnialny od danych.
+Indeks poza zakresem magazynu wynikowego, także pustego, jest odrzucany przed odczytem: `read` i `rread` wypisują `record out of range - read command`, pozostawiając payload i jego poprzedni stan bez zmian. `list` i `rlist` wypisują `record out of range - list command` i przechodzą do następnego indeksu. Jeżeli sprawdzenie zakresu przepuści żądanie, ale sam odczyt zwróci brak rekordu lub błąd, stan payloadu zmienia się na `error`; `list` i `rlist` wypisują wtedy `fetch error`. Dla źródeł deklarowanych `read` i `rread` pomijają wstępną kontrolę zakresu i korzystają z wyniku odczytu źródła. Stan można sprawdzić poleceniem `status`.
 
 Udane `write N` lub `append` ustawia stan payloadu na `stored`. Próba `append` do zadeklarowanego źródła `BINFILE`, `TEXTFILE` albo `DEVICE`, które obsługuje tylko odczyt, ustawia stan `error`: dane źródła i liczba jego rekordów pozostają bez zmian, a `xtrdb` nadal przyjmuje polecenia. Stan payloadu raportowany przez `status` jest oddzielny od kodu zakończenia procesu; taka odmowa nie wymusza zakończenia z błędem. Pozostałe błędy zapisu, np. błąd wejścia/wyjścia, mogą zakończyć proces.
 

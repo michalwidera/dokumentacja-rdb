@@ -122,8 +122,8 @@ Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budż
 | Opcja | Znaczenie |
 | --- | --- |
 | `-s` / `--select strumień` | Subskrybuje bieżące rekordy strumienia. |
-| `-m` / `--elimitqry N` | Kończy po dokładnie N rekordach; `0` oznacza brak limitu. |
-| `-n` / `--null` | Pomija rekordy, w których wszystkie wartości są `NULL`. |
+| `-m` / `--elimitqry N` | Kończy po odebraniu N rekordów, o ile serwer nie zakończy strumienia wcześniej; `0` oznacza brak limitu. Przy dodatnim limicie dowolny klawisz nie przerywa odbioru, także bez `--needctrlc`. |
+| `-n` / `--null` | W formacie raw pomija wypisywanie rekordów, w których wszystkie wartości są `NULL`; te rekordy nadal zużywają budżet `--elimitqry`. |
 | `-c` / `--needctrlc` | Wymaga Ctrl+C zamiast zakończenia dowolnym klawiszem. |
 
 Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest wykrywana przez timeout `timing.query_no_data_timeout_ms`.

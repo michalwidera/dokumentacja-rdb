@@ -26,7 +26,7 @@ FLOAT    nazwa [N]          # 32-bitowe zmiennoprzecinkowe (IEEE 754)
 DOUBLE   nazwa [N]          # 64-bitowe zmiennoprzecinkowe
 RATIONAL nazwa [N]          # para int32: licznik i mianownik
 STRING   nazwa [rozmiar]    # ciąg znaków o stałej długości
-REF      "ścieżka/plik"     # referencja do zewnętrznego pliku deskryptora
+REF      "ścieżka/plik"     # plik danych (ścieżki względne liczone od katalogu procesu)
 TYPE     identyfikator      # typ składowania (DEFAULT, MEMORY, POSIXSHD, …)
 RETENTION pojemność segment # retencja cykliczna na dysku
 RETMEMORY pojemność         # retencja cykliczna w pamięci
@@ -44,17 +44,18 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 }
 ```
 
-**Efemeryd** - strumień ulotny wyłącznie w RAM:
+**Wynik `SELECT` lub substrat w RAM** - magazyn `MEMORY` z pierścieniem jednego rekordu (źródła efemeryczne `DECLARE` mają typ `BINFILE`, `TEXTSOURCE` albo `DEVICE`):
 
 ```desc
 {
   DOUBLE   x
   DOUBLE   y
   TYPE     MEMORY
+  RETMEMORY 1
 }
 ```
 
-**Substrat z retencją** - cykliczny bufor ostatnich 1000 rekordów na dysku (10 segmentów po 100):
+**Substrat z retencją** - do 1000 rekordów na dysku (10 segmentów po 100):
 
 ```desc
 {
@@ -62,7 +63,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
   FLOAT    a
   FLOAT    b
   TYPE     DEFAULT
-  RETENTION 1000 100
+  RETENTION 100 10
 }
 ```
 
@@ -72,7 +73,7 @@ RETMEMORY pojemność         # retencja cykliczna w pamięci
 {
   INTEGER  a
   FLOAT    b
-  TYPE     DEVICE
+  TYPE     BINFILE
   REF      "sensor/data.bin"
 }
 ```
@@ -178,16 +179,17 @@ Operacja **append** (dodanie nowego rekordu) dopisuje dane na koniec pliku. Oper
 ### Przykład
 
 ```rql
-DECLARE a INTEGER, b FLOAT STREAM str1, 0.1 BINFILE 'data.dat'
+DECLARE a INTEGER, b FLOAT STREAM src, 0.1 BINFILE 'data.dat'
+SELECT * STREAM str1 FROM src
 ```
 
-Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Po 5 sekundach napływu danych (10 Hz) plik `data.dat` ma rozmiar 5 × 10 × 8 = **400 bajtów**.
+Rozmiar rekordu: INTEGER (4 B) + FLOAT (4 B) = **8 bajtów**. Plik wynikowy `str1` po zapisaniu 50 rekordów zajmuje 50 × 8 = **400 bajtów**. Przy interwale 0.1 s jest to 5 sekund danych. `data.dat` jest istniejącym źródłem tylko do odczytu; `DECLARE` go nie powiększa.
 
 ### Odczyt rekordu, którego nie ma
 
 Żądanie indeksu leżącego za ostatnim rekordem - albo odczyt z pustego magazynu - nie jest odczytem udanym. Od 23 września 2026 `storage::read()` i `storage::revRead()` oddają w takim razie osobny status `NoSuchRecord`, zerują bufor docelowy i ustawiają **cały wzorzec null na jedynki**: rekord, którego nie ma, jest wartością nieokreśloną, nie rekordem zerowym. Jest to ta sama konwencja, którą `dataModel::fetchBack()` i `fetchForward()` stosują dla odczytu poza zgromadzoną historią.
 
-Ma to znaczenie dla wyniku, nie tylko dla diagnostyki. Wcześniej ta gałąź zwracała powodzenie i oznaczała wyzerowany rekord jawnie jako **nie**-null, więc semantyka pochłaniania `NULL`-i się nie włączała i reduktory `MIN`, `MAX`, `SUMC` i `AVG` składały sfałszowane zero do wyniku zamiast pominąć brakujący rekord (→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)). Narzędzie `xtrdb` odróżnia teraz ten przypadek od danych: `read` zostawia payload w stanie `error`, a `list` wypisuje `fetch error` (→ [xtrdb](../../zalaczniki/opcje-wywolania/xtrdb.md)).
+Ma to znaczenie dla wyniku, nie tylko dla diagnostyki. Wcześniej ta gałąź zwracała powodzenie i oznaczała wyzerowany rekord jawnie jako **nie**-null, więc semantyka pochłaniania `NULL`-i się nie włączała i reduktory `MIN`, `MAX`, `SUMC` i `AVG` składały sfałszowane zero do wyniku zamiast pominąć brakujący rekord (→ [Operatory agregujące](../../konstrukcja-jezyka-zapytan/polecenie-select/operatory-agregujace.md)). Narzędzie `xtrdb` rozróżnia wstępną odmowę indeksu poza zakresem (`record out of range`, bez zmiany payloadu) od nieudanego odczytu dopuszczonego indeksu (`error` i, dla listy, `fetch error`). Szczegóły opisuje [xtrdb](../../zalaczniki/opcje-wywolania/xtrdb.md#odczyt-i-zapis-rekordów).
 
 Wzorzec null żyje w payloadzie i w indeksie `.meta`, czyli wewnątrz silnika. Zrzut `DO DUMP` go nie niesie - rekord nieistniejący zapisuje się w nim jako zera nieodróżnialne od danych (→ [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#kontrakt-zrzutu-same-wartości-bez-null-i-bez-przerw)).
 

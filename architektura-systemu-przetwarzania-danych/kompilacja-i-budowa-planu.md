@@ -71,7 +71,7 @@ Flagi trybu wykonania (bez `-c`):
 | `-m N` | `--llimitqry N` | uruchom N cykli przetwarzania, potem zakończ     |
 | `-k`   | `--noanykey`    | nie czekaj na klawisz - tryb daemon/skrypt       |
 | `-t`   | `--realtime`    | tryb czasu rzeczywistego (SCHED\_FIFO, mlockall) |
-| `-x`   | `--xqrywait`    | czekaj na pierwsze połączenie xqry przed startem |
+| `-x`   | `--xqrywait`    | czekaj na obsłużenie pierwszego polecenia xqry przed startem |
 | `-s`   | `--status`      | sprawdź czy instancja xretractor już działa      |
 | `-v`   | `--verbose`     | wyświetl parametry strumieni przy starcie        |
 | `-j`   | `--service`     | tryb usługowy - dziennik na stderr (journald)    |
@@ -85,7 +85,7 @@ Flagi trybu wykonania (bez `-c`):
 
 > **⚠️ Ostrzeżenie**
 >
-> Przy użyciu `-m N` w skryptach i testach zawsze dodawaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć wszystkie N cykli zanim klient (`xqry`) zdąży się podłączyć - klient nie otrzyma żadnych danych i będzie czekał do przekroczenia limitu czasowego. Flaga `-x` wstrzymuje przetwarzanie do nadejścia pierwszej komendy od `xqry`.
+> Przy odbiorze wyników ograniczonego przebiegu `-m N` przez `xqry` dodaj `-x` (`--xqrywait`). Bez tej flagi serwer może przetworzyć cały budżet, zanim klient zdąży się podłączyć. Bramka opada po obsłużeniu pierwszego polecenia: `xqry --select` rejestruje wtedy subskrypcję przed rozpoczęciem obliczeń. Także `--dir` lub `--hello` innego klienta zwalnia bramkę, więc nie jest ona barierą gotowości wszystkich odbiorców. Przy analizie artefaktów po zakończeniu procesu `-x` nie jest potrzebne i bez komendy klienta wstrzyma przebieg.
 
 
 Pełna lista wszystkich opcji z opisem każdej z nich - w tym opcja `--realtime` wymagająca uprawnień systemowych - znajduje się w [Załączniku A](../zalaczniki/opcje-wywolania/xretractor.md).
