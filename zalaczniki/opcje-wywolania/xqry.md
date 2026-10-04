@@ -128,6 +128,16 @@ Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budż
 
 Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest wykrywana przez timeout `timing.query_no_data_timeout_ms`.
 
+### Subskrypcja na granicy epok planu
+
+Subskrypcja jest związana z jedną epoką planu. Jeśli serwer zamknie tę epokę między odczytaniem parametrów strumienia a rejestracją klienta, np. podczas `--reset` lub zatrzymywania instancji, odmawia rejestracji i usuwa przygotowaną kolejkę odpowiedzi. Nie przenosi spóźnionej subskrypcji do nowego planu, nawet gdy zawiera on strumień o tej samej nazwie.
+
+Jeżeli po wymianie planu strumień nadal istnieje, w formatach prezentacyjnych `xqry` zgłasza odmowę polecenia `show` i zapisuje w dzienniku klienta powód, np. `plan epoch ended while subscribing to stream 'dst'; repeat the command`. W formatach prezentacyjnych wynik to `clientQueueMissing`, a kod zakończenia odpowiada `ENOSR` (`no_stream_resources`). W trybie `--jsonl` klient emituje zdarzenie `error` z kodem `client_queue_missing` i powodem w polu `message`. Jeśli strumień zniknął z nowego planu, pierwszeństwo ma diagnostyka braku strumienia.
+
+Klient nie ponawia subskrypcji automatycznie. Po zakończeniu wymiany planu należy ponownie wywołać `xqry --select strumień`, sprawdzając, czy nazwa i schemat strumienia w nowym planie odpowiadają oczekiwaniom.
+
+Odmowę na granicy epok i poprawne działanie ponowionej subskrypcji sprawdza test integracyjny `it_subscribe_epoch_race-run`.
+
 ### Błąd odbioru lub renderowania
 
 Wyjątek w pętli odbioru i renderowania danych w formatach prezentacyjnych kończy subskrypcję błędem klienta, także wtedy, gdy część rekordów została już wypisana. Klient zatrzymuje odbiór, czeka na zakończenie wątku odbierającego i zwraca wynik `renderFailed`. Na standardowym wyjściu błędów pojawia się komunikat `select loop failed in the client; reason in the client log`, a dziennik klienta zawiera nazwę strumienia i przyczynę wyjątku. Kod zakończenia odpowiada `EINTR` (`interrupted`). Otrzymane przed błędem rekordy są wynikiem częściowym i nie oznaczają udanego zakończenia subskrypcji.
