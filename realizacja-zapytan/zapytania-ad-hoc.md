@@ -32,12 +32,16 @@ $ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 TEXTFILE 'data3.txt'"
 
 Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
 
-Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne tylko w pliku planu, z którego instancja startuje, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Ta sama granica obowiązuje na kanale `xqry --reset`, który też przenosi pełny plan, ale też nie niesie autorstwa: plan z regułą `DO SYSTEM` jest tam odrzucany w całości, chyba że operator świadomie ustawi `service.unrestricted = true` (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Kanał ad hoc odmawia bezwarunkowo i tego klucza nie czyta. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`. Reguła zaczyna działać dopiero po zgromadzeniu od chwili dołączenia całej wymaganej historii; jeżeli pamięciowy strumień przechowuje jej za mało, żądanie jest odrzucane.
+Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne tylko w pliku planu, z którego instancja startuje, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Ta sama granica obowiązuje na kanale `xqry --reset`, który też przenosi pełny plan, ale też nie niesie autorstwa: plan z regułą `DO SYSTEM` jest tam odrzucany w całości, chyba że operator świadomie ustawi `service.unrestricted = true` (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Kanał ad hoc odmawia bezwarunkowo i tego klucza nie czyta. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`.
+
+Przy historycznym zakresie `DUMP -H TO M` warunek `WHEN` jest oceniany najwcześniej na rekordzie `H+1` po dołączeniu, gdy `H` poprzednich rekordów również pochodzi już z tego okresu. Dla zakresu bez historii (`H=0`) ocena zaczyna się od pierwszego nowego rekordu. Magazyn `MEMORY` musi mieć co najmniej `H+1` slotów; przy `H > 0` i pojemności `N <= H` żądanie jest odrzucane bez dołączenia reguły. Dołączenie nie zwiększa pojemności istniejącego magazynu. Szczegóły opisuje [Realizacja alarmowania](realizacja-alarowania.md#faza-1-dane-historyczne-przy-rejestracji-zadania).
 
 ```bash
 xqry --server pomiary -a \
   "RULE alarm ON temperatura WHEN temperatura[0] > 80 DO DUMP -10 TO 5"
 ```
+
+Na strumieniu `MEMORY` powyższy przykład wymaga co najmniej 11 slotów; przy pojemności 10 żądanie jest odrzucane.
 
 Przy wielu instancjach klient kieruje `SELECT` według właścicieli strumieni z `FROM`, a `RULE` według strumienia z `ON`. Zapytanie łączące źródła z kilku serwerów jest odrzucane. Nowe nazwy strumieni i pliki magazynu są zgłaszane w magistrali przed modyfikacją aktywnego planu, więc ad hoc nie może nadpisać zasobu innej instancji.
 
