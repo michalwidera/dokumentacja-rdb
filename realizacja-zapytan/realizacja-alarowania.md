@@ -84,7 +84,7 @@ W chwili wyzwolenia reguły - zaraz po stwierdzeniu, że warunek jest prawdziwy 
 
 1. Usuwa istniejący wpis pod nazwą pliku zrzutu (`unlink()`) i tworzy nowy plik przez POSIX `open()` z flagami `O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC`.
 2. Jeśli `step_back < 0`, odczytuje `|step_back|` próbek z historycznego bufora strumienia.  
-   Dane historyczne istnieją, bo każdy strumień przechowuje okno poprzednich próbek niezbędne do obliczeń w oknach AGSE.
+   Kompilator uwzględnia zakres historyczny DUMP przy wyznaczaniu wymaganej pojemności strumienia.
 3. Zapisuje próbki historyczne do pliku **od najstarszej do najnowszej** (tzn. od `step_back` do `–1`).
 4. Oblicza, ile próbek z przyszłości jeszcze pozostało do zebrania (`dumpedRecordsToGo = |step_forward - step_back| - |step_back|`).
 5. Jeśli `step_back ≥ 0` (opóźnienie startu), ustawia `delayDumpRecordsToGo = step_back`.
@@ -95,6 +95,8 @@ Przykład: DUMP -3 TO 2
   Do zebrania z przyszłości: 2 próbki (t, t+1)
   dumpedRecordsToGo = 2
 ```
+
+Dla reguły z pliku planu zakres `DUMP -H TO M` (`H > 0`) wymaga co najmniej `H+1` rekordów: `H` rekordów historii oraz rekordu bieżącego. Kompilator automatycznie powiększa pierścień `STORAGE MEMORY` do tej pojemności, także gdy nie podano `RETENTION` albo jego wartość jest mniejsza. Większe jawne `RETENTION` pozostaje minimum pojemności pierścienia. Dla magazynów plikowych `DEFAULT` i `DIRECT` z ograniczoną retencją kompilator odrzuca plan, jeśli retencja nie zapewnia `H+1` rekordów nawet tuż po rotacji: musi zachodzić `(segments - 1) * capacity + 1 >= H+1`. Dotyczy to również retencji z konfiguracji `[storage] default_retention`.
 
 Dla reguły dołączonej ad hoc historia musi powstać w całości po jej dołączeniu. Przy zakresie `DUMP -H TO M` reguła może po raz pierwszy ocenić warunek `WHEN` na rekordzie `H+1` po dołączeniu: poprzednie `H` rekordów stanowi historię, a nowy rekord jest próbką bieżącą. Bez części historycznej (`H=0`) warunek jest oceniany już dla pierwszego nowego rekordu. Strumień `MEMORY` musi przechowywać co najmniej `H+1` rekordów; żądanie sięgające głębiej jest odrzucane bez dołączenia reguły.
 
@@ -234,5 +236,3 @@ _Rys. 52. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
 | Reguła ad hoc z historią `H > 0` na `MEMORY` o pojemności `N <= H` | Żądanie jest odrzucane bez dołączenia reguły; potrzeba `H+1` slotów na historię i rekord bieżący |
 | Plik docelowy niedostępny (brak katalogu STORAGE) | Błąd krytyczny `FatalError` - xretractor kończy działanie |
 | DO SYSTEM zwraca niezerowy kod | Błąd w logu spdlog; przetwarzanie kontynuuje |
-
-Automatyczne wyznaczanie pojemności dla historycznego `DUMP` w regule z pliku planu pozostaje osobnym problemem opisanym w [#419](https://github.com/michalwidera/retractordb/issues/419): kompilator uwzględnia `H` zamiast `H+1`. Kontrola pojemności przy dołączaniu reguły ad hoc wymaga już `H+1` slotów.
