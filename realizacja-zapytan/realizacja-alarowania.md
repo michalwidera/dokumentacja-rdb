@@ -82,7 +82,7 @@ Kod wyjścia polecenia jest sprawdzany:
 
 W chwili wyzwolenia reguły - zaraz po stwierdzeniu, że warunek jest prawdziwy - `dumpManager::registerTask()`:
 
-1. Usuwa istniejący wpis pod nazwą pliku zrzutu (`unlink()`) i tworzy nowy plik przez POSIX `open()` z flagami `O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC`.
+1. Usuwa istniejący wpis pod nazwą pliku zrzutu (`unlink()`) i tworzy nowy plik przez POSIX `open()` z flagami `O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC`. Następnie usuwa z kolejki wcześniejsze zadania piszące pod tę samą nazwę pliku i zamyka ich deskryptory (zob. *Retencja*).
 2. Jeśli `step_back < 0`, odczytuje `|step_back|` próbek z historycznego bufora strumienia.  
    Kompilator uwzględnia zakres historyczny DUMP przy wyznaczaniu wymaganej pojemności strumienia.
 3. Zapisuje próbki historyczne do pliku **od najstarszej do najnowszej** (tzn. od `step_back` do `–1`).
@@ -155,15 +155,15 @@ Przykład: DUMP 2 TO 5
 
 Bez klauzuli `RETENTION` każde wyzwolenie reguły zapisuje zrzut pod jedną nazwą `<strumień>_<reguła>_dump.tmp`. Z klauzulą `RETENTION N` pierwsze wyzwolenie reguły w danym przebiegu silnika tworzy `_dump_0.tmp`, a kolejne numery plików rotują modulo `N`: `_dump_0.tmp`, `_dump_1.tmp`, …, `_dump_(N-1).tmp`.
 
+Nazwa pliku musi wskazywać jedną regułę. Plan, w którym dwie reguły `DO DUMP` mają ten sam rdzeń `<strumień>_<reguła>` - np. reguła `b_c` na strumieniu `a` i reguła `c` na strumieniu `a_b` - jest odrzucany przy wczytywaniu, a reguła dołączana ad hoc z takim rdzeniem dostaje odmowę. Porównanie nie rozróżnia wielkości liter, bo na systemie plików nieczułym na nią (domyślnie macOS) `Ab_r` i `ab_R` to ten sam plik, a poprawność planu nie może zależeć od hosta. Autor planu zmienia wtedy nazwę reguły albo strumienia.
+
 Plik zrzutu zawsze powstaje od nowa. Silnik kasuje to, co leży pod jego nazwą - także dowiązanie symboliczne albo twarde, za którym nie podąża - i tworzy nowy plik na wyłączność (`O_EXCL | O_NOFOLLOW`). Zapis nie trafia więc do celu dowiązania podstawionego pod końcową nazwę zrzutu. Ta ochrona nie obejmuje podmiany katalogów nadrzędnych podczas rozwiązywania ścieżki; nie jest gwarancją atomowego ograniczenia zapisu do katalogu magazynu. Proces, który trzymał poprzedni zrzut otwarty, nadal widzi jego dawną zawartość. Gdy pliku nie da się utworzyć, silnik kończy pracę błędem krytycznym z nazwą pliku i przyczyną.
 
-Zadania zrzutu czekają w kolejce `bookOfTasks`, jednej na strumień i wspólnej dla wszystkich jego reguł `DO DUMP`. Jej pojemność to największe wymaganie wśród tych reguł: `N` dla reguły z `RETENTION N`, 1 dla reguły bez tej klauzuli. Pojemność tylko rośnie - zmniejszenie skasowałoby zadania już przyjęte. Gdy kolejka jest pełna, nowe zadanie wypycha najstarsze niezakończone, niezależnie od tego, z której reguły pochodzi, a destruktor `dumpTask` zamyka jego deskryptor.
+Zadania zrzutu czekają w kolejce `bookOfTasks`, jednej na strumień i wspólnej dla wszystkich jego reguł `DO DUMP`. Kolejka nie ma własnej pojemności i nie wypycha zadań: zadanie kończy się po zebraniu całego zakresu albo wtedy, gdy ta sama reguła odtworzy jego plik. Po utworzeniu nowego pliku `registerTask()` usuwa z kolejki wcześniejsze zadania piszące pod tę samą nazwę, a destruktor `dumpTask` zamyka ich deskryptory. Zastąpione zadanie nie pisze więc do pliku odłączonego od katalogu, a pod każdą nazwą zbiera dane tylko najnowsze wyzwolenie.
 
-Wynikają z tego dwa przypadki dla reguły bez `RETENTION`:
-- Jest jedyną regułą `DO DUMP` na strumieniu: pojemność wynosi 1, więc nowe wyzwolenie przerywa poprzedni, nieukończony zrzut.
-- Na tym samym strumieniu inna reguła ma `RETENTION N`: kolejne wyzwolenia mogą zbierać dane równocześnie. Każde pisze do własnego pliku, pod nazwą `_dump.tmp` zostaje zrzut najnowszego, a starsze dokańczają zapis do plików już usuniętych z katalogu.
+Reguła bez `RETENTION` ma zatem w toku najwyżej jedno zadanie i nowe wyzwolenie przerywa jej poprzedni, nieukończony zrzut. Reguła z `RETENTION N` ma najwyżej `N` zadań: nieukończony zrzut przerywa dopiero wyzwolenie, które po zawinięciu numeracji wraca do jego pliku, czyli `N`-te kolejne. Zadania innych reguł na tym samym strumieniu pozostają nietknięte - reguły nie ucinają sobie nawzajem zrzutów, także dwie reguły bez `RETENTION`. Liczba deskryptorów otwartych na strumieniu nie przekracza sumy tych limitów po jego regułach.
 
-Przy częstych zdarzeniach i małej pojemności nieukończony zrzut może zostać przerwany. Pojemność powinna być dobrana tak, aby czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) był mniejszy niż interwał między zdarzeniami pomnożony przez pojemność.
+Aby przy częstych zdarzeniach każdy zrzut był kompletny, czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) powinien być mniejszy niż interwał między zdarzeniami pomnożony przez `N` (1 dla reguły bez `RETENTION`).
 
 ***
 
@@ -229,7 +229,8 @@ _Rys. 52. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
 
 | Sytuacja | Zachowanie |
 |---|---|
-| Warunek spełniony dwa razy z rzędu (np. pomiar stale powyżej progu) | Każda próbka rejestruje nowe zadanie DUMP - pliki nakładają się przy braku RETENTION |
+| Warunek spełniony dwa razy z rzędu (np. pomiar stale powyżej progu) | Każda próbka rejestruje nowe zadanie DUMP; bez RETENTION przerywa ono poprzedni nieukończony zrzut tej samej reguły, z RETENTION N - dopiero `N`-te kolejne wyzwolenie |
+| Dwie reguły DUMP o tym samym rdzeniu nazwy pliku (np. `b_c` na `a` i `c` na `a_b`, także różne tylko wielkością liter) | Plan jest odrzucany, reguła ad hoc dostaje odmowę; trzeba zmienić nazwę reguły albo strumienia |
 | Strumień wejściowy `DECLARE` jako cel `ON` | Błąd kompilacji - reguły można podpiąć wyłącznie pod `SELECT` |
 | Reguła z pliku planu żąda rekordów sprzed początku strumienia | Część historyczna zrzutu nie jest skracana; nieistniejące rekordy są zastępowane zerami |
 | Za mało rekordów po dołączeniu reguły ad hoc (`DUMP -H TO M`) | Reguła czeka z oceną `WHEN` na rekord `H+1` po dołączeniu; dla `H=0` ocenia pierwszy nowy rekord |
