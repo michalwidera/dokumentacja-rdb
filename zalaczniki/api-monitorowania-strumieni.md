@@ -83,6 +83,22 @@ with Client("laboratory", xqry="/path/to/xqry") as db:
 
 Należy używać menedżerów kontekstu lub jawnego `close()`. Samo przerwanie pętli `for` nie zamyka iteratora. Biblioteka nie instaluje obsługi sygnałów aplikacji.
 
+`ping()` po poprawnej odpowiedzi serwera zwraca `True`; przy błędzie zgłasza `Error` z kodem i opisem przyczyny. Nie zwraca `False` i nie ukrywa błędów transportu ani protokołu. Przykład obsługi błędu:
+
+```python
+from retractordb import Client, Error
+
+with Client("laboratory", xqry="/path/to/xqry") as db:
+    try:
+        db.ping()
+    except Error as exc:
+        print(f"Blad ping: {exc.code}: {exc}")
+    else:
+        print("Serwer odpowiada")
+```
+
+**Zgodność w Pythonie:** wynik `True` zachowuje działanie dotychczasowego kodu `if db.ping():` i `assert db.ping()`. Przy awarii oba wywołania zgłaszają wyjątek. Kontrakt zatwierdzony w [#425](https://github.com/michalwidera/retractordb/issues/425) zachowuje wynik sukcesu w Pythonie; C++ używa `void`.
+
 ## C++
 
 Biblioteka wymaga C++23. W drzewie RetractorDB jej cele są dostępne na żądanie:
@@ -122,6 +138,12 @@ int main() {
 
 `SubscribeOptions` udostępnia `limit`, `idleTimeout` i `capacity`. `next(timeout)` zwraca `std::optional<Record>`; brak wartości oznacza normalny koniec lub jawne zamknięcie. Błędy rzucają `retractordb::Error` ze stabilnym polem `code`. Uchwyty subskrypcji są przenoszalne, ale niekopiowalne; destruktor i `close()` kończą oraz zbierają własny proces potomny.
 
+`Client` również jest przenoszalny i niekopiowalny. Konstruktor i przypisanie przenoszące mają `noexcept` i są zdefiniowane `= default` poza nagłówkiem. Przenoszenie przekazuje własność klienta i jego subskrypcji; przypisanie przenoszące najpierw zamyka dotychczasowe subskrypcje obiektu docelowego. Destruktor klienta zamyka należące do niego subskrypcje także wtedy, gdy ich uchwyty nadal istnieją. Akcesory `Client::streams()`, `describe()` i `subscribe()` oraz `Subscription::schema()`, `next()`, `pid()` i `endReason()` mają `[[nodiscard]]`.
+
+`Client::ping()` zwraca `void` po poprawnej odpowiedzi, a przy błędzie rzuca `retractordb::Error` z zachowanym kodem i opisem przyczyny. Sukces sprawdza się przez zakończenie wywołania bez wyjątku; nie ma wyniku `false`.
+
+**Obiekt po przeniesieniu:** obiekt źródłowy `Client` można bezpiecznie zniszczyć, zamknąć przez `close()` albo przypisać mu innego klienta. Wywołania `ping()`, `streams()`, `describe()` i `subscribe()` zgłaszają `retractordb::Error` z kodem `closed`. Przypisanie działającego klienta pozwala ponownie używać obiektu. Po zwykłym `close()` te metody również zgłaszają `closed`, jeśli przekazane argumenty są poprawne.
+
 ## Ograniczenia i obsługa błędów
 
 Bufory bibliotek są ograniczone: domyślnie 1024 oczekujące zdarzenia, 1 MiB na wiersz JSONL i 64 KiB zachowanego stderr. Przepełnienie bufora aplikacji daje `buffer_overflow` i zamyka subskrypcję bez cichego pomijania rekordów. Przepełnienie kolejki po stronie serwera jest ograniczeniem istniejącego IPC i może ujawnić się dopiero jako timeout bezczynności.
@@ -143,3 +165,5 @@ API jest rozwijane razem z silnikiem, ale pozostaje opcjonalne. Zwykłe `ninja`,
 API C++ jest konfigurowane zawsze, ale jego cele mają `EXCLUDE_FROM_ALL`. `xqry` ma własną jednostkę kompilacji Boost.JSON, dlatego silnik nie linkuje niczego z katalogu `api/`. Zależność biegnie wyłącznie od API do publicznego interfejsu procesu `xqry`.
 
 Testy `st_api_fake` i `st_api_real` sprawdzają oba języki. Pierwszy obejmuje typy, `NULL`, błędne wyjście, przepełnienie i zamykanie procesu. Drugi używa prawdziwego `xretractor` i sprawdza niezależne subskrypcje, tablice, liczby wymierne, brakujący strumień oraz zatrzymanie serwera.
+
+Testy C++ obejmują też fabrykę klienta, `std::vector`, przechwycenie w lambdzie, przypisanie przenoszące z aktywnymi subskrypcjami oraz bezpieczne `close()` i niszczenie obiektu po przeniesieniu. Sprawdzają kod `closed` ze wszystkich czterech metod klienta po konstrukcji i przypisaniu przenoszącym oraz po jawnym zamknięciu. Oba języki sprawdzają sukces i błędy `ping()` oraz zachowanie kodów `protocol_error`, `server_no_response` i `closed`; testy Pythona wymagają wyniku `True` po sukcesie.
