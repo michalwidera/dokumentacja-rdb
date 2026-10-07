@@ -131,9 +131,13 @@ Stosuje do warunków `RULE` tę samą kontrolę obliczalności, którą `inferFi
 
 #### simplifyFieldExpressions
 
-Upraszcza programy pól `SELECT`, argumenty agregatów okna rekordowego oraz warunki `RULE` po rozwiązaniu referencji, ale przed współdzieleniem równoważnych obliczeń. Przebieg zwija wyrażenia stałe, łączy ogony stałych w arytmetyce całkowitej i wymiernej oraz usuwa zgodne typowo elementy neutralne (`E+0`, `E-0`, `E*1`, `E/1`). Powtórzone dokładne czynniki zapisuje jako potęgę, np. `E*E*E` jako `E^3`.
+Upraszcza programy pól `SELECT`, argumenty agregatów okna rekordowego oraz warunki `RULE` po rozwiązaniu referencji, ale przed współdzieleniem równoważnych obliczeń. Przebieg zwija wyrażenia stałe, łączy bezpieczne ogony stałych w arytmetyce całkowitej oraz w konkatenacji STRING oraz usuwa zgodne typowo elementy neutralne (`E+0`, `E-0`, `E*1`, `E/1`). Przy osobnym przełączniku `aggressive_expr_optimization=ON` zapisuje powtórzone dokładne czynniki jako potęgę, np. `E*E*E` jako `E^3`; domyślnie ta reguła jest wyłączona.
 
 Przebieg zachowuje semantykę wartości `NULL` i promocję typów. Dlatego nie upraszcza `E*0`, nie reasocjuje `FLOAT` ani `DOUBLE` i pozostawia bez zmian programy, których typu lub działania nie potrafi bezpiecznie ustalić. Redukcja powtórzonego czynnika dotyczy tylko typów o dokładnym mnożeniu (`BYTE`, `INTEGER`, `UINT`, `RATIONAL`); dla `FLOAT` i `DOUBLE` pojedyncze mnożenie nie jest zastępowane wywołaniem `pow`.
+
+Reasocjacja ogona (reguła B) wymaga ścisłej równości wartości, włącznie z `NULL`, przy włączonej i wyłączonej optymalizacji. Dla bazy `INTEGER`, `UINT` lub `BYTE` i stałych `INTEGER` strażnik wyznacza przedziały wartości bazy, dla których wynik pośredni i wynik po przepisaniu mieszczą się w reprezentacji. Przepisanie jest dozwolone tylko wtedy, gdy dziedzina określoności wyniku po przepisaniu zawiera się w dziedzinie wyniku pośredniego. Dla `BYTE` strażnik przyjmuje cały zakres `INTEGER`, ponieważ złożona baza, np. `b+b`, już daje `INTEGER`. Pozostawia więc m.in. `(i+1)-1` przy `INT_MAX`, `i*-1*-1` przy `INT_MIN` oraz `u*-2*-3` i `u+5-3` nad `UINT` w formie krokowej, zachowując przepełnienie pośrednie jako `NULL`.
+
+Dla `RATIONAL` oraz pozostałych nieudowodnionych promocji reguła B odmawia reasocjacji; nie ogranicza to zwijania wyrażeń stałych ani usuwania zgodnych typowo elementów neutralnych. Konkatenacja `STRING` pozostaje dozwolona. Regresja `it_expr_corpus-value` obejmuje granice `INTEGER`/`UINT`, promocję `BYTE`, przepełnienie `RATIONAL` i kontrolę `u+3-5`; sprawdza wartości i deskryptory także przy all-off.
 
 #### shareEquivalentSelectComputations
 
