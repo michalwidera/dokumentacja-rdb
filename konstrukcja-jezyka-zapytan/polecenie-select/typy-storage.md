@@ -44,6 +44,10 @@ Start bez dyrektywy `ROTATION` zaczyna od zera wyniki `SELECT` i substraty: kasu
 
 > **_NOTE:_** Typ `MEMORY` (SUBSTRAT 'memory') ma pokrycie w testach: `issue61_tmpmem` (sekwencyjny i równoległy) opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
 
+## Dowiązania w ścieżkach magazynu
+
+Zapis do plików magazynu odmawia podążania za dowiązaniem symbolicznym pod końcową nazwą danych, cienia, metadanych lub deskryptora. Jawny `REF` przekazany przez wywołującego może dopuścić dowiązanie głównego pliku danych; wyjątek nie obejmuje nazw segmentów retencji ani plików pomocniczych. Dowiązania katalogów nadrzędnych pozostają dozwolone. Szczegóły odmów, wyjątku `REF` i granic ochrony opisano w rozdziale [Pliki](../../architektura-systemu-przetwarzania-danych/format-zapisu-danych/pliki.md#otwieranie-plików-i-dowiązania).
+
 ## Kiedy używać
 
 Wybór zależy od wymagań środowiska:

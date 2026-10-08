@@ -2,7 +2,7 @@
 
 Przez rotację plików rozumiemy kontrolowane zamykanie bieżącego zestawu plików danych i metadanych oraz przeniesienie ich do wersji historycznych (`.old<N>`), tak aby nowa sesja mogła rozpocząć zapis od czystego stanu bez utraty wcześniejszych pomiarów. Stosuje się to po to, aby oddzielić kolejne sesje akwizycji, zachować pełną ścieżkę audytu i ułatwić diagnostykę problemów w czasie. Celem rotacji jest jednocześnie utrzymanie porządku operacyjnego (aktualny zestaw roboczy + archiwum sesji) oraz zapewnienie możliwości odtworzenia i porównania danych historycznych.
 
-> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `rotation_test`, `retention` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md).
+> **_NOTE:_** Opisana funkcjonalność ma pokrycie w testach: `rotation_test`, `retention` opisanych w załączniku pt. [Testy Integracyjne](../../zalaczniki/testy-integracyjne.md). Zgodność wartości i bitów `NULL` w archiwach kolejnych sesji sprawdzają dodatkowo `it_rotation_null` oraz `ut_rdb`.
 
 ## Domyślne zachowanie (bez dyrektywy `ROTATION`)
 
@@ -22,8 +22,7 @@ Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCoun
 
 ## Przepływ sterowania w procesie rotacji
 
-W tym punkcie chcemy pokazać pełną sekwencję życia plików podczas jednej sesji i przejścia do kolejnej. Diagram (Rys. 25) ma wyjaśnić kolejność zdarzeń: wykrycie rotacji przy starcie, utworzenie nowego indeksu `.meta`, normalny zapis danych w trakcie pracy oraz archiwizację plików przy zamknięciu procesu. Kluczowy przekaz jest taki, że rotacja nie jest pojedynczą operacją, lecz procesem rozłożonym w czasie, który łączy moment startu i stopu sesji.
-
+Przy poprawnym zamknięciu sesji N plik danych, indeks metadanych i istniejące pliki cienia otrzymują ten sam przyrostek `.oldN`. Diagram przedstawia kolejność archiwizacji magazynu dyskowego; magazyny `MEMORY` i źródła `DECLARE` nie uczestniczą w tej rotacji.
 
 ```mermaid
 %% pdf-width: 100%
@@ -31,70 +30,55 @@ sequenceDiagram
     participant RQL as xretractor
     participant D as plik danych
     participant M as plik .meta
-    participant Old as pliki .old*
+    participant Old as pliki .oldN
 
     Note over RQL: start sesji N, percounter = N
-    RQL->>D: detectStartupState(): dane puste, meta niepusta → rotacja
-    RQL->>Old: metaData::rotate(N): rename .meta → .meta.oldN
-    RQL->>M: nowy pusty plik .meta
-
+    RQL->>D: otwarcie magazynu
+    RQL->>M: przygotowanie indeksu
     Note over RQL: praca - zapis rekordów
     RQL->>D: dopisuje rekordy
     RQL->>M: aktualizuje indeks RLE
-
-    Note over RQL: stop (Ctrl+C / SIGTERM)
-    RQL->>Old: ~posixBinaryFile: rename → (name).oldN
-    RQL->>Old: ~posixBinaryFile: rename → (name).shadow.oldN (jeśli istnieje)
-    Note over RQL: PersistentCounter zapisuje N+1 do pliku
+    Note over RQL: poprawne zamknięcie sesji
+    RQL->>Old: archiwizacja .meta.shadow, jeśli istnieje
+    RQL->>M: flushCurrentEntry()
+    RQL->>Old: rename .meta na .meta.oldN
+    RQL->>Old: destruktor akcesora - dane i cień pod .oldN
+    Note over RQL: PersistentCounter zapisuje N+1
 ```
 
 _Rys. 25. Sekwencja rotacji plików - start i stop sesji_
 
-Rotacja pliku `.meta` następuje **przy starcie** sesji N - `detectStartupState()` wykrywa niezgodność (plik danych pusty, indeks niepusty ze starej sesji) i wywołuje `metaData::rotate(N)`. Plik danych binarnych jest przemianowywany dopiero przy **zamknięciu** sesji przez destruktor `posixBinaryFile`.
+`storage::~storage()` wywołuje `metaData::rotate(N, false)`: zapisuje oczekujący wpis RLE, archiwizuje indeks i odłącza go od pliku, bez tworzenia nowego roboczego `.meta`. Wariant `storageShadow` wcześniej archiwizuje istniejący `.meta.shadow`. Następnie destruktor akcesora rotuje dane oraz ich cień. Pliki z tym samym numerem odpowiadają tej samej sesji i pozwalają odtworzyć jej wartości oraz bity `NULL`.
+
+Jeżeli przy starcie dane są puste, ale pozostał niepusty indeks po starszej wersji silnika, `detectStartupState()` resetuje osierocony indeks. Nie nadaje mu numeru bieżącej sesji. Dzieje się to także przy wyłączonej detekcji przerw. Archiwizacja przy zamknięciu nie jest transakcją obejmującą całą rodzinę plików; przerwanie procesu w trakcie przemianowań może pozostawić zestaw niekompletny.
 
 ## Co trafia do plików `.old<N>`
 
 | Plik | Kiedy powstaje |
 | ---- | -------------- |
-| `<name>.oldN` | Zamknięcie sesji N - destruktor `posixBinaryFile` przemianowuje plik danych |
-| `<name>.shadow.oldN` | Zamknięcie sesji N - destruktor `posixBinaryFileWithShadow` przemianowuje plik cienia |
-| `<name>.meta.oldN` | Start sesji N - `detectStartupState()` wykrywa rotację i przemianowuje `.meta` pozostawiony przez sesję N−1 |
+| `<name>.oldN` | Zamknięcie sesji N - akcesor przemianowuje plik danych |
+| `<name>.shadow.oldN` | Zamknięcie sesji N - akcesor z cieniem przemianowuje istniejący plik cienia danych |
+| `<name>.meta.oldN` | Zamknięcie sesji N - indeks zapisuje oczekujący wpis i przemianowuje plik metadanych |
+| `<name>.meta.shadow.oldN` | Zamknięcie sesji N - `storageShadow` archiwizuje istniejący cień metadanych |
 
-Wskutek tej kolejności: plik `.meta.oldN` zawiera metadane null dla danych z sesji `N−1`, podczas gdy plik `.oldN` zawiera dane sesji `N`. W sekcji `ROTATED FILES` narzędzia `xtrdb -s` pliki są grupowane według numeru suffiksu - pary `.oldN` i `.meta.oldN` różnią się więc o 1 w stosunku do sesji, której fizycznie odpowiadają.
+Sekcja `ROTATED FILES` narzędzia `xtrdb -s` grupuje pliki według numeru przyrostka. Dla archiwów utworzonych po poprawce #322 para `.oldN` i `.meta.oldN` należy do tej samej sesji. Starsze archiwa nie są automatycznie przenumerowywane: mogą zachowywać dawną rozbieżność o jedną sesję i wymagają sprawdzenia pochodzenia przed analizą.
 
 ## Przykład sekwencji trzech sesji
 
-Po trzech zakończonych sesjach (0, 1, 2) i w trakcie czwartej (3):
+Po trzech zakończonych sesjach (0, 1, 2) i po rozpoczęciu zapisu w czwartej (3), przykładowy zestaw bez plików cienia wygląda tak:
 
 ```text
-pomiar.old0         ← dane z sesji 0 (zapis sesji 0, przemianowanie
-                      w destruktorze sesji 0)
-pomiar.meta.old1    ← metadane z sesji 0 (przemianowanie przy starcie sesji 1)
-pomiar.old1         ← dane z sesji 1
-pomiar.meta.old2    ← metadane z sesji 1 (przemianowanie przy starcie sesji 2)
-pomiar.old2         ← dane z sesji 2
-pomiar.meta.old3    ← metadane z sesji 2 (przemianowanie przy starcie sesji 3)
-pomiar              ← dane bieżące (sesja 3)
-pomiar.meta         ← metadane bieżące (sesja 3)
+pomiar.old0         - dane z sesji 0
+pomiar.meta.old0    - metadane z sesji 0
+pomiar.old1         - dane z sesji 1
+pomiar.meta.old1    - metadane z sesji 1
+pomiar.old2         - dane z sesji 2
+pomiar.meta.old2    - metadane z sesji 2
+pomiar             - dane bieżące (sesja 3)
+pomiar.meta        - metadane bieżące (sesja 3)
 ```
 
-Widok `xtrdb -s` w trakcie sesji 3:
-
-```bash
-$ xtrdb -s pomiar
-...
-├──────────────────────────────────────────────────────────────┤
-│  ROTATED FILES                                               │
-│  [3] pomiar.meta.old3                                   26 B │
-│  [2] pomiar.old2                                       800 B │
-│      pomiar.meta.old2                                   26 B │
-│  [1] pomiar.old1                                       800 B │
-│      pomiar.meta.old1                                   26 B │
-│  [0] pomiar.old0                                       400 B │
-└──────────────────────────────────────────────────────────────┘
-```
-
-Plik `pomiar.meta.old3` jest w grupie `[3]` sam - odpowiadający mu plik `pomiar.old3` powstanie dopiero przy zamknięciu bieżącej sesji.
+`xtrdb -s pomiar` grupuje archiwa w grupach `[0]`, `[1]` i `[2]`. Grupa `[3]` powstanie dopiero przy zamknięciu bieżącej sesji. Przykład pokazuje nazwy i ich znaczenie, bez zakładania stałych rozmiarów plików.
 
 ## Otwieranie pliku rotowanego w `xtrdb`
 

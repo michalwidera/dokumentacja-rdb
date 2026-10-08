@@ -4,6 +4,14 @@ Rozdział opisuje pięć plików tworzących kompletny zestaw artefaktu lub subs
 
 Zakres rozdziału **nie obejmuje** mechanizmu rotacji plików między sesjami (→ [Rotacja](rotacja.md)) ani narzędzia inspekcji `xtrdb -s` (→ [Narzędzie inspekcji](narzedzie-inspekcji.md)).
 
+## Otwieranie plików i dowiązania
+
+Pliki magazynu - dane, `.shadow`, `.meta`, `.meta.shadow` i `.desc` - są otwierane z `O_NOFOLLOW`: dowiązanie symboliczne pod końcową nazwą pliku powoduje odmowę otwarcia zamiast zapisu lub obcięcia jego celu. W profilu `GENERIC` odmowa może nastąpić dopiero przy pierwszym zapisie. Niedostępny indeks metadanych może wyłączyć jego persystencję bez zatrzymania strumienia; odmowa otwarcia dowiązania nie oznacza więc zawsze odmowy całego planu.
+
+Wyjątek dotyczy głównego pliku danych wskazanego przez jawny `REF` przekazany przez wywołującego (plan lub schemat w `xtrdb`). Taki wybór operatora może zezwolić na końcowe dowiązanie danych. Sam `REF` odczytany z istniejącego `.desc` nie daje tego uprawnienia, podobnie jak dopuszczenie katalogu przez `storage.ref_dirs`. Wyjątek nie obejmuje plików pomocniczych ani nazw segmentów retencji tworzonych przez silnik.
+
+`O_NOFOLLOW` sprawdza tylko ostatni komponent ścieżki. Katalog magazynu i jego przodkowie nadal mogą być dowiązaniami; podmiana katalogu nadrzędnego w trakcie rozwiązywania ścieżki pozostaje poza tą gwarancją. `ut_rdb` sprawdza odmowy i dozwolone przypadki kontrolne. Pliki DUMP mają odrębną politykę usunięcia końcowego wpisu i utworzenia nowego pliku na wyłączność - zobacz [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#retencja-retention-n).
+
 ---
 
 ## Plik deskryptora (.desc)

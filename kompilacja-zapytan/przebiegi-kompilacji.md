@@ -187,7 +187,18 @@ W_{\\#}
 \right)
 \\]
 
-Wynik jest dokładny - ani nie zaniża, ani nie zawyża granicy przyczynowej. Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn \\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int` już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit` (`SOperations.hpp`) koszt przeglądu przestaje być akceptowalny i wraca poprzednia postać zamknięta \\(\lceil(p+q-1)/p\rceil\\), która zawyża ogon o slot - wybór bezpieczny, bo zaniżenie oznaczałoby emisję rekordu przed określeniem jego zależności.
+Wynik przeglądu jest dokładny - ani nie zaniża, ani nie zawyża granicy przyczynowej. Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn \\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int` już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit` funkcja `HashStartupLatency()` (`SOperations.hpp`) stosuje bezpieczną granicę bez przeglądu faz:
+
+\\[
+W_{\\#,\mathrm{fallback}}
+=\max\left(
+\left\lceil\frac{W_a\Delta_a}{\Delta_c}\right\rceil,
+\left\lceil\frac{W_b\Delta_b}{\Delta_c}\right\rceil
++\left\lceil\frac{p+q-1}{p}\right\rceil
+\right)
+\\]
+
+Pierwsze dwa składniki przeliczają ogony wejść na sloty wyjścia; dla zerowego ogona wkład wynosi zero. Składnik \\(\lceil(p+q-1)/p\rceil\\) opisuje tylko fazę i sam nie wystarcza przy niezerowych ogonach wejść. Cała granica jest zachowawcza: nie zwalnia rekordu przed gotowością zależności, ale nie obiecuje nadmiaru dokładnie jednego slotu. Regresja `ut_soperations::xSOperations.hash_startup_latency_above_scan_limit_stays_safe` porównuje ją z niezależnym przeglądem także dla niezerowych ogonów.
 
 Regresje obejmują między innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\) i \\(160/147\\), w tym okresowe rekordy w całości `NULL` w nieprzepisanej lewej stronie tożsamości R1; wzór operatorowy pilnuje test `ut_h10aGate`.
 
