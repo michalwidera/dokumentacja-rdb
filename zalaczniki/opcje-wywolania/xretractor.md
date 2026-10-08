@@ -183,7 +183,7 @@ Opcja `--config` (skrót `-g`) wskazuje plik konfiguracyjny także przy `-c`; be
 1. `/etc/retractor/retractor.toml` - warstwa systemowa,
 2. `$XDG_CONFIG_HOME/retractor/retractor.toml` (lub `~/.config/retractor/retractor.toml`) - warstwa użytkownika.
 
-Brak plików jest **stanem poprawnym** - program startuje z wartościami domyślnymi. Błąd składni TOML w warstwie wyszukiwanej powoduje ostrzeżenie i pominięcie tej warstwy; przy jawnie podanej ścieżce (`--config`) brak pliku lub błąd składni są twarde, bo stanowią jawne żądanie użytkownika. Ten sam plik czyta również `xqry` (pod skrótem `-e`), dlatego sekcje `[ipc]` i `[timing]` dotyczą obu procesów.
+Brak wykrytych plików jest **stanem poprawnym** - program startuje z wartościami domyślnymi. Istniejący plik z błędną składnią TOML zatrzymuje start: program zwraca niezerowy kod wyjścia i raportuje błąd na poziomie ERROR z nazwą pliku oraz przyczyną, także w kompilacji Release. Każda wczytywana warstwa musi być poprawna, nawet jeśli kolejna nadpisałaby jej klucze. Przy jawnie podanej ścieżce (`--config`) błędem pozostaje również brak pliku. Ten sam loader konfiguracji jest używany przez `xqry` (opcja `--config` pod skrótem `-e`) i `xtrdb`; te programy również odmawiają pracy przy uszkodzonym pliku. Opcja `--help` działa w każdym z trzech programów niezależnie od konfiguracji; `xretractor` pokazuje wtedy błąd w linii `Config:` pomocy. Sekcje `[ipc]` i `[timing]` dotyczą silnika i klienta `xqry`.
 
 | Klucz | Domyślnie | Znaczenie |
 | ----- | --------- | --------- |
@@ -198,7 +198,7 @@ Brak plików jest **stanem poprawnym** - program startuje z wartościami domyśl
 | `timing.server_startup_poll_ms` | `100` | Interwał odpytywania podczas oczekiwania na start serwera. |
 | `timing.query_no_data_timeout_ms` | `10000` | Czas braku danych, po którym klient `xqry` uznaje serwer za martwy. |
 | `scheduling.rt_priority` | `50` | Priorytet `SCHED_FIFO` w trybie `--realtime`; dopuszczalny zakres 1–99. |
-| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na pliki blokad instancji. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Ścieżka musi być bezwzględna. Nie zmienia stałego katalogu `/tmp` blokad tożsamości IPC. |
+| `paths.lock_dir` | _(katalog tymczasowy systemu)_ | Katalog na pliki blokad instancji. Dla usług systemd zalecane `/var/run/retractor` lub `$XDG_RUNTIME_DIR`. Niepusta ścieżka musi być bezwzględna w każdej wczytywanej warstwie; względna zatrzymuje start z błędem ERROR zawierającym nazwę pliku i przyczynę, także w Release. Pusta wartość zachowuje domyślny katalog tymczasowy. Nie zmienia stałego katalogu `/tmp` blokad tożsamości IPC. |
 | `server.autoname` | `false` | Generuje nazwę, gdy nie podano `--name` ani `--autoname`. Jawne `--name` wygrywa. Wartość `false` zachowuje historyczną instancję bezimienną. |
 | `service.query_file` | _(wartość z konfiguracji budowania)_ | Plik zapytań nadpisywany przy przekazaniu zestawu działającej usłudze. Używany wyłącznie jako zapasowy, gdy usługa nie zaraportowała własnego `QUERYFILE` w pliku blokady. Musi być zgodny z argumentem `ExecStart` jednostki systemd - konfiguracja nie zmienia `ExecStart`. |
 | `service.unrestricted` | `false` | Dopuszcza regułę `DO SYSTEM` w planie przyjmowanym kanałem `xqry --reset`. Wartość domyślna odrzuca taki plan w całości (→ [xqry](xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Przy `true` instancja zostawia ostrzeżenie w dzienniku przy każdym starcie, a każdy, kto potrafi otworzyć jej obiekty IPC, wykona polecenie powłoki na jej koncie. Klucz czytany jest przy starcie procesu, więc ustawia go ten sam autorytet, który pisze plik planu usługi; kanału ad hoc nie otwiera w żadnym wypadku. |
@@ -234,7 +234,7 @@ lock_dir = "/var/run/retractor"
 autoname = false
 ```
 
-> **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir` - test integracyjny `config_storage_validation`, a pierwszeństwo i odrzucenie `sources.timeout_s` - test integracyjny `device_timeout`.
+> **_NOTE:_** Wczytywanie warstw i walidację pokrywa test jednostkowy `ut_appConfig`; twarde odrzucenie niepoprawnego `storage.dir`, uszkodzonego pliku TOML i względnego `paths.lock_dir` - test integracyjny `config_storage_validation`, a pierwszeństwo i odrzucenie `sources.timeout_s` - test integracyjny `device_timeout`.
 
 ---
 
