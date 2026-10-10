@@ -18,7 +18,9 @@ Dyrektywa `ROTATION` włącza tryb zachowania historii. Przyjmuje ścieżkę do 
 ROTATION 'rdb_counter'
 ```
 
-Obiekt `PersistentCounter` wczytuje wartość `N` z pliku przy starcie (`getCount()` = `N`) i zapisuje `N+1` przy zamknięciu. Licznik rośnie monotonicznie z każdą sesją `xretractor`.
+Obiekt `PersistentCounter` wczytuje wartość `N` z pliku i już w konstruktorze zapisuje `N+1`, rezerwując numer następnej sesji przed rozpoczęciem archiwizacji. `getCount()` nadal zwraca `N`, używane w przyrostkach bieżącej sesji. Brak pliku oznacza pierwsze użycie i numer 0; istniejący plik pusty, nieczytelny lub niezawierający poprawnej nieujemnej liczby zatrzymuje start. Awaria procesu może zużyć numer bez utworzenia kompletu archiwów, dlatego luki w numeracji są dopuszczalne. Wartość licznika nie dowodzi zakończenia poprzedniej rotacji.
+
+Zapis licznika przechodzi przez plik tymczasowy: jego treść jest synchronizowana przez `fsync`, a następnie `rename` zastępuje plik docelowy. Błąd przed zakończeniem tej podmiany zatrzymuje start. Po podmianie silnik próbuje wykonać `fsync` katalogu; błąd tej operacji jest raportowany na poziomie ERROR, lecz nie cofa rezerwacji ani nie zatrzymuje startu. Test `ut_persistentCounter::PersistentCounterTest.construction_reserves_next_value` sprawdza wartość zapisaną jeszcze za życia obiektu.
 
 ## Przepływ sterowania w procesie rotacji
 
@@ -33,6 +35,7 @@ sequenceDiagram
     participant Old as pliki .oldN
 
     Note over RQL: start sesji N, percounter = N
+    Note over RQL: PersistentCounter zapisuje N+1 przed archiwizacją
     RQL->>D: otwarcie magazynu
     RQL->>M: przygotowanie indeksu
     Note over RQL: praca - zapis rekordów
@@ -43,7 +46,6 @@ sequenceDiagram
     RQL->>M: flushCurrentEntry()
     RQL->>Old: rename .meta na .meta.oldN
     RQL->>Old: destruktor akcesora - dane i cień pod .oldN
-    Note over RQL: PersistentCounter zapisuje N+1
 ```
 
 _Rys. 25. Sekwencja rotacji plików - start i stop sesji_
@@ -51,6 +53,14 @@ _Rys. 25. Sekwencja rotacji plików - start i stop sesji_
 `storage::~storage()` wywołuje `metaData::rotate(N, false)`: zapisuje oczekujący wpis RLE, archiwizuje indeks i odłącza go od pliku, bez tworzenia nowego roboczego `.meta`. Wariant `storageShadow` wcześniej archiwizuje istniejący `.meta.shadow`. Następnie destruktor akcesora rotuje dane oraz ich cień. Pliki z tym samym numerem odpowiadają tej samej sesji i pozwalają odtworzyć jej wartości oraz bity `NULL`.
 
 Jeżeli przy starcie dane są puste, ale pozostał niepusty indeks po starszej wersji silnika, `detectStartupState()` resetuje osierocony indeks. Nie nadaje mu numeru bieżącej sesji. Dzieje się to także przy wyłączonej detekcji przerw. Archiwizacja przy zamknięciu nie jest transakcją obejmującą całą rodzinę plików; przerwanie procesu w trakcie przemianowań może pozostawić zestaw niekompletny.
+
+## Błędy rotacji i trwałość archiwów
+
+Przemianowania danych, cienia danych, metadanych i cienia metadanych korzystają z `rotateStorageFile`. Po udanym `rename` silnik wykonuje `fsync` katalogu zawierającego plik; jeśli katalogi źródłowy i docelowy są różne, próbuje zsynchronizować oba. Błąd sprawdzenia ścieżki, przemianowania, otwarcia katalogu, `fsync` lub zamknięcia deskryptora jest raportowany na poziomie ERROR, także w Release, ze ścieżką i przyczyną. Nadpisanie istniejącego archiwum również pozostawia komunikat ERROR, ale nie jest blokowane: poprzednia treść zostaje utracona.
+
+Synchronizacja katalogu utrwala wpisy nazw plików. Nie zastępuje `fsync` treści archiwizowanego pliku i nie zapewnia transakcji obejmującej cały zestaw danych oraz metadanych. Jeśli przemianowanie się udało, a późniejsza synchronizacja katalogu zawiodła, silnik nie cofa przemianowania. Po awarii należy sprawdzić kompletność archiwów i diagnostykę rotacji, niezależnie od wartości licznika.
+
+Nieudana rotacja metadanych nie resetuje niezarchiwizowanego indeksu. Przy `reopen=true`, czyli przygotowaniu do dalszego zapisu, zgłasza wyjątek zamiast utworzyć pozornie poprawny pusty indeks. Zamykanie magazynu używa `reopen=false`: odłącza persystencję bez rzucania wyjątku. Jeżeli cień metadanych pozostał pod aktywną nazwą po nieudanej rotacji, główny indeks również pozostaje pod aktywną nazwą; jeśli cień został przemianowany, a zawiodła tylko synchronizacja katalogu, główny indeks może zostać zarchiwizowany. Błędy w destruktorach nie zmieniają same przez się kodu wyjścia procesu, więc poprawny kod zakończenia nie potwierdza kompletnej rotacji. Kolejność operacji, diagnostykę i ścieżki błędów sprawdza `ut_storageRotation`.
 
 ## Co trafia do plików `.old<N>`
 

@@ -30,11 +30,19 @@ Przed uruchomieniem instancja zajmuje blokadę swojego pliku w katalogu `paths.l
 
 Nazwane instancje mają rozłączne obiekty Boost.Interprocess. Nazwy bazowe kolejki poleceń, segmentu odpowiedzi i muteksu otrzymują sufiks instancji, a kolejka subskrybenta zawiera również PID klienta. Zatrzymanie jednej instancji kończy tylko jej subskrypcje i usuwa jej IPC; może również posprzątać porzucone zasoby po martwych procesach. Zasoby żywych instancji pozostają chronione.
 
-Każdy obiekt IPC zakładany przez serwer - kolejka poleceń, kolejki odpowiedzi, segment i muteks mapy odpowiedzi oraz segment magistrali - powstaje z jawnym trybem `0600`. Rozłączność nazw oddziela instancje od siebie, a ten tryb oddziela je od innych kont: granicą zaufania jest konto, na którym biegnie serwer, a nie umask procesu, który go uruchomił. Domyślny tryb Boosta wynosi `0666` i przy typowym umasku dawałby obcemu użytkownikowi odczyt segmentu, a przy umasku `002` całej grupie prawo wysyłania poleceń - w tym `--reset`, który wymienia cały plan. Klient nie traci przez to niczego: `xqry` otwiera wszystkie te obiekty wyłącznie trybem `open_only`.
+Nowe obiekty IPC tworzone przez serwer otrzymują jawny tryb `0600`, który ogranicza dostęp do konta serwera bez polegania na umask procesu. Dotyczy to kolejki poleceń, kolejek subskrypcji, segmentu odpowiedzi i segmentu magistrali. Rozłączne nazwy oddzielają zasoby współpracujących instancji, a blokady koordynują ich tworzenie i sprzątanie.
 
-Magistrala jest wspólna dla hosta lub przestrzeni `RDB_NAMESPACE`. Każdy żywy serwer publikuje w niej nazwę, PID, tryby pracy, plik planu i nazwy strumieni. Slot jest uznawany za żywy tylko wtedy, gdy PID oraz czas startu zgadzają się z `/proc`; proces zombie nie blokuje zasobów.
+> **⚠️ Ostrzeżenie**
+>
+> Tryb `0600` dotyczy utworzenia nowego obiektu. Przy otwarciu istniejącego obiektu nie zmienia jego uprawnień ani nie potwierdza właściciela. Serwer nadal używa `open_or_create` dla kolejki poleceń i kolejek subskrypcji; magistrala może otworzyć istniejący segment przez `open_only`, a klient również otwiera obiekty bez sprawdzenia oczekiwanego UID. Istniejący obiekt należący do innego konta może więc naruszyć zamierzoną granicę dostępu. Blokada tożsamości i próba usunięcia starego obiektu nie zastępują tej weryfikacji. Ograniczenie jest opisane w [#465](https://github.com/michalwidera/retractordb/issues/465); wykonanie reguły `SYSTEM` przez kanał wymiany planu zależy dodatkowo od `service.unrestricted` (zobacz [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)).
+
+Magistrala jest wspólna dla hosta lub przestrzeni `RDB_NAMESPACE`. Każdy żywy serwer publikuje w niej nazwę, PID, tryby pracy, plik planu i nazwy strumieni. Gdy wpis procesu jest czytelny, slot pozostaje żywy przy zgodnym PID i niezerowym czasie startu; proces zombie nie blokuje zasobów. Na Linuksie silnik czyta `/proc/<pid>/task/<pid>/stat`, a na macOS korzysta z adaptera systemowego.
+
+Nieczytelny wpis procesu oznacza brak możliwości rozstrzygnięcia, a nie potwierdzenie śmierci właściciela. Na Linuksie nieudany odczyt potwierdza brak procesu dopiero wtedy, gdy `kill(pid, 0)` zwraca `ESRCH`; sukces lub `EPERM` pozostawia wynik niepewny. `bus::isProcessAlive()` zachowuje wtedy slot i jego roszczenia, również gdy nie może porównać czasu startu. Chroni to właściciela ukrytego przez `hidepid` lub `ProtectProc`, lecz może utrzymywać stare roszczenia po ponownym użyciu PID. Sam brak dostępu do wpisu nie uprawnia więc do zwolnienia zasobów. Regułę sprawdza `ut_bus::BusFixture.UnreadableOwnerKeepsSlot`.
 
 Bieżąca wersja układu używa segmentu `xrdbbus_v7`, a przy ustawionym `RDB_NAMESPACE` segmentu `xrdbbus_v7_<RDB_NAMESPACE>`. Każda przestrzeń ma osobny rejestr i osobną kontrolę kolizji. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v6 i v7 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
+
+Zajmowanie współdzielonej blokady obecności ponawia nieblokujące próby `flock` przez okres do 500 ms. Przejściowy właściciel blokady wyłącznej może ją w tym czasie zwolnić; jeśli nadal ją trzyma, magistrala pozostaje niedostępna zamiast bezterminowo blokować jej dołączenie. Ten termin dotyczy oczekiwania na `flock`, nie całej procedury otwierania pliku.
 
 Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 
@@ -45,6 +53,8 @@ Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 Roszczenie następuje przed usuwaniem starych artefaktów i zakładaniem IPC. Przegrana instancja nie może więc skasować danych działającego właściciela. Komunikat odmowy podaje kolidujący zasób, nazwę instancji i jej PID.
 
 Przy `xqry --reset` zasoby nowego planu są najpierw rezerwowane. Dopiero po poprawnym zbudowaniu nowej epoki rezerwacja atomowo zastępuje aktywny zestaw. Błąd parsowania, kompilacji, limitu lub kolizja pozostawia dotychczasowy plan i jego roszczenia bez zmian.
+
+Nieodwracalny błąd muteksu magistrali `ENOTRECOVERABLE` jest raportowany na poziomie ERROR, także w Release, raz na obiekt `Bus`. Komunikat wskazuje segment `/dev/shm` do usunięcia po zakończeniu wszystkich instancji, które go mapują. Usunięcie segmentu używanego przez działającą instancję może rozdzielić rejestr zasobów. Start i import ad hoc zachowują tryb awaryjny opisany poniżej; wymiana planu przy dołączonej magistrali z niesprawnym muteksem jest odrzucana.
 
 > **⚠️ Ostrzeżenie**
 >
