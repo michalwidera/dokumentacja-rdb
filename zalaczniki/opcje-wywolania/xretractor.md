@@ -81,6 +81,8 @@ Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala o
 
 Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział [Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
 
+Plik blokady instancji musi być zwykłym plikiem z jedną nazwą, należącym do konta, które uruchamia instancję. Dowiązanie symboliczne (także wiszące), drugie twarde dowiązanie, katalog albo FIFO pod tą ścieżką oraz plik innego konta - również przy instancji uruchomionej jako root - zatrzymują start bez zmiany zawartości wskazanego pliku. Komunikat na `stderr`, widoczny także w Release, podaje ścieżkę i przyczynę, a kod wyjścia `5` (`EIO`) odróżnia tę odmowę od zajętej tożsamości (`37`, `ENOLCK`, komunikat `is already running`). Pozostałości innego konta po awarii instancja nie przejmuje, a `--cleanup` jej nie usuwa; usuwa ją ręcznie operator z uprawnieniami do katalogu blokad. Odczyt blokad obecności i tożsamości IPC innych kont pozostaje dozwolony.
+
 ### Sprzątanie pozostałości
 
 ```bash
