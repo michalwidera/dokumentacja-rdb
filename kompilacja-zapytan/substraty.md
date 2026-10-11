@@ -247,7 +247,7 @@ Jeśli wszystkie warunki są spełnione, substrat `it` uznawany jest za duplikat
 
 ### Miejsce w potoku kompilacji
 
-Deduplikacja jest dziewiątym z dwudziestu trzech etapów potoku (funkcja `compiler::compile()`):
+Deduplikacja następuje po ustaleniu interwałów i wyniesieniu wspólnych przesunięć czasu, przed drugą kontrolą nazw substratów. Kolejność w `compiler::compile()` jest następująca:
 
 <div class="timeline compact">
 
