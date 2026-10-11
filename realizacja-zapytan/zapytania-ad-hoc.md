@@ -14,7 +14,9 @@ Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLA
 
 Błąd składni lub niepoprawna wartość jest odsyłana klientowi wraz z powodem, a serwer nadal obsługuje następne polecenia. Parser odrzuca m.in. literały liczbowe poza zakresem, zerowy mianownik, interwał równy zero (w `DECLARE` oraz przy `&`, `%` i `-`) i pustą nazwę `FILE`. Jeśli dołączenie nie powiedzie się po imporcie, serwer przywraca poprzedni plan i wycofuje nowe roszczenia nazw strumieni i plików w magistrali. Tę samą komendę można ponowić po usunięciu przyczyny błędu.
 
-Przed dołączeniem `SELECT` zapisującego wynik na dysku serwer sprawdza, czy może otworzyć jego plik danych i, dla odpowiednich profili, plik `.shadow`. Kontrola nie tworzy nowych plików; dla nieistniejącego pliku sprawdza katalog nadrzędny. Odmowa zwraca klientowi przyczynę, np. `cannot open output file`, bez zmiany planu. Jeśli katalog przestanie być dostępny po tej kontroli, błąd otwarcia akcesora POSIX, POSIXSHD lub segmentu DEFAULT/DIRECT również wraca jako odmowa: serwer wycofuje import i nowe roszczenia w magistrali, pozostaje uruchomiony i pozwala ponowić polecenie. Ta obsługa późnego błędu nie obejmuje profilu `STORAGE GENERIC`.
+Przed dołączeniem nowych strumieni serwer sprawdza katalog `STORAGE`, zachowane deskryptory, rodzaj źródeł i możliwość otwarcia plików wyjściowych oraz odpowiednich `.shadow`. Deskryptor nowego `SELECT` musi zgadzać się z planem w schemacie i nie może wprowadzać `REF`, którego plan nie podaje; jego `TYPE` musi być obsługiwany. Kontrola obejmuje także deskryptory bez `ROTATION` i dla `MEMORY`, ponieważ import ich nie usuwa. Sprawdzane są wyłącznie nowe strumienie. Kontrola otwarcia nie tworzy nowych plików; dla nieistniejącego pliku sprawdza katalog nadrzędny. Odmowa zwraca klientowi przyczynę, np. `cannot open output file`, bez zmiany planu. Jeśli katalog przestanie być dostępny po tej kontroli, błąd otwarcia akcesora POSIX, POSIXSHD lub segmentu DEFAULT/DIRECT również wraca jako odmowa: serwer wycofuje import i nowe roszczenia w magistrali, pozostaje uruchomiony i pozwala ponowić polecenie. Ta obsługa późnego błędu nie obejmuje profilu `STORAGE GENERIC`.
+
+Kolizja wygenerowanej nazwy substratu z innym programem jest odmową kompilacji (`Fail local chain compiler:Substrate name '...' denotes two different programs`), bez zakończenia serwera. Dotyczy także zwykłych nazw z podkreśleniami, takich jak `A_B + C` oraz `A + B_C`. Po odmowie można przesłać poprawione polecenie; kontrole sprawdzają `it_plan_error_e4-run` i `it_storage_refusal-adhoc`.
 
 Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 
@@ -69,7 +71,7 @@ Plik z zapytaniem zapiszemy pod nazwą qplan1.rql. Do poprawnej realizacji zapyt
 $ xretractor qplan1.rql
 ```
 
-Jeśli poprzednio w tym katalogu wykonywaliśmy jakieś operacje i stworzyliśmy strumień str1 o innym schemacie – otrzymamy błąd pt. „Error in data descriptor file”. Pojawi się tam również informacja o różnicach pomiędzy dwoma deskryptorami. W takim przypadku plik str1 oraz str1.desc powinniśmy usunąć i ponownie wykonać polecenie.
+Bez `ROTATION` start usuwa wcześniejsze pliki wyników `SELECT`, więc dawny schemat `str1` nie blokuje tego przykładu. Przy zachowaniu plików przez `ROTATION` niezgodny deskryptor jest odmową przed startem z komunikatem `descriptor schema mismatch` i ścieżką pliku. Operator musi przywrócić zgodny plan albo świadomie usunąć rodzinę plików strumienia i rozpocząć go od nowa. Import ad hoc zachowuje istniejące pliki i również odrzuca niezgodny deskryptor.
 
 Proces xretractor rozpocznie przetwarzanie danych. Należy w tym momencie uruchomić kolejny terminal i wydać w nim polecenie:
 

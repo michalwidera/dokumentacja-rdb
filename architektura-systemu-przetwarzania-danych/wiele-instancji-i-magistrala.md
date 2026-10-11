@@ -48,7 +48,7 @@ Nieczytelny wpis procesu oznacza brak możliwości rozstrzygnięcia, a nie potwi
 
 Bieżąca wersja układu używa segmentu `xrdbbus_v7`, a przy ustawionym `RDB_NAMESPACE` segmentu `xrdbbus_v7_<RDB_NAMESPACE>`. Każda przestrzeń ma osobny rejestr i osobną kontrolę kolizji. Użytkownicy segmentu utrzymują blokadę obecności `flock`; ostatni wychodzący może usunąć nieużywany segment. Wersje układu mają osobne rejestry: równoczesne uruchomienie binariów v6 i v7 nie zapewnia między nimi kontroli kolizji strumieni i magazynów. Przed aktualizacją należy zakończyć starsze instancje.
 
-Zajmowanie współdzielonej blokady obecności ponawia nieblokujące próby `flock` przez okres do 500 ms. Przejściowy właściciel blokady wyłącznej może ją w tym czasie zwolnić; jeśli nadal ją trzyma, magistrala pozostaje niedostępna zamiast bezterminowo blokować jej dołączenie. Ten termin dotyczy oczekiwania na `flock`, nie całej procedury otwierania pliku.
+Zajmowanie współdzielonej blokady obecności ponawia nieblokujące próby `flock` przez okres do 500 ms. Przejściowy właściciel blokady wyłącznej może ją w tym czasie zwolnić; jeśli nadal ją trzyma, magistrala pozostaje niedostępna zamiast bezterminowo blokować jej dołączenie. Ten termin dotyczy oczekiwania na `flock`, nie całej procedury otwierania pliku. Osobna pętla otwarcia lub utworzenia ma limit 100 prób. Blokady obecności i tożsamości IPC wymagają zwykłego pliku bez podążania za dowiązaniem; ponieważ są otwierane tylko do odczytu, nie wymagają właściciela zgodnego z UID czytelnika. Zapisywana blokada instancji dodatkowo wymaga tego samego UID i jednego dowiązania - zobacz [warunki startu](../zalaczniki/opcje-wywolania/xretractor.md#wiele-instancji).
 
 Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 
@@ -58,9 +58,11 @@ Przed uruchomieniem albo wymianą planu magistrala sprawdza rozłączność:
 
 Roszczenie następuje przed usuwaniem starych artefaktów i zakładaniem IPC. Przegrana instancja nie może więc skasować danych działającego właściciela. Komunikat odmowy podaje kolidujący zasób, nazwę instancji i jej PID.
 
-Przy `xqry --reset` zasoby nowego planu są najpierw rezerwowane. Dopiero po poprawnym zbudowaniu nowej epoki rezerwacja atomowo zastępuje aktywny zestaw. Błąd parsowania, kompilacji, limitu lub kolizja pozostawia dotychczasowy plan i jego roszczenia bez zmian.
+Przy `xqry --reset` zasoby nowego planu są najpierw rezerwowane. Na granicy slotu stary model jest rozbierany, plan wymieniany, a rezerwacja zastępuje aktywny zestaw zasobów magistrali. Model nowej epoki powstaje dopiero po tej aktywacji; polecenia wymagające modelu czekają na jego publikację. Błąd parsowania, kompilacji, limitu lub kolizja wykryta przed przyjęciem resetu pozostawia dotychczasowy plan i jego roszczenia bez zmian.
 
-Nieodwracalny błąd muteksu magistrali `ENOTRECOVERABLE` jest raportowany na poziomie ERROR, także w Release, raz na obiekt `Bus`. Komunikat wskazuje segment `/dev/shm` do usunięcia po zakończeniu wszystkich instancji, które go mapują. Usunięcie segmentu używanego przez działającą instancję może rozdzielić rejestr zasobów. Start i import ad hoc zachowują tryb awaryjny opisany poniżej; wymiana planu przy dołączonej magistrali z niesprawnym muteksem jest odrzucana.
+Nieodwracalny błąd muteksu magistrali `ENOTRECOVERABLE` jest raportowany na poziomie ERROR, także w Release, raz na obiekt `Bus`. Komunikat wskazuje segment `/dev/shm` do usunięcia po zakończeniu wszystkich instancji, które go mapują. Usunięcie segmentu używanego przez działającą instancję może rozdzielić rejestr zasobów. Start i import ad hoc zachowują tryb awaryjny opisany poniżej; przy resecie niesprawny muteks dołączonej magistrali powoduje odmowę na etapie rezerwacji, zanim klient otrzyma potwierdzenie przyjęcia.
+
+Jeżeli blokada magistrali zawiedzie dopiero przy aktywacji po przyjęciu resetu, stary model jest już rozebrany. Serwer kontynuuje nowym planem w trybie awaryjnym, bez publikacji nowego zestawu zasobów i bez egzekwowania ich rozłączności. Slot magistrali może nadal pokazywać nazwy starego planu, więc routing według niego nie jest wtedy wiarygodny. Brak wymaganej rezerwacji lub slotu jest odrębnym naruszeniem niezmiennika i kończy proces przez `FatalError`. Reset nie daje pełnej gwarancji wycofania awarii po przyjęciu.
 
 > **⚠️ Ostrzeżenie**
 >

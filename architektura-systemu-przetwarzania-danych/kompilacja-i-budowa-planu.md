@@ -28,7 +28,7 @@ Na ekranie wyświetli się następująca odpowiedź systemu:
 {{#include ../regen/out/plan-basic.txt}}
 ```
 
-Pominięcie parametru -c spowoduje podjęcie próby kompilacji i natychmiastowego wysłania skompilowanego planu realizacji zapytania do wykonania. Taka akcja spowoduje wystąpienie błędu. Bowiem pliku z danymi datafile1.dat zapewne jeszcze nie przygotowaliśmy.
+Pominięcie parametru `-c` powoduje kompilację i próbę uruchomienia planu. Brak pliku źródłowego `datafile1.dat` sam w sobie nie odrzuca planu: źródło zwraca wtedy rekordy `NULL`. Start wymaga jednak istniejącego katalogu magazynu i poprawnych zachowanych deskryptorów; kontrole i kody odmowy opisuje [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#odmowa-planu-a-awaria-środowiska).
 
 Oprócz przeglądu tekstowego możemy obejrzeć również pliki kompilacji w postaci graficznej. Do tego celu należy wywołać następujący ciąg poleceń:
 

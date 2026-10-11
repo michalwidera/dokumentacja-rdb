@@ -31,7 +31,7 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 
 ## Łańcuch etapów
 
-Łańcuch dwudziestu pięciu etapów definiuje funkcja `compiler::compile()`:
+Kolejność przebiegów i kontroli definiuje funkcja `compiler::compile()`:
 
 <div class="timeline compact">
 
@@ -40,6 +40,7 @@ Podrozdziały o substratach i symbolu `_` używają rozszerzonych wariantów teg
 - `expandStreamGenerators` - rozwinięcie rodzin strumieni `nazwa[N]`
 - `snapshotNamedSourceRefs` - migawka odwołań zapisanych przez użytkownika
 - `extractIntermediateStreams` - wyrażenia `FROM` dwuargumentowe, substraty
+- `validateSubstratNameUniqueness` - pierwsza kontrola nazw przed sortowaniem
 - `expandSchemaWildcards` - rozwinięcie `*` oraz `[_]`
 - `resolveStreamIntervals` - interwały strumieni, wykrywanie pętli
 - `factorMatchedHashTimeMoves` - wyniesienie wspólnego przesunięcia przed przeplot
@@ -109,7 +110,7 @@ Optymalizacja: jeśli dwa zapytania korzystają z tej samej operacji pośredniej
 
 #### validateSubstratNameUniqueness
 
-Sprawdza, czy dwa substraty o tej samej nazwie opisują ten sam program. Nazwy dłuższe niż 200 bajtów są stabilnie skracane przez `composeStreamName()`, więc ta kontrola zamienia skrajnie mało prawdopodobną kolizję 64-bitowego skrótu w głośny błąd zamiast niejednoznacznego planu. Przebieg działa niezależnie od przełączników optymalizatora i następuje po deduplikacji, ponieważ przed nią identyczne duplikaty nazw są stanem przejściowym.
+Sprawdza, czy dwa substraty o tej samej nazwie opisują ten sam program. Kontrola działa po `extractIntermediateStreams`, przed pierwszym sortowaniem topologicznym w `expandSchemaWildcards`, i ponownie po deduplikacji. Podkreślenia w zwykłych nazwach również mogą powodować kolizję: `A_B + C` i `A + B_C` tworzą nazwę `STREAM_ADD_A_B_C`. Nazwy dłuższe niż 200 bajtów są stabilnie skracane przez `composeStreamName()`, a ten sam warunek chroni także przed kolizją skrótu. Różne programy dają odmowę kompilacji z komunikatem `Substrate name '...' denotes two different programs`; identyczne duplikaty są dozwolone, także przy wyłączonej deduplikacji. Kontrola nie zależy od przełączników optymalizatora. W ad hoc i resecie odmowa wraca do klienta, a serwer nadal działa. Zachowanie sprawdzają `ut_compiler` i `it_plan_error_e4-run`.
 
 #### resolveFieldReferences
 

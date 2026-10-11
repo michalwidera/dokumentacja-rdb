@@ -136,7 +136,15 @@ Przykładem polecenia tworzącego w systemie RetractorDB obiekt zwracający wart
 DECLARE pole_przypadkowe INTEGER STREAM random_stream, 0.1 DEVICE '/dev/random'
 ```
 
-Plik zadeklarowany jako `TEXTFILE` jest interpretowany jako ciągły i nieskończony plik danych czytany wiersz po wierszu. Po napotkaniu końca pliku odczyt danych zaczyna się od początku. Zapewnione jest podstawowe wsparcie dla formatu - jeśli podamy dwa pola całkowite w deklaracji, a w pliku po spacji podamy dwie wartości całkowite, wartości te trafią jako kolejne elementy czytanego rekordu.
+Plik zadeklarowany jako `TEXTFILE` jest czytany jako ciąg tokenów rozdzielonych białymi znakami. Granice wierszy nie wyznaczają granic rekordów: liczbę wartości rekordu określa deklaracja pól i ich tablic. Domyślnie po końcu pliku odczyt wraca na początek; `ONESHOT` lub `--until-eof` wyłącza tę pętlę.
+
+### Niepoprawne wartości liczbowe w TEXTFILE
+
+Token liczbowy musi zostać odczytany w całości i mieścić się w zakresie typu pola. `abc`, `12x` i `99999999999` w polu `INTEGER`, `-5` w `UINT`, `300` w `BYTE` oraz `1e999`, `inf` i `nan` w `DOUBLE` dają `NULL`. Poprawne `+7` i `-5` w `INTEGER` zachowują swoje wartości. Niedomiar zmiennoprzecinkowy, np. `1e-999`, nadal daje zero. Tokeny `NULL`, `Null` i `null` również oznaczają brak wartości.
+
+Wadliwy token nie kończy procesu ani nie przesuwa odczytu sąsiednich pól i kolejnych rekordów. Niepoprawny element tablicy unieważnia całe pole tablicowe, ponieważ bit `NULL` jest wspólny dla jego elementów; pozostałe pola rekordu zachowują wartości. Pole `STRING` nie podlega walidacji liczbowej.
+
+Pierwszy niepoprawny token danego źródła pozostawia jeden wpis `WARN` w dzienniku z nazwą pliku, numerem rekordu, polem i tokenem. Kolejne błędy, również po powrocie na początek pliku, nie powtarzają ostrzeżenia. W `Release` wpis jest wyłączony podczas kompilacji przez `SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR`, lecz zamiana na `NULL` nadal działa. Regułę sprawdzają `ut_facctxtsrc` i `it_issue471_txt_bad_token-value`.
 
 ```rql
 DECLARE pole_1 INTEGER STREAM cykliczny_stream, 0.1 TEXTFILE 'plik.txt'

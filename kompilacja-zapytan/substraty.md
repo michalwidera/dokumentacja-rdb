@@ -175,7 +175,7 @@ Substrat generowany jest dla każdego zapytania, którego program zawiera więce
 
 Nowo powstałemu substratowi nadawana jest nazwa zbudowana z symbolu operacji, jej parametru oraz nazw operandów, np. `STREAM_ADD_core1_core0`, `STREAM_TIMEMOVE_2_core0` albo `STREAM_AGSE_1_10_core0` (funkcja `composeStreamName` w `compiler.cpp`). Parametr jest częścią tożsamości: dwa różne okna nad tym samym źródłem nie mogą otrzymać tej samej nazwy. Znaki niedozwolone w identyfikatorze są kodowane, np. liczba ujemna używa `N`, a kreska ułamkowa `_`.
 
-Czytelna nazwa rośnie wraz ze złożonością klauzuli `FROM` i jest jednocześnie nazwą pliku substratu. Po przekroczeniu 200 bajtów kompilator zachowuje nazwę operatora, a resztę zastępuje stabilnym, 16-znakowym skrótem FNV-1a, np. `STREAM_ADD_x92741c15f69ba93f`. Dzięki temu szerokie wyrażenie nie przekracza systemowego `NAME_MAX`; ta sama struktura planu zawsze dostaje tę samą nazwę, a inna kolejność operandów daje inny skrót. `validateSubstratNameUniqueness()` zatrzymuje kompilację, gdyby jeden skrót kiedykolwiek oznaczał dwa różne programy.
+Czytelna nazwa rośnie wraz ze złożonością klauzuli `FROM` i jest jednocześnie nazwą pliku substratu. Po przekroczeniu 200 bajtów kompilator zachowuje nazwę operatora, a resztę zastępuje stabilnym, 16-znakowym skrótem FNV-1a, np. `STREAM_ADD_x92741c15f69ba93f`. Dzięki temu szerokie wyrażenie nie przekracza systemowego `NAME_MAX`; ta sama struktura planu zawsze dostaje tę samą nazwę, a inna kolejność operandów daje inny skrót. `validateSubstratNameUniqueness()` odrzuca nazwę oznaczającą dwa różne programy, zarówno przy kolizji skrótu, jak i zwykłych nazw z podkreśleniami, np. `A_B + C` oraz `A + B_C`. Pierwsza kontrola odbywa się przed sortowaniem po nazwach, aby drugi program nie zniknął z planu; identyczne duplikaty są dozwolone. Kolejność opisują [Przebiegi kompilacji](przebiegi-kompilacji.md#validatesubstratnameuniqueness).
 
 W programie zapytania macierzystego token operatora zastępowany jest tokenem `PUSH_STREAM` wskazującym na substrat.
 
@@ -256,6 +256,7 @@ Deduplikacja jest dziewiątym z dwudziestu trzech etapów potoku (funkcja `compi
 - `expandStreamGenerators` - rozwinięcie rodzin strumieni
 - `snapshotNamedSourceRefs` - migawka odwołań użytkownika
 - `extractIntermediateStreams` - wyodrębnienie substratów
+- `validateSubstratNameUniqueness` - pierwsza kontrola przed sortowaniem
 - `expandSchemaWildcards` - rozwinięcie `*` oraz `[_]`
 - `resolveStreamIntervals` - obliczenie interwałów czasowych
 - `factorMatchedHashTimeMoves` - prawo wynoszenia wspólnego przesunięcia czasu przed przeplot
