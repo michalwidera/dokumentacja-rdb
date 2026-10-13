@@ -1,5 +1,7 @@
 # API monitorowania strumieni
 
+Ten klient obserwuje serwis. [Engine i odczyt offline](python-jupyter-api.md) mają osobny kontrakt, a [instalacja Python](../instalacja-systemu/python-jupyter.md) rozróżnia wheel z silnikiem od pakietu samego klienta.
+
 Opcjonalne API klienckie służy do monitorowania strumieni działającej, jawnie nazwanej instancji `xretractor` na tym samym hoście Linux. Warstwa transportowa uruchamia procesy `xqry --jsonl`; dzięki temu API nie powiela protokołu Boost IPC i korzysta z tych samych reguł wyboru strumienia oraz kończenia subskrypcji co narzędzie wiersza poleceń.
 
 Dostępne są:

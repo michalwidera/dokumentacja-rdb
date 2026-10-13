@@ -1,6 +1,6 @@
 # Budowanie produkcyjne i warianty diagnostyczne
 
-Skrypt `scripts/buildrdb.sh` udostępnia produkcyjne budowanie `release` oraz tryby diagnostyczne. Warianty `release-ablation` i `probe` mają osobne konfiguracje CMake, katalogi wynikowe i generatory Conan. Kontrola gotowej binarki potwierdza użyte przełączniki. Przygotowanie narzędzi i instalację opisuje [Proces instalacji](proces-instalacji.md).
+Skrypt `scripts/buildrdb.sh` udostępnia produkcyjne budowanie `release` oraz tryby diagnostyczne. Warianty `release-ablation` i `probe` mają osobne konfiguracje CMake, katalogi wynikowe i generatory Conan. Kontrola gotowej binarki potwierdza użyte przełączniki. Przygotowanie narzędzi i instalację opisuje [Instalacja systemu](../instalacja-systemu/README.md).
 
 > **⚠️ Ostrzeżenie**
 >
@@ -200,7 +200,7 @@ Konfiguracja CMake sprawdza dostępne funkcje platformy i zapisuje wyniki `RDB_H
 
 Opcja CMake `-DRDB_SANITIZE=address,undefined` włącza AddressSanitizer i UndefinedBehaviorSanitizer; wykrycie niezdefiniowanego zachowania przerywa wykonanie. Jest to argument konfiguracji CMake, a nie dodatkowa opcja `buildrdb.sh`. Sanitizery wymagają przebudowania testowanych binariów.
 
-Na rozwojowym porcie Apple gotowym wejściem jest `scripts/macos-build.sh --sanitize`. Zwykły przebieg testów bez Valgrinda nie włącza sanitizerów automatycznie. `scripts/macos-build.sh release` wybiera konfigurację Release, ale nie realizuje produkcyjnego kontraktu `buildrdb.sh release`. Pełny przebieg i ograniczenia opisuje [środowisko rozwojowe Apple](proces-instalacji.md#środowisko-rozwojowe-apple).
+Na rozwojowym porcie Apple gotowym wejściem jest `scripts/macos-build.sh --sanitize`. Zwykły przebieg testów bez Valgrinda nie włącza sanitizerów automatycznie. `scripts/macos-build.sh release` wybiera konfigurację Release, ale nie realizuje produkcyjnego kontraktu `buildrdb.sh release`. Pełny przebieg i ograniczenia opisuje [środowisko rozwojowe Apple](../instalacja-systemu/source-build.md#środowisko-rozwojowe-apple).
 
 ## Opcjonalne API klienckie
 

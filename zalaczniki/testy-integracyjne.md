@@ -8,7 +8,7 @@ Poniższe tabele opisują **zamiar** każdego scenariusza. Nie są inwentarzem w
 
 Po scaleniu drzew wszystkie testy integracyjne mają prefiks `it_`; dawny prefiks `pt_` nie opisuje już osobnej klasy. Testy skryptowe używają `st_`, a testy API dodatkowo etykiety `api` i są domyślnie pomijane przez `ninja test`. Dwa strażniki nadrzędne - `harness_guard-selftest` i `harness_command_integrity` - sprawdzają, że wrapper rzeczywiście uruchomił polecenie pod testem i nie zamaskował jego kodu wyjścia.
 
-Opisy Valgrinda dotyczą standardowego przebiegu na Linuksie. Rozwojowy port Apple uruchamia testy bez tego opakowania i wymaga osobnego budowania z sanitizerami; nazwa `-vg` nie potwierdza kontroli pamięci. Zakres testów i jawnego `test-api` opisuje [środowisko rozwojowe Apple](proces-instalacji.md#środowisko-rozwojowe-apple). Testy jednostkowe `test_busFallback.cpp` sprawdzają także utrzymanie zamka przez zatrzymanego żywego właściciela i odzyskanie po jego śmierci.
+Opisy Valgrinda dotyczą standardowego przebiegu na Linuksie. Rozwojowy port Apple uruchamia testy bez tego opakowania i wymaga osobnego budowania z sanitizerami; nazwa `-vg` nie potwierdza kontroli pamięci. Zakres testów i jawnego `test-api` opisuje [środowisko rozwojowe Apple](../instalacja-systemu/source-build.md#środowisko-rozwojowe-apple). Testy jednostkowe `test_busFallback.cpp` sprawdzają także utrzymanie zamka przez zatrzymanego żywego właściciela i odzyskanie po jego śmierci.
 
 ## Scenariusze wykonawcze i usługowe
 

@@ -46,8 +46,16 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
   Uruchomienie: `ninja test` lub `ctest -R <nazwa> -V` w katalogu `build/Debug/`.
 
-- **[Proces instalacji](proces-instalacji.md)**
+- **[API Python i Jupyter](python-jupyter-api.md)**
 
-  Instalacja gotowego wydania na Linuksie przez `curl` lub apt, aktualizacja i usuwanie, budowanie ze źródeł oraz weryfikacja konfiguracji. Osobna sekcja opisuje Apple wyłącznie jako środowisko rozwojowe.
+  Kontrakt silnika osadzonego, katalogu magazynu, błędów, kopii NumPy/DLPack i urządzeń.
+
+- **[Historia integracji](embedded-integration-history.md)**
+
+  Materiały C2/C3 i decyzje projektowe oddzielone od aktualnego API.
+
+- **[Odbiór notebooków i Colab](notebook-acceptance.md)**
+
+  Procedura smoke lokalnego modułu i wheel oraz osobnego odbioru w Colab CPU/GPU.
 
 </div>
