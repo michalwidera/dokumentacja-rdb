@@ -33,6 +33,16 @@ Formatery są wywoływane przez nazwę i wymagają venv na PATH:
 PATH="$PWD/.venv-python312/bin:$PATH" ninja -C build/Debug cformat
 ```
 
+Przy budowaniu samego `_core` dodatkowa [kontrola rdzenia](source-build.md#kontrola-obsługi-błędów-rdzenia) nie jest jego zależnością. Przy domyślnym `RDB_NOEXCEPT_CHECK=ON` uruchom ją pełnym buildem albo jawnie:
+
+```bash
+cmake --build build/Debug-Python \
+  --target rdb_noexcept_check retractorcore_noexcept_check rdbembed_noexcept_check \
+  --parallel 4
+```
+
+Ta kontrola nie zmienia flag modułu ani [granicy błędów Pythona](../zalaczniki/python-jupyter-api.md#błędy-i-granica-fatalna). Samo zbudowanie lub zaimportowanie `_core` nie potwierdza wykonania dodatkowej kompilacji.
+
 ## Testy i pochodzenie modułu
 
 ```bash

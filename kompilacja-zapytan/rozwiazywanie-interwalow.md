@@ -47,7 +47,7 @@ SELECT ... STREAM c FROM a # b
 
 \\[\Delta_c = \frac{\Delta_a \cdot \Delta_b}{\Delta_a + \Delta_b}\\]
 
-Wynik odpowiada średniej harmonicznej interwałów - strumień produkuje wartości tylko wtedy, gdy oba wejścia są dostępne jednocześnie.
+Operator `#` przeplata rekordy wejściowe. Częstość wyniku jest sumą częstości wejść, co daje powyższy interwał. Plan określa kolejność wyboru wejścia; oba źródła nie muszą emitować jednocześnie.
 
 Przykład: core0(Δ=1/10) # core1(Δ=1/5) → str1(Δ=1/15)
 
@@ -75,15 +75,21 @@ Reduktory działają na całym wyrażeniu strumieniowym, np. `AVG(a@(1,10))`. Re
 SELECT ... STREAM c FROM a @ (step, window)
 ```
 
-\\[\Delta_c = \frac{\Delta_a \cdot \text{step}}{\text{windowSize}}\\]
+\\[\Delta_c = \frac{\Delta_a \cdot \text{step}}{F_{a}}\\]
 
-AGSE (Algorytm Generowania Serii Epizodów) generuje okna przesuwne. Interwał wynikowy zależy od kroku i rozmiaru okna względem źródła.
+AGSE (Algorytm Generowania Serii Epizodów) generuje okna przesuwne. `F_a` oznacza liczbę płaskich wartości w rekordzie źródła, wyznaczoną przez `descriptorStorage().flatElementCount()`. Krok jest liczony po tych wartościach, więc interwał wynikowy zależy od kroku i szerokości rekordu wejściowego. Rozmiar okna wyjściowego określa liczbę wartości w oknie.
 
 ### Operatory de-hash (STREAM\_DEHASH\_DIV, STREAM\_DEHASH\_MOD)
 
 Operacje odwrotne do `#` - wyznaczają, jaki interwał miał jeden ze strumieni wejściowych, znając interwał wyniku i drugiego argumentu:
 
 \\[\Delta_a = \frac{\Delta_c \cdot \Delta_b}{\left|\Delta_c - \Delta_b\right|}\\]
+
+## Walidacja interwałów
+
+Interwał źródła `DECLARE` musi być dodatni. Kompilator sprawdza to także dla planu zbudowanego bez parsera. Argumenty interwałowe `&`, `%` i `-` są sprawdzane podczas kompilacji; dla rozplotu `&` i `%` argument równy interwałowi źródła jest dodatkowo odrzucany przed dzieleniem przez zero w powyższym wzorze. Dotyczy to także interwału źródła wyliczonego z innego wyrażenia. W Pythonie taka odmowa jest `CompileError`, po którym można poprawić plan i ponowić kompilację.
+
+Rachunek operatorów używa szerszych liczb całkowitych i sprawdza, czy wynik mieści się w reprezentacji interwału. Wynik spoza zakresu jest odmową planu. Wewnętrzne zero oznaczające jeszcze nierozwiązany węzeł oraz zerowy interwał dyrektywy nie oznaczają dopuszczenia źródła z zerowym krokiem. Po zakończonej kompilacji interwały strumieni są dodatnie; runtime korzysta z tego niezmiennika zamiast ponawiać te same kontrole w każdym rekordzie. Regresje `ut_compiler` obejmują niedodatnie interwały, rozplot równych interwałów i ponowną kompilację poprawnego planu z dyrektywami.
 
 ## Dlaczego iteracja?
 

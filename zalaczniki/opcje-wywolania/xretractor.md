@@ -260,7 +260,9 @@ Start, dostarczenie planu, reset i import ad hoc używają wspólnej kontroli ma
 | --- | --- | --- |
 | Błąd planu: składnia, kompilacja, brak katalogu `STORAGE`, niezgodny zachowany `.desc` lub wadliwa zawartość licznika | odmowa, `EPROTO` (`71` na Linuksie) | opróżniany przy odmowie startu; kolejny start jest bezczynny |
 | Błąd środowiska: odmowa dostępu, awaria I/O, nieczytelny licznik lub dowiązanie zamiast pliku wyjścia (`ELOOP`) | `EIO` (`5`); podczas pracy komunikat `FATAL (environment):` | zachowany do ponownego startu po naprawie |
-| Naruszenie niezmiennika silnika, `FatalError` | `EXIT_FAILURE` (`1`), komunikat `FATAL:` | opróżniany przez procedurę wyjścia |
+| Naruszenie niezmiennika silnika, `rdb::fatal()` lub granica `FatalError` | `EXIT_FAILURE` (`1`), komunikat `FATAL:` | opróżniany przez procedurę wyjścia |
+
+Rdzeń przekazuje błędy wykonania przez `Result`. Granica xretractor rozróżnia `Errc::IO` od błędu wewnętrznego i wykonuje odpowiednią procedurę zakończenia; `rdb::fatal()` korzysta z handlera zainstalowanego przez launcher. Jednostka systemd od #475 używa także `ExecStopPost`: po SIGABRT lub OOM kill opróżnia plik planu, ponieważ te zakończenia nie uruchamiają `atexit`. Zwykła awaria I/O pozostawia plan. Ta polityka wymaga aktualnej jednostki i pomocnika `xretractor-stop-post`, a nie samej wymiany binarki. Sprawdza ją `it_service_abort-run`.
 
 Kod `EIO` oznacza kategorię błędu procesu; przyczyny takie jak `EACCES` lub `ENOSPC` są podawane w diagnostyce. Poza jednostką plik `.rql` operatora pozostaje nietknięty. Tryb `-c` nie wykonuje kontroli plików magazynu ani licznika i nie opróżnia pliku zapytań, także w jednostce. Odmowa żądania resetu lub ad hoc przed jego przyjęciem wraca do klienta, a działający serwer zachowuje plan.
 

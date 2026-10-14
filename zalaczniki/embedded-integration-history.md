@@ -2,6 +2,8 @@
 
 Materiał historyczny etapów C2/C3 epiku #446 oraz początków wiązania Python. Zastępuje notatki `core-phase-2.md`, `core-phase-3.md` i historyczne części `jupyter-integration.md` z dawnego katalogu `docs` repozytorium kodu. Bieżący kontrakt opisuje [API Python](python-jupyter-api.md), a polecenia [budowanie biblioteki](../instalacja-systemu/python-build.md). #450 później wprowadziło własność katalogu magazynu, a #476/#451 dopełniły politykę błędów i odbiór. Real-time w bibliotece, cele mobilne, ingest, DeviceWindowLoader i sprzętowy odbiór MPS pozostają poza zakończonym zakresem epiku.
 
+Po scaleniu epiku #445 port #511 zastąpił historyczną granicę rzucania błędów przez `Result` i handler `rdb::fatal()`. Wydawane programy mają jednolity tryb wyjątków, a `RDB_NOEXCEPT_CHECK` sprawdza osobno rdzeń. Poniższe opisy C2/C3 zachowują stan tamtych etapów; aktualną granicę odzyskiwania opisuje [API Python](python-jupyter-api.md#błędy-i-granica-fatalna).
+
 ## C2: właściciel stanu instancji
 
 Demon konstruował stan raz, więc stan procesu i stan silnika były trudne do odróżnienia. Notebook tworzy i niszczy silnik przy powtórnych wykonaniach komórek. C2 rozdzieliło własność, aby nazwy strumieni w różnych instancjach nie powodowały wspólnych wyników.

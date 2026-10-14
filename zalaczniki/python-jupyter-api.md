@@ -1,6 +1,6 @@
 # API Python i Jupyter
 
-Ten rozdział opisuje API gałęzi `dev/445-jupyter-epic`, odebrane w #451, wraz z kontraktem katalogu z #450. [Instalację wheel i Jupyter](../instalacja-systemu/python-jupyter.md), [budowanie biblioteki](../instalacja-systemu/python-build.md) oraz [odbiór notebooków](notebook-acceptance.md) opisują osobne strony. [Historia C2/C3](embedded-integration-history.md) nie zastępuje tego kontraktu.
+Ten rozdział opisuje API osadzonego silnika na `master` po scaleniu epiku #445 w PR #510 i portu `Result` z #511 w PR #512, wraz z kontraktem katalogu z #450. [Instalację wheel i Jupyter](../instalacja-systemu/python-jupyter.md), [budowanie biblioteki](../instalacja-systemu/python-build.md) oraz [odbiór notebooków](notebook-acceptance.md) opisują osobne strony. [Historia C2/C3](embedded-integration-history.md) nie zastępuje tego kontraktu. Istniejący wheel może pochodzić ze starszej rewizji; jego wersja pakietu sama nie potwierdza zawartości tych zmian.
 
 ## Role i zakres
 
@@ -124,7 +124,7 @@ RetractorDBError
 
 | Klasa | Wynik w Pythonie | Stan po błędzie |
 | --- | --- | --- |
-| K1, naruszenie niezmiennika | `InternalError` | Moduł skazany; chronione wejścia odmawiają do restartu interpretera; `close()` pozostaje dostępne |
+| K1 zwrócone jako `Result` lub nieoczekiwany wyjątek C++ wychodzący z rdzenia | `InternalError` | Moduł skazany; chronione wejścia odmawiają do restartu interpretera; `close()` pozostaje dostępne |
 | K2, odmowa planu | `PlanError`: składnia, kompilacja, uszkodzony deskryptor | Można poprawić dane i spróbować ponownie; nieudany `compile()` nie pozostawia starego planu |
 | K3, odmowa żądania | `ConfigError`, również `ValueError` | Instancja pozostaje używalna |
 | K4, błąd środowiska | `IOError`, również `OSError` | Awaria slotu zatrzymuje plan do rekompilacji; odmowa kompilacji nie tworzy planu |
@@ -134,7 +134,11 @@ RetractorDBError
 
 `IOError.errno` zachowuje kod systemowy albo używa EIO bez kodu; `filename` jest ustawiane, gdy wywołanie przyjmowało ścieżkę jako argument. W innych przypadkach ścieżka może być w komunikacie. Błędy nazwy pola/strumienia, indeksu, konwersji tablic i sygnatury mogą dawać standardowe `KeyError`, `IndexError`, `ValueError` lub `TypeError`; nie każdy wyjątek dziedziczy po `RetractorDBError`.
 
-Obsługiwane wejścia przechwytują K1/K4 do wyjątków, ale nie zapewniają przeżycia każdej awarii rdzenia. `FatalError` lub `EnvironmentError` w funkcji `noexcept`, podczas destrukcji albo zwijania stosu mogą zakończyć interpreter. Dotyczy to także granicy `Engine.close()` i destruktora. Nie przechwytuj `InternalError` z zamiarem dalszego liczenia w tym samym kernelu.
+Rdzeń zwraca obsługiwalne błędy jako `rdb::Result<T>`; binding przekłada kategorię `Error` na powyższe klasy wyjątków Pythona. Błąd I/O przy odczycie deskryptora daje `IOError` z pierwotnym `errno`, a nie `CorruptDescriptor`; ta druga klasa dotyczy błędnej treści. Nieoczekiwany wyjątek C++ z wywołania rdzenia, np. `bad_alloc` lub `length_error`, daje `InternalError` i skaża moduł. Nie przechwytuj `InternalError` z zamiarem dalszego liczenia w tym samym kernelu.
+
+`rdb::fatal()` i `RDB_ASSERT` wywołują osobny, niewracający handler procesu. Domyślnie kończy on hosta przez `abort` (SIGABRT), także kernel Jupyter; binding nie zamienia tej ścieżki na wyjątek Pythona. `xretractor` instaluje własny handler kończący proces z kodem 1 i sprzątaniem IPC. Handler jest polityką całego procesu, a nie pojedynczego Engine. `RDB_NOEXCEPT_CHECK=OFF` nie zmienia tego zachowania. Błędy w funkcji `noexcept` albo podczas destrukcji również nie mają ogólnej gwarancji przeżycia interpretera.
+
+Niepoprawne wejście nie powinno trafiać do ścieżki fatal: kompilator odrzuca m.in. rozplot `&` lub `%` z argumentem równym interwałowi źródła jako `CompileError`. Można poprawić plan i ponownie użyć Engine. Granicę Result, wyjątku C++ oraz SIGABRT sprawdzają testy podprocesów w `test_error_classes.py` i `test_fatal_paths.py`; odmowę rozplotu sprawdzają również regresje `ut_compiler`.
 
 ## Własność pamięci, NumPy i DLPack
 
@@ -167,7 +171,7 @@ CPU/DLPack nie przypina buforów silnika i nie zapewnia przypiętej pamięci hos
 | --- | --- | --- |
 | Plan, EOF, rekompilacja i katalog | `src/embed/engine.cc`, `storageGuard.cc`, `src/python/module.cpp` | `test_engine.py`, C++ `ut_embedEngine` |
 | Deskryptory i odczyt offline | `src/python/module.cpp`, `src/rdb/lib/descriptor.cc` | `test_descriptor.py`, `test_storage.py` |
-| K1-K7 i powtórne użycie | `src/include/fatalError.hpp`, `src/python/module.cpp` | `test_error_classes.py`, `test_fatal_paths.py`, `test_reentry.py` |
+| K1-K7 i powtórne użycie | `src/include/rdb/error.hpp`, `src/rdb/lib/error.cc`, `src/include/fatalError.hpp`, `src/python/module.cpp` | `test_error_classes.py`, `test_fatal_paths.py`, `test_reentry.py` |
 | Kopie, okna i urządzenia | `retractordb/engine.py`, `retractordb/torch.py`, `src/python/module.cpp` | `test_window.py` |
 | Izolacja i zgodność logiczna | `src/embed/engine.cc`, `src/retractor/lib/dataModel.cpp` | `test_isolation.py`, `test_reference.py` |
 

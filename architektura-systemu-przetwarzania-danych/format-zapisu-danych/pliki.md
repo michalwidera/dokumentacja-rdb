@@ -381,6 +381,8 @@ Klasa `storage` wywołuje `flushCurrentEntry()` po **udanym fizycznym dopisaniu 
 
 `flushCurrentEntry()` zapisuje bieżący wpis indeksu do pliku, ograniczając ilość metadanych pozostających wyłącznie w pamięci procesu. Ten zapis nie obejmuje `fsync` po każdym rekordzie ani transakcyjnego zatwierdzenia danych wraz z indeksem, więc sam w sobie nie gwarantuje spójności po awarii procesu lub utracie zasilania. Test `ut_metaData_usage` sprawdza sekwencję dopisania i jawnego flushu; nie symuluje awarii procesu.
 
+Przepisanie indeksu przez `MetaIndexStore::rewrite()` zwraca `Result` z błędem `Errc::IO` i `errno`, jeśli nie uda się otworzyć lub zapisać pliku tymczasowego albo podmienić `.meta`. `onRecordModified()` przekazuje ten błąd przed zmianą stanu indeksu w pamięci; nie zapewnia to transakcji z wcześniejszym zapisem danych. Błąd przepisania przy `loadIndex()` jest błędem inicjalizacji i odłącza persystencję. Osobne ścieżki `appendEntry`, `overwriteLast` i `saveHeader` nadal nie mają takiej propagacji błędów; port #511 nie daje ogólnej gwarancji wykrycia każdej awarii zapisu metadanych. Regresje odmowy podmiany sprawdza `ut_metaData`.
+
 Naiwna implementacja dopisywałaby nowy wpis do pliku przy każdym flushu - powodując wzrost pliku proporcjonalny do liczby rekordów, nawet bez zmian wzorca null.
 
 Rozwiązanie: mechanizm **lazy overwrite** oznaczany flagą `tail_.dirty`.
@@ -460,7 +462,7 @@ _Rys. 19. Persystencja i odtwarzanie stanu po restarcie_
 | Metoda | Opis         |
 | -------- | ----------------- |
 | `getNullBitset(i)` | Zwraca wzorzec null dla rekordu `i`. Metoda wirtualna: w wariancie `storageShadow` najpierw sprawdza nadpisania w `metaShadow` (od końca - ostatnie wygrywa), a dopiero przy braku wpisu sięga do głównego indeksu. |
-| `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" zamiast rzucać wyjątkiem. Pozwala `storage::read()` nałożyć metadane null na rekord, który w pliku danych jest, a w indeksie jeszcze go nie ma. Rekordu, którego nie ma w samym pliku danych, ten wzorzec nie dotyczy - `storage::read()` zgłasza wtedy brak rekordu i sam ustawia wzorzec all-null (→ [Odczyt rekordu, którego nie ma](#odczyt-rekordu-którego-nie-ma)). |
+| `nullBitsetFor(i)` | Jak wyżej, ale dla rekordu spoza zakresu indeksu zwraca wzorzec „nic nie jest null" bez zgłoszenia błędu. Bezpośrednie `getNullBitset(i)` wymaga indeksu w zakresie; naruszenie tego warunku jest błędem niezmiennika, nie obsługiwalnym wyjątkiem. Pozwala `storage::read()` nałożyć metadane null na rekord, który w pliku danych jest, a w indeksie jeszcze go nie ma. Rekordu, którego nie ma w samym pliku danych, ten wzorzec nie dotyczy - `storage::read()` zgłasza wtedy brak rekordu i sam ustawia wzorzec all-null (→ [Odczyt rekordu, którego nie ma](#odczyt-rekordu-którego-nie-ma)). |
 | `isGapBefore(i)` | Zwraca `true`, jeżeli bezpośrednio przed rekordem `i` w indeksie RLE znajduje się wpis `isGap=true`. Rekord 0 nigdy nie ma przerwy przed sobą. |
 | `segments()` | Zwraca wszystkie segmenty RLE: zatwierdzone (z dysku) oraz bieżący (z pamięci), jeżeli jest niepusty. Nie obejmuje nadpisań z `.meta.shadow`. Służy do inspekcji i testów. |
 | `totalRecords()` | Suma rekordów we wszystkich segmentach (committed + pending). |

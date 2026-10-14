@@ -32,6 +32,16 @@ ctest --test-dir build/Release --output-on-failure
 
 Tryb `release-dirty` służy do diagnostyki lokalnych zmian i nie tworzy wydania produkcyjnego. Szczegóły w [kontrakcie budowania](../zalaczniki/budowanie-produkcyjne-i-warianty-badawcze.md). Paczki dla odbiorców są przygotowywane osobno; skrypty i kontrole linuxowych wydań opisano w repozytorium kodu w `scripts/release_package/README.md`.
 
+## Kontrola obsługi błędów rdzenia
+
+Domyślne `RDB_NOEXCEPT_CHECK=ON` dodaje do pełnego buildu biblioteki kontrolne `rdb_noexcept_check`, `retractorcore_noexcept_check` i `rdbembed_noexcept_check`. Kompilują te same źródła rdzenia ponownie z `-fno-exceptions`, bez wyznaczonych jednostek obsługujących ANTLR, Boost.Stacktrace i konfigurację. Użycie `throw`, `try` lub `catch` w kontrolowanej części rdzenia jest wtedy błędem kompilacji. Obiekty kontrolne nie są linkowane do wydawanych programów.
+
+Wydawane programy i moduł Python są kompilowane jednolicie z obsługą wyjątków. Biblioteki zewnętrzne nadal korzystają z wyjątków; mieszanie jednostek z `-fno-exceptions` i bez tej flagi w jednym programie naruszało zgodność funkcji inline Boosta i spdloga oraz pomijało destruktory przy przejściu wyjątku przez rdzeń. Dlatego `RDB_NOEXCEPT_CHECK` zastępuje pierwotne `RDB_NO_EXCEPTIONS` z portu #511.
+
+Operacje rdzenia C++ zgłaszają obsługiwalne błędy przez `rdb::Result<T> = std::expected<T, Error>`, z kategorią, komunikatem i `errno`. Wywołujący sprawdza wynik, a tworzenie obiektów może wymagać fabryki `create` lub `make`. `RDB_NOEXCEPT_CHECK=OFF` wyłącza tylko dodatkową kontrolę kompilacji; nie przywraca wcześniejszego API C++ opartego na wyjątkach. Nie jest to przełącznik bezpieczeństwa kernela: `rdb::fatal()` kończy hosta niezależnie od tej flagi. Granicę opisuje [API Python](../zalaczniki/python-jupyter-api.md#błędy-i-granica-fatalna).
+
+Pełny build uruchamia kontrolę automatycznie. Budowanie wyłącznie wybranego celu, np. `_core`, nie uruchamia niezależnych bibliotek kontrolnych; można zbudować je jawnie zgodnie z [procedurą dla Pythona](python-build.md#moduł-z-drzewa-budowy). Test `exception_mode_guard` sprawdza rzeczywiste flagi wydawanych celów oraz kompletność kontroli na podstawie `compile_commands.json`. Nie potwierdza, że build kontrolny został wykonany.
+
 ## Środowisko rozwojowe Apple
 
 Port macOS służy do rozwoju i testowania. Ogólny kontrakt systemu, opis usług i procedury produkcyjne w tej instrukcji dotyczą Linuksa. Instalator `curl` opisany w [gotowych wydaniach](linux-releases.md) obsługuje Linux; na Apple buduje się ze źródeł.

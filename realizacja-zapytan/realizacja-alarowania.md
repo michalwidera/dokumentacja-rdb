@@ -235,5 +235,5 @@ _Rys. 52. Niezależna ewaluacja wielu reguł na tym samym strumieniu_
 | Reguła z pliku planu żąda rekordów sprzed początku strumienia | Część historyczna zrzutu nie jest skracana; nieistniejące rekordy są zastępowane zerami |
 | Za mało rekordów po dołączeniu reguły ad hoc (`DUMP -H TO M`) | Reguła czeka z oceną `WHEN` na rekord `H+1` po dołączeniu; dla `H=0` ocenia pierwszy nowy rekord |
 | Reguła ad hoc z historią `H > 0` na `MEMORY` o pojemności `N <= H` | Żądanie jest odrzucane bez dołączenia reguły; potrzeba `H+1` slotów na historię i rekord bieżący |
-| Plik docelowy niedostępny (brak katalogu STORAGE) | Błąd krytyczny `FatalError` - xretractor kończy działanie |
+| Plik DUMP niedostępny podczas wykonania | Błąd I/O zwrócony przez `Result`; xretractor kończy działanie z kodem `EIO`, zachowując plan usługi. Brak katalogu `STORAGE` przy wcześniejszej kontroli jest odmową planu |
 | DO SYSTEM zwraca niezerowy kod | Błąd w logu spdlog; przetwarzanie kontynuuje |
