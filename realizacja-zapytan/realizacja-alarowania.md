@@ -67,14 +67,14 @@ Kod wyjścia polecenia jest sprawdzany:
 
 ## Akcja DO DUMP - szczegółowy algorytm
 
-`DO DUMP` jest bardziej złożona, ponieważ wymaga zebrania danych **z przeszłości** (chwile przed zdarzeniem) i **z przyszłości** (chwile po zdarzeniu). Obsługuje to klasa `dumpManager`.
+`DO DUMP` zapisuje wskazany zakres rekordów względem próbki `t`, dla której warunek reguły jest prawdziwy. Zakres jest półotwarty: `[step_back, step_forward)`, przy czym `step_back < step_forward`; rekord o przesunięciu `step_forward` nie należy do zrzutu. Ujemne przesunięcia oznaczają historię, `0` próbkę bieżącą, a dodatnie przesunięcia próbki przyszłe. Obsługuje to klasa `dumpManager`.
 
 <div class="timeline compact">
 
 - **Zdarzenie** - warunek `WHEN` prawdziwy dla próbki `t`, reguła wywołuje `dumpManager::registerTask()`
-- **Faza 1** - zapis `|step_back|` próbek historycznych z bufora strumienia (albo ustawienie opóźnienia startu)
-- **Faza 2** - w kolejnych iteracjach `processStreamChunk()` dopisuje próbki przyszłe
-- **Koniec** - `dumpedRecordsToGo` osiąga 0, plik zostaje zamknięty, zadanie opuszcza kolejkę
+- **Faza 1** - zapis historycznej części zakresu z bufora strumienia (albo ustawienie opóźnienia startu)
+- **Faza 2** - jeśli pozostały rekordy do zebrania, `processStreamChunk()` dopisuje próbkę bieżącą i próbki przyszłe
+- **Koniec** - przy `dumpedRecordsToGo == 0` najbliższe `processStreamChunk()` zamyka plik i usuwa zadanie bez dopisywania kolejnych rekordów
 
 </div>
 
@@ -83,26 +83,35 @@ Kod wyjścia polecenia jest sprawdzany:
 W chwili wyzwolenia reguły - zaraz po stwierdzeniu, że warunek jest prawdziwy - `dumpManager::registerTask()`:
 
 1. Usuwa istniejący wpis pod nazwą pliku zrzutu (`unlink()`) i tworzy nowy plik przez POSIX `open()` z flagami `O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC`. Następnie usuwa z kolejki wcześniejsze zadania piszące pod tę samą nazwę pliku i zamyka ich deskryptory (zob. *Retencja*).
-2. Jeśli `step_back < 0`, odczytuje `|step_back|` próbek z historycznego bufora strumienia.  
-   Kompilator uwzględnia zakres historyczny DUMP przy wyznaczaniu wymaganej pojemności strumienia.
-3. Zapisuje próbki historyczne do pliku **od najstarszej do najnowszej** (tzn. od `step_back` do `–1`).
-4. Oblicza, ile próbek z przyszłości jeszcze pozostało do zebrania (`dumpedRecordsToGo = |step_forward - step_back| - |step_back|`).
-5. Jeśli `step_back ≥ 0` (opóźnienie startu), ustawia `delayDumpRecordsToGo = step_back`.
+2. Jeśli `step_back < 0`, odczytuje historyczną część zakresu `[step_back, min(step_forward, 0))`, czyli `min(step_forward, 0) - step_back` rekordów. Kompilator uwzględnia najdalsze wymagane przesunięcie historyczne przy wyznaczaniu pojemności strumienia.
+3. Zapisuje te rekordy do pliku **od najstarszego do najnowszego**, bez rekordu na prawej granicy zakresu historycznego.
+4. Oblicza liczbę pozostałych rekordów: `dumpedRecordsToGo = (step_forward - step_back) - historyWritten`, gdzie `historyWritten` oznacza liczbę rekordów zapisanych w kroku 3, równą zeru przy braku części historycznej.
+5. Jeśli `step_back >= 0` (opóźnienie startu), ustawia `delayDumpRecordsToGo = step_back`.
 
 ```
 Przykład: DUMP -3 TO 2
-  Przy rejestracji: zapisz próbki t-3, t-2, t-1  (history)
-  Do zebrania z przyszłości: 2 próbki (t, t+1)
+  Przy rejestracji: zapisz próbki t-3, t-2, t-1 (historia)
+  Do zebrania: 2 próbki (t, t+1)
   dumpedRecordsToGo = 2
+
+Przykład: DUMP -5 TO -2
+  Przy rejestracji: zapisz próbki t-5, t-4, t-3
+  dumpedRecordsToGo = 0 - cały zakres jest już zapisany
+
+Przykład: DUMP -5 TO 0
+  Przy rejestracji: zapisz próbki t-5, t-4, t-3, t-2, t-1
+  dumpedRecordsToGo = 0 - próbka t nie należy do zakresu
 ```
+
+Przy `step_forward <= 0` cały zrzut jest gotowy po rejestracji zadania. Najbliższe `processStreamChunk()`, wywoływane jeszcze przy obsłudze próbki `t`, usuwa zakończone zadanie i zamyka jego plik; nie dopisuje próbki bieżącej ani przyszłych.
 
 Dla reguły z pliku planu zakres `DUMP -H TO M` (`H > 0`) wymaga co najmniej `H+1` rekordów: `H` rekordów historii oraz rekordu bieżącego. Kompilator automatycznie powiększa pierścień `STORAGE MEMORY` do tej pojemności, także gdy nie podano `RETENTION` albo jego wartość jest mniejsza. Większe jawne `RETENTION` pozostaje minimum pojemności pierścienia. Dla magazynów plikowych `DEFAULT` i `DIRECT` z ograniczoną retencją kompilator odrzuca plan, jeśli retencja nie zapewnia `H+1` rekordów nawet tuż po rotacji: musi zachodzić `(segments - 1) * capacity + 1 >= H+1`. Dotyczy to również retencji z konfiguracji `[storage] default_retention`.
 
 Dla reguły dołączonej ad hoc historia musi powstać w całości po jej dołączeniu. Przy zakresie `DUMP -H TO M` reguła może po raz pierwszy ocenić warunek `WHEN` na rekordzie `H+1` po dołączeniu: poprzednie `H` rekordów stanowi historię, a nowy rekord jest próbką bieżącą. Bez części historycznej (`H=0`) warunek jest oceniany już dla pierwszego nowego rekordu. Strumień `MEMORY` musi przechowywać co najmniej `H+1` rekordów; żądanie sięgające głębiej jest odrzucane bez dołączenia reguły.
 
-### Faza 2: dane przyszłe (kolejne iteracje pętli)
+### Faza 2: próbka bieżąca i dane przyszłe
 
-Po rejestracji zadanie trafia do kolejki `bookOfTasks[streamName]`. W każdej kolejnej iteracji siatki czasowej (gdy strumień produkuje nową próbkę) wywoływane jest `dumpManager::processStreamChunk()`:
+Po rejestracji zadanie trafia do kolejki `bookOfTasks[streamName]`. `dumpManager::processStreamChunk()` jest wywoływane po ocenie wszystkich reguł dla próbki `t`, a następnie po każdej nowej próbce strumienia:
 
 1. Dla każdego aktywnego zadania w kolejce (`dumpedRecordsToGo > 0`):
    - Jeśli `delayDumpRecordsToGo > 0` - dekrementuj i pomiń (opóźnienie startu).
@@ -163,7 +172,7 @@ Zadania zrzutu czekają w kolejce `bookOfTasks`, jednej na strumień i wspólnej
 
 Reguła bez `RETENTION` ma zatem w toku najwyżej jedno zadanie i nowe wyzwolenie przerywa jej poprzedni, nieukończony zrzut. Reguła z `RETENTION N` ma najwyżej `N` zadań: nieukończony zrzut przerywa dopiero wyzwolenie, które po zawinięciu numeracji wraca do jego pliku, czyli `N`-te kolejne. Zadania innych reguł na tym samym strumieniu pozostają nietknięte - reguły nie ucinają sobie nawzajem zrzutów, także dwie reguły bez `RETENTION`. Liczba deskryptorów otwartych na strumieniu nie przekracza sumy tych limitów po jego regułach.
 
-Aby przy częstych zdarzeniach każdy zrzut był kompletny, czas zbierania jednego zrzutu (`|step_back| + step_forward` cykli) powinien być mniejszy niż interwał między zdarzeniami pomnożony przez `N` (1 dla reguły bez `RETENTION`).
+Jeśli `step_forward > 0`, ostatnia wymagana próbka ma przesunięcie `step_forward - 1` względem zdarzenia i musi być zapisana przed wyzwoleniem, które ponownie użyje tego samego pliku (przy regularnych zdarzeniach: po `N` interwałach, a bez `RETENTION` po jednym). Dla `step_forward <= 0` cały zrzut zostaje zapisany przy rejestracji.
 
 ***
 
