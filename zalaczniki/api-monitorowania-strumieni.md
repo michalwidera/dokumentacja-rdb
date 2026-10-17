@@ -140,11 +140,17 @@ int main() {
 
 `SubscribeOptions` udostępnia `limit`, `idleTimeout` i `capacity`. `next(timeout)` zwraca `std::optional<Record>`; brak wartości oznacza normalny koniec lub jawne zamknięcie. Błędy rzucają `retractordb::Error` ze stabilnym polem `code`. Uchwyty subskrypcji są przenoszalne, ale niekopiowalne; destruktor i `close()` kończą oraz zbierają własny proces potomny.
 
+`Client` wymaga jawnej nazwy serwera o długości 1..32 znaków: pierwsza jest małą literą ASCII, pozostałe to małe litery ASCII, cyfry, `_` lub `-`. `Options::timeout` musi być dodatni. Ujemny `limit`, ujemny `idleTimeout` albo zerowe `capacity` subskrypcji są niedozwolone; błędne argumenty zgłaszają `std::invalid_argument`.
+
+`next(timeout)` zgłasza `Error` z kodem `read_timeout` bez zamykania subskrypcji; można ponowić odczyt z tego samego procesu. Inne błędy transportu lub protokołu zamykają subskrypcję. Po zdarzeniu `end` klient czeka jeszcze na poprawne zakończenie `xqry` w budżecie `Options::timeout`: niezerowy kod wyjścia daje `process_exit`, a brak zakończenia w terminie `process_timeout`.
+
 `Client` również jest przenoszalny i niekopiowalny. Konstruktor i przypisanie przenoszące mają `noexcept` i są zdefiniowane `= default` poza nagłówkiem. Przenoszenie przekazuje własność klienta i jego subskrypcji; przypisanie przenoszące najpierw zamyka dotychczasowe subskrypcje obiektu docelowego. Destruktor klienta zamyka należące do niego subskrypcje także wtedy, gdy ich uchwyty nadal istnieją. Akcesory `Client::streams()`, `describe()` i `subscribe()` oraz `Subscription::schema()`, `next()`, `pid()` i `endReason()` mają `[[nodiscard]]`.
 
 `Client::ping()` zwraca `void` po poprawnej odpowiedzi, a przy błędzie rzuca `retractordb::Error` z zachowanym kodem i opisem przyczyny. Sukces sprawdza się przez zakończenie wywołania bez wyjątku; nie ma wyniku `false`.
 
 **Obiekt po przeniesieniu:** obiekt źródłowy `Client` można bezpiecznie zniszczyć, zamknąć przez `close()` albo przypisać mu innego klienta. Wywołania `ping()`, `streams()`, `describe()` i `subscribe()` zgłaszają `retractordb::Error` z kodem `closed`. Przypisanie działającego klienta pozwala ponownie używać obiektu. Po zwykłym `close()` te metody również zgłaszają `closed`, jeśli przekazane argumenty są poprawne.
+
+Przeniesienie `Subscription` przekazuje jej proces, schemat i przyczynę końca; przypisanie przenoszące najpierw zamyka poprzedni proces obiektu docelowego. Po oddaniu własności obiekt źródłowy obsługuje `next()` (zwraca pusty wynik), `close()`, ponowne przypisanie i destrukcję. `schema()`, `pid()` i `endReason()` wymagają uchwytu, który nie oddał własności. Zwykłe `close()` zachowuje dostęp do schematu, pierwotnego PID i zapisanej przyczyny końca; `next()` zwraca wtedy pusty wynik.
 
 ## Ograniczenia i obsługa błędów
 
@@ -169,3 +175,5 @@ API C++ jest konfigurowane zawsze, ale jego cele mają `EXCLUDE_FROM_ALL`. `xqry
 Testy `st_api_fake` i `st_api_real` sprawdzają oba języki. Pierwszy obejmuje typy, `NULL`, błędne wyjście, przepełnienie i zamykanie procesu. Drugi używa prawdziwego `xretractor` i sprawdza niezależne subskrypcje, tablice, liczby wymierne, brakujący strumień oraz zatrzymanie serwera.
 
 Testy C++ obejmują też fabrykę klienta, `std::vector`, przechwycenie w lambdzie, przypisanie przenoszące z aktywnymi subskrypcjami oraz bezpieczne `close()` i niszczenie obiektu po przeniesieniu. Sprawdzają kod `closed` ze wszystkich czterech metod klienta po konstrukcji i przypisaniu przenoszącym oraz po jawnym zamknięciu. Oba języki sprawdzają sukces i błędy `ping()` oraz zachowanie kodów `protocol_error`, `server_no_response` i `closed`; testy Pythona wymagają wyniku `True` po sukcesie.
+
+`st_api_fake` sprawdza również niepełny lub zbyt długi wiersz JSONL, błędne zakończenie po zdarzeniu `end`, przekroczenie czasu zakończenia procesu i ponawianie odczytu po `read_timeout`. Oba scenariusze sprawdzają odmowę błędnych argumentów C++ oraz przenoszenie subskrypcji, zebranie zastąpionego procesu i zachowanie schematu oraz PID po `close()`.

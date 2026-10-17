@@ -16,6 +16,8 @@ Powyższe pola znaczą odpowiednio `v*(w^2)`, `v^(w^2)` i `(v*w)^2`. Literał uj
 
 Dla typów całkowitych i wymiernych nieujemna potęga całkowita ma semantykę powtarzanego mnożenia, łącznie z promocją typu i przepełnieniem. Pozostałe przypadki korzystają z obliczenia zmiennoprzecinkowego; wynik nieskończony albo `NaN` staje się `NULL`. Operandy tekstowe są niedozwolone.
 
+Iloczyn dwóch wartości `BYTE` ma typ `INTEGER`; ta sama promocja obowiązuje przy potęgowaniu, także dla wykładnika zero. Dla pól `b` i `e` typu `BYTE` oraz `e = 0` wyrażenie `b^e` daje całkowite `1`, również przy `b = 0`, a `-(b^e)` daje `-1`. Negacja obejmuje tu wynik typu `INTEGER`, więc jest arytmetyczna. Zachowanie sprawdzają przypadki `exact_power_zero_exponent_is_one_of_the_product_type` i `negated_byte_power_with_zero_exponent_is_minus_one` w `ut_expeval`.
+
 Wartość `NULL` jest propagowana przez zwykłą arytmetykę. Dzielenie przez zero daje `NULL` dla każdego typu liczbowego i nie zatrzymuje dalszego przetwarzania strumienia. Reguły porównań i trójwartościowej logiki warunku `RULE` opisuje rozdział [Warunek logiczny](../polecenie-rule-warunek-logiczny.md).
 
 Dodawanie, odejmowanie i mnożenie pól `UINT` są sprawdzane: suma lub iloczyn poza zakresem 32-bitowej liczby bez znaku oraz ujemna różnica dają `NULL` zamiast zawiniętej wartości. Działanie na parze `INTEGER` i `UINT` jest liczone na wartościach dokładnych, a do `UINT` trafia dopiero wynik: `NULL` pojawia się tylko wtedy, gdy wynik się w nim nie mieści. Dla `u = 10` i `i = -2` wyrażenie `u + i` daje `8`, a `u * i` daje `NULL`; porównanie takiej pary, np. `i < u`, też jest dokładne. Arytmetyka `INTEGER` i `RATIONAL` również zwraca `NULL` przy przepełnieniu.

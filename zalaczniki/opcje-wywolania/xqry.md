@@ -117,6 +117,8 @@ str1  | 1/30     | 0    | 0     |               | 0
 
 Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budżet czasu `ipc.client_response_max_fails` obejmuje wysłanie polecenia i odebranie odpowiedzi; pełna kolejka poleceń kończy się odmową po upływie tego terminu. Odpowiedź porzucona przez zabitego klienta może zostać odzyskana bez blokowania kolejnych klientów.
 
+Oczekiwanie na miejsce w kolejce komend używa nieblokujących prób wysłania i wspólnego terminu liczonego zegarem monotonicznym. Chwilowo pełna kolejka może więc przyjąć komendę, jeśli miejsce zwolni się przed terminem; nie jest odrzucana natychmiast. Przypadki obu wyników sprawdza `ut_ipcClient`.
+
 ## Odbiór danych
 
 | Opcja | Znaczenie |
@@ -126,7 +128,7 @@ Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budż
 | `-n` / `--null` | W formacie raw pomija wypisywanie rekordów, w których wszystkie wartości są `NULL`; te rekordy nadal zużywają budżet `--elimitqry`. |
 | `-c` / `--needctrlc` | Wymaga Ctrl+C zamiast zakończenia dowolnym klawiszem. |
 
-Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer wysyła znacznik końca i klient zamyka odbiór. Nagła awaria bez znacznika jest wykrywana przez timeout `timing.query_no_data_timeout_ms`.
+Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer próbuje wysłać znacznik końca, po czym usuwa nazwę kolejki także wtedy, gdy wysyłanie zawiedzie. Pełna kolejka może nie przyjąć znacznika; porzucona blokada kolejki po śmierci klienta również nie zatrzymuje sprzątania. Odebrany znacznik kończy odbiór; brak znacznika, także po nagłej awarii, jest wykrywany przez timeout `timing.query_no_data_timeout_ms`. Zachowanie końcowego wysyłania i sprzątania sprawdza `ut_ipcServer`.
 
 ### Subskrypcja na granicy epok planu
 
@@ -178,7 +180,7 @@ Dyrektywy kompilatora i kilka poleceń w jednym żądaniu są odrzucane. Szczeg�
 xqry --server service --reset plan.rql
 ```
 
-Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw, sprawdza zachowane pliki `.desc` (dla źródeł `DECLARE` zawsze, dla wyników `SELECT` i substratów przy `:ROTATION`), zgodność zachowanych magazynów, możliwość otwarcia plików wyjściowych na dysku oraz rezerwuje jego nazwy strumieni, pliki magazynu i licznik rotacji. Kontrola plików nie tworzy ich podczas walidacji; odmowa, np. `descriptor parse failed` ze ścieżką i miejscem błędu albo `cannot open output file`, nie zatrzymuje starego planu ani nie zmienia pliku startowego usługi. Przyjęty plan jest aktywowany na końcu bieżącego slotu, stare subskrypcje dostają znacznik końca, a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik przełącza serwer w stan bezczynny.
+Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw, sprawdza zachowane pliki `.desc` (dla źródeł `DECLARE` zawsze, dla wyników `SELECT` i substratów przy `:ROTATION`), zgodność zachowanych magazynów, możliwość otwarcia plików wyjściowych na dysku oraz rezerwuje jego nazwy strumieni, pliki magazynu i licznik rotacji. Kontrola plików nie tworzy ich podczas walidacji; odmowa, np. `descriptor parse failed` ze ścieżką i miejscem błędu albo `cannot open output file`, nie zatrzymuje starego planu ani nie zmienia pliku startowego usługi. Przyjęty plan jest aktywowany na końcu bieżącego slotu, serwer próbuje zakończyć stare subskrypcje znacznikiem końca na zasadach opisanych w sekcji odbioru danych, a artefakty poprzedniej epoki są sprzątane zgodnie z zasadami startu i rotacji. Pusty plik przełącza serwer w stan bezczynny.
 
 Kontrola plików jest wstępna: między odpowiedzią `OK` na `--reset` a rzeczywistym otwarciem magazynu ścieżka może się zmienić. Późny błąd otwarcia podczas wymiany planu nie jest obecnie odsyłany klientowi jako odmowa i może zatrzymać serwer; odpowiedź `OK` nie gwarantuje powodzenia tej późniejszej operacji.
 

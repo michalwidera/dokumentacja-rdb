@@ -28,6 +28,10 @@ W klauzuli `STORAGE` profil, jak każde słowo kluczowe, ma dwie pisownie - wiel
 
 W przypadku `MEMORY` retencja działa w pamięci jako bufor kołowy: kolejne dopisania nadpisują najstarszy slot (`index % capacity`). Dane nie są segmentowane do plików i nie trafiają na dysk. `RETENTION n` ustala rozmiar pierścienia (co najmniej tyle, ile wymaga plan) - tak samo przy `STORAGE MEMORY` i przy `VOLATILE`; postać z segmentami `RETENTION n s` jest tu błędem kompilacji.
 
+Indeks rekordu pozostaje logicznym numerem dopisania, a nie numerem slotu pierścienia. Po `C` dopisaniach przy pojemności `N` dostępne są indeksy od `max(0, C-N)` do `C-1`. Odczyt lub nadpisanie starszego albo jeszcze niezapisanego rekordu zwraca z akcesora `ERANGE`; nie odczytuje ani nie zmienia nowszego rekordu zajmującego ten sam slot. Warstwa C++ `storage` przekazuje tę odmowę jako `Result` z `Errc::IO` i `errno=ERANGE`. Regresje zawiera `ut_faccmemory`.
+
+Dane, bity `NULL` i licznik dopisań należą do `MemoryStore`. Akcesory o tej samej nazwie współdzielą je tylko w obrębie tego samego obiektu `MemoryStore`; każdy osadzony `Engine` ma własny. Wywołania bez jawnego magazynu używają `MemoryStore::processDefault()`. Ostatni akcesor zwalnia dane danej nazwy, więc nowy plan nie dziedziczy starego pierścienia.
+
 Także bez `RETENTION` magazyn `MEMORY` ma skończoną pojemność: co najmniej jeden rekord, powiększoną przez kompilator do potrzeb konsumentów. Dawniejszy `STORAGE MEMORY` mógł rosnąć bez końca albo, przy `RETENTION n`, zapisać dane na dysk z niewłaściwym typem magazynu. Obecnie rozmiar pierścienia i łączny koszt historii podlegają [budżetowi planu](../../kompilacja-zapytan/granice-wymiarow-planu.md#budżet-historii-w-ram). Reguła ad hoc `DO DUMP -H TO M` wymaga `H+1` slotów na historię i rekord bieżący. Przy `H > 0` i pojemności `N <= H` żądanie jest odrzucane; dołączenie reguły nie zwiększa pojemności działającego magazynu. Zasady oczekiwania na historię opisuje [Realizacja alarmowania](../../realizacja-zapytan/realizacja-alarowania.md#faza-1-dane-historyczne-przy-rejestracji-zadania).
 
 ### Retencja na dysku

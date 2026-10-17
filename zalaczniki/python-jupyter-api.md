@@ -77,9 +77,13 @@ Nieudana rekompilacja również zamyka poprzedni plan; odmowa nie przywraca go. 
 
 `compile`, `step`, `run` i odczyty rekordów zwalniają GIL. `run()` sprawdza sygnały Pythona co około 50 ms pomiędzy slotami i umożliwia `KeyboardInterrupt`; to nie jest gwarantowany maksymalny czas przerwania długiego slotu. Diagnostyka silnika trafia do `logging.getLogger("retractordb")`.
 
+Wyjątek z własnego handlera `logging` jest zgłaszany przez `sys.unraisablehook`; nie zastępuje pierwotnego błędu kompilacji i sam nie skazuje modułu do restartu. Test `test_logging_handler_failure_preserves_the_plan_error_and_next_compile` sprawdza, że po takim zdarzeniu można poprawić plan i uruchomić go ponownie.
+
 ## Katalog magazynu i dostęp offline
 
 `Engine()` tworzy prywatny katalog, który pozostaje po `close()` i znika przy zniszczeniu instancji. Jawny `storage_dir` oraz nadpisująca go dyrektywa RQL `STORAGE` muszą wskazywać katalog pusty przy pierwszym użyciu albo należący do silnika przez poprawny znacznik `.retractordb-embedded`. Obcy katalog jest odrzucany. Znacznik nie jest dowodem, że proces właściciela nadal działa.
+
+Jeśli zapis nowo tworzonego znacznika zawiedzie, `StorageGuard` próbuje usunąć niekompletny znacznik i zwraca `IOError` z przyczyną. Nie traktuje częściowo zapisanego znacznika jako udanej inicjalizacji katalogu.
 
 Blokada katalogu trwa do zamknięcia magazynów planu. Wyklucza drugi `Engine` oraz `Storage` w oznaczonym katalogu, także przez alias ścieżki i z innego procesu. Śmierć procesu zwalnia blokadę. Jawny katalog pozostaje na dysku; rekompilacja może zastąpić jego deskryptory i wyniki. Odmowa preflight zachowuje poprzednie artefakty, lecz zamyka plan; późniejsze błędy I/O nie są transakcyjne.
 

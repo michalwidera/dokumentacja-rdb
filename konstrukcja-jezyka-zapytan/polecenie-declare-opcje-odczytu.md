@@ -15,6 +15,8 @@ Dyrektywy są niezależne i można je łączyć w dowolny sposób. Dotyczą plik
 
 Bez `ONESHOT` plik czytany jest w nieskończonej pętli - po osiągnięciu końca pliku pozycja odczytu wraca na początek. `ONESHOT` wyłącza pętlę: plik czytany jest dokładnie raz, a po jego wyczerpaniu strumień zwraca rekordy ze wszystkimi polami `NULL`. Bajty takiego rekordu są wyzerowane, ale znaczniki null odróżniają brak danych od wartości zero. Wyczerpanie pliku nie kończy procesu ani nie usuwa pliku.
 
+Pusty `TEXTFILE` w trybie zapętlonym nie dostarcza rekordu także po przewinięciu. Akcesor już przy pierwszym odczycie zwraca `EIO` z wyzerowanymi bajtami i wszystkimi polami `NULL`; nie oznacza źródła jako wyczerpanego. Serwis traktuje ten brak danych jako rekord `NULL`, a nie koniec pliku `ONESHOT`. Przy odczycie bez zapętlania brakujące tokeny ostatniego rekordu stają się `NULL`, a odczytane pola zachowują wartości. Te przypadki sprawdza `ut_facctxtsrc`.
+
 ```rql
 DECLARE pomiar INTEGER STREAM burst, 0.1 BINFILE 'dane.dat' ONESHOT
 ```

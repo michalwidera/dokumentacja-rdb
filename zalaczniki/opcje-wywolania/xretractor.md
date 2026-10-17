@@ -172,7 +172,7 @@ W tym trybie dostępne są opcje tworzenia diagramów i zrzutów diagnostycznych
 | `rules` | Dołącza reguły alarmowania do wykresu. |
 | `hideruleprog` | Ukrywa programy opisujące warunki alarmowania (używane razem z `rules`). |
 | `transparent` | Generuje wykres z przezroczystym tłem. |
-| `diagram` | Generuje diagramy kulkowe. Argument w postaci `typ:ilość_cykli`: `typ` (`0` lub `1`) określa, czy diagramy prezentują znaczniki czasu; `ilość_cykli` określa liczbę cykli na diagramie. |
+| `diagram` | Generuje diagramy kulkowe. Argument `typ[:ilość_cykli]`: `0` wyłącza siatkę czasu, `1` ją włącza; dodatnia całkowita liczba cykli domyślnie wynosi `1`. Cały argument musi być poprawną liczbą lub parą liczb; błędny typ, pusta część po dwukropku i niedodatnia liczba cykli dają błąd argumentu. Pusty plan i liczba cykli powodująca przepełnienie siatki również są odrzucane. |
 | `shmbudget` | Raportuje stałą rezerwację IPC, pojemność i wolne miejsce systemu plików `shm_open` (zwykle `/dev/shm`) oraz koszt jednej kolejki klienta dla każdej delty planu. Pozwala oszacować liczbę równoczesnych subskrypcji przed uruchomieniem serwera. |
 | `config` | Wskazuje jawny plik TOML także w trybie `-c`; ustawienia retencji i budżetu historii obowiązują podczas kompilacji. |
 
