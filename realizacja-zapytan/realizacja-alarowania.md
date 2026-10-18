@@ -166,7 +166,7 @@ Bez klauzuli `RETENTION` każde wyzwolenie reguły zapisuje zrzut pod jedną naz
 
 Nazwa pliku musi wskazywać jedną regułę. Plan, w którym dwie reguły `DO DUMP` mają ten sam rdzeń `<strumień>_<reguła>` - np. reguła `b_c` na strumieniu `a` i reguła `c` na strumieniu `a_b` - jest odrzucany przy wczytywaniu, a reguła dołączana ad hoc z takim rdzeniem dostaje odmowę. Porównanie nie rozróżnia wielkości liter, bo na systemie plików nieczułym na nią (domyślnie macOS) `Ab_r` i `ab_R` to ten sam plik, a poprawność planu nie może zależeć od hosta. Autor planu zmienia wtedy nazwę reguły albo strumienia.
 
-Plik zrzutu zawsze powstaje od nowa. Silnik kasuje to, co leży pod jego nazwą - także dowiązanie symboliczne albo twarde, za którym nie podąża - i tworzy nowy plik na wyłączność (`O_EXCL | O_NOFOLLOW`). Zapis nie trafia więc do celu dowiązania podstawionego pod końcową nazwę zrzutu. Ta ochrona nie obejmuje podmiany katalogów nadrzędnych podczas rozwiązywania ścieżki; nie jest gwarancją atomowego ograniczenia zapisu do katalogu magazynu. Proces, który trzymał poprzedni zrzut otwarty, nadal widzi jego dawną zawartość. Gdy pliku nie da się utworzyć, silnik kończy pracę błędem krytycznym z nazwą pliku i przyczyną.
+Plik zrzutu zawsze powstaje od nowa. Silnik kasuje to, co leży pod jego nazwą - także dowiązanie symboliczne albo twarde, za którym nie podąża - i tworzy nowy plik na wyłączność (`O_EXCL | O_NOFOLLOW`). Zapis nie trafia więc do celu dowiązania podstawionego pod końcową nazwę zrzutu. Ta ochrona nie obejmuje podmiany katalogów nadrzędnych podczas rozwiązywania ścieżki; nie jest gwarancją atomowego ograniczenia zapisu do katalogu magazynu. Proces, który trzymał poprzedni zrzut otwarty, nadal widzi jego dawną zawartość. Błąd usunięcia, utworzenia lub pozycjonowania pliku zrzutu jest błędem I/O: `xretractor` kończy wykonanie z klasą środowiska K4 i kodem `EIO` (`5` na Linuksie), podając nazwę pliku i przyczynę. Plik planu usługi pozostaje zachowany; zasady opisuje [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#odmowa-planu-a-awaria-środowiska).
 
 Zadania zrzutu czekają w kolejce `bookOfTasks`, jednej na strumień i wspólnej dla wszystkich jego reguł `DO DUMP`. Kolejka nie ma własnej pojemności i nie wypycha zadań: zadanie kończy się po zebraniu całego zakresu albo wtedy, gdy ta sama reguła odtworzy jego plik. Po utworzeniu nowego pliku `registerTask()` usuwa z kolejki wcześniejsze zadania piszące pod tę samą nazwę, a destruktor `dumpTask` zamyka ich deskryptory. Zastąpione zadanie nie pisze więc do pliku odłączonego od katalogu, a pod każdą nazwą zbiera dane tylko najnowsze wyzwolenie.
 
@@ -187,6 +187,12 @@ $ xtrdb
 > list
 > quit
 ```
+
+### Pełny zapis rekordu i błędy I/O
+
+Zarówno przy kopiowaniu historii, jak i dopisywaniu bieżących próbek silnik ponawia `write()` do zapisania całego rekordu. Dodatni wynik krótszy od rozmiaru rekordu oznacza postęp, po którym zapisywane są pozostałe bajty. `EINTR` dopuszcza najwyżej pięć kolejnych ponowień; zapisanie kolejnych bajtów zeruje ten licznik. Licznik pozostałych rekordów zadania zmniejsza się dopiero po zapisaniu pełnego rekordu (#479).
+
+Zapis bez postępu (`write()` zwracające `0`) daje `Errc::IO` z `errno=EIO`; inny błąd zapisu zachowuje przyczynę systemową, np. `ENOSPC`, a wyczerpanie ponowień po przerwaniu zachowuje `EINTR`. Komunikat wskazuje ścieżkę oraz liczbę zapisanych bajtów wobec rozmiaru rekordu. `xretractor` kończy taki przebieg błędem środowiska K4 z kodem `EIO` i zachowuje plik planu usługi. Błąd po częściowym zapisie może pozostawić początek rekordu w pliku; zapis nie jest wycofywany. Ukończenie `write()` nie oznacza synchronizacji danych na trwały nośnik. Testy `ut_dumpManager` obejmują zapis w częściach z `EINTR`, brak postępu, `ENOSPC`, limit ponowień oraz błędy pozycjonowania i zapisu historii.
 
 ### Kontrakt zrzutu: same wartości, bez NULL i bez przerw
 
