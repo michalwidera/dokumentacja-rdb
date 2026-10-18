@@ -44,13 +44,15 @@ Słowa `BINFILE`, `TEXTFILE`, `DEVICE` i `TIMEOUT` są zastrzeżone - żaden str
 
 ### Kontrola rodzaju pliku
 
-Przed startem planu - także przy przeładowaniu planu (`xqry --reset`) i imporcie ad hoc (`xqry -a`) - system sprawdza rodzaj pliku pod ścieżką każdej deklaracji, bez otwierania go. Ścieżka niewłaściwego rodzaju (katalog, urządzenie blokowe, gniazdo, FIFO dla `BINFILE`/`TEXTFILE`, zwykły plik dla `DEVICE`) daje odmowę planu z nazwą strumienia i ścieżką, np.:
+Przed startem planu - także przy przeładowaniu planu (`xqry --reset`) i imporcie ad hoc (`xqry -a`) - system sprawdza rodzaj pliku i prawo odczytu pod ścieżką deklaracji, bez otwierania źródła. Import ad hoc sprawdza tylko nowo dodawane strumienie. Ścieżka niewłaściwego rodzaju (katalog, urządzenie blokowe, gniazdo, FIFO dla `BINFILE`/`TEXTFILE`, zwykły plik dla `DEVICE`) daje odmowę planu z nazwą strumienia i ścieżką, np.:
 
 ```
 xretractor: stream 'src': BINFILE 'feed.fifo' is a FIFO, not a regular file
 ```
 
-Ścieżka, której nie ma, nie jest odmową: strumień daje wtedy rekordy `NULL`. Widoczność ostrzeżeń odczytu zależy od trybu budowania, jak opisano poniżej dla `DEVICE`. Kompilacja w trybie `-c` tej kontroli nie wykonuje - nie musi biec na maszynie z danymi.
+Brak źródła (`ENOENT`, a przy składniku ścieżki niebędącym katalogiem `ENOTDIR`) lub brak prawa odczytu (`EACCES`) zatrzymuje start błędem środowiska K4. Dotyczy to `BINFILE`, `TEXTFILE` i `DEVICE`, z opcją `--until-eof` (`-u`) i bez niej. Kod procesu to `EIO` (`5` na Linuksie), a komunikat podaje strumień, ścieżkę i przyczynę systemową, także w kompilacji `Release`. Odmowa tej kontroli pozostawia dotychczasowe artefakty bez zmian. Szczegóły kodów i polityki pliku usługi opisuje [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#odmowa-planu-a-awaria-środowiska).
+
+Nieudane otwarcie źródła po pomyślnej kontroli również kończy wykonanie błędem K4, np. gdy plik zniknie przed budową modelu. Kompilacja w trybie `-c` nie sprawdza istnienia ani uprawnień źródeł - nie musi biec na maszynie z danymi. Regresja `it_untileof_stop-missing-sources` obejmuje odmowę przed startem i późne nieudane otwarcie dla wszystkich trzech rodzajów źródeł.
 
 ## Odczyt źródła DEVICE i TIMEOUT
 

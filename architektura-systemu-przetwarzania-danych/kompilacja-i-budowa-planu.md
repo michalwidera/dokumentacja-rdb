@@ -28,7 +28,7 @@ Na ekranie wyświetli się następująca odpowiedź systemu:
 {{#include ../regen/out/plan-basic.txt}}
 ```
 
-Pominięcie parametru `-c` powoduje kompilację i próbę uruchomienia planu. Brak pliku źródłowego `datafile1.dat` sam w sobie nie odrzuca planu: źródło zwraca wtedy rekordy `NULL`. Start wymaga jednak istniejącego katalogu magazynu i poprawnych zachowanych deskryptorów; kontrole i kody odmowy opisuje [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#odmowa-planu-a-awaria-środowiska).
+Pominięcie parametru `-c` powoduje kompilację i próbę uruchomienia planu. Brak pliku źródłowego `datafile1.dat` zatrzymuje start błędem środowiska K4, z kodem `EIO` (`5` na Linuksie) oraz nazwą strumienia, ścieżką i przyczyną w komunikacie. Samo `-c` nie wymaga obecności danych wejściowych. Start wymaga także istniejącego katalogu magazynu i poprawnych zachowanych deskryptorów; kontrole i kody odmowy opisuje [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#odmowa-planu-a-awaria-środowiska).
 
 Oprócz przeglądu tekstowego możemy obejrzeć również pliki kompilacji w postaci graficznej. Do tego celu należy wywołać następujący ciąg poleceń:
 

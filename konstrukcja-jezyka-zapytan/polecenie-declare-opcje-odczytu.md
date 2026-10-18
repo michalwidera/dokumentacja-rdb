@@ -17,6 +17,8 @@ Bez `ONESHOT` plik czytany jest w nieskończonej pętli - po osiągnięciu końc
 
 Pusty `TEXTFILE` w trybie zapętlonym nie dostarcza rekordu także po przewinięciu. Akcesor już przy pierwszym odczycie zwraca `EIO` z wyzerowanymi bajtami i wszystkimi polami `NULL`; nie oznacza źródła jako wyczerpanego. Serwis traktuje ten brak danych jako rekord `NULL`, a nie koniec pliku `ONESHOT`. Przy odczycie bez zapętlania brakujące tokeny ostatniego rekordu stają się `NULL`, a odczytane pola zachowują wartości. Te przypadki sprawdza `ut_facctxtsrc`.
 
+Przy błędzie odczytu obsługiwanym rekordem `NULL` bufor `SourceBuffer` zapisuje ostrzeżenie `Read failure from declared source` tylko przy pierwszym takim błędzie danego źródła. Kolejne takty nie powtarzają wpisu. Ostrzeżenie ma poziom `WARN`, wyłączony podczas kompilacji `Release`; regułę sprawdza `ut_sourceBuffer`.
+
 ```rql
 DECLARE pomiar INTEGER STREAM burst, 0.1 BINFILE 'dane.dat' ONESHOT
 ```
@@ -30,6 +32,8 @@ DECLARE probka INTEGER STREAM nagranie, 1/100 DEVICE '/tmp/nagranie.fifo' ONESHO
 ```
 
 Opcja `--until-eof` (`-u`) programu `xretractor` czyta wszystkie źródła tak, jakby każda deklaracja niosła `ONESHOT`, i zatrzymuje przetwarzanie po wyczerpaniu pierwszego z nich. Przy źródle `DEVICE` wyczerpanie jest sprawdzane przed slotem, który dostałby rekord `NULL` zza końca danych, więc taki rekord nie trafia do żadnego strumienia.
+
+Źródło musi przejść [kontrolę dostępności](polecenie-declare.md#kontrola-rodzaju-pliku) przed wykonaniem. Brak pliku lub nieudane otwarcie kończy przebieg błędem środowiska K4 i kodem `EIO`, także z `--until-eof`. Poprawnie otwarte FIFO bez pisarza podlega opisanej wyżej regule oczekiwania na pierwsze dane.
 
 ## DISPOSABLE
 
