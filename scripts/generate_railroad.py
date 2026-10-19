@@ -59,6 +59,7 @@ DIAGRAMS = [
     ("declare_statement", "railroad-declare.svg"),
     ("rule_statement", "railroad-rule.svg"),
     (("compiler_option", "default_statement"), "railroad-dyrektywy.svg"),
+    ("let_statement", "railroad-let.svg"),
 ]
 
 # Reguły wstawiane wprost do diagramu nadrzędnego (zamiast prostokąta
@@ -72,6 +73,11 @@ INLINE_RULES = {
     "dumppart",
     "systempart",
 }
+
+# Reguły liczby całkowitej, która może być literałem albo stałą LET (retractordb #440).
+# Na diagramie są wyborem dwóch gałęzi: dotychczasowej etykiety miejsca (np. "N",
+# "pojemność") albo liczby, i odwołania do stałej "?stała".
+CONST_RULES = {"int_const"}
 
 # Maksymalna szerokość wiersza diagramu (px). Sekwencja szersza niż ta wartość
 # jest łamana na kolejne wiersze (railroad.Stack) - inaczej diagram polecenia
@@ -111,6 +117,7 @@ LANGUAGES = {
             "DECIMAL": "liczba",
             "FLOAT": "liczba",
             "TYPE_PROFILE": "profil",
+            "CONST_REF": "?stała",
         },
         "elements": {
             ("*", "stream_name"): "nazwa",
@@ -126,6 +133,7 @@ LANGUAGES = {
             ("rule_statement", "step_forward"): "kroki_w_przód",
             ("rule_statement", "rule_retnetion"): "segmenty",
             ("rule_statement", "syscmd"): "'polecenie_systemu'",
+            ("let_statement", "name"): "nazwa_stałej",
         },
         "scoped_tokens": {
             ("field_declaration", "ID"): "pole",
@@ -139,6 +147,13 @@ LANGUAGES = {
                 0,
                 Sequence(NonTerminal("licznik"), Terminal("/"), NonTerminal("mianownik")),
                 NonTerminal("liczba"),
+                NonTerminal("?stała"),
+            ),
+            # let_value : '-'? (DECIMAL | FLOAT | DECIMAL '/' DECIMAL) - jak rational_se,
+            # DECIMAL i FLOAT w jednej gałęzi "liczba".
+            "let_value": lambda: Sequence(
+                Optional(Terminal("-")),
+                Choice(0, NonTerminal("liczba"), Sequence(NonTerminal("licznik"), Terminal("/"), NonTerminal("mianownik"))),
             ),
         },
     },
@@ -156,6 +171,7 @@ LANGUAGES = {
             "DECIMAL": "number",
             "FLOAT": "number",
             "TYPE_PROFILE": "profile",
+            "CONST_REF": "?constant",
         },
         "elements": {
             ("*", "stream_name"): "name",
@@ -171,6 +187,7 @@ LANGUAGES = {
             ("rule_statement", "step_forward"): "steps_forward",
             ("rule_statement", "rule_retnetion"): "segments",
             ("rule_statement", "syscmd"): "'system_command'",
+            ("let_statement", "name"): "constant_name",
         },
         "scoped_tokens": {
             ("field_declaration", "ID"): "field",
@@ -181,6 +198,11 @@ LANGUAGES = {
                 0,
                 Sequence(NonTerminal("numerator"), Terminal("/"), NonTerminal("denominator")),
                 NonTerminal("number"),
+                NonTerminal("?constant"),
+            ),
+            "let_value": lambda: Sequence(
+                Optional(Terminal("-")),
+                Choice(0, NonTerminal("number"), Sequence(NonTerminal("numerator"), Terminal("/"), NonTerminal("denominator"))),
             ),
         },
     },
@@ -470,6 +492,10 @@ class Renderer:
             return Terminal(literal)
         return NonTerminal(self.labels["tokens"].get(name, name))
 
+    def const_item(self, mapped):
+        tokens = self.labels["tokens"]
+        return Choice(0, NonTerminal(mapped or tokens["DECIMAL"]), NonTerminal(tokens["CONST_REF"]))
+
     def conv(self, node):
         kind = node[0]
         if kind == "lit":
@@ -480,6 +506,8 @@ class Renderer:
             _, label, atom = node
             if atom[0] == "tok":
                 return self.token_item(atom[1], label)
+            if atom[0] == "rul" and atom[1] in CONST_RULES:
+                return self.const_item(self.element_label(label))
             rejected = REJECTED_ALTERNATIVES.get((self.entry_rule, label))
             if rejected and atom[0] == "alt":
                 # Alternatywa z jednego tokenu bywa w AST splaszczona do ("tok", NAZWA), bez "seq".
@@ -492,6 +520,8 @@ class Renderer:
             name = node[1]
             if name in self.labels["overrides"]:
                 return self.labels["overrides"][name]()
+            if name in CONST_RULES:
+                return self.const_item(None)
             if name in INLINE_RULES:
                 if name in self.inlining:
                     raise GrammarError(f"rekurencyjne inline reguły {name!r}")

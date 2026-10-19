@@ -6,7 +6,7 @@ RQL to skrót od _RetractorDB Query Language_. Jego składnia jest bardzo podobn
 
 Poprawne zdania w języku RQL na chwilę obecną zaczynają się od kilku słów kluczowych. Najbardziej rozpoznawalne to polecenie zaczynające się od słowa kluczowego SELECT za którym występuje lista atrybutów w postaci wyrażeń algebraicznych. Algebry opartej na liczbach rzeczywistych.
 
-Polecenia zapisuje się w pliku tekstowym. Jego rozszerzenie to zwyczajowo .rql ale dowolne inne też zostanie przyjęte i przetworzone. Plik tekstowy języka RQL zawiera ciąg poleceń zaczynających się od zdefiniowanych słów kluczowych.
+Polecenia zapisuje się w pliku tekstowym. Jego rozszerzenie to zwyczajowo .rql ale dowolne inne też zostanie przyjęte i przetworzone. Plik tekstowy języka RQL zawiera ciąg poleceń zaczynających się od zdefiniowanych słów kluczowych. Polecenie [LET](polecenie-let.md) nadaje nazwy stałym liczbowym, do których kolejne polecenia odwołują się przez `?NAZWA`.
 
 Znak `#` rozpoczyna komentarz tylko wtedy, gdy jest pierwszym niebiałym znakiem wiersza. Cały taki wiersz, także wcięty, jest pomijany przed parsowaniem. W wyrażeniu `FROM` znak `#` zawsze oznacza przeplot, niezależnie od spacji. Komentarz na końcu wiersza rozpoczyna się od `//`; dostępne są również komentarze blokowe `/* ... */`.
 

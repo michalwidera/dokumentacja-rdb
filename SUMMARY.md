@@ -29,6 +29,7 @@
     * [Konstrukcja mechanizmu](konstrukcja-jezyka-zapytan/polecenie-rule/alarmowanie.md)
     * [Warunek logiczny](konstrukcja-jezyka-zapytan/polecenie-rule-warunek-logiczny.md)
     * [Przykład alarmowania](konstrukcja-jezyka-zapytan/polecenie-rule/przyklad-alarmowania.md)
+  * [Polecenie LET](konstrukcja-jezyka-zapytan/polecenie-let.md)
   * [Dyrektywy konfiguracyjne](konstrukcja-jezyka-zapytan/dyrektywy-konfiguracyjne.md)
 * [Architektura systemu](architektura-systemu-przetwarzania-danych/README.md)
   * [Perspektywa ogólna](architektura-systemu-przetwarzania-danych/schemat-architektury.md)

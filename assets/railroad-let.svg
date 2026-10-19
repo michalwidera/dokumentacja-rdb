@@ -1,0 +1,57 @@
+<svg class="railroad-diagram" height="101" viewBox="0 0 709.0 101" width="709.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g transform="translate(.5 .5)">
+<g>
+<path d="M20 30v20m10 -20v20m-10 -10h20" /></g><path d="M40 40h10" /><g>
+<path d="M50 40h0.0" /><path d="M659.0 40h0.0" /><g class="terminal ">
+<path d="M50.0 40h0.0" /><path d="M95.5 40h0.0" /><rect height="22" rx="10" ry="10" width="45.5" x="50" y="29"></rect><text x="72.75" y="44">LET</text></g><path d="M95.5 40h10" /><path d="M105.5 40h10" /><g class="non-terminal ">
+<path d="M115.5 40h0.0" /><path d="M237.5 40h0.0" /><rect height="22" width="122" x="115.5" y="29"></rect><text x="176.5" y="44">nazwa_stałej</text></g><path d="M237.5 40h10" /><path d="M247.5 40h10" /><g class="terminal ">
+<path d="M257.5 40h0.0" /><path d="M286.0 40h0.0" /><rect height="22" rx="10" ry="10" width="28.5" x="257.5" y="29"></rect><text x="271.75" y="44">=</text></g><path d="M286.0 40h10" /><path d="M296.0 40h10" /><g>
+<path d="M306.0 40h0.0" /><path d="M659.0 40h0.0" /><g>
+<path d="M306.0 40h0.0" /><path d="M374.5 40h0.0" /><path d="M306.0 40a10 10 0 0 0 10 -10v0a10 10 0 0 1 10 -10" /><g>
+<path d="M326.0 20h28.5" /></g><path d="M354.5 20a10 10 0 0 1 10 10v0a10 10 0 0 0 10 10" /><path d="M306.0 40h20" /><g class="terminal ">
+<path d="M326.0 40h0.0" /><path d="M354.5 40h0.0" /><rect height="22" rx="10" ry="10" width="28.5" x="326" y="29"></rect><text x="340.25" y="44">-</text></g><path d="M354.5 40h20" /></g><g>
+<path d="M374.5 40h0.0" /><path d="M659.0 40h0.0" /><path d="M374.5 40h20" /><g class="non-terminal ">
+<path d="M394.5 40h86.75" /><path d="M552.25 40h86.75" /><rect height="22" width="71" x="481.25" y="29"></rect><text x="516.75" y="44">liczba</text></g><path d="M639.0 40h20" /><path d="M374.5 40a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10" /><g>
+<path d="M394.5 70h0.0" /><path d="M639.0 70h0.0" /><g class="non-terminal ">
+<path d="M394.5 70h0.0" /><path d="M474.0 70h0.0" /><rect height="22" width="79.5" x="394.5" y="59"></rect><text x="434.25" y="74">licznik</text></g><path d="M474.0 70h10" /><path d="M484.0 70h10" /><g class="terminal ">
+<path d="M494.0 70h0.0" /><path d="M522.5 70h0.0" /><rect height="22" rx="10" ry="10" width="28.5" x="494" y="59"></rect><text x="508.25" y="74">/</text></g><path d="M522.5 70h10" /><path d="M532.5 70h10" /><g class="non-terminal ">
+<path d="M542.5 70h0.0" /><path d="M639.0 70h0.0" /><rect height="22" width="96.5" x="542.5" y="59"></rect><text x="590.75" y="74">mianownik</text></g></g><path d="M639.0 70a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10" /></g></g></g><path d="M659.0 40h10" /><path d="M 669.0 40 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g><style>/* <![CDATA[ */
+	svg.railroad-diagram {
+		background-color: transparent;
+	}
+	svg.railroad-diagram path {
+		stroke-width: 2.2;
+		stroke: #000000;
+		fill: none;
+	}
+	svg.railroad-diagram text {
+		font: bold 14px "DejaVu Sans Mono", monospace;
+		text-anchor: middle;
+		fill: #000000;
+	}
+	svg.railroad-diagram text.label {
+		text-anchor: start;
+	}
+	svg.railroad-diagram text.comment {
+		font: italic 12px "DejaVu Sans Mono", monospace;
+	}
+	svg.railroad-diagram rect {
+		stroke-width: 2.2;
+		stroke: #000000;
+		fill: #d7f4d7;
+	}
+	svg.railroad-diagram rect.group-box {
+		stroke: gray;
+		stroke-dasharray: 10 5;
+		fill: none;
+	}
+	svg.railroad-diagram g.non-terminal rect {
+		fill: #ffffff;
+	}
+	svg.railroad-diagram g.non-terminal text {
+		font-style: italic;
+		font-weight: normal;
+	}
+
+/* ]]> */
+</style></svg>
