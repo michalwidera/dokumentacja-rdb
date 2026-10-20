@@ -141,7 +141,7 @@ Parametry zakresu:
 
 Całkowita liczba zrzucanych rekordów: `abs(step_forward - step_back)`. Przykład: `DUMP -5 TO 5` → 10 rekordów (5 historycznych + 5 kolejnych). `DUMP 0 TO 1` → 1 rekord (bieżąca próbka).
 
-Granica `step_back` musi być ściśle mniejsza od `step_forward`. Równe lub odwrócone granice są odrzucane przez parser, także przy dołączaniu reguły ad hoc. Wartość `step_back` może być ujemna (historia) lub nieujemna (opóźnienie). Obie wartości ujemne nie są obsługiwane.
+Granica `step_back` musi być ściśle mniejsza od `step_forward`. Równe lub odwrócone granice są odrzucane przez parser, także przy dołączaniu reguły ad hoc. Wartość `step_back` może być ujemna (historia) lub nieujemna (opóźnienie). Obie granice mogą być ujemne: `DUMP -5 TO -2` zapisuje trzy rekordy o pozycjach `t-5`, `t-4` i `t-3` względem rekordu wyzwalającego `t`. Prawa granica jest wyłączona; ten zakres nie obejmuje rekordu bieżącego ani przyszłych.
 
 ### Pliki zrzutu
 

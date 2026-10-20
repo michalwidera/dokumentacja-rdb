@@ -12,7 +12,7 @@ W tym rozdziale chcę wyjaśnić, jak rozwiązałem problemy syntaktyczne, któr
 
 Wejście kompilatora - tekst w języku RQL zawierający instrukcje `DECLARE`, `SELECT` i `RULE` oraz dyrektywy konfiguracyjne (np. `:STORAGE`). Parser ANTLR4 czyta plik instrukcja po instrukcji.
 
-Kolejność `DECLARE` i `SELECT` w pliku nie ma znaczenia: zapytanie może odwoływać się do strumienia zdefiniowanego niżej, bo zależności między strumieniami rozwiązuje dopiero kompilator. Wyjątkiem jest `RULE` - parser przypina regułę do strumienia już wczytanego, więc reguła musi stać po definicji swojego strumienia; w przeciwnym razie parser zgłasza błąd `Rule '…' refers to stream '…', but no such stream is defined`. Odwołanie do strumienia, którego w pliku nie ma wcale, przerywa kompilację błędem `Referenced Stream in QUERY _not found_ in CORE TREE`.
+Kolejność `DECLARE` i `SELECT` w pliku nie ma znaczenia: zapytanie może odwoływać się do strumienia zdefiniowanego niżej, bo zależności między strumieniami rozwiązuje dopiero kompilator. Wyjątkiem jest `RULE` - parser przypina regułę do strumienia już wczytanego, więc reguła musi stać po definicji swojego strumienia; w przeciwnym razie parser zgłasza błąd `Rule '…' refers to stream '…', but no such stream is defined`. Odwołanie do strumienia, którego w pliku nie ma wcale, daje kontrolowaną odmowę, np. `Check result:Stream 'dst' reads from 'absent', which is not defined in the plan`. `xretractor -c` kończy się wtedy kodem 71 na Linuksie.
 
 ### Parser ANTLR4 → `qTree`
 

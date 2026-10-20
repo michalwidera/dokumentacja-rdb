@@ -18,20 +18,21 @@ DECLARE val INTEGER STREAM src, 1 TEXTFILE 'data.txt'
 
 ## Tumbling window - okna bez nakładania
 
-Skok równy rozmiarowi okna: `k = w`. Każdy element wejściowy należy dokładnie do jednego okna wyjściowego.
+Skok równy rozmiarowi okna: `k = w`. Kolejne emitowane okna są rozłączne. Ich faza wynika ze stemplowania końcem okna, więc początkowy fragment wejścia może poprzedzać pierwsze pełne okno.
 
 ```rql
 SELECT * STREAM tumbling FROM src@(4,4)
 ```
 
-Interwał wyjściowy: `1s × 4 / 1 = 4s`. Rekordy wyjściowe:
+Interwał wyjściowy: `1s × 4 / 1 = 4s`. Dwa pierwsze rekordy wyjściowe:
 
 ```
-$ xqry -s tumbling
-1  2  3  4
-5  6  7  8
-9 10 11 12
+$ xqry --null -s tumbling
+5 4 3 2
+9 8 7 6
 ```
+
+Pierwszy rekord ma indeks logiczny 1 i obejmuje pozycje źródła 1..4, czyli wartości 2..5. Dodatnia szerokość umieszcza najnowszą wartość na początku rekordu. Próbka 1 leży przed pierwszym pełnym oknem tego podziału.
 
 Zastosowania: agregacja próbek w stałych przedziałach czasu (np. minutowe, godzinowe).
 
@@ -46,11 +47,11 @@ SELECT * STREAM sliding FROM src@(1,4)
 Interwał wyjściowy: `1s × 1 / 1 = 1s`. Rekordy wyjściowe:
 
 ```
-$ xqry -s sliding
-1  2  3  4
-2  3  4  5
-3  4  5  6
-4  5  6  7
+$ xqry --null -s sliding
+4 3 2 1
+5 4 3 2
+6 5 4 3
+7 6 5 4
 ...
 ```
 
@@ -67,7 +68,7 @@ SELECT * STREAM sampled FROM src@(3,1)
 Interwał wyjściowy: `1s × 3 / 1 = 3s`. Rekordy wyjściowe:
 
 ```
-$ xqry -s sampled
+$ xqry --null -s sampled
 1
 4
 7
@@ -87,15 +88,15 @@ SELECT * STREAM mirrored FROM src@(2,-2)
 Interwał wyjściowy: `1s × 2 / 1 = 2s`. Rekordy wyjściowe (kolejność pól odwrócona):
 
 ```
-$ xqry -s mirrored
-2  1
-4  3
-6  5
-8  7
+$ xqry --null -s mirrored
+2 3
+4 5
+6 7
+8 9
 ...
 ```
 
-Porównaj z `src@(2,2)`, które dałoby `1 2`, `3 4`, `5 6`… - kolejność zgodna z napływem. Agregacja lustrzana jest niezbędna przy odwracaniu serializacji (deserializacja), jak opisano w [przykładzie serializacji](przyklad-serializacji.md).
+Porównaj z `src@(2,2)`, które dałoby `3 2`, `5 4`, `7 6` - najnowszą wartość jako pierwszą. Ujemna szerokość zachowuje kolejność napływu, ale nie zmienia fazy podziału na pary. Wyrównanie fazy przy odwracaniu serializacji opisano w [przykładzie serializacji](przyklad-serializacji.md).
 
 ## Zestawienie wzorców
 

@@ -245,19 +245,20 @@ def sum(A: list, deltaA: Fraction, B: list, deltaB: Fraction):
 
 def diff(C: list, deltaA: Fraction, deltaB: Fraction):
   result = []
-  deltaC = min(deltaA, deltaB)
   for i in range(0, 10):
       if deltaA > deltaB:
           result.append(C[int(ceil(i*deltaA/deltaB))])
       else:
           result.append(C[i])
-  return result, deltaC
+  return result, deltaA
 
 def main():
     sum_result, delta_sum = sum(A, deltaA, B, deltaB)
     diff_result, delta_diff = diff(sum_result, deltaA, deltaB)
+    slow_result, delta_slow = diff(sum_result, deltaB, deltaA)
     print("Sum:", sum_result[0:10], " deltaSum:", delta_sum)
     print("Diff(Sum):", diff_result[0:10], " deltaDiff:", delta_diff)
+    print("Diff(Sum, slower):", slow_result[0:10], " deltaDiff:", delta_slow)
 
 if __name__ == '__main__':
     main()
@@ -271,12 +272,15 @@ if __name__ == '__main__':
 $ python diff.py
 Sum: ['1a', '2a', '3b', '4b', '5c', '6c', '7d', '8d', '9e', '10e']  deltaSum: 1/2
 Diff(Sum): ['1a', '2a', '3b', '4b', '5c', '6c', '7d', '8d', '9e', '10e']  deltaDiff: 1/2
+Diff(Sum, slower): ['1a', '3b', '5c', '7d', '9e', '11f', '13g', '15h', '17i', '19j']  deltaDiff: 1
 ```
+
+Funkcja `diff` przyjmuje interwał docelowy jako `deltaA`, a `deltaB` jest interwałem drugiej składowej złączenia. Interwał wejścia `C` wynosi `min(deltaA, deltaB)`. Wynik musi zwracać interwał docelowy, także gdy jest on większy od wejściowego: drugi przykład wybiera co drugi rekord i ma interwał 1, a nie 1/2. Różnica wybiera całe rekordy złączenia; nie usuwa z nich pól drugiej składowej.
 
 
 ### Kody źródłowe
 
-Kody źródłowe przedstawionych przykładów zjadują się w repozytorium projektu w katalogu /examples/python-model/
+Historyczne skrypty modelu znajdują się w repozytorium projektu w katalogu `/examples/python-model/`. Poprawioną funkcję różnicy i jej konwencję interwałów przedstawiają listingi powyżej.
 
 Implementacja w języku javascript możliwa do przetestowania bezpośrednio na stonie:
 

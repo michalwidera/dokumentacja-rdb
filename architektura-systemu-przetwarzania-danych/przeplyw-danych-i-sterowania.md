@@ -48,13 +48,13 @@ Wątek komunikacyjny obiektu `IpcServer` wybranej instancji stale nasłuchuje na
 
 Pętla główna sprawdza `iLoopLimitCnt` przy każdej iteracji. Gdy wykryje wartość `stop_now`, kończy bieżący cykl i wychodzi z pętli - bez przerywania w połowie obliczeń. Zapewnia to integralność zapisywanych artefaktów.
 
-**4. xretractor powiadamia wszystkich podłączonych klientów (broadcast OOB)**
+**4. xretractor próbuje powiadomić podłączonych klientów (broadcast OOB)**
 
-Po wyjściu z pętli xretractor wywołuje `IpcServer::broadcastOutOfBusiness()`. Obiekt IPC przegląda rejestr subskrypcji, w którym polecenie `show` zapisało PID klienta i nazwę strumienia. Dla każdego zarejestrowanego klienta wysyła do jego dedykowanej kolejki komunikat specjalny o wartości `OUT_OF_BUSSINESS`.
+Po wyjściu z pętli xretractor wywołuje `IpcServer::broadcastOutOfBusiness()`. Obiekt IPC przegląda rejestr subskrypcji, w którym polecenie `show` zapisało PID klienta i nazwę strumienia. Dla każdego klienta podejmuje jedną nieblokującą próbę wysłania komunikatu `OUT_OF_BUSSINESS`. Pełna lub uszkodzona kolejka może nie otrzymać znacznika. Niezależnie od wyniku próby serwer usuwa nazwę kolejki i wpis subskrypcji; zamknięcie nie czeka na potwierdzenie odbioru.
 
-**5. Każdy klient xqry odbiera sygnał zakończenia i kończy działanie**
+**5. Klient xqry kończy działanie po znaczniku lub po upływie limitu ciszy**
 
-Każda subskrypcja xqry ma własną kolejkę zawierającą nazwę serwera i PID klienta. Po odebraniu komunikatu `OUT_OF_BUSSINESS` xqry ustawia wewnętrzną flagę `done` i kończy działanie w kontrolowany sposób - niezależnie od tego, ile danych zdążył odebrać.
+Każda subskrypcja xqry ma własną kolejkę zawierającą nazwę serwera i PID klienta. Po odebraniu komunikatu `OUT_OF_BUSSINESS` xqry ustawia wewnętrzną flagę `done` i kończy działanie w kontrolowany sposób. Jeśli znacznik nie dotarł, klient może zakończyć się dopiero po upływie skonfigurowanego limitu braku danych. Odbiorca nie może traktować dostarczenia znacznika jako gwarancji zamknięcia.
 
 **6. Sprzątanie zasobów IPC**
 
@@ -75,10 +75,10 @@ Proces kończy się statusem 1. Dzięki temu kolejny start nie zastaje osierocon
 RetractorDB jest zaprojektowany do pracy z wieloma równoległymi klientami. Gdy w systemie działają jednocześnie - powiedzmy - trzy procesy xqry subskrybujące różne strumienie, a jeden z nich wywoła `xqry --kill`:
 
 - wskazany xretractor przetworzy żądanie kill **jednorazowo**, niezależnie od tego, który klient je wysłał,
-- mechanizm `IpcServer::broadcastOutOfBusiness()` roześle komunikat `OUT_OF_BUSSINESS` do **wszystkich** zarejestrowanych klientów tej instancji,
-- każdy z trzech procesów xqry otrzyma sygnał zakończenia i zakończy działanie samodzielnie,
+- mechanizm `IpcServer::broadcastOutOfBusiness()` podejmie próbę wysłania `OUT_OF_BUSSINESS` do każdej zarejestrowanej subskrypcji tej instancji,
+- klient, który odbierze znacznik, zakończy działanie; pozostali klienci mogą czekać do upływu limitu ciszy,
 - klienci, którzy nie subskrybowali żadnego strumienia (np. xqry wywołany tylko z `--dir` lub `--hello`), nie są wpisani do mapy i nie muszą być powiadamiani - te polecenia kończą działanie natychmiast po udzieleniu odpowiedzi.
 
 Klienci podłączeni do innych nazwanych instancji nie otrzymują tego komunikatu i pracują dalej.
 
-Warto zwrócić uwagę, że xqry wykrywa również nieaktywność serwera: jeżeli przez 10 sekund nie napłyną żadne dane, klient sam się wyłącza z ostrzeżeniem w logu. Jest to zabezpieczenie na wypadek nagłej awarii xretractor bez możliwości rozesłania komunikatu OOB.
+Limit ciszy klienta określa `timing.query_no_data_timeout_ms` w konfiguracji TOML; domyślnie wynosi 10000 ms. Chroni również przed czekaniem bez końca po awarii serwera lub utracie znacznika OOB podczas zwykłego zamknięcia. Pełny kontrakt odbioru opisują [opcje xqry](../zalaczniki/opcje-wywolania/xqry.md).
