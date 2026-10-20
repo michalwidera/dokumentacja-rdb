@@ -8,6 +8,21 @@ Operandami są literały liczbowe i tekstowe, symbol `$` wewnątrz generatora, o
 
 Podstawowe operatory arytmetyczne to `+`, `-`, `*`, `/` i `^`. Nawiasy zmieniają grupowanie. Operatory `*` i `/` wiążą mocniej niż `+` i `-`, a potęgowanie `^` wiąże najmocniej i jest prawostronnie łączne:
 
+| Priorytet operatorów dwuargumentowych (od najwyższego) | Operatory | Łączność |
+| --- | --- | --- |
+| 1 | `^` | Od prawej: `a^b^c` oznacza `a^(b^c)` |
+| 2 | `*`, `/` | Wspólny priorytet, od lewej: `a/b*c` oznacza `(a/b)*c` |
+| 3 | `+`, `-` | Wspólny priorytet, od lewej: `a-b+c` oznacza `(a-b)+c` |
+
+```rql
+DECLARE v INTEGER, w INTEGER STREAM source, 1 TEXTFILE 'source.txt'
+SELECT v-w+1, v/w*2 STREAM precedence FROM source
+```
+
+Dla wiersza wejściowego `12 3` wynik to `10, 8`. Równe priorytety w obu parach obowiązują od poprawki #554. Wcześniej `+` wiązał mocniej niż `-`, a `*` mocniej niż `/`: powyższe pola dawały `8, 2`. Jeśli zamierzone jest dawne grupowanie, trzeba zapisać je jawnie: `v-(w+1)` i `v/(w*2)`.
+
+Przykłady potęgowania:
+
 ```rql
 SELECT v*w^2, v^w^2, (v*w)^2 STREAM powers FROM source
 ```

@@ -13,6 +13,14 @@ Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewal
 | `>=`     | większy lub równy |
 | `<=`     | mniejszy lub równy |
 
+Pojedyncze porównanie ma dwa operandy skalarne. Łańcuchy takie jak `0 < pomiary[0] < 10`, `0 <= pomiary[0] < 10` lub `pomiary[0] = 1 = 1` są błędami składni; parser wskazuje drugi operator porównania. Zakres zapisuje się przez dwa porównania połączone `AND`:
+
+```rql
+RULE zakres ON pomiary WHEN 0 < pomiary[0] AND pomiary[0] < 10 DO DUMP -1 TO 0
+```
+
+Odrzucanie łańcuchów obowiązuje od poprawki #555. Starszy parser przyjmował je i używał wyniku porównania jako operandu kolejnego porównania; nie sprawdzał w ten sposób zakresu.
+
 ## Spójniki logiczne
 
 | Operator | Znaczenie |
@@ -20,6 +28,12 @@ Klauzula `WHEN` polecenia `RULE` przyjmuje wyrażenie logiczne, które jest ewal
 | `AND`    | koniunkcja - oba warunki muszą być spełnione |
 | `OR`     | alternatywa - wystarczy jeden warunek        |
 | `NOT`    | negacja - warunek musi być niespełniony      |
+
+Priorytety w `WHEN`, od najwyższego do najniższego, to: arytmetyka, porównanie, `NOT`, `AND`, `OR`. `NOT pomiary[0] < 0` neguje wynik całego porównania `pomiary[0] < 0`; dla wartości obecnej warunek jest prawdziwy, gdy pole jest nieujemne. W `NOT pomiary[0] < 0 AND pomiary[0] > 5` negacja dotyczy pierwszego porównania, a oba warunki łączy `AND`. `AND` wiąże mocniej niż `OR`.
+
+Od poprawki #555 `NOT` należy wyłącznie do warunku `WHEN`. Nie można używać go jako operatora pola w `SELECT` ani wewnątrz arytmetyki, np. `pomiary[0] + NOT pomiary[0]`. Wcześniej `NOT pomiary[0] < 0` negowało samo pole, a dopiero potem porównywało wynik z zerem, przez co warunek nigdy nie był prawdziwy.
+
+Gramatyka nie obsługuje nawiasów grupujących warunki logiczne ani porównania. Nawiasy mogą grupować wyrażenia arytmetyczne po obu stronach porównania, np. `(pomiary[0]+1) < 10`. Złożone warunki należy zapisywać z uwzględnieniem powyższych priorytetów.
 
 Warunek z samym polem `STRING` jest prawdziwy, gdy napis nie jest pusty. Porównanie napisów i `NOT` nad napisem zwracają `INTEGER` 1 albo 0. `AND` i `OR` używają typu lewego operandu, a jeśli jest on `NULL` - prawego; wynik oparty na napisie jest `INTEGER`. Dlatego `WHEN NOT status[0]` jest prawdziwe dla pustego napisu, a fałszywe porównanie napisu nie uruchamia reguły przez `OR`. Wartość `NULL` nadal podlega trójwartościowej logice warunku.
 
