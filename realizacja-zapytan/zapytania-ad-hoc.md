@@ -34,7 +34,7 @@ $ xqry --server pomiary -a "DECLARE a BYTE STREAM C, 1 TEXTFILE 'data3.txt'"
 
 Dołączanie pierwszej deklaracji do serwera uruchomionego z pustym planem nie jest jeszcze obsługiwane; kanał ad hoc wymaga aktywnego modelu danych.
 
-Reguła dołączana w locie może wykonywać wyłącznie `DO DUMP`. `DO SYSTEM` pozostaje dostępne tylko w pliku planu, z którego instancja startuje, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Ta sama granica obowiązuje na kanale `xqry --reset`, który też przenosi pełny plan, ale też nie niesie autorstwa: plan z regułą `DO SYSTEM` jest tam odrzucany w całości, chyba że operator świadomie ustawi `service.unrestricted = true` (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Kanał ad hoc odmawia bezwarunkowo i tego klucza nie czyta. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`.
+Reguła dołączana w locie może wykonywać `DO DUMP` albo `DO SET`. `DO SYSTEM` pozostaje dostępne tylko w pliku planu, z którego instancja startuje, ponieważ udostępnienie go przez IPC pozwalałoby klientowi wykonywać dowolne polecenia powłoki na koncie serwera. Ta sama granica obowiązuje na kanale `xqry --reset`, który też przenosi pełny plan, ale też nie niesie autorstwa: plan z regułą `DO SYSTEM` jest tam odrzucany w całości, chyba że operator świadomie ustawi `service.unrestricted = true` (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Kanał ad hoc odmawia bezwarunkowo i tego klucza nie czyta. Cel `ON` musi być istniejącym strumieniem utworzonym przez `SELECT`.
 
 Przy historycznym zakresie `DUMP -H TO M` warunek `WHEN` jest oceniany najwcześniej na rekordzie `H+1` po dołączeniu, gdy `H` poprzednich rekordów również pochodzi już z tego okresu. Dla zakresu bez historii (`H=0`) ocena zaczyna się od pierwszego nowego rekordu. Magazyn `MEMORY` musi mieć co najmniej `H+1` slotów; przy `H > 0` i pojemności `N <= H` żądanie jest odrzucane bez dołączenia reguły. Dołączenie nie zwiększa pojemności istniejącego magazynu. Szczegóły opisuje [Realizacja alarmowania](realizacja-alarowania.md#faza-1-dane-historyczne-przy-rejestracji-zadania).
 
@@ -48,6 +48,19 @@ Na strumieniu `MEMORY` powyższy przykład wymaga co najmniej 11 slotów; przy p
 Przy wielu instancjach klient kieruje `SELECT` według właścicieli strumieni z `FROM`, a `RULE` według strumienia z `ON`. Zapytanie łączące źródła z kilku serwerów jest odrzucane. Nowe nazwy strumieni i pliki magazynu są zgłaszane w magistrali przed modyfikacją aktywnego planu, więc ad hoc nie może nadpisać zasobu innej instancji.
 
 Ad hoc powiększa istniejący plan. Do jego pełnego, atomowego zastąpienia - także w instancji bezczynnej - służy `xqry --reset plik.rql`.
+
+### Zmienne planu i DO SET
+
+Ad hoc widzi zmienne `VAR` aktywnego planu: może je czytać w `SELECT` i `WHEN` oraz zapisywać przez dołączoną regułę `DO SET`. Deklaracje `VAR` i `LET` są odrzucane; stałe `LET` z pliku planu nie są widoczne. Dla planu z przykładu [histerezy](../konstrukcja-jezyka-zapytan/polecenie-var.md#histereza) można wysłać:
+
+```bash
+xqry --server pomiary -a "SELECT status[0], ?ALARM STREAM monitor FROM status"
+xqry --server pomiary -a "RULE force_alarm ON status WHEN status[0] >= 300 DO SET ?ALARM = 1"
+```
+
+Reguła zaczyna oceniać warunek od następnego nowego rekordu celu. Jej zapis jest zatwierdzany na końcu slotu, więc staje się widoczny od kolejnego slotu. W konflikcie z regułą planu albo wcześniej dołączoną regułą ad hoc wygrywa później dołączona wyzwolona reguła. Nie ma osobnego klucza konfiguracji dla `SET`; odmowa `DO SYSTEM` pozostaje bez zmian.
+
+Typ prawej strony musi być typem zmiennej. Odmowa nie zmienia wartości ani reguł aktywnego planu. Przyjęte ad hoc zachowuje stan istniejących zmiennych; przyjęty `--reset` tworzy nowy stan z deklaracji i usuwa reguły ad hoc poprzedniego planu. Reguła `SET` może wskazać istniejącą pojedynczą instancję generatora, np. `cell$0`; cała rodzina nie jest celem w żywym planie. Pokrycie: `it_var_adhoc-run`.
 
 ### Kiedy zaczyna się strumień dołożony ad hoc
 

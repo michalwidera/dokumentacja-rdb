@@ -26,11 +26,11 @@ DO SYSTEM polecenie_systemu
 
 _Rys. 8. Diagram składni polecenia RULE_
 
-Diagram składni (railroad) przedstawiony na Rys. 8 został wygenerowany na podstawie reguły `rule_statement` z gramatyki ANTLR4 systemu (`RQL.g4`) i obejmuje obie przedstawione formy polecenia jednym torem: rozgałęzienie za słowem DO prowadzi albo do wariantu DUMP (ze zrzutem okna danych i opcjonalną retencją), albo do wariantu SYSTEM (z poleceniem systemowym w apostrofach). Zaokrąglone zielone pola to słowa kluczowe i symbole wpisywane dosłownie, prostokąty to wartości podawane przez użytkownika; tory omijające znak minus i klauzulę RETENTION oznaczają ich opcjonalność.
+Diagram składni (railroad) przedstawiony na Rys. 8 został wygenerowany z reguły `rule_statement` gramatyki ANTLR4 (`RQL.g4`). Za `DO` są trzy warianty: `DUMP` zapisuje zakres rekordów, `SYSTEM` wykonuje polecenie systemowe, a `SET ?NAZWA = wyrażenie` zleca zmianę zmiennej planu. Zaokrąglone pola oznaczają symbole dosłowne, prostokąty wartości użytkownika, a tory omijające element jego opcjonalność.
 
 Tak zdefiniowane zdarzenia podpinają się do zdefiniowanych strumieni danych. Nazwa reguły musi być unikalna w obrębie strumienia wskazanego przez `ON`; różne strumienie mogą mieć reguły o tej samej nazwie. Strumień danych powinien zostać zdefiniowany przed pojawieniem się polecenia stworzenia reguły w pliku rql.
 
-W obu wersjach polecenia RULE tworzona jest nazwa reguły, warunek logiczny oraz nazwa strumienia do którego proces uruchamiany poleceniem DO jest podłączany. Warunek logiczny powinien odwoływać się do zmiennych dostępnych w schemacie strumienia danych występującego po klauzuli ON.
+W każdej postaci polecenia RULE tworzona jest nazwa reguły, warunek logiczny oraz nazwa strumienia do którego proces uruchamiany poleceniem DO jest podłączany. Warunek może korzystać z pól strumienia wskazanego przez `ON`, stałych `LET` i bieżących wartości `VAR`.
 
 W pierwszej wersji polecenia w której występuje klauzula DO DUMP definiujemy proces, który umożliwia zebranie danych, które napłyną w przyszłości. Jeśli pominiemy klauzulę RETENTION, zrzut nastąpi bezpośrednio do pliku z nazwą reguły poprzedzonej nazwą strumienia. Jeśli dołączymy klauzulę RETENTION, pliki będą podlegały retencji w zakresie zdefiniowanej w parametrze ‘segmenty’. Będą dołączane sekwencyjne numery na końcu każdego zrzutu. Zrzuty są binarne i zachowują schemat wszystkich pól źródłowego strumienia danych. Tutaj na uwagę powinno zasługiwać to, że polecenie tworzy proces w systemie, który po pojawieniu się warunku logicznego którego wartość powinna być prawdą – pobiera dane z przeszłości oraz zakłada ich napływ i rejestrację w przyszłości. Nic nie stoi na przeszkodzie aby jednak zebrać dane tylko z przeszłości lub tylko z przyszłości. Jeśli wartości kroki\_\* przyjmą wartości ujemne to odnosimy się do przeszłości (tzn. do danych historycznych w stosunku do momentu wystąpienia zdarzenia opisanego warunkiem logicznym)
 
@@ -62,11 +62,12 @@ WHEN <warunek>
 DO <akcja>
 ```
 
-Gdzie `<akcja>` może przyjąć jedną z dwóch form:
+Gdzie `<akcja>` jest dokładnie jedną z trzech form:
 
-```rql
+```text
 SYSTEM '<polecenie_systemowe>'
-DUMP [-]<krok_wstecz> TO [-]<krok_wprzód> [RETENTION <n>]
+DUMP [-]<krok_wstecz> TO [-]<krok_w_przód> [RETENTION <n>]
+SET ?NAZWA = <wyrażenie_skalarne>
 ```
 
 ### Ograniczenie
@@ -104,7 +105,22 @@ DO SYSTEM 'curl -s http://monitoring/alert'
 
 W poleceniu można użyć dowolnego programu dostępnego w `PATH`: skryptów powłoki, programów Pythona, wywołań REST, wysyłki powiadomień, etc.
 
-Regułę `DO SYSTEM` wolno zamówić **tylko w pliku planu**, z którego instancja startuje - autorem tego pliku jest ten, kto uruchamia usługę. Oba kanały IPC odmawiają: `xqry --adhoc` przyjmuje z reguł wyłącznie `DO DUMP`, a `xqry --reset` odrzuca cały plan zawierający `DO SYSTEM`, bo kanał ten nie niesie autorstwa (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Operator, który świadomie oddaje kanał reset, ustawia `service.unrestricted = true` w konfiguracji TOML (→ [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#plik-konfiguracyjny-toml)).
+Regułę `DO SYSTEM` wolno zamówić **tylko w pliku planu**, z którego instancja startuje - autorem tego pliku jest ten, kto uruchamia usługę. Oba kanały IPC odmawiają: `xqry --adhoc` przyjmuje reguły `DO DUMP` i `DO SET`, a `xqry --reset` odrzuca cały plan zawierający `DO SYSTEM`, bo kanał ten nie niesie autorstwa (→ [xqry](../zalaczniki/opcje-wywolania/xqry.md#reguła-do-system-nie-przechodzi-tym-kanałem)). Operator, który świadomie oddaje kanał reset, ustawia `service.unrestricted = true` w konfiguracji TOML (→ [xretractor](../zalaczniki/opcje-wywolania/xretractor.md#plik-konfiguracyjny-toml)).
+
+## Akcja DO SET
+
+`DO SET ?NAZWA = wyrażenie` zapisuje zmienną zadeklarowaną przez `VAR`. Prawa strona jest wyrażeniem skalarnym nad bieżącym rekordem `ON`, stałymi `LET` i zmiennymi planu; jej typ musi być typem zmiennej. Stała `LET` nie może być celem. NULL zastępuje poprzednią wartość.
+
+```rql
+VAR COUNT = 0
+DECLARE x INTEGER STREAM src, 1 TEXTFILE 'signal.txt'
+SELECT src[0], ?COUNT STREAM counted FROM src
+RULE tick ON counted WHEN 1 = 1 DO SET ?COUNT = ?COUNT + 1
+```
+
+Rekord `counted` pokazuje stan licznika sprzed slotu. Zapis jest buforowany i widoczny od następnego slotu. Przy kilku zapisach tej samej zmiennej wygrywa ostatnia wyzwolona reguła w kolejności tekstowej. Jedna reguła wykonuje jedną akcję; do połączenia `SET` i `DUMP` potrzebne są dwie reguły z tym samym warunkiem.
+
+Reguła `SET` na całej rodzinie generatora jest odrzucana. Szczegóły kontekstów, typów, ad hoc i resetu oraz przykłady histerezy i uc10 zawiera rozdział [VAR i DO SET](polecenie-var.md).
 
 ## Akcja DO DUMP
 

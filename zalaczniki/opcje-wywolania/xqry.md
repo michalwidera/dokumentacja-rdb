@@ -21,8 +21,10 @@ Allowed options:
   -l [ --hello ]                 diagnostic - hello db world
   -k [ --kill ]                  kill xretractor server
   -d [ --dir ]                   list of queries
-  -y [ --yaml ]                  yaml output format for --dir, --detail and
-                                 --bus
+  -v [ --vars ]                  list plan variables (VAR) with their current
+                                 values
+  -y [ --yaml ]                  yaml output format for --dir, --detail, --vars
+                                 and --bus
   -j [ --jsonl ]                 versioned JSON Lines API output
   -i [ --idle-timeout ] arg (=0) JSONL idle timeout in ms; 0 disables
   -r [ --raw ]                   raw output mode (default)
@@ -50,7 +52,7 @@ xqry --server pomiary --select temperatura
 xqry --server pomiary --kill
 ```
 
-Bez tej opcji klient czyta magistralę bieżącej przestrzeni nazw: domyślną `xrdbbus_v7` albo `xrdbbus_v7_<namespace>` przy ustawionym `RDB_NAMESPACE`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`. Zbiorcza lista `--bus` opisana niżej nie zmienia tego routingu.
+Bez tej opcji klient czyta magistralę bieżącej przestrzeni nazw: domyślną `xrdbbus_v7` albo `xrdbbus_v7_<namespace>` przy ustawionym `RDB_NAMESPACE`. Przy jednej żywej instancji wybiera ją automatycznie. Przy kilku instancjach `--select` i `--detail` trafiają do właściciela podanego strumienia. Polecenia dotyczące całej instancji (`--hello`, `--dir`, `--vars`, `--kill`, `--reset`) są niejednoznaczne i wymagają `--server`. Zbiorcza lista `--bus` opisana niżej nie zmienia tego routingu.
 
 Routing ad hoc analizuje źródła z `FROM`, a dla `RULE` strumień z `ON`. Wszystkie muszą należeć do jednego serwera. `DECLARE` nie zawiera adresata, więc przy wielu instancjach również wymaga `--server`. Literówka w nazwie i zapytanie przecinające granicę serwerów są odrzucane przed wysłaniem polecenia.
 
@@ -113,11 +115,46 @@ str1  | 1/30     | 0    | 0     |               | 0
 
 `duration` jest dokładnym interwałem strumienia, `size` rozmiarem zapisanych danych, `count` liczbą rekordów, `location` plikiem źródła, a `cap` pojemnością historii wyliczoną przez kompilator. Dla deklarowanego źródła `size` ma wartość `-1`.
 
-`--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza `--dir`, `--detail` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym poleceniem. Nieznany strumień kończy działanie kodem `2`.
+`--detail strumień` pokazuje oryginalne zapytanie i pola. Modyfikator `--yaml` przełącza `--dir`, `--detail`, `--vars` i `--bus` na dokument `apiVersion: xqry/v1`; nie jest samodzielnym poleceniem. Nieznany strumień kończy działanie kodem `2`.
 
 Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budżet czasu `ipc.client_response_max_fails` obejmuje wysłanie polecenia i odebranie odpowiedzi; pełna kolejka poleceń kończy się odmową po upływie tego terminu. Odpowiedź porzucona przez zabitego klienta może zostać odzyskana bez blokowania kolejnych klientów.
 
 Oczekiwanie na miejsce w kolejce komend używa nieblokujących prób wysłania i wspólnego terminu liczonego zegarem monotonicznym. Chwilowo pełna kolejka może więc przyjąć komendę, jeśli miejsce zwolni się przed terminem; nie jest odrzucana natychmiast. Przypadki obu wyników sprawdza `ut_ipcClient`.
+
+## Zmienne planu: `--vars`
+
+`xqry --server pomiary --vars` (krótko `-v`) wypisuje zmienne `VAR` w kolejności deklaracji:
+
+```text
+name  | type     | value
+------+----------+------
+COUNT | INTEGER  | 42
+GAIN  | FLOAT    | 0.5
+RATIO | RATIONAL | 1/3
+```
+
+`type` to typ z deklaracji, a `value` to wartość zatwierdzona na końcu ostatniego slotu; NULL jest drukowane jako `null`. Odczyt odbywa się między slotami i pokazuje spójny stan wszystkich zmiennych. Przed pierwszym slotem są to wartości z deklaracji. Stałe `LET` nie są listowane.
+
+Z `--yaml` odpowiedź ma postać:
+
+```yaml
+---
+apiVersion: xqry/v1
+variables:
+  - name: COUNT
+    type: INTEGER
+    value: 42
+  - name: GAIN
+    type: FLOAT
+    value: 0.5
+  - name: RATIO
+    type: RATIONAL
+    value: 1/3
+```
+
+Plan bez VAR daje sam nagłówek tabeli i separator, a bezczynna instancja `no active plan`; oba przypadki mają kod 0. W YAML oba zwracają `variables: []`. Brak działającego serwera pozostaje błędem IPC. Przy kilku instancjach podaj `--server`, ponieważ polecenie dotyczy całego planu. `--vars --jsonl` jest odrzucane kodem `22`.
+
+Polecenie tylko czyta; nie ma bezpośredniego przypisania wartości przez `xqry`. Zmiany zleca reguła `DO SET`, także dołączona ad hoc. Przyjęty `--reset` przywraca wartości z deklaracji. Szczegóły opisuje [VAR i DO SET](../../konstrukcja-jezyka-zapytan/polecenie-var.md). Pokrycie: `it_var_xqry-run`.
 
 ## Odbiór danych
 
@@ -216,7 +253,7 @@ Polecenia modyfikujące, `--bus`, YAML, pozostałe formaty wyjścia, `--null` i 
 
 ## Jedno polecenie naraz
 
-`--select`, `--detail`, `--adhoc`, `--reset`, `--dir`, `--bus` i `--hello` są różnymi poleceniami; podanie kilku naraz kończy się kodem `22`. `--kill` może być świadomie połączone z `--select -m N` albo z `--adhoc`, aby zatrzymać serwer po wykonaniu operacji.
+`--select`, `--detail`, `--adhoc`, `--reset`, `--dir`, `--vars`, `--bus` i `--hello` są różnymi poleceniami; podanie kilku naraz kończy się kodem `22`. `--kill` może być świadomie połączone z `--select -m N` albo z `--adhoc`, aby zatrzymać serwer po wykonaniu operacji.
 
 ## Czekanie na serwer
 

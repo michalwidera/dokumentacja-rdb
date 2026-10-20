@@ -30,7 +30,7 @@ Każda reguła zawiera listę tokenów opisujących wyrażenie logiczne (pole `c
 2. Przekazuje warunek do silnika `expressionEvaluator::eval()` - **tego samego silnika**, który oblicza wyrażenia `SELECT`.
 3. Rzutuje wynik na wartość logiczną (`boolCast`): każda niezerowa wartość liczbowa to `true`, zero to `false`.
 
-Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM` lub `DO DUMP`). Jeśli niespełniony - reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 50.
+Jeśli warunek jest spełniony, wykonywana jest skojarzony z regułą akcja (`DO SYSTEM`, `DO DUMP` albo `DO SET`). Jeśli niespełniony - reguła jest pomijana bez żadnych efektów ubocznych. Pełny przepływ przedstawia Rys. 50.
 
 ```mermaid
 %%{init: {"markdownAutoWrap": false}}%%
@@ -41,11 +41,23 @@ flowchart TD
     C -->|false| E([pomiń])
     D -->|DO SYSTEM| F["system(polecenie)"]
     D -->|DO DUMP| G["dumpManager::registerTask()"]
+    D -->|DO SET| I["Ewaluacja wartości i bufor zapisu"]
+    I --> H
     F --> H["dumpManager::<br/>processStreamChunk()"]
     G --> H
 ```
 
 _Rys. 50. Przepływ ewaluacji reguły_
+
+***
+
+## Akcja DO SET i granica slotu
+
+`constructRulesAndUpdate()` oblicza prawą stronę `SET` na tym samym rekordzie i tych samych wartościach VAR co `WHEN`. Zapisuje wynik, także NULL, w buforze bieżącego slotu. Przy konkurencji o zmienną zachowuje zapis reguły o późniejszej pozycji w tekście planu. Reguły dodawane ad hoc otrzymują kolejne pozycje.
+
+Dopiero udane zakończenie `dataModel::processRows`, po przesunięciu źródeł deklarowanych, przepisuje bufor do wartości bieżących. Wszystkie pola i reguły slotu czytają poprzedni stan; kolejność węzłów nie zmienia widoczności zapisu. Błąd przed tą granicą nie zatwierdza VAR, a następny slot czyści bufor; nie jest to wycofanie zapisanych rekordów lub zewnętrznych akcji. Ta sama granica obowiązuje w `--until-eof` i silniku osadzonym. Odczyt `xqry --vars` odbywa się między slotami, pod blokadą epoki planu.
+
+Wczytanie lub reset planu buduje wartości z deklaracji, więc utrata zatrzasku po restarcie nie naprawia się samym zgromadzeniem okna. Semantykę i ograniczenia opisuje [VAR i DO SET](../konstrukcja-jezyka-zapytan/polecenie-var.md). Pokrycie: `ut_dataModel`, `it_var_set-value`, `it_var_reset-run`.
 
 ***
 

@@ -60,6 +60,7 @@ DIAGRAMS = [
     ("rule_statement", "railroad-rule.svg"),
     (("compiler_option", "default_statement"), "railroad-dyrektywy.svg"),
     ("let_statement", "railroad-let.svg"),
+    ("var_statement", "railroad-var.svg"),
 ]
 
 # Reguły wstawiane wprost do diagramu nadrzędnego (zamiast prostokąta
@@ -72,6 +73,8 @@ INLINE_RULES = {
     "rational_se",
     "dumppart",
     "systempart",
+    "setpart",
+    "var_type",
 }
 
 # Reguły liczby całkowitej, która może być literałem albo stałą LET (retractordb #440).
@@ -106,6 +109,7 @@ LANGUAGES = {
     "pl": {
         "rules": {
             "expression": "wyrażenie",
+            "expression_factor": "wyrażenie_skalarne",
             "stream_expression": "wyrażenie_strumieniowe",
             "logic": "warunek_logiczny",
             "field_type": "typ",
@@ -134,6 +138,8 @@ LANGUAGES = {
             ("rule_statement", "rule_retnetion"): "segmenty",
             ("rule_statement", "syscmd"): "'polecenie_systemu'",
             ("let_statement", "name"): "nazwa_stałej",
+            ("var_statement", "name"): "nazwa_zmiennej",
+            ("rule_statement", "target"): "?zmienna",
         },
         "scoped_tokens": {
             ("field_declaration", "ID"): "pole",
@@ -160,6 +166,7 @@ LANGUAGES = {
     "en": {
         "rules": {
             "expression": "expression",
+            "expression_factor": "scalar_expression",
             "stream_expression": "stream_expression",
             "logic": "logical_condition",
             "field_type": "type",
@@ -188,6 +195,8 @@ LANGUAGES = {
             ("rule_statement", "rule_retnetion"): "segments",
             ("rule_statement", "syscmd"): "'system_command'",
             ("let_statement", "name"): "constant_name",
+            ("var_statement", "name"): "variable_name",
+            ("rule_statement", "target"): "?variable",
         },
         "scoped_tokens": {
             ("field_declaration", "ID"): "field",

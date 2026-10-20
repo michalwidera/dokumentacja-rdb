@@ -1,4 +1,4 @@
-<svg class="railroad-diagram" height="170" viewBox="0 0 1045.0 170" width="1045.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg class="railroad-diagram" height="200" viewBox="0 0 1045.0 200" width="1045.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g transform="translate(.5 .5)">
 <g>
 <path d="M20 21v20m10 -20v20m-10 -10h20" /></g><path d="M40 31h10" /><g>
@@ -37,7 +37,12 @@
 <path d="M827.0 109h8.5" /><path d="M906.5 109h8.5" /><rect height="22" width="71" x="835.5" y="98"></rect><text x="871" y="113">?stała</text></g><path d="M915.0 109a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10" /></g></g><path d="M935.0 79h20" /></g></g><path d="M955.0 79h20" /><path d="M70.0 79a10 10 0 0 1 10 10v40a10 10 0 0 0 10 10" /><g>
 <path d="M90.0 139h296.25" /><path d="M658.75 139h296.25" /><g class="terminal ">
 <path d="M386.25 139h0.0" /><path d="M457.25 139h0.0" /><rect height="22" rx="10" ry="10" width="71" x="386.25" y="128"></rect><text x="421.75" y="143">SYSTEM</text></g><path d="M457.25 139h10" /><path d="M467.25 139h10" /><g class="non-terminal ">
-<path d="M477.25 139h0.0" /><path d="M658.75 139h0.0" /><rect height="22" width="181.5" x="477.25" y="128"></rect><text x="568" y="143">&apos;polecenie_systemu&apos;</text></g></g><path d="M955.0 139a10 10 0 0 0 10 -10v-40a10 10 0 0 1 10 -10" /></g></g><path d="M985.0 79h10" /><path d="M995.0 79h0.0" /></g><path d="M995.0 79h10" /><path d="M 1005.0 79 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g><style>/* <![CDATA[ */
+<path d="M477.25 139h0.0" /><path d="M658.75 139h0.0" /><rect height="22" width="181.5" x="477.25" y="128"></rect><text x="568" y="143">&apos;polecenie_systemu&apos;</text></g></g><path d="M955.0 139a10 10 0 0 0 10 -10v-40a10 10 0 0 1 10 -10" /><path d="M70.0 79a10 10 0 0 1 10 10v70a10 10 0 0 0 10 10" /><g>
+<path d="M90.0 169h235.0" /><path d="M720.0 169h235.0" /><g class="terminal ">
+<path d="M325.0 169h0.0" /><path d="M370.5 169h0.0" /><rect height="22" rx="10" ry="10" width="45.5" x="325" y="158"></rect><text x="347.75" y="173">SET</text></g><path d="M370.5 169h10" /><path d="M380.5 169h10" /><g class="non-terminal ">
+<path d="M390.5 169h0.0" /><path d="M478.5 169h0.0" /><rect height="22" width="88" x="390.5" y="158"></rect><text x="434.5" y="173">?zmienna</text></g><path d="M478.5 169h10" /><path d="M488.5 169h10" /><g class="terminal ">
+<path d="M498.5 169h0.0" /><path d="M527.0 169h0.0" /><rect height="22" rx="10" ry="10" width="28.5" x="498.5" y="158"></rect><text x="512.75" y="173">=</text></g><path d="M527.0 169h10" /><path d="M537.0 169h10" /><g class="non-terminal ">
+<path d="M547.0 169h0.0" /><path d="M720.0 169h0.0" /><rect height="22" width="173" x="547" y="158"></rect><text x="633.5" y="173">wyrażenie_skalarne</text></g></g><path d="M955.0 169a10 10 0 0 0 10 -10v-70a10 10 0 0 1 10 -10" /></g></g><path d="M985.0 79h10" /><path d="M995.0 79h0.0" /></g><path d="M995.0 79h10" /><path d="M 1005.0 79 h 20 m -10 -10 v 20 m 10 -20 v 20"></path></g><style>/* <![CDATA[ */
 	svg.railroad-diagram {
 		background-color: transparent;
 	}

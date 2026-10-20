@@ -28,10 +28,10 @@ usage() {
   cat <<EOF
 Użycie: $(basename "$0") [OPCJE]
 
-Generuje diagramy składni (railroad) poleceń SELECT, DECLARE, RULE, LET oraz
+Generuje diagramy składni (railroad) poleceń SELECT, DECLARE, RULE, LET, VAR oraz
 dyrektyw konfiguracyjnych na podstawie gramatyki RQL.g4 i zapisuje je jako
-railroad-select.svg, railroad-declare.svg, railroad-rule.svg, railroad-let.svg
-oraz railroad-dyrektywy.svg do katalogów assets/ obu wersji językowych:
+railroad-select.svg, railroad-declare.svg, railroad-rule.svg, railroad-let.svg,
+railroad-var.svg oraz railroad-dyrektywy.svg do katalogów assets/ obu wersji językowych:
 
   pl -> $REPO_DIR/assets
   en -> $EN_REPO/assets
