@@ -2,7 +2,7 @@
 
 ## Notebooki i ich smoke test
 
-C5 (#493) przenosi trzy notebooki z `feature/jupyter-integration` do aktualnej składni RQL i hierarchii wyjątków ([błędy](python-jupyter-api.md#błędy-i-granica-fatalna)). Wszystkie zapisane w repozytorium komórki mają puste wyjścia.
+Trzy notebooki korzystają z aktualnej składni RQL i hierarchii wyjątków ([błędy](python-jupyter-api.md#błędy-i-granica-fatalna)). Wszystkie zapisane w repozytorium komórki mają puste wyjścia.
 
 | Notebook w `api/python/notebooks/` | Przebieg |
 |---|---|
@@ -20,7 +20,7 @@ Przy pracy lokalnej `RDB_PYTHON_MODULE_DIR` wskazuje we wszystkich trzech notebo
 
 Profil wheel tworzy czysty venv Python 3.12 z wersjami z `scripts/notebook-versions.sh`. Domyślny torch to wariant CPU. Te przypięte lokalne zależności nie deklarują bieżących wersji runtime Colab. Jawny profil `--without-torch` pomija torch i sprawdza, że pominięcie ML przebiegło poprawnie. Każdy profil potrzebuje osobnego katalogu wyników; wykonane notebooki i `acceptance.json` pozostają w nim po usunięciu tymczasowego venv. Bez `--output-dir` skrypt wypisuje zachowany katalog tymczasowy z wynikami.
 
-### Ręczna kontrola wydania J5
+### Ręczna kontrola wydania
 
 Ten krok wykonuje się po zbudowaniu bieżącego wheel ([budowanie wheel](../instalacja-systemu/python-build.md)), przed przekazaniem go użytkownikowi Colab lub dystrybucją. Oba profile zainstalowanego wheel muszą przejść; sam smoke modułu z builda nie spełnia kontroli wydania. Log budowy wheel należy zachować razem z raportem, aby SHA źródła było możliwe do prześledzenia. Build musi pochodzić z wskazanego commita; niezacommitowane zmiany wpływające na wheel trzeba zapisać, a przed wydaniem przebudować artefakt po przeglądzie i commicie.
 
@@ -48,23 +48,23 @@ PYTHON="$PWD/.venv-jupyter-system-cpu/bin/rdb-python" \
   --output-dir build/notebook-results/local-module
 ```
 
-Ten profil niczego nie instaluje i nie mierzy instalacji wheel. Odbiór w rzeczywistym Colab CPU/GPU jest osobnym przebiegiem wykonywanym przez człowieka według [protokołu poniżej](#rzeczywisty-colab-cpu-następnie-gpu). Jego datę, runtime i wynik obserwacji restartu raportuje się osobno od wyników kontenera. Publikacja PyPI (#447), DeviceWindowLoader (#468) i odbiór MPS nie są warunkami #448. Automatyczne CI wydań pozostaje osobnym zadaniem.
+Ten profil niczego nie instaluje i nie mierzy instalacji wheel. Odbiór w rzeczywistym Colab CPU/GPU jest osobnym przebiegiem wykonywanym przez człowieka według [protokołu poniżej](#rzeczywisty-colab-cpu-następnie-gpu). Jego datę, runtime i wynik obserwacji restartu raportuje się osobno od wyników kontenera.
 
 ## Odbiór w kontenerze i w Google Colab
 
-Issue #448 odbiera gotowy wheel C4 (#492) z pliku albo bezpośredniego URL HTTPS. Publikacja PyPI, DeviceWindowLoader i odbiór MPS są osobnymi pracami. Przebieg w kontenerze jest dowodem dla zainstalowanego wheel; odbiór w rzeczywistym Colab wymaga osobnych przebiegów CPU i GPU wykonanych przez człowieka. Ten protokół nie deklaruje żadnego wyniku z Colab.
+Protokół obejmuje gotowy wheel z pliku albo bezpośredniego URL HTTPS. Przebieg w kontenerze jest dowodem dla zainstalowanego wheel; odbiór w rzeczywistym Colab wymaga osobnych przebiegów CPU i GPU wykonanych przez człowieka. Ten protokół nie deklaruje żadnego wyniku z Colab.
 
 ## Przygotowanie artefaktu
 
 1. Zbuduj wheel Linux x86_64 z zamierzonej rewizji źródeł przez `docker/wheel/build-wheels.sh x86_64`. Zachowaj pełne SHA źródła i log budowy. Zapisz niezacommitowane zmiany wpływające na wheel; przed dystrybucją przebuduj z przejrzanego commita. Dla Python 3.12+ użyj naprawionego wheel cp312-abi3.
 2. Zapisz jego nazwę pliku i `sha256sum build/wheelhouse/<nazwa-wheel>.whl`. Ten sam wheel służy do odbioru w kontenerze i w Colab; nie starszy plik o tej samej wersji i nazwie.
-3. Uruchom oba profile zainstalowanego wheel w kontenerze z [ręcznej kontroli wydania](#ręczna-kontrola-wydania-j5). Zachowaj każdy `acceptance.json` i trzy wykonane notebooki. Wymagaj `notebook-smoke: OK - 3/3 notebooks`; profil bez torch musi zapisać `training.status = skipped` i udane asercje NumPy. Profil domyślny musi zapisać udany trening CPU. Porównaj SHA-256 wheel z krokiem 2.
+3. Uruchom oba profile zainstalowanego wheel w kontenerze z [ręcznej kontroli wydania](#ręczna-kontrola-wydania). Zachowaj każdy `acceptance.json` i trzy wykonane notebooki. Wymagaj `notebook-smoke: OK - 3/3 notebooks`; profil bez torch musi zapisać `training.status = skipped` i udane asercje NumPy. Profil domyślny musi zapisać udany trening CPU. Porównaj SHA-256 wheel z krokiem 2.
 
 ## Rzeczywisty Colab: CPU, następnie GPU
 
 Każdy przebieg wykonuje się w świeżym runtime. Lokalne wykonanie notebooka ani kontener nazwany jak Colab nie kończą tego kroku.
 
-1. Prześlij `api/python/notebooks/colab_quickstart.ipynb` przez okno przesyłania notebooka w Colab. Użyj notebooka z przejrzanej zmiany; kopia na GitHub może się różnić przed scaleniem pull requestu.
+1. Prześlij `api/python/notebooks/colab_quickstart.ipynb` przez okno przesyłania notebooka w Colab. Użyj notebooka z tej samej rewizji źródeł co sprawdzany wheel.
 2. W pierwszym przebiegu wybierz runtime CPU. Prześlij wheel przez panel Files do `/content/` albo ustaw `WHEEL` w pierwszej komórce kodu na bezpośredni URL HTTPS. Ścieżka URL musi zawierać oryginalną nazwę pliku wheel; podpisany query string jest dopuszczalny. Ustaw `SOURCE_COMMIT` na pełne SHA zapisane przez build.
 3. Uruchom wszystkie komórki bez ręcznej instalacji lub podmiany NumPy i torch. Notebook instaluje wyłącznie `retractordb` z `--no-deps`. Zachowaj wersje przed/po z pierwszej komórki, osobne czasy pobrania, instalacji i importu oraz ścieżkę `_core`. Porównaj zgłoszone SHA-256 wheel z przygotowanym artefaktem.
 4. Wymagaj ukończenia obu asercji NumPy i komórki treningu. Rzeczywisty runtime Colab z torch musi trenować; niespodziewane pominięcie ML nie jest odbiorem CPU/GPU. Opcjonalną ścieżkę bez torch pokrywa osobno kontener.
@@ -75,26 +75,4 @@ Model otrzymuje kopie okien CPU ze `StreamDataset`, z `num_workers=0`. CUDA to o
 
 Okna/s = przetworzone okna / sekundy pętli treningowej. Średni czas kroku = ten sam czas / liczba batchy. Obie miary obejmują ładowanie, transfery i optymalizację; postęp silnika i trening referencyjny CPU są raportowane osobno. Pierwsza epoka obejmuje rozgrzewkę. Zapisz wszystkie epoki; nie podawaj samej najszybszej jako wyniku. Ten mały model jest demonstracją, a nie ogólnym benchmarkiem silnika. Porównanie loss CUDA i CPU używa tej samej inicjalizacji, kolejności danych i parametrów SGD, z `rtol=0.05, atol=0.002`. Niespełniona asercja oznacza nieudany przebieg.
 
-Około 20 sekund to referencja z roadmapy, a nie próg zamknięcia. Zapisz warunki: przesłanie pliku czy URL, czas pobrania, zimny czy ciepły runtime, wersję Pythona, typ CPU/GPU i to, czy cache pakietów był już wypełniony. Czasy porównuj tylko w porównywalnych warunkach; instalacja w kontenerze nie mierzy Colab.
-
-## Wynik do zapisania w #448
-
-Wyniki kontenera i Colab przechowuj osobno. Dołącz log budowy i lokalne artefakty wyników, a następnie wypełnij ten szablon zaobserwowanymi wartościami. Opublikowanie komentarza, commit, push i otwarcie pull requestu wymagają osobnej zgody człowieka.
-
-| Pole | Kontener z torch | Kontener bez torch | Colab CPU | Colab GPU |
-|---|---|---|---|---|
-| Status (nie wykonano / passed / failed) | nie wykonano | nie wykonano | nie wykonano | nie wykonano |
-| Data i wersja runtime | | | | |
-| Nazwa pliku wheel / commit źródła / SHA-256 | | | | |
-| Python / NumPy / torch / CUDA | | | | |
-| Źródło wheel (plik albo URL; bez sekretów podpisanego URL) | | | | |
-| Pobranie / instalacja / import [s] | | | | |
-| NumPy/torch przed = po | | | | |
-| Asercje NumPy | | | | |
-| Urządzenie treningu / precyzja / GradScaler | | pominięte | | |
-| Okna/s i średni krok [ms] w każdej epoce | | pominięte | | |
-| Zgodność loss z referencją CPU (tylko GPU) | n/a | n/a | n/a | |
-| Restart wymagany / wykonany (obserwacja człowieka) | n/a | n/a | | |
-| Lokalizacja raportu i wykonanego notebooka | | | | |
-
-Nie zamykaj #448, dopóki wymagane wyniki z kontenera i rzeczywistego Colab nie zostaną zapisane, a przejrzana zmiana nie trafi do `dev/445-jupyter-epic` przez pull request. Sam protokół i udany lokalny smoke modułu z builda nie spełniają tych kryteriów.
+Zapisz warunki: przesłanie pliku czy URL, czas pobrania, zimny czy ciepły runtime, wersję Pythona, typ CPU/GPU i to, czy cache pakietów był już wypełniony. Czasy porównuj tylko w porównywalnych warunkach; instalacja w kontenerze nie mierzy Colab.
