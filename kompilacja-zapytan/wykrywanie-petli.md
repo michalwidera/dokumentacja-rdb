@@ -37,29 +37,30 @@ Próba kompilacji takiego pliku kończy się błędem:
 ```
 $ xretractor brokenQuery.rql -c 2>out.txt
 $ echo $?
-1
+71
 $ cat out.txt
-[error] Circular dependency: stream interval resolution stalled with 1 
->> unresolved streams
+Input file:brokenQuery.rql
+Check result:Circular dependency in stream definitions
 ```
 
-Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` wykryje, że liczba nierozwiązanych strumieni przestała maleć. Jak uruchomić kompilację i czytać komunikaty błędów - patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
+Komunikat `"Circular dependency in stream definitions"` pojawia się, gdy etap `resolveStreamIntervals` pozostawi nierozwiązane strumienie i w całej rundzie nie rozwiąże żadnego nowego. Powyższy kod wyjścia `71` dotyczy Linuksa. Jak uruchomić kompilację i czytać komunikaty błędów - patrz [Debugowanie kompilacji](debugowanie-kompilacji.md).
 
 ## Mechanizm wykrywania
 
-Etap `resolveStreamIntervals` w każdej rundzie iteracji liczy strumienie, dla których nie udało się jeszcze wyznaczyć interwału (`unresolvedCount`). W poprawnym grafie acyklicznym liczba ta maleje co rundę - zawsze co najmniej jeden strumień uzyskuje wyznaczoną deltę. W grafie z cyklem strumienie wzajemnie od siebie zależą i żaden nie może uzyskać wartości - `unresolvedCount` zatrzymuje się.
+Etap `resolveStreamIntervals` w każdej rundzie zlicza strumienie oczekujące na interwał źródła (`unresolvedCount`) oraz strumienie, które właśnie uzyskały pierwszy znany interwał (`resolvedThisPass`). Gdy `unresolvedCount == 0`, etap kończy się sukcesem. W przeciwnym razie sprawdza:
 
 ```cpp
-if (unresolvedCount >= prevUnresolved) {
-    SPDLOG_ERROR("Circular dependency: stream interval resolution stalled with
->> {} unresolved streams",
-                 unresolvedCount);
-    return std::string("Circular dependency in stream definitions");
+if (resolvedThisPass == 0) {
+  SPDLOG_ERROR("Circular dependency: stream interval resolution stalled with {} unresolved streams", unresolvedCount);
+  return {"Circular dependency in stream definitions"};
 }
-prevUnresolved = unresolvedCount;
 ```
 
-Warunek `>=` (a nie `>`) chroni przed fałszywymi pozytywami: jeśli liczba nie maleje nawet o jeden, postęp jest niemożliwy.
+Przed tym etapem kompilator sprawdza istnienie źródeł i dodatniość interwałów deklaracji. Znany interwał pozostaje znany. Jeśli nierozwiązana część grafu jest acykliczna, istnieje w niej węzeł, którego wszystkie źródła są już rozwiązane, więc w danej rundzie zostanie rozwiązany co najmniej jeden nowy strumień. Brak takiego postępu przy niepustej części nierozwiązanej oznacza cykl. Niezależne od cyklu strumienie mogą zostać rozwiązane wcześniej.
+
+Sortowanie w tym etapie odbywa się według interwału, a nie topologicznie. Dlatego poprawny plan może wymagać kilku rund, ale nie może utknąć bez postępu. Szczegóły i przykład kolejności odwiedzin opisuje [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
+
+Starszy zapis porównujący `unresolvedCount >= prevUnresolved` także wykrywa brak postępu, jeśli każdy nierozwiązany węzeł jest prawidłowo zliczany, a rozwiązane węzły pozostają rozwiązane. Aktualna implementacja sprawdza bezpośrednio liczbę nowo rozwiązanych strumieni.
 
 ## Jak naprawić
 
