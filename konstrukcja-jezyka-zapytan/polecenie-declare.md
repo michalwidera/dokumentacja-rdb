@@ -24,11 +24,11 @@ Diagram składni (railroad) przedstawiony na Rys. 3 został wygenerowany na pods
 
 Format danych wynika ze słowa kluczowego, nigdy z nazwy ani rozszerzenia ścieżki:
 
-| Słowo      | Co czyta                                                                                      | Rodzaj pliku pod ścieżką      | Po końcu danych                                   |
-| ---------- | --------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------- |
-| `BINFILE`  | surowe rekordy binarne o rozmiarze wynikającym z pól                                          | wyłącznie plik zwykły         | powrót na początek (pętla), z `ONESHOT` koniec źródła |
-| `TEXTFILE` | tekst: wartości rozdzielone białymi znakami, token `NULL` oznacza brak wartości              | wyłącznie plik zwykły         | jak `BINFILE`                                     |
-| `DEVICE`   | surowe rekordy binarne ze źródła żywego; nie interpretuje tekstu ani tokenu `NULL`, bajt zero jest zerem | urządzenie znakowe albo FIFO  | brak pisarza: rekordy `NULL` do powrotu danych; z `ONESHOT` koniec źródła |
+| Słowo                    | Co czyta                                                                         | Rodzaj pliku pod ścieżką      | Po końcu danych                                   |
+| ------------------------ | -------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------- |
+| `BINFILE`                | surowe rekordy binarne o rozmiarze wynikającym z pól                             | wyłącznie plik zwykły         | powrót na początek (pętla), z `ONESHOT` koniec źródła |
+| `TEXTFILE`               | tekst: wartości rozdzielone białymi znakami, token `NULL` oznacza brak wartości  | wyłącznie plik zwykły         | jak `BINFILE`                                     |
+| `DEVICE`                 | surowe rekordy binarne ze źródła żywego; nie interpretuje tekstu ani tokenu `NULL`, bajt zero jest zerem | urządzenie znakowe albo FIFO  | brak pisarza: rekordy `NULL` do powrotu danych; z `ONESHOT` koniec źródła |
 
 ```rql
 DECLARE MLII INTEGER, V1 INTEGER STREAM ecg, 1/360 BINFILE 'rec205'

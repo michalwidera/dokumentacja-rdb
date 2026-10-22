@@ -132,7 +132,9 @@ Przykłady:
 
 Indeks poza zakresem magazynu wynikowego, także pustego, jest odrzucany przed odczytem: `read` i `rread` wypisują `record out of range - read command`, pozostawiając payload i jego poprzedni stan bez zmian. `list` i `rlist` wypisują `record out of range - list command` i przechodzą do następnego indeksu. Jeżeli sprawdzenie zakresu przepuści żądanie, ale sam odczyt zwróci brak rekordu lub błąd, stan payloadu zmienia się na `error`; `list` i `rlist` wypisują wtedy `fetch error`. Dla źródeł deklarowanych `read` i `rread` pomijają wstępną kontrolę zakresu i korzystają z wyniku odczytu źródła. Stan można sprawdzić poleceniem `status`.
 
-Udane `write N` lub `append` ustawia stan payloadu na `stored`. Próba `append` do zadeklarowanego źródła `BINFILE`, `TEXTFILE` albo `DEVICE`, które obsługuje tylko odczyt, ustawia stan `error`: dane źródła i liczba jego rekordów pozostają bez zmian, a `xtrdb` nadal przyjmuje polecenia. Stan payloadu raportowany przez `status` jest oddzielny od kodu zakończenia procesu; taka odmowa nie wymusza zakończenia z błędem. Pozostałe błędy zapisu, np. błąd wejścia/wyjścia, mogą zakończyć proces.
+Udane `write N` lub `append` ustawia stan payloadu na `stored`. Próba `append` do zadeklarowanego źródła `BINFILE`, `TEXTFILE` albo `DEVICE`, które obsługuje tylko odczyt, ustawia stan `error`: dane źródła i liczba jego rekordów pozostają bez zmian, a `xtrdb` nadal przyjmuje polecenia. Stan payloadu raportowany przez `status` jest oddzielny od kodu zakończenia procesu; taka odmowa nie wymusza zakończenia z błędem.
+
+Błędy zapisu zwracane przez warstwę magazynu, w tym błędy wejścia/wyjścia, również ustawiają stan `error`: `write` wypisuje `write: ...`, a `append` - `append: ...`; terminal nadal przyjmuje kolejne polecenia. Skrypt wsadowy powinien sprawdzać diagnostykę i stan payloadu, ponieważ kod zakończenia procesu 0 nie potwierdza powodzenia każdej komendy.
 
 Kontrakt stanu zapisu i odmowy dopisania sprawdza test integracyjny `it_xtrdb_write_status-run`.
 
