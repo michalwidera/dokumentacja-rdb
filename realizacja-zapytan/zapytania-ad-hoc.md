@@ -14,6 +14,10 @@ Kanałem ad hoc można dołączyć **dokładnie jedno polecenie `SELECT`, `DECLA
 
 Błąd składni lub niepoprawna wartość jest odsyłana klientowi wraz z powodem, a serwer nadal obsługuje następne polecenia. Parser odrzuca m.in. literały liczbowe poza zakresem, zerowy mianownik, interwał równy zero (w `DECLARE` oraz przy `&`, `%` i `-`) i pustą nazwę `FILE`. Jeśli dołączenie nie powiedzie się po imporcie, serwer przywraca poprzedni plan i wycofuje nowe roszczenia nazw strumieni i plików w magistrali. Tę samą komendę można ponowić po usunięciu przyczyny błędu.
 
+Wycofanie importu obejmuje zarówno błąd zwrócony statusem, jak i wyjątek podczas importu, kompilacji lub rejestracji nowych strumieni. W drugim przypadku klient `xqry -a` wypisuje powód z odpowiedzi serwera, np. `command processor failure: ...`, i kończy się kodem niezerowym. Dotychczasowe strumienie pozostają dostępne, a odrzucone nazwy znikają z planu i magistrali. Obie drogi oraz ponowienie tej samej komendy sprawdza `adhoc_register_rollback`, w tym wariant `-throw`.
+
+Jeżeli muteks magistrali przestanie działać podczas wycofywania importu, plan jest odtwarzany, lecz nowych roszczeń nie da się zwolnić. Pozostają zajęte do końca instancji; dziennik ERROR wymienia nazwy strumieni i ścieżki magazynów wraz z przyczyną. Odmowa importu nie gwarantuje w tym przypadku przywrócenia stanu rejestru magistrali.
+
 Przed dołączeniem nowych strumieni serwer sprawdza katalog `STORAGE`, zachowane deskryptory, istnienie, rodzaj i prawo odczytu źródeł oraz możliwość otwarcia plików wyjściowych oraz odpowiednich `.shadow`. Deskryptor nowego `SELECT` musi zgadzać się z planem w schemacie i nie może wprowadzać `REF`, którego plan nie podaje; jego `TYPE` musi być obsługiwany. Kontrola obejmuje także deskryptory bez `ROTATION` i dla `MEMORY`, ponieważ import ich nie usuwa. Sprawdzane są wyłącznie nowe strumienie. Kontrola otwarcia nie tworzy nowych plików; dla nieistniejącego pliku sprawdza katalog nadrzędny. Odmowa zwraca klientowi przyczynę, np. `cannot open output file`, bez zmiany planu. Jeśli katalog przestanie być dostępny po tej kontroli, błąd otwarcia akcesora POSIX, POSIXSHD lub segmentu DEFAULT/DIRECT również wraca jako odmowa: serwer wycofuje import i nowe roszczenia w magistrali, pozostaje uruchomiony i pozwala ponowić polecenie. Ta obsługa późnego błędu nie obejmuje profilu `STORAGE GENERIC`.
 
 Kolizja wygenerowanej nazwy substratu z innym programem jest odmową kompilacji (`Fail local chain compiler:Substrate name '...' denotes two different programs`), bez zakończenia serwera. Dotyczy także zwykłych nazw z podkreśleniami, takich jak `A_B + C` oraz `A + B_C`. Po odmowie można przesłać poprawione polecenie; kontrole sprawdzają `it_plan_error_e4-run` i `it_storage_refusal-adhoc`.
@@ -24,7 +28,7 @@ Nowe źródło można zadeklarować bez zatrzymywania pracującego silnika:
 $ xqry -a "DECLARE a BYTE STREAM C, 1 TEXTFILE 'data3.txt'"
 ```
 
-Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja otrzymuje bazę indeksu logicznego w pierwszym należnym jej slocie. Jeżeli dołączone później zapytanie wymaga okna albo przesunięcia, emisja czeka, aż źródło zgromadzi pełną wymaganą historię. `HOLD` nie jest do tego potrzebny; pozostaje opcjonalną dyrektywą opóźniającą fizyczny odczyt. Ponowne `DECLARE` istniejącej nazwy jest odrzucane, a nie traktowane jako zmiana konfiguracji.
+Kod wyjścia `0` bez komunikatu oznacza przyjęcie deklaracji. Deklaracja dołączona po kroku zerowym otrzymuje bazę indeksu logicznego w pierwszym należnym jej slocie. Jeżeli dołączone później zapytanie wymaga okna albo przesunięcia, emisja czeka, aż źródło zgromadzi pełną wymaganą historię. `HOLD` nie jest do tego potrzebny; pozostaje opcjonalną dyrektywą opóźniającą fizyczny odczyt. Ponowne `DECLARE` istniejącej nazwy jest odrzucane, a nie traktowane jako zmiana konfiguracji.
 
 Przy kilku działających instancjach samo `DECLARE` nie wskazuje właściciela, ponieważ nie ma klauzuli `FROM`. Trzeba wtedy podać cel jawnie:
 
@@ -64,7 +68,9 @@ Typ prawej strony musi być typem zmiennej. Odmowa nie zmienia wartości ani reg
 
 ### Kiedy zaczyna się strumień dołożony ad hoc
 
-Plan zbudowany od początku pracy systemu numeruje rekordy od początku logicznego wyliczonego przez kompilator. Zapytanie dołożone ad hoc nie ma takiej przeszłości - jego pierwszym rekordem jest **pierwszy slot, w którym runtime je zobaczył**, a nie slot zerowy planu. Import jest przy tym atomowy: skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet jeśli nowe zapytanie wnosi do systemu nowe tempo. Ten sam zamek chroni krok zerowy od zebrania nazw deklaracji do publikacji pierwszych rekordów, więc import ad hoc czeka na koniec tego kroku.
+Plan zbudowany od początku pracy systemu numeruje rekordy od początku logicznego wyliczonego przez kompilator. Zapytanie dołożone po kroku zerowym nie ma takiej przeszłości - jego baza odpowiada **pierwszemu należnemu slotowi, w którym runtime je obsłużył**, a nie slotowi zerowemu planu. Import jest atomowy: skompilowane drzewo i jego instancje strumieni są publikowane pod wspólnym zamkiem, a pętla wykonania przebudowuje siatkę czasu bez cofania się, nawet jeśli nowe zapytanie wnosi nowe tempo.
+
+Model może przyjmować komendy jeszcze przed krokiem zerowym, np. przy bramce `--xqrywait` (`-x`). Źródło plikowe dołączone w tym oknie należy do początkowego planu epoki: krok zerowy nadaje mu bazę wyliczoną przez kompilator i przygotowuje pierwszy rekord, tak samo jak źródłom z pliku planu. Źródła `DEVICE` nie mają odczytu w kroku zerowym; ich pierwszy rekord jest czytany w należnym slocie. W trakcie samego kroku zerowego wspólny zamek blokuje import do zakończenia inicjalizacji. Przypadek dołączenia źródła przed tym krokiem sprawdza `it_hash_string-adhoc-zero-step`.
 
 > **_NOTE:_** Zachowanie to ma pokrycie w teście `issue227_join_alignment` (przypadek `adhoc-origin`).
 

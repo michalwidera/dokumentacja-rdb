@@ -77,11 +77,11 @@ xretractor diagnostyka.rql --name diagnostyka --noanykey &
 xqry --bus
 ```
 
-Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name` zachowuje historyczną instancję bezimienną.
+Każda otrzymuje własną blokadę i zestaw obiektów IPC. Wspólna magistrala odrzuca jednak plan, który koliduje z żywą instancją nazwą strumienia, zapisywanym plikiem magazynu albo plikiem licznika `:ROTATION`. Kontrola odbywa się przed usuwaniem artefaktów. Brak `--name` zachowuje historyczną instancję bezimienną. Po sprawdzeniu wyłączności trybu usługowego instancja o tej samej nazwie co żywy wpis magistrali, w tym druga bezimienna, jest odrzucana kodem `ENOLCK` (`37` na Linuksie) również wtedy, gdy jej plik blokady usunięto z katalogu tymczasowego.
 
 Tryb usługowy stanowi osobną gwarancję: w każdej przestrzeni `RDB_NAMESPACE` może działać dokładnie jedna instancja usługowa, w domyślnej przestrzeni nazwana `service`. Szczegóły zawiera rozdział [Wiele instancji i magistrala](../../architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md).
 
-Plik blokady instancji musi być zwykłym plikiem z jedną nazwą, należącym do konta, które uruchamia instancję. Dowiązanie symboliczne (także wiszące), drugie twarde dowiązanie, katalog albo FIFO pod tą ścieżką oraz plik innego konta - również przy instancji uruchomionej jako root - zatrzymują start bez zmiany zawartości wskazanego pliku. Komunikat na `stderr`, widoczny także w Release, podaje ścieżkę i przyczynę, a kod wyjścia `5` (`EIO`) odróżnia tę odmowę od zajętej tożsamości (`37`, `ENOLCK`, komunikat `is already running`). Pozostałości innego konta po awarii instancja nie przejmuje, a `--cleanup` jej nie usuwa; usuwa ją ręcznie operator z uprawnieniami do katalogu blokad. Odczyt blokad obecności i tożsamości IPC innych kont pozostaje dozwolony.
+Plik blokady instancji musi być zwykłym plikiem z jedną nazwą, należącym do konta, które uruchamia instancję. Dowiązanie symboliczne (także wiszące), drugie twarde dowiązanie, katalog albo FIFO pod tą ścieżką oraz plik innego konta - również przy instancji uruchomionej jako root - zatrzymują start bez zmiany zawartości wskazanego pliku. Komunikat na `stderr`, widoczny także w Release, podaje ścieżkę i przyczynę, a kod wyjścia `5` (`EIO`) odróżnia tę odmowę od zajętej tożsamości (`ENOLCK`, `37` na Linuksie, komunikat `is already running`). Pozostałości innego konta po awarii instancja nie przejmuje, a `--cleanup` jej nie usuwa; usuwa ją ręcznie operator z uprawnieniami do katalogu blokad. Odczyt blokad obecności i tożsamości IPC innych kont pozostaje dozwolony.
 
 ### Sprzątanie pozostałości
 
@@ -94,8 +94,8 @@ Polecenie nie uruchamia planu. Próbuje zająć blokady rozpoznanych zasobów i 
 | Zakres | Działanie |
 | --- | --- |
 | Pliki blokad instancji | Przegląd katalogu `paths.lock_dir` wybranego konfiguracją, domyślnie katalogu tymczasowego procesu. |
-| Tożsamości IPC | Przegląd wspólnego `/tmp`; usunięcie porzuconej blokady oraz odpowiadającej jej kolejki poleceń, segmentu odpowiedzi i muteksu mapy. |
-| Magistrala | Usunięcie nieużywanych segmentów bieżącej wersji `xrdbbus_v7`, chronionych blokadą obecności. |
+| Tożsamości IPC | Przegląd wspólnego `/tmp`; usunięcie porzuconej blokady oraz odpowiadającej jej kolejki poleceń, segmentu odpowiedzi i muteksu mapy. Obiekty instancji z żywym slotem w magistrali bieżącej przestrzeni pozostają. |
+| Magistrala | Usunięcie segmentów bieżącej wersji `xrdbbus_v7`, których nikt nie trzyma blokadą obecności i w których żaden slot nie należy do żywej instancji. |
 
 Zakres nie jest ograniczony do jednej instancji wskazanej przez `--name` ani jednej przestrzeni `RDB_NAMESPACE`. Dostęp do zasobów nadal podlega uprawnieniom systemu plików. Polecenie nie wylicza i nie usuwa kolejek odpowiedzi klientów; nie usuwa też segmentów v5 i starszych, które nie uczestniczą w protokole blokady obecności.
 

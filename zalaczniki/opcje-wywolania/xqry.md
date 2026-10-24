@@ -121,6 +121,10 @@ Odpowiedzi na polecenia są dopasowywane do konkretnego żądania klienta. Budż
 
 Oczekiwanie na miejsce w kolejce komend używa nieblokujących prób wysłania i wspólnego terminu liczonego zegarem monotonicznym. Chwilowo pełna kolejka może więc przyjąć komendę, jeśli miejsce zwolni się przed terminem; nie jest odrzucana natychmiast. Przypadki obu wyników sprawdza `ut_ipcClient`.
 
+Dopasowanie odpowiedzi obejmuje PID klienta, znacznik startu jego procesu i numer żądania. Znacznik klient przesyła w `db.start`; serwer odczytuje go sam tylko dla starszych klientów, które nie podają niezerowej wartości. Ograniczenie widoczności wpisu procesu klienta, np. przez `hidepid`, nie zmienia więc adresata odpowiedzi nowego klienta. Równoczesne żądania z kilku wątków jednego procesu zachowują własne odpowiedzi: odbiór jednego nie zwalnia odpowiedzi na inne, nadal oczekujące żądanie. Pokrycie stanowią `ut_ipcResponses` i `ut_ipcServer`.
+
+Własny klient IPC nie może przesyłać dyrektyw formatu INFO, takich jak linia `#include`. Serwer odrzuca wiadomość z linią zaczynającą się od `#` po opcjonalnych białych znakach, zanim parser mógłby odczytać wskazany plik; nie wykonuje polecenia ani nie wysyła odpowiedzi. Znak `#` wewnątrz wartości, np. operator przeplotu w zapytaniu ad hoc, pozostaje dozwolony.
+
 ## Zmienne planu: `--vars`
 
 `xqry --server pomiary --vars` (krótko `-v`) wypisuje zmienne `VAR` w kolejności deklaracji:
