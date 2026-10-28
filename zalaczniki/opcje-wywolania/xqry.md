@@ -225,7 +225,7 @@ Serwer przed zmianą aktywnego modelu parsuje i kompiluje zestaw, sprawdza zacho
 
 Kontrola plików jest wstępna: między odpowiedzią `OK` na `--reset` a rzeczywistym otwarciem magazynu ścieżka może się zmienić. Późny błąd otwarcia podczas wymiany planu nie jest obecnie odsyłany klientowi jako odmowa i może zatrzymać serwer; odpowiedź `OK` nie gwarantuje powodzenia tej późniejszej operacji.
 
-Jeżeli celem jest instancja usługowa, zaakceptowana treść zostaje także zapisana do jej pliku startowego, aby przetrwała restart procesu.
+Jeżeli celem jest instancja usługowa, serwer próbuje także zapisać zaakceptowaną treść do jej pliku startowego. Niepowodzenie zapisu jest logowane i nie zatrzymuje nowego planu, lecz po restarcie usługa może wrócić do poprzedniej treści. Odpowiedź `OK` nie gwarantuje trwałości planu; szczegóły opisuje [kontrakt usługi i wymiany planu](xretractor.md#usługa-i-wymiana-planu).
 
 ### Reguła `DO SYSTEM` nie przechodzi tym kanałem
 
