@@ -37,7 +37,8 @@ Artefakty i substraty zapisywane na dysk mogą być skojarzone z maksymalnie pi�
 | Plik cienia indeksu   | `.meta.shadow`       | Nadpisania wzorców null towarzyszące `.shadow`            |
 
 ```mermaid
-%% pdf-width: 70%
+%% pdf-width: 50%
+%% pdf-height: 70%
 graph TD
   D[".desc: deskryptor (schemat rekordu)"]
   B["Plik danych binarnych (rekordy N×R bajtów)"]

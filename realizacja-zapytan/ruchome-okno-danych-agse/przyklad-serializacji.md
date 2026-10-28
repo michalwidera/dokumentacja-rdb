@@ -109,6 +109,7 @@ Przesunięcie `>1` sprawia, że pozycje 1..2 przesuniętego strumienia niosą el
 Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 54):
 
 ```mermaid
+%% pdf-width: 30%
 flowchart BT
     A["A: BYTE a, BYTE b; delta=1"] --> S["str3: A@(1,1); delta=1/2"]
     S --> T["str3>1: phase alignment"]

@@ -146,13 +146,19 @@ Przed wywołaniem `processRows()` wykonawca zbiera migawkę należnych źródeł
 Funkcja wykonuje **trzy przejścia** po planie, uwzględniając tylko pozycje zaznaczone w masce (Rys. 45):
 
 ```mermaid
-%%{init: {"markdownAutoWrap": false}}%%
-flowchart TB
-    S([processRows - dueMask]) --> P1
-    P1["Przebieg 1 - należne deklaracje<br/>Bootstrap źródeł w stanie empty<br/>DEVICE: publikacja rekordu bieżącego slotu"] --> P2
-
-    subgraph P2["Przebieg 2 - należne nie-deklaracje w kolejności topologicznej"]
+%% pdf-width: 100%
+%% pdf-height: 85%
+%%{init: {"htmlLabels": false, "flowchart": {"wrappingWidth": 260, "nodeSpacing": 20, "rankSpacing": 20, "padding": 10}}}%%
+flowchart LR
+    subgraph P1["Przebieg 1"]
         direction TB
+        S([processRows - dueMask]) --> D
+        D["Należne deklaracje<br/>Bootstrap źródeł w stanie empty<br/>DEVICE: publikacja rekordu bieżącego slotu"]
+    end
+
+    subgraph P2["Przebieg 2"]
+        direction TB
+        N["Należne nie-deklaracje<br/>Kolejność topologiczna"] --> X0
         X0{"Minęły origin i ogon?<br/>Dostępne wejście dla pierwszego rekordu ad hoc?"} -->|tak| X1
         X0 -->|nie| X5([pomiń zapytanie])
         X1["constructInputPayload()<br/>buduje dane wejściowe z FROM"] --> XW
@@ -162,8 +168,11 @@ flowchart TB
         X4["constructRulesAndUpdate()<br/>ewaluuje klauzule RULE"]
     end
 
-    P2 --> P3
-    P3["Przebieg 3 - należne deklaracje plikowe w stanie armed<br/>flux, revRead(0), fire()<br/>Pobierz rekord na następny należny slot<br/>DEVICE jest pomijany"] --> E([koniec])
+    subgraph P3["Przebieg 3"]
+        direction TB
+        F["Należne deklaracje plikowe w stanie armed<br/>flux, revRead(0), fire()<br/>Pobierz rekord na następny należny slot<br/>DEVICE jest pomijany"] --> E([koniec])
+    end
+    P1 --> P2 --> P3
 ```
 
 _Rys. 45. Algorytm processRows - trzy przejścia przetwarzania_
