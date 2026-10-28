@@ -34,13 +34,15 @@ Tryb `release-dirty` służy do diagnostyki lokalnych zmian i nie tworzy wydania
 
 ## Kontrola obsługi błędów rdzenia
 
-Domyślne `RDB_NOEXCEPT_CHECK=ON` dodaje do pełnego buildu biblioteki kontrolne `rdb_noexcept_check`, `retractorcore_noexcept_check` i `rdbembed_noexcept_check`. Kompilują te same źródła rdzenia ponownie z `-fno-exceptions`, bez wyznaczonych jednostek obsługujących ANTLR, Boost.Stacktrace i konfigurację. Użycie `throw`, `try` lub `catch` w kontrolowanej części rdzenia jest wtedy błędem kompilacji. Obiekty kontrolne nie są linkowane do wydawanych programów.
+Domyślne `RDB_NOEXCEPT_CHECK=ON` dodaje do pełnego buildu cele kontrolne `rdb_noexcept_check`, `retractorcore_noexcept_check` i `rdbembed_noexcept_check`. Sprawdzają te same źródła rdzenia ponownie z `-fno-exceptions` i `-fsyntax-only`, bez wyznaczonych jednostek obsługujących ANTLR, Boost.Stacktrace i konfigurację. Użycie `throw`, `try` lub `catch` w kontrolowanej części rdzenia jest wtedy błędem kompilacji. Kontrola obejmuje analizę składniową i semantyczną kompilatora, bez generowania kodu maszynowego.
+
+Skrypt `cmake/syntaxOnly.sh` dodaje `-fsyntax-only` do polecenia kompilatora, zachowując skonfigurowany launcher ccache. Dopiero po powodzeniu tworzy pusty plik wyjściowy wskazany przez `-o`, aby Ninja mógł rozpoznać zakończoną kontrolę. Cele pozostają bibliotekami `OBJECT` w CMake, ale ich puste pliki nie są linkowane do wydawanych programów; IPO w konfiguracji Release jest dla tych celów wyłączone.
 
 Wydawane programy i moduł Python są kompilowane jednolicie z obsługą wyjątków. Biblioteki zewnętrzne nadal korzystają z wyjątków; mieszanie jednostek z `-fno-exceptions` i bez tej flagi w jednym programie naruszało zgodność funkcji inline Boosta i spdloga oraz pomijało destruktory przy przejściu wyjątku przez rdzeń. Dlatego `RDB_NOEXCEPT_CHECK` zastępuje pierwotne `RDB_NO_EXCEPTIONS` z portu #511.
 
 Operacje rdzenia C++ zgłaszają obsługiwalne błędy przez `rdb::Result<T> = std::expected<T, Error>`, z kategorią, komunikatem i `errno`. Wywołujący sprawdza wynik, a tworzenie obiektów może wymagać fabryki `create` lub `make`. `RDB_NOEXCEPT_CHECK=OFF` wyłącza tylko dodatkową kontrolę kompilacji; nie przywraca wcześniejszego API C++ opartego na wyjątkach. Nie jest to przełącznik bezpieczeństwa kernela: `rdb::fatal()` kończy hosta niezależnie od tej flagi. Granicę opisuje [API Python](../zalaczniki/python-jupyter-api.md#błędy-i-granica-fatalna).
 
-Pełny build uruchamia kontrolę automatycznie. Budowanie wyłącznie wybranego celu, np. `_core`, nie uruchamia niezależnych bibliotek kontrolnych; można zbudować je jawnie zgodnie z [procedurą dla Pythona](python-build.md#moduł-z-drzewa-budowy). Test `exception_mode_guard` sprawdza rzeczywiste flagi wydawanych celów oraz kompletność kontroli na podstawie `compile_commands.json`. Nie potwierdza, że build kontrolny został wykonany.
+Pełny build uruchamia kontrolę automatycznie. Budowanie wyłącznie wybranego celu, np. `_core`, nie uruchamia niezależnych celów kontrolnych; można zbudować je jawnie zgodnie z [procedurą dla Pythona](python-build.md#moduł-z-drzewa-budowy). Test `exception_mode_guard` sprawdza rzeczywiste flagi wydawanych celów oraz kompletność kontroli na podstawie `compile_commands.json`. Nie potwierdza, że build kontrolny został wykonany.
 
 ## Środowisko rozwojowe Apple
 
