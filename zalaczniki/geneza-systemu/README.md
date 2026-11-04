@@ -10,6 +10,10 @@ System monitorowania powstał i został wdrożony u klienta w jednym z Warszawsk
 
 Tak przedstawia się w ogólnym zarysie generyczna przyczyna, z której wynikła potrzeba stworzenia systemu zarządzania danymi dla potrzeb przetwarzania sygnałów. Z czasem doszły kolejne obszary zastosowań wynikające z rozszerzających się obszarów rozwojowych związanych z telemetrią, monitorowaniem oraz rozbudową systemów IoT.
 
+Implementacja systemu rozwijała się jeszcze przed publikacją na GitHubie. Zachowana historia projektu `db-project` obejmuje 257 commitów z okresu od 8 sierpnia 2012 r. do 21 lipca 2016 r. [Najstarszy commit](https://github.com/michalwidera/retractordb/commit/df2c085069adc2c44034703e9dd8fddb60e07f39) zawiera już kod kompilatora zapytań, wykonawcy, konsoli i testów regresyjnych. Projekt pojawił się na GitHubie 5 grudnia 2019 r., kiedy udostępniono rozwijaną wcześniej implementację.
+
+4 listopada 2026 r. w ramach [PR #598](https://github.com/michalwidera/retractordb/pull/598) do głównej gałęzi `master` dołączono pełną historię z archiwum `db-project`. Zachowano oryginalne identyfikatory i daty wszystkich 257 commitów. Scalenie uzupełniło historię repozytorium bez zmiany zawartości jego bieżących plików.
+
 ## W skrócie
 
 <div class="timeline">
@@ -26,9 +30,13 @@ Tak przedstawia się w ogólnym zarysie generyczna przyczyna, z której wynikła
 
   System monitorowania działa u klienta, ale bez języka zapytań i mechanizmów zarządzania danymi opisywanych w publikacjach - termin wymusił rozwiązanie ręczne.
 
-- **2019 - repozytorium RetractorDB**
+- **2012-2016 - prace nad implementacją**
 
-  Pierwszy commit repozytorium (grudzień 2019): początek implementacji na Github systemu zarządzania danymi dla przetwarzania sygnałów.
+  Archiwum projektu `db-project` obejmuje 257 commitów. Najstarszy, z 8 sierpnia 2012 r., zawiera już kompilator, wykonawcę, konsolę i testy regresyjne. Historię tę dołączono do gałęzi `master` 4 listopada 2026 r. w ramach technicznego scalenia, zachowując oryginalne identyfikatory i daty commitów. Bieżące pliki projektu pozostały bez zmian.
+
+- **2019 - publikacja na GitHubie**
+
+  5 grudnia 2019 r. projekt pojawia się na GitHubie. Do repozytorium trafia rozwijana wcześniej implementacja systemu zarządzania danymi dla przetwarzania sygnałów.
 
 - **Dziś - telemetria, monitorowanie, IoT**
 
