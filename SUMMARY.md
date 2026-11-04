@@ -32,6 +32,7 @@
   * [Polecenie LET](konstrukcja-jezyka-zapytan/polecenie-let.md)
   * [Polecenie VAR i akcja DO SET](konstrukcja-jezyka-zapytan/polecenie-var.md)
   * [Dyrektywy konfiguracyjne](konstrukcja-jezyka-zapytan/dyrektywy-konfiguracyjne.md)
+  * [Błędy składni i kompilacji](konstrukcja-jezyka-zapytan/bledy-skladni-i-kompilacji.md)
 * [Architektura systemu](architektura-systemu-przetwarzania-danych/README.md)
   * [Perspektywa ogólna](architektura-systemu-przetwarzania-danych/schemat-architektury.md)
   * [Wiele instancji i magistrala](architektura-systemu-przetwarzania-danych/wiele-instancji-i-magistrala.md)

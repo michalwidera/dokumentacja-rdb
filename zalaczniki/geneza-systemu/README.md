@@ -28,7 +28,7 @@ Tak przedstawia się w ogólnym zarysie generyczna przyczyna, z której wynikła
 
 - **2019 - repozytorium RetractorDB**
 
-  Pierwszy commit repozytorium (grudzień 2019): początek implementacji systemu zarządzania danymi dla przetwarzania sygnałów.
+  Pierwszy commit repozytorium (grudzień 2019): początek implementacji na Github systemu zarządzania danymi dla przetwarzania sygnałów.
 
 - **Dziś - telemetria, monitorowanie, IoT**
 
