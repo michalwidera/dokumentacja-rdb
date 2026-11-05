@@ -68,6 +68,7 @@
     * [Przykład średniej ruchomej](realizacja-zapytan/ruchome-okno-danych-agse/przyklad-sredniej-ruchomej.md)
     * [Różne typy okien](realizacja-zapytan/ruchome-okno-danych-agse/rozne-typy-okien.md)
   * [Odtwarzanie strumienia](realizacja-zapytan/odtwarzanie-strumienia.md)
+  * [Błędy wykonania](realizacja-zapytan/bledy-wykonania.md)
 * [Przykłady zastosowań](przyklady-zastosowan/README.md)
   * [Implementacja filtru sygnałowego](przyklady-zastosowan/implementacja-filtru-sygnalowego.md)
   * [Wizualizacja EKG i Detekcja Arytmii - baza MIT-BIH](przyklady-zastosowan/wizualizacja-ekg-mit-bih.md)

@@ -13,3 +13,5 @@ Rozważmy trzy strumienie o interwałach 1/3 s, 1/2 s i 2/3 s. Regularna siatka 
 Generator terminów zachowuje interwały 1/3 i 1/2, ponieważ każdy termin strumienia 2/3 jest już terminem strumienia 1/3. Po slocie zerowym kolejne chwile to 1/3, 1/2, 2/3, 1, 4/3, 3/2, 5/3 i 2 sekundy. Dla każdej chwili silnik sprawdza należność wszystkich strumieni; wspólne terminy obsługuje w jednym slocie. Szczegóły opisuje [Algorytm przeglądu drzewa zapytań](algorytm-przegladu-drzewa-zapytan.md).
 
 Analizując poniższy wywód może bardziej oczywiste staną się wspomniane w rozdziale komentarze generowane dla programu swirly przedstawiające generowane schematy kulkowe.
+
+Przyczyny komunikatów, reakcje systemu i zalecane działania operatora opisuje rozdział [Błędy wykonania](bledy-wykonania.md). Obejmuje źródła danych, obliczenia, magazyny, reguły, magistralę i IPC oraz narzędzia klienckie.

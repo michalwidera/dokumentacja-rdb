@@ -169,7 +169,9 @@ Polecenie tylko czyta; nie ma bezpośredniego przypisania wartości przez `xqry`
 | `-n` / `--null` | W formacie raw pomija wypisywanie rekordów, w których wszystkie wartości są `NULL`; te rekordy nadal zużywają budżet `--elimitqry`. |
 | `-c` / `--needctrlc` | Wymaga Ctrl+C zamiast zakończenia dowolnym klawiszem. |
 
-Jedna subskrypcja tworzy własną kolejkę odpowiedzi. Po zatrzymaniu lub wymianie planu serwer próbuje wysłać znacznik końca, po czym usuwa nazwę kolejki także wtedy, gdy wysyłanie zawiedzie. Pełna kolejka może nie przyjąć znacznika; porzucona blokada kolejki po śmierci klienta również nie zatrzymuje sprzątania. Odebrany znacznik kończy odbiór; brak znacznika, także po nagłej awarii, jest wykrywany przez timeout `timing.query_no_data_timeout_ms`. Zachowanie końcowego wysyłania i sprzątania sprawdza `ut_ipcServer`.
+Każda subskrypcja otrzymuje własną kolejkę odpowiedzi, nową albo opróżnioną z puli serwera. Po zatrzymaniu lub wymianie planu serwer próbuje wysłać znacznik końca, po czym usuwa nazwę kolejki także wtedy, gdy wysyłanie zawiedzie. Pełna kolejka może nie przyjąć znacznika; porzucona blokada kolejki po śmierci klienta również nie zatrzymuje sprzątania. Odebrany znacznik kończy odbiór; brak znacznika, także po nagłej awarii, jest wykrywany przez timeout `timing.query_no_data_timeout_ms`. Zachowanie końcowego wysyłania i sprzątania sprawdza `ut_ipcServer`.
+
+Przyczyny przepełnienia i porzucenia kolejki, limity pamięci, błędy zmiany nazwy oraz reakcje i działania naprawcze opisują [Błędy wykonania](../../realizacja-zapytan/bledy-wykonania.md).
 
 ### Subskrypcja na granicy epok planu
 
