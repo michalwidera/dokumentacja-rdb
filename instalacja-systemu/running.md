@@ -18,8 +18,6 @@ EOF
 xretractor "$rdb_demo_dir/plan.rql" --name installation-demo -u -k
 ```
 
-`-u` zatrzymuje przetwarzanie po EOF; `-k` pomija oczekiwanie na klawisz przy zakończeniu. Bez `-u` źródło może zawijać się, a proces wymaga zatrzymania. Interwał `1/2` oznacza jedną próbkę co pół sekundy. Przy ponowieniu całego przykładu `mktemp` tworzy nowy katalog, dzięki czemu wyniki poprzedniego przebiegu pozostają oddzielne.
-
 Po zakończeniu `xretractor` odczytaj artefakt w tej samej powłoce, w której ustawiono `rdb_demo_dir`:
 
 ```bash
@@ -46,6 +44,8 @@ Oczekiwany wynik:
 { dst_0:140 }
 { dst_0:160 }
 ```
+
+`-u` zatrzymuje przetwarzanie po EOF; `-k` pomija oczekiwanie na klawisz przy zakończeniu. Bez `-u` źródło może zawijać się, a proces wymaga zatrzymania. Interwał `1/2` oznacza jedną próbkę co pół sekundy. Przy ponowieniu całego przykładu `mktemp` tworzy nowy katalog, dzięki czemu wyniki poprzedniego przebiegu pozostają oddzielne.
 
 `size` potwierdza liczbę rekordów i rozmiar rekordu, a `list 8` pokazuje ich wartości w kolejności zapisu. Nazwę pola `dst_0` nadał kompilator wyrażeniu `a*2`. Plik `results/dst` zawiera dane binarne; `results/dst.desc` opisuje pole typu `INTEGER`. Do interpretacji danych używaj `xtrdb` lub [offline Storage](../zalaczniki/python-jupyter-api.md), które odczytują deskryptor i metadane.
 
