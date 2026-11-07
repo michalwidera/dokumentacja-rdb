@@ -10,7 +10,7 @@ Flaga `-c` (`--onlycompile`) zatrzymuje `xretractor` po kompilacji i drukuje sko
 xretractor -c query.rql
 ```
 
-Kod wyjścia `0` oznacza sukces. Kod `1` - błąd kompilacji. Komunikaty błędów trafiają na stderr:
+Kod wyjścia `0` oznacza sukces. Odmowa błędnego planu przez parser lub kompilator zwraca `EPROTO`, czyli `71` na Linuksie. Inne niepowodzenia, np. brak samego pliku `.rql` albo błąd wewnętrzny, mogą mieć inne kody; w skrypcie sprawdzaj każdy wynik różny od zera. Komunikaty błędów trafiają na stderr:
 
 ```bash
 xretractor -c query.rql 2>errors.txt
@@ -104,11 +104,11 @@ Strumień odwołuje się pośrednio lub bezpośrednio do samego siebie. Wygeneru
 
 ### Nieznany strumień
 
-Odwołanie do strumienia, który nie został jeszcze zadeklarowany. Pliki `.rql` przetwarzane są sekwencyjnie - `SELECT` nie może odwoływać się do strumienia zdefiniowanego niżej w pliku. Przesuń `DECLARE` lub `SELECT` wyżej.
+Komunikat `Stream 'dst' reads from 'absent', which is not defined in the plan` oznacza brak producenta o wskazanej nazwie w całym planie. Sprawdź pisownię i dodaj brakującą deklarację lub zapytanie. `SELECT` może odwoływać się do producenta zdefiniowanego niżej w pliku, o ile zależności nie tworzą cyklu; samo przesunięcie istniejącej definicji nie naprawia brakującego producenta ani cyklu. Osobne reguły kolejności dotyczą `LET`/`VAR`, których deklaracja poprzedza użycie, oraz `RULE`, którego cel musi już istnieć przy parsowaniu. Szczegóły diagnostyki opisują [Błędy składni i kompilacji](../konstrukcja-jezyka-zapytan/bledy-skladni-i-kompilacji.md#nazwy-strumieni-pola-i-zależności).
 
-### Niezgodność krotności schematów przy `_`
+### Różne szerokości wejść przy `[_]`
 
-Oba strumienie w wyrażeniu `core0[_] * core1[_]` muszą mieć schematy tej samej liczności. Sprawdź ile pól ma każdy z argumentów w blokach DECLARE planu. Patrz [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md).
+Wyrażenie `core0[_] * core1[_]` rozwija się do najmniejszej płaskiej szerokości wkładów obu argumentów w klauzuli `FROM`; równość szerokości nie jest wymagana. Dla wejść o dwóch i jednej pozycji powstaje jedno pole wynikowe. Tablica liczbowa zajmuje tyle pozycji, ile ma elementów, a `STRING[N]` jedną; wkład źródła ustala się w rzeczywistym drzewie `FROM`, po uwzględnieniu okien i reduktorów. Sprawdź schemat i klauzulę `FROM`, jeśli liczba wyników jest mniejsza od oczekiwanej. Nazwa spoza `FROM` albo wkład, który nie stanowi spójnego bloku pól, daje odmowę zamiast domyślnej szerokości. Patrz [Przetwarzanie symbolu \_](przetwarzanie-symbolu-_.md).
 
 ### Plik danych niedostępny
 
