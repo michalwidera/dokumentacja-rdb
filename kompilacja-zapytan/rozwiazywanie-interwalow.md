@@ -43,7 +43,7 @@ Strumień wynikowy produkuje wartości tak często, jak szybszy ze strumieni wej
 
 Przykład: core0(Δ=1/10) + core1(Δ=1/5) → str1(Δ=1/10)
 
-### Synchronizacja strumieni (`#`, STREAM\_HASH)
+### Przeplot strumieni (`#`, STREAM\_HASH)
 
 ```rql
 SELECT ... STREAM c FROM a # b

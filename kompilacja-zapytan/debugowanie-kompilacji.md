@@ -42,7 +42,7 @@ nazwaStrumienia(delta)
 | `nazwaStrumienia(delta)` | Nazwa strumienia i jego interwał jako ułamek: `1/10` = 0.1 s = 10 Hz |
 | `:- PUSH_STREAM(x)` | Pcha strumień `x` na stos strumieniowy; pojawia się raz na każdy argument FROM |
 | `:- STREAM_ADD` | Operator sumy strumieni (`+` w FROM) |
-| `:- STREAM_HASH` | Operator synchronizacji strumieni (`#` w FROM) |
+| `:- STREAM_HASH` | Operator przeplotu strumieni (`#` w FROM) |
 | `:- STREAM_TIMEMOVE(n)` | Przesunięcie w czasie (`>n` w FROM) |
 | `pole: TYP` | Pole schematu wynikowego po równaniu typów w górę |
 | `PUSH_ID(s[n])` | Odkłada na stos wartość pola `n` ze strumienia `s` - tu widoczny efekt aliasowania |
@@ -85,7 +85,7 @@ Jeśli delta strumienia wynikowego jest niespodziewana:
 1. Sprawdź delty strumieni źródłowych - widoczne w blokach DECLARE na końcu planu.
 2. Sprawdź operator w klauzuli FROM - każdy operator ma inne równanie na deltę.
 
-Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15` (średnia harmoniczna), nie `1/10`. Jeśli spodziewałeś się `1/10`, użyj `+` zamiast `#`. Pełne równania - patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
+Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15`: częstości wejść sumują się (`10 Hz + 5 Hz = 15 Hz`), więc interwał wynosi `a*b/(a+b)`. Suma `core0 + core1` daje tu deltę `1/10`, ale również łączy pola obu wejść w jednym rekordzie; przeplot `#` wybiera rekord jednej ze składowych. Dobierz operator także do oczekiwanego schematu i wartości. Pełne równania - patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
 
 ## Typowe błędy kompilacji
 

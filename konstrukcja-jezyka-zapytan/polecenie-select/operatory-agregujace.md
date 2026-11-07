@@ -57,7 +57,7 @@ Wartości `NULL` są pomijane. Jeżeli wszystkie sloty rekordu mają wartość `
 
 Agregaty nie zmieniają częstotliwości strumienia - interwał wyniku jest taki sam jak źródła:
 
-\\[\Delta_{wynik} = \Delta_{strumień}\\]
+\\[\Delta_{\text{wynik}} = \Delta_{\text{strumień}}\\]
 
 ### Typ wyniku
 

@@ -109,11 +109,12 @@ Przesunięcie `>1` sprawia, że pozycje 1..2 przesuniętego strumienia niosą el
 Generując obraz planu zapytania realizujący najpierw serializację a potem deserializację ujrzymy następującą zależność (Rys. 54):
 
 ```mermaid
-%% pdf-width: 30%
+%% pdf-width: 24%
+%% pdf-height: 42%
 flowchart BT
-    A["A: BYTE a, BYTE b; delta=1"] --> S["str3: A@(1,1); delta=1/2"]
-    S --> T["str3>1: phase alignment"]
-    T --> R["str4: @(2,-2); delta=1"]
+    A["A: BYTE a, BYTE b;<br/>delta=1"] --> S["str3: A@(1,1);<br/>delta=1/2"]
+    S --> T["str3>1:<br/>wyrównanie fazy"]
+    T --> R["str4: @(2,-2);<br/>delta=1"]
 ```
 
 _Rys. 54. Serializacja, wyrównanie fazy i deserializacja_

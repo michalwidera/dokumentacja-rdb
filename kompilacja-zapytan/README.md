@@ -10,7 +10,7 @@ W tym rozdziale chcę wyjaśnić, jak rozwiązałem problemy syntaktyczne, któr
 
 ### Plik `.rql`
 
-Wejście kompilatora - tekst w języku RQL zawierający instrukcje `DECLARE`, `SELECT` i `RULE` oraz dyrektywy konfiguracyjne (np. `:STORAGE`). Parser ANTLR4 czyta plik instrukcja po instrukcji.
+Wejście kompilatora - tekst w języku RQL zawierający instrukcje `DECLARE`, `SELECT`, `LET`, `VAR` i `RULE` oraz dyrektywy konfiguracyjne (np. `:STORAGE`). Parser ANTLR4 czyta plik instrukcja po instrukcji.
 
 Kolejność `DECLARE` i `SELECT` w pliku nie ma znaczenia: zapytanie może odwoływać się do strumienia zdefiniowanego niżej, bo zależności między strumieniami rozwiązuje dopiero kompilator. Wyjątkiem jest `RULE` - parser przypina regułę do strumienia już wczytanego, więc reguła musi stać po definicji swojego strumienia; w przeciwnym razie parser zgłasza błąd `Rule '…' refers to stream '…', but no such stream is defined`. Odwołanie do strumienia, którego w pliku nie ma wcale, daje kontrolowaną odmowę, np. `Check result:Stream 'dst' reads from 'absent', which is not defined in the plan`. `xretractor -c` kończy się wtedy kodem 71 na Linuksie.
 
@@ -18,9 +18,9 @@ Kolejność `DECLARE` i `SELECT` w pliku nie ma znaczenia: zapytanie może odwo�
 
 Parser buduje wewnętrzną reprezentację `qTree` - `std::vector<query>` - dopisując po jednym elemencie dla każdej instrukcji `DECLARE`, `SELECT` i dyrektywy konfiguracyjnej, w kolejności z pliku i bez sortowania. Element `SELECT` niesie schemat pól z programami stosowymi oraz program klauzuli `FROM` wskazujący strumienie źródłowe. Interwał czasowy (delta) jest na tym etapie znany tylko dla deklaracji `DECLARE`; dla zapytań `SELECT` wyznacza go kompilator. Szablon generatora `STREAM nazwa[N]` jest jeszcze jednym elementem, a reguła `RULE` nie tworzy własnego elementu - trafia na listę reguł swojego strumienia.
 
-Kolejność wektora zmienia się w trakcie kompilacji: rozwiązanie interwałów sortuje go według delty, a porządek topologiczny (producent przed konsumentem) przywraca dopiero ostatni etap.
+Kolejność wektora zmienia się w trakcie kompilacji: `expandSchemaWildcards` porządkuje go topologicznie przed rozwinięciem schematów, a rozwiązanie interwałów sortuje go według delty. Końcowe sortowanie ponownie zapewnia porządek topologiczny (producent przed konsumentem).
 
-### 23 etapy kompilacji
+### Etapy kompilacji
 
 `qTree` przechodzi przez łańcuch przekształceń: od rozbicia wyrażeń FROM na operacje dwuargumentowe, przez wyznaczenie delt i offsetów bajtowych, aż po weryfikację semantyczną i obliczenie rozmiarów buforów. Każdy etap zakłada sukces poprzedniego.
 
@@ -39,15 +39,15 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora - od opisu 
 
 - **[Przebiegi kompilacji](przebiegi-kompilacji.md)**
 
-  Opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok - to uporządkowana sekwencja dwudziestu trzech etapów wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, alokację buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego, a błąd na dowolnym etapie zatrzymuje kompilację.
+  Opisuje cały łańcuch etapów funkcji `compiler::compile()`. Kompilacja to nie jeden krok - to uporządkowana sekwencja przekształceń wewnętrznej reprezentacji `qTree`, od rozwinięcia generatorów i sprowadzenia wyrażeń FROM do postaci dwuargumentowej, przez wyznaczanie interwałów, kontrolę nazw substratów, uproszczenia wyrażeń i lokalizację pól, aż po weryfikację semantyczną, obliczenie pojemności buforów i końcowe sortowanie topologiczne. Każdy etap zakłada sukces poprzedniego, a błąd na dowolnym etapie zatrzymuje kompilację.
 
 - **[Budowa drzewa zależności](budowa-drzewa-zaleznosci.md)**
 
-  Opisuje strukturę DAG powstającego w trakcie kompilacji - fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność `DECLARE` i `SELECT` w pliku `.rql` nie ma znaczenia - graf zależności buduje kompilator; tylko `RULE` musi stać po definicji strumienia, do którego się odnosi.
+  Opisuje strukturę DAG powstającego w trakcie kompilacji - fundament, na którym opierają się wszystkie etapy. Korzeniami są deklaracje efemerydów (źródła zewnętrzne), wewnątrz grafu leżą substraty pośrednie, a liśćmi są artefakty. Flaga `-d` generuje wyjście w formacie DOT, które `graphviz` zamienia w wizualny graf zależności. Kolejność `DECLARE` i `SELECT` w pliku `.rql` nie ma znaczenia - graf zależności buduje kompilator; `RULE` musi stać po definicji strumienia, do którego się odnosi, a deklaracje `LET` i `VAR` muszą poprzedzać użycie ich nazw.
 
 - **[Substraty](substraty.md)**
 
-  Wyjaśnia etap `extractIntermediateStreams` - pierwszy krok po rozwinięciu generatorów. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`, `core0+core1+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania - unikając powielania obliczeń.
+  Wyjaśnia etap `extractIntermediateStreams`, wykonywany po rozwinięciu generatorów, kontroli odwołań do strumieni i migawce nazwanych odwołań. Gdy wyrażenie FROM zawiera więcej niż dwa argumenty (np. `(core0#core1)+core2`, `core0+core1+core2`), kompilator rozbija je na operacje dwuargumentowe i tworzy nazwane substraty. Późniejszy etap `deduplicateSubstrats` wykrywa, gdy substrat jest strukturalnie identyczny z zapytaniem użytkownika, i zastępuje odwołania - unikając powielania obliczeń.
 
 - **[Rozwijanie symbolu \*](rozwijanie-symbolu.md)**
 
@@ -55,7 +55,7 @@ Rozdział zbudowany jest zgodnie z kolejnością etapów kompilatora - od opisu 
 
 - **[Rozwiązywanie interwałów](rozwiazywanie-interwalow.md)**
 
-  Opisuje etap `resolveStreamIntervals`. Kompilator wyznacza deltę każdego strumienia wynikowego z równań algebry strumieniowej: dla operatora `+` delta to minimum wejść, dla `#` - średnia harmoniczna, dla `@(step, window)` - pochodna rozmiaru okna. Algorytm działa iteracyjnie - każda runda rozwiązuje co najmniej jeden strumień, aż wszystkie delty są znane.
+  Opisuje etap `resolveStreamIntervals`. Kompilator wyznacza deltę każdego strumienia wynikowego z równań algebry strumieniowej: dla operatora `+` delta to minimum interwałów wejść, dla `#` - `a*b/(a+b)`, bo sumują się częstości, a dla `@(step, window)` - interwał źródła pomnożony przez krok i podzielony przez liczbę płaskich elementów rekordu wejściowego. Szerokość okna określa zakres wartości, a nie interwał wyniku. Algorytm działa iteracyjnie - każda runda rozwiązuje co najmniej jeden strumień, aż wszystkie delty są znane.
 
 - **[Wykrywanie pętli](wykrywanie-petli.md)**
 

@@ -38,6 +38,7 @@ Kolejność przebiegów i kontroli definiuje funkcja `compiler::compile()`:
 - `checkFunctionCalls` - nazwy i arność funkcji skalarnych
 - `checkStreamReducerFieldRefs` - reduktor strumieniowy poza klauzulą `FROM`
 - `expandStreamGenerators` - rozwinięcie rodzin strumieni `nazwa[N]`
+- `checkStreamReferences` - istnienie producentów w `FROM` i dodatni krok AGSE
 - `snapshotNamedSourceRefs` - migawka odwołań zapisanych przez użytkownika
 - `extractIntermediateStreams` - wyrażenia `FROM` dwuargumentowe, substraty
 - `validateSubstratNameUniqueness` - pierwsza kontrola nazw przed sortowaniem
