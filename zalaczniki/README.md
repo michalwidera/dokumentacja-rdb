@@ -12,11 +12,11 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
   Wersjonowany kontrakt JSON Lines oraz opcjonalne biblioteki Python i C++ do obserwacji strumieni jawnie nazwanej instancji. Rozdział opisuje mapowanie typów, cykl życia subskrypcji, timeouty, ograniczone bufory, obsługę błędów oraz osobne cele budowania, instalowania i testowania API.
 
-- **[Geneza systemu](geneza-systemu/README.md)**
+- **[Geneza systemu](geneza-systemu/)**
 
   Opis historycznych okoliczności, które doprowadziły do powstania RetractorDB. Punkt wyjścia stanowi doświadczenie autora przy budowie systemu nadzoru neonatologicznego na początku XXI wieku - zderzenie z ograniczeniami relacyjnych baz danych przy rejestracji sygnałów o wysokiej granulacji, próby oparte na ówczesnych systemach strumieniowych oraz ewolucja ku dedykowanemu silnikowi przetwarzania serii czasowych. Rozdział wyjaśnia również, skąd pochodzi nazwa „Retractor" - nawiązanie do grupy narzędzi chirurgicznych rozdzielających i łączących struktury tkankowe, traktowane tu jako analogia do operacji na strumieniach danych.
 
-- **[Kolorowanie składni RQL](kolorowanie-skladni/README.md)**
+- **[Kolorowanie składni RQL](kolorowanie-skladni/)**
 
   Pliki zapytań RetractorDB (rozszerzenie `.rql`) mają dedykowane definicje kolorowania składni dla trzech środowisk:
 
@@ -26,7 +26,7 @@ W obszarze załączników znalazły się dokumenty, które nie są związane bez
 
   Każde ze środowisk rozpoznaje słowa kluczowe RQL (`SELECT`, `DECLARE`, `RULE`, `STREAM`, …), typy danych, komentarze, literały łańcuchowe i wartości liczbowe.
 
-- **[Opcje wywołania](opcje-wywolania/README.md)**
+- **[Opcje wywołania](opcje-wywolania/)**
 
   Kompletna dokumentacja flag wiersza poleceń dla wszystkich trzech narzędzi systemu:
 

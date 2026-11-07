@@ -1,10 +1,10 @@
 # Architektura systemu
 
-Konstrukcja systemu przetwarzania danych to rozdział stricte techniczny. Przedstawię tutaj jak system został zaprojektowany, zbudowany gdzie i jak obecnie rozmieszczone są jego funkcjonalności.
+Ten rozdział opisuje komponenty RetractorDB, ich odpowiedzialności oraz przepływ danych i sterowania. Prowadzi od współpracy programów `xretractor`, `xqry` i `xtrdb` do formatu artefaktów i realizacji planu zapytań.
 
-System RetractorDB został zaimplementowany w języku C++ pod kontrolą systemu Linux. Kod źródłowy podlega procesowi ciągłej integracji i testowania na platformie GitHub wspieranej przez CircleCI. Kod uruchamiany i rozwijany jest lokalnie na platformie Linux WSL2. Porzuciłem rozwój i implementację systemu pod kontrolą systemu Windows. W początkowej fazie utrzymywałem taką opcję i być może w przyszłości do niej powrócę. Jednak utrzymanie zbyt wielu platform rozwojowych znacząco opóźnia proces szybkiego prototypowania i rozwoju systemu. Nadal zachowuję i utrzymuję funkcjonalność systemu na platformie Linux ARM. Kod kompiluję i testuje się pod kontrolą maszyn opartych na architekturze ARM i x86-64 pracujących w zasobach CircleCI. Raspberry PI to jedna z docelowych platform produkcyjnych systemu RetractorDB przewidziana dla potrzeb Edge IoT.
+System jest zaimplementowany w C++. Platformą wdrożeniową jest Linux na x86-64 i ARM64, w tym urządzenia brzegowe takie jak Raspberry Pi. Rozwój i testy obejmują również Linux w WSL2 oraz rozwojowy port macOS. Natywna wersja dla Windows nie jest obecnie utrzymywana. Kod źródłowy jest przechowywany w GitHub, a konfiguracja ciągłej integracji korzysta z CircleCI.
 
-Kompilacja kodu systemu korzysta z Conan 2, CMake i Ninja. Przygotowanie narzędzi, budowanie ze źródeł i instalację gotowych pakietów opisuje [Instalacja systemu](../instalacja-systemu/README.md). Linux pozostaje ogólnym kontraktem wdrożeniowym tej instrukcji; port Apple służy wyłącznie do rozwoju i testów, a jego ograniczenia opisano w [instrukcji budowania ze źródeł](../instalacja-systemu/source-build.md#środowisko-rozwojowe-apple).
+Kompilacja kodu systemu korzysta z Conan 2, CMake i Ninja. Przygotowanie narzędzi, budowanie ze źródeł i instalację gotowych pakietów opisuje [Instalacja systemu](../instalacja-systemu/). Ograniczenia portu Apple opisano w [instrukcji budowania ze źródeł](../instalacja-systemu/source-build.md#środowisko-rozwojowe-apple).
 
 ## Przegląd poruszonych w rozdziale tematów
 
@@ -28,7 +28,7 @@ Rozdział zbudowany jest warstwowo - od widoku ogólnego do szczegółów implem
 
   Kluczowy podział taksonomiczny systemu. Każdy typ strumienia ma inne przeznaczenie i inną strategię składowania: artefakty materializowane na dysku jako trwały wynik, substraty to strumienie pośrednie niezbędne podczas obliczeń, efemerydy - ulotne źródła danych, których nie można ani nie warto przechowywać.
 
-- **[Format zapisu danych](format-zapisu-danych/readme.md)**
+- **[Format zapisu danych](format-zapisu-danych/)**
 
   Czteroplikowa struktura artefaktu: plik binarny z danymi (stałej długości rekordy, brak nagłówka), deskryptor `.desc` opisujący schemat rekordu w gramatyce ANTLR4, plik metadanych `.meta` z indeksem wartości null i przerw w transmisji (kodowanie RLE), opcjonalny plik cienia `.shadow` do niedestruktywnej modyfikacji historycznych rekordów. Deskryptor określa strategię składowania przez pole `TYPE`.
 

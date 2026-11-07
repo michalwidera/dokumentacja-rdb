@@ -4,31 +4,30 @@ RetractorDB to brzegowy silnik przetwarzania sygnałów (ang. *Edge Signal Proce
 
 Nazwa odzwierciedla połączenie dwóch idei. **Retractor** oznacza narzędzie, które wydobywa, rozdziela, łączy i przetwarza dane zawarte w seriach czasowych, natomiast człon **DB** wskazuje na rozwiązania znane z baz danych: deklaratywny język zapytań, opis schematu, mechanizmy dostępu oraz trwałe przechowywanie wyników. Więcej o pochodzeniu nazwy można przeczytać w rozdziale [Dlaczego wybrano taką nazwę dla systemu?](zalaczniki/geneza-systemu/dlaczego-wybrano-taka-nazwe-dla-systemu.md).
 
-Dokumentacja prowadzi od [podstaw matematycznych](podstawy-matematyczne/README.md) i [konstrukcji języka RQL](konstrukcja-jezyka-zapytan/README.md), przez [architekturę systemu](architektura-systemu-przetwarzania-danych/README.md), kompilację i realizację zapytań, aż po przykłady zastosowań oraz załączniki z opisem narzędzi. Przy pierwszym kontakcie najlepiej czytać rozdziały w kolejności podanej w spisie treści, ponieważ kolejne części korzystają z pojęć wprowadzonych wcześniej. Czytelnik szukający konkretnego rozwiązania może przejść bezpośrednio do odpowiedniego rozdziału, a następnie skorzystać z przykładów i załączników jako materiału praktycznego i referencyjnego.
+## Jak korzystać z dokumentacji
 
-## RetractorDB na tle sąsiednich dziedzin
+Przy pierwszym kontakcie zacznij od instalacji i krótkiego przykładu, który prowadzi od pliku wejściowego do odczytu gotowego wyniku. Podstawy matematyczne wyjaśniają semantykę operatorów i reguły optymalizacji; można do nich wrócić po uruchomieniu pierwszego planu.
 
-Ten rozdział jest mapą, nie katalogiem. Zamiast wyliczać wszystko, co kiedykolwiek napisano o strumieniach i sygnałach, pokazuję osiem nurtów literatury badawczej, na styku których leży RetractorDB, i dla każdego z nich odpowiadam na trzy pytania: co ten nurt już rozwiązał, w czym RetractorDB się od niego różni i czego ten nurt **nie** dotyka. Dopiero ich zestawienie pokazuje lukę, którą ten projekt wypełnia.
+| Cel | Zalecana ścieżka |
+| --- | --- |
+| Uruchomić pierwszy plan i odczytać wynik | [Instalacja](instalacja-systemu/) → [przykład uruchomienia](instalacja-systemu/running.md#standalone-plik-do-eof) → [przykłady zastosowań](przyklady-zastosowan/) |
+| Pisać zapytania i rozpoznawać błędy | [Konstrukcja RQL](konstrukcja-jezyka-zapytan/) → [błędy składni i kompilacji](konstrukcja-jezyka-zapytan/bledy-skladni-i-kompilacji.md) → [błędy wykonania](realizacja-zapytan/bledy-wykonania.md) |
+| Poznać model i rozwijać implementację | [Podstawy matematyczne](podstawy-matematyczne/) → [dowody i ich związek z kodem](podstawy-matematyczne/formalne-podstawy-i-dowody.md#związek-dowodów-z-implementacją) → [architektura](architektura-systemu-przetwarzania-danych/) → [kompilacja](kompilacja-zapytan/) i [wykonanie](realizacja-zapytan/) |
 
 <div class="no-print">
 
 > **📥 Pobierz dokumentację**
 >
-> Ta dokumentacja w całości jest kompilowana z plików w formacie markdown. Kopilowane są 3 cele. Pierwszy to strona html, którą teraz widzisz. Drugi to plik pdf, trzeci to dokument epub na czytnik. Za każdym razem po zmianie zawartości repozytorium na github gdzie przechowywane są pliki markdown uruchamiany jest proces tworzący te 3 cele. 
-> * [retractordb.pdf](retractordb.pdf) 
+> Dokumentacja jest publikowana jako strona HTML oraz pliki PDF i EPUB, budowane z tych samych źródeł Markdown. Poniższe pliki można pobrać do czytania offline.
+>
+> * [retractordb.pdf](retractordb.pdf)
 > * [retractordb.epub](retractordb.epub)
 
 </div>
 
-> **✅ Uwaga**
->
-> Ten system to: Edge Signal Processing Engine (Brzegowy System Przetwarzania Sygnałów). RetractorDB wspiera – a nie zastępuje – bazy szeregów czasowych (TSDB) i strumieniowe systemy zarządzania danymi (DSMS): pracuje blisko źródła sygnału, wstępnie przetwarza i filtruje wysokoczęstotliwościowe pomiary za pomocą deklaratywnego języka zapytań, utrzymuje częściowy, korygowalny zapis zdarzeń przeszłych i zaplanowanych przyszłych w inspekcjonowalnych artefaktach, a w górę architektury przekazuje dokładne, deterministyczne wyniki – tak, aby do centralnej architektury docierały wyłącznie zredukowane, już przetworzone strumienie.
+## RetractorDB na tle sąsiednich dziedzin
 
-
-> **ℹ️ Info**
->
-> Dlaczego umieściłem ten rozdział tak wcześnie? Bo uczciwa odpowiedź na pytanie „czy to jest potrzebne?" wymaga najpierw pokazania, co już istnieje. Większość pomysłów w informatyce została już raz pomyślana – wymyślanie koła na nowo to marnowanie cudzego wysiłku. Ten rozdział jest moją próbą udowodnienia, że akurat tego koła jeszcze nie wynaleziono.
-
+Poniższy przegląd przedstawia osiem nurtów literatury związanych z modelem i architekturą RetractorDB. Dla każdego wskazuje istniejące rozwiązania, podobieństwa oraz granice porównania. Służy do określenia miejsca systemu wśród pokrewnych prac; zakres przeglądu i ograniczenia wniosków opisuje końcowe zastrzeżenie metodologiczne.
 
 ## Osiem sąsiednich dziedzin
 

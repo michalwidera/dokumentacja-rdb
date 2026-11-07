@@ -1,10 +1,10 @@
 # Formalne podstawy i dowody
 
-W rozdziale o [algebrze regularnych serii czasowych](algebra-regularnych-serii-czasowych.md) przedstawiłem zbiór operatorów i opisujące je równania. Świadomie pominąłem tam formalne dowody – chciałem najpierw pokazać _co_ system robi, zanim wyjaśnię _dlaczego_ wolno mu to robić. Ta strona uzupełnia tę lukę. Zebrałem tu formalny szkielet algebry: powiązanie operatorów strumieniowych z teorią układów pokrywających oraz dowody twierdzeń, na których opiera się poprawność i optymalizacja planów zapytań.
+Rozdział o [algebrze regularnych serii czasowych](algebra-regularnych-serii-czasowych.md) definiuje operatory i opisujące je równania. Ta strona przedstawia ich uzasadnienie: związek z teorią układów pokrywających oraz dowody własności używanych do interpretacji i optymalizacji planów zapytań. Końcowa [część o związku z implementacją](#związek-dowodów-z-implementacją) wyjaśnia, które własności sformalizowano w Lean i jak testy porównują model z funkcjami C++.
 
 > **ℹ️ Info**
 >
-> Cała poniższa konstrukcja trzyma się w jednej dziedzinie – liczb wymiernych. To nie jest ozdobnik. To jest cały sens. Twierdzenie Beatty potrzebuje liczb niewymiernych, których w komputerze nie ma. Twierdzenie Fraenkela pozwala zejść do liczb wymiernych. Dowody na tej stronie pokazują, że operacje przeplotu i rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty Fraenkela – a więc są realizowalne wyłącznie na liczbach wymiernych.
+> Dla implementacji istotny jest wariant wymierny. Twierdzenie Beatty'ego opisuje podział dla parametrów niewymiernych, a uogólnienie Fraenkela dopuszcza również parametry wymierne. Poniższe dowody pokazują, że wybór pozycji próbek przez przeplot i rozplątanie można wyznaczać dokładnie w tej dziedzinie, bez przybliżeń zmiennoprzecinkowych.
 
 
 ## Układy pokrywające jako fundament
@@ -48,7 +48,7 @@ Druga z tych tożsamości ma bezpośrednie przełożenie na same sekwencje Beatt
 B_{\alpha}^{\prime}(n) = \left\lceil n\alpha \right\rceil = \left\lfloor n\alpha \right\rfloor + 1
 \\]
 
-W prawdziwej sekwencji Beatty α musi być niewymierne, więc nα nie jest liczbą całkowitą dla żadnego n > 0 – przesłanka drugiej tożsamości jest spełniona dla każdego wyrazu, a wariant sufitowy podnosi po prostu każdy wyraz wariantu podłogowego dokładnie o 1. Dla nas jest to jednak przypadek, którego w komputerze nie ma. W dziedzinie wymiernej, dopuszczonej dopiero przez twierdzenie Fraenkela, nα bywa liczbą całkowitą i wtedy ⌈nα⌉ = ⌊nα⌋, czyli przesunięcie o 1 znika. Stałe przesunięcie między wariantem sufitowym a podłogowym przestaje więc obowiązywać globalnie i musi być rozstrzygane wyraz po wyrazie – dokładnie to robi analiza przypadków w części trzeciej dowodu twierdzenia 2 (rozplątanie spełnia postulaty Fraenkela), gdzie o tym, który z dwóch przypadków zachodzi, decyduje nwd(a, b).
+W klasycznym twierdzeniu Beatty'ego α jest niewymierne, więc nα nie jest liczbą całkowitą dla żadnego n > 0. Druga tożsamość zachodzi zatem dla każdego wyrazu: wariant sufitowy podnosi każdy wyraz wariantu podłogowego dokładnie o 1. Dla wymiernego α iloczyn nα bywa liczbą całkowitą i wtedy ⌈nα⌉ = ⌊nα⌋. Zależność trzeba więc rozstrzygać wyraz po wyrazie. Taką analizę przypadków przeprowadza część trzecia dowodu twierdzenia 2 (rozplątanie spełnia postulaty Fraenkela), wykorzystując nwd(a, b).
 
 \\[
 \left\lfloor x + C\right\rfloor = \left\lfloor x\right\rfloor + C
@@ -122,7 +122,7 @@ Symetrycznie: indeks wyboru z ciągu A, czyli ⌊nz⌋, rośnie o dokładnie 1 w
 
 ## Twierdzenie 2: rozplątanie spełnia postulaty Fraenkela
 
-To jest centralne twierdzenie tej strony. Dowodzi, że obie sekwencje opisujące operację rozplątania są szczególnym przypadkiem sekwencji Beatty spełniającym postulaty twierdzenia Fraenkela dla liczb wymiernych. Bez tego twierdzenia cały system pozostaje jedynie obietnicą.
+Twierdzenie wiąże obie sekwencje wyboru próbek w operacji rozplątania z sekwencjami Beatty'ego spełniającymi postulaty Fraenkela dla parametrów wymiernych. Uzasadnia w ten sposób dokładne odwrócenie przeplotu.
 
 > **✅ Uwaga**
 >
@@ -405,14 +405,36 @@ W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych strumien
 
 ## Dlaczego to ma znaczenie
 
-Przedstawione twierdzenia nie są formalnością dla samej formalności. Każde z nich pełni konkretną rolę w działającym systemie:
+Przedstawione własności określają granice poprawnych przekształceń strumieni:
 
-* **Twierdzenie 1 i 2** gwarantują, że pary operacji przeplot/rozplątanie oraz suma/różnica są komplementarne – dane nie giną i nie powielają się w sposób niekontrolowany. To one pozwalają traktować te operacje jak mnożenie/dzielenie oraz dodawanie/odejmowanie w zbiorze regularnych serii czasowych.
-* **Twierdzenie 2** w szczególności udowadnia, że całą konstrukcję da się zrealizować wyłącznie na liczbach wymiernych – a więc deterministycznie i dokładnie na komputerze. To jest warunek, bez którego system RetractorDB nie mógłby istnieć.
-* **Twierdzenia o własnościach operatorów** (przemienność sumowania, dopasowanie przeplotu, zaburzenie kolejności) dostarczają reguł przepisywania wyrażeń strumieniowych. Optymalizator planów zapytań korzysta z nich, aby przekształcać plany do postaci tańszej w realizacji, nie zmieniając wyniku.
+* **Twierdzenia 1 i 2** uzasadniają pokrycie pozycji próbek przez przeplot oraz odzyskanie obu składowych przez rozplątanie, z zachowaniem kolejności każdej z nich.
+* **Wariant wymierny** pozwala obliczać odwzorowania indeksów dokładnie. Implementacja musi dodatkowo kontrolować zakres reprezentacji liczbowej.
+* **Własności operatorów** określają dozwolone przepisania i ograniczenia interpretacji. W szczególności R1 zachowuje część wartościową obserwacji, ale może skrócić ogon startowy, a przeplot nie zachowuje ogólnego porządku zdarzeń między składowymi.
 
-Dział matematyki, w którym osadzone są te równania, to teoria układów pokrywających [\[4\]](../literatura.md#4) w obszarze teorii liczb. Pełny formalizm wraz z kompletem dowodów przedstawiłem w pracy [Deterministyczna metoda przetwarzania ciągów danych](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych) [\[3\]](../literatura.md#3).
+Dział matematyki, w którym osadzone są te równania, to teoria układów pokrywających [\[4\]](../literatura.md#4) w obszarze teorii liczb. Historyczne wyprowadzenie metody przedstawia praca [Deterministyczna metoda przetwarzania ciągów danych](https://www.academia.edu/1840563/Deterministyczna_metoda_przetwarzania_ciagow_danych) [\[3\]](../literatura.md#3).
 
 > **ℹ️ Info**
 >
 > Numeryczna weryfikacja powyższych równań – prototypy w języku Python operujące na liczbach wymiernych (biblioteka `Fraction`) – znajduje się na stronie [Implementacja modelu](implementacja-programowa.md) oraz w repozytorium [github.com/michalwidera/equations](https://github.com/michalwidera/equations).
+
+## Związek dowodów z implementacją
+
+Dowody matematyczne dotyczą modelu operatorów. Ich formalizacja w Lean oraz testy silnika tworzą kolejne poziomy weryfikacji o różnym zakresie. Źródła znajdują się w katalogu [`math_proofs`](https://github.com/michalwidera/retractordb/tree/master/math_proofs) repozytorium kodu; [instrukcja projektu Lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/README.md) opisuje przygotowanie narzędzi, sprawdzanie dowodów i generowanie dokumentów Verso.
+
+| Własność | Formalizacja w `math_proofs/Profs/` |
+| --- | --- |
+| Pokrycie sekwencyjne przez przeplot | [InterleaveCovering.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/InterleaveCovering.lean) |
+| Podział pozycji i odwzorowania rozplątania | [BeattyPartition.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/BeattyPartition.lean), [Deinterleave.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/Deinterleave.lean) |
+| Dokładna odwracalność | [ExactInvertibility.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/ExactInvertibility.lean) |
+| Kontrprzykład dla porządku zdarzeń i przemienność sumy | [EventOrder.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/EventOrder.lean), [SumCommutativity.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/SumCommutativity.lean) |
+| Dopasowane przesunięcia R1 i realizacja przyczynowa | [ShiftMatching.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/ShiftMatching.lean), [CausalShift.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/CausalShift.lean) |
+| Okresowość wymagań fazowych i dokładny ogon przeplotu | [InterleaveTailExact.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/InterleaveTailExact.lean) |
+
+Powiązanie z kodem C++ przebiega w czterech krokach:
+
+1. **Sprawdzenie modelu w Lean.** Pliki `Profs/` zawierają definicje i dowody sprawdzane przez jądro Lean. Formalizacja podziału dodatnich pozycji korzysta z uogólnionego twierdzenia Rayleigha w Mathlib. Nie jest formalizacją pełnego twierdzenia Fraenkela. Po przygotowaniu środowiska polecenie `lake build Profs`, wykonane w katalogu `math_proofs`, sprawdza projekt dowodów.
+2. **Wygenerowanie wyroczni.** [`OracleMain.lean`](https://github.com/michalwidera/retractordb/blob/master/math_proofs/OracleMain.lean) oblicza tablice z definicji modelu. Skrypt `gen-oracle.sh` zapisuje je do `test/UnitTest/proofOracle.hpp` wraz ze skrótami SHA-256 źródeł dowodów i plików określających wersje narzędzi.
+3. **Porównanie z implementacją.** Test `ut_proofOracle` porównuje funkcje z `SOperations.hpp` z wygenerowanymi tablicami i sprawdza konsekwencje twierdzeń, np. `ProofOracle.deinterleave_inverts_interleave` oraz `ProofOracle.causal_shift_matching`. Asercje w C++ sprawdzają wybrane przypadki i zakresy parametrów; nie stanowią uniwersalnego dowodu zgodności całej implementacji z Lean.
+4. **Kontrola aktualności powiązań.** Test `proof_drift` sprawdza skróty wejść wyroczni i [`test/proof_manifest.tsv`](https://github.com/michalwidera/retractordb/blob/master/test/proof_manifest.tsv). Manifest przypisuje twierdzenia do testów albo jawnie określa brak pokrycia lub zakres poza odpowiednikiem silnika. Zmiana źródeł dowodów lub wersji narzędzi wymaga ponownego wygenerowania wyroczni; sama kontrola skrótów nie zastępuje sprawdzenia dowodów w Lean.
+
+Formalizacja obejmuje indeksy, wartości, interwały, dopasowane przesunięcia, początki logiczne i fazowy wzór dokładnego ogona przeplotu. Awaryjne oszacowanie ogona powyżej `kHashPhaseScanLimit` pozostaje poza jej zakresem. Zgodność deskryptorów, map `NULL`, luk, materializacji i pozostałych ścieżek wykonania C++ wymaga oddzielnych kontroli jednostkowych i integracyjnych. Ich rolę oraz odróżnienie opisu pokrycia od wyniku uruchomienia przedstawiają [Testy integracyjne](../zalaczniki/testy-integracyjne.md).

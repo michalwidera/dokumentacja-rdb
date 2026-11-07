@@ -1,6 +1,6 @@
 # Budowanie produkcyjne i warianty diagnostyczne
 
-Skrypt `scripts/buildrdb.sh` udostępnia produkcyjne budowanie `release` oraz tryby diagnostyczne. Warianty `release-ablation` i `probe` mają osobne konfiguracje CMake, katalogi wynikowe i generatory Conan. Kontrola gotowej binarki potwierdza użyte przełączniki. Przygotowanie narzędzi i instalację opisuje [Instalacja systemu](../instalacja-systemu/README.md).
+Skrypt `scripts/buildrdb.sh` udostępnia produkcyjne budowanie `release` oraz tryby diagnostyczne. Warianty `release-ablation` i `probe` mają osobne konfiguracje CMake, katalogi wynikowe i generatory Conan. Kontrola gotowej binarki potwierdza użyte przełączniki. Przygotowanie narzędzi i instalację opisuje [Instalacja systemu](../instalacja-systemu/).
 
 > **⚠️ Ostrzeżenie**
 >

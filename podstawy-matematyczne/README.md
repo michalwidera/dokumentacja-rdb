@@ -1,11 +1,6 @@
 # Podstawy matematyczne
 
-## Podstawy matematyczne
-
-> **ℹ️ Info**
->
-> Czy wiesz co to jest medal Fieldsa? Jest to nagroda przyznawana wyłącznie wybitnym matematykom w wieku poniżej 40 lat. Nazywana jest matematycznym Noblem. Co ciekawe żaden matematyk nie otrzyma nagrody Nobla – zgodnie z życzeniem fundatora. Sam John Charles Fields (1863-1932) był Kanadyjskim matematykiem. John Charles Fields miał jednego doktoranta – Samuela Beatty (1881-1970).
-
+Podstawą operatorów przeplotu i rozplątania jest podział pozycji próbek na dwa rozłączne, uporządkowane zbiory. Sekwencje Beatty'ego i twierdzenie Fraenkela pozwalają opisać taki podział oraz wyprowadzić dokładne odwzorowania indeksów. Ta strona przedstawia twierdzenia źródłowe; kolejne rozdziały definiują operatory i pokazują ich zastosowanie w systemie.
 
 Samuel Beatty w 1926 roku opublikował następujące twierdzenie [\[1\]](../literatura.md#1):
 
@@ -32,17 +27,15 @@ _{n=1}^{\infty }=\left\lfloor q\right\rfloor ,\left\lfloor 2q\right\rfloor
 ,\left\lfloor 3q\right\rfloor ,\ldots
 \\]
 
-oraz dokonują podziału zbioru dodatnich liczb całkowitych.
+dokonują podziału zbioru dodatnich liczb całkowitych.
 
-<figure><img src="../assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Repreznatacja graficzna pojęcia zbiorów rozłącznych</p></figcaption></figure>
+<figure><img src="../assets/zbiory_rozlaczne_beatya.png" alt=""><figcaption><p>Rys. 1. Reprezentacja graficzna pojęcia zbiorów rozłącznych</p></figcaption></figure>
 
-Te dwie sekwencje dokonują podziału zbioru liczb naturalnych. Oznacza to że dysponując dwoma liczbami niewymiernymi, pomiędzy którymi wskazana w twierdzeniu zależność – będziemy mogli podzielić zbiór wszystkich liczb naturalnych na dwa rozłączne zbiory (Rys. 1).
+Każda dodatnia liczba całkowita należy zatem do dokładnie jednej z tych sekwencji (Rys. 1). Warunek wiążący p i q zapewnia zarówno rozłączność, jak i pełne pokrycie zbioru.
 
-Twierdzenie Beaty samo w sobie jest bardzo ciekawą obserwacją – jednak w przypadku systemów komputerowych mamy pewien problem z liczbami niewymiernymi. Liczby rzeczywiste – pomimo faktu że w niektórych językach programowania pojawia się czasem słowo Real lub Float jako reprezentanta typu liczby rzeczywistej, z liczbami rzeczywistymi nie mają wiele wspólnego. Fundamentalny problem polega na tym że ich nie mamy i zapewne nigdy mieć nie będziemy.
+Bezpośrednie obliczanie tych pozycji za pomocą przybliżeń zmiennoprzecinkowych wymaga ostrożności: niewielki błąd w pobliżu liczby całkowitej może zmienić wynik podłogi lub sufitu, a przez to wybrać inną próbkę. Dla RetractorDB istotny jest wariant, w którym interwały i odwzorowania indeksów można obliczać dokładnie na liczbach wymiernych.
 
-I tu nasza podróż gwałtownie by się skończyła gdyby nie powstało kolejne twierdzenie. Sytuacja diametralnie uległa zmianie za sprawą matematyka – Aviezri Siegmund Fraenkel (1926) specjalizującego się w kombinatorycznych aspektach teorii gier.
-
-Przedstawił on w 1969 roku następujące twierdzenie [\[2\]](../literatura.md#2). Punktem wyjścia jest sparametryzowana sekwencja Beatty:
+Taką możliwość daje uogólnienie przedstawione przez Aviezriego S. Fraenkela w 1969 roku [\[2\]](../literatura.md#2). Punktem wyjścia jest sparametryzowana sekwencja Beatty:
 
 \\[
 \mathcal{B}(\alpha ,\alpha ^{\prime }):=
@@ -108,8 +101,6 @@ k\alpha +\alpha ^{\prime }\not\in \mathbb{Z}
 \left\lceil q\alpha ^{\prime }\right\rceil +\left\lceil q\beta ^{\prime}\right\rceil =1
 \\]
 
-No i to jest to czego potrzebujemy! Liczb niewymiernych co prawda nie mamy, ale liczby wymierne rozumiane jako stosunek dwóch liczb naturalnych to jest temat do ogarnięcia za pomocą komputera.
+Dopuszczenie parametrów wymiernych pozwala wyprowadzić operatory używane w RetractorDB bez przybliżania pozycji próbek. Implementacja musi dodatkowo przestrzegać granic reprezentacji liczbowej; twierdzenie matematyczne samo nie usuwa ograniczeń typów maszynowych.
 
-W naszym przypadku najpierw stworzyłem prototypy równań w języku Python a następnie zacząłem poszukiwać podstaw matematycznych, które wyglądały podobnie i można było się oprzeć na nich jako dobrze udokumentowanych równaniach popartych formalnymi dowodami. Dowodami oczywiście przeprowadzonymi przez bardziej doświadczonych matematyków. Skromne umiejętności pozwoliły jednak na identyfikację tych dwóch publikacji w aspekcie moich pomysłów.
-
-W tym dokumencie nie umieściłem formalnych dowodów. Dlatego przestawiłem tutaj jedynie stosowane w systemie równania i twierdzenia. Po formalne dowody odsyłam do moich publikacji naukowych [\[3\]](../literatura.md#3).
+Definicje operatorów przedstawia [Algebra regularnych serii czasowych](algebra-regularnych-serii-czasowych.md), a dowody ich własności zawiera rozdział [Formalne podstawy i dowody](formalne-podstawy-i-dowody.md). Jego [część o związku z implementacją](formalne-podstawy-i-dowody.md#związek-dowodów-z-implementacją) opisuje formalizację w Lean i kontrolę zgodności funkcji C++ z modelem. Historyczne wyprowadzenie metody znajduje się w publikacji [\[3\]](../literatura.md#3).
