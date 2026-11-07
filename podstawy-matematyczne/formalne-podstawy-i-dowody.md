@@ -26,7 +26,7 @@ Parametry tej sekwencji mają czytelną interpretację geometryczną:
 * α′ oznacza przesunięcie,
 * −α′/α oznacza y-przechwycenie (punkt przecięcia z osią rzędnych).
 
-Twierdzenie [Beatty](../literatura.md#1) gwarantuje podział zbioru dla liczb niewymiernych. Twierdzenie [Fraenkela](../literatura.md#2) jest uogólnieniem, które – co dla nas kluczowe – dopuszcza również liczby wymierne, pod warunkiem spełnienia pięciu postulatów (przytoczonych w [rozdziale wstępnym](README.md)). Przystępny dowód twierdzenia Fraenkela można odnaleźć w pracy K. O'Bryanta _„Fraenkel's partition and Brown's decomposition"_ [\[23\]](../literatura.md#23).
+Twierdzenie [Beatty](../literatura.md#1) gwarantuje podział zbioru dla liczb niewymiernych. Twierdzenie [Fraenkela](../literatura.md#2) jest uogólnieniem, które – co dla nas kluczowe – dopuszcza również liczby wymierne, pod warunkiem spełnienia pięciu postulatów (przytoczonych w [rozdziale wstępnym](./)). Przystępny dowód twierdzenia Fraenkela można odnaleźć w pracy K. O'Bryanta _„Fraenkel's partition and Brown's decomposition"_ [\[23\]](../literatura.md#23).
 
 Cała dalsza część tej strony sprowadza się do jednej myśli: pokazania, że operatory strumieniowe są w istocie maszynami generującymi sekwencje Beatty, które dokonują podziału (pokrycia) zbioru liczb naturalnych.
 
@@ -70,7 +70,7 @@ Te dwa przypadki rozłącznie pokrywają całą interesującą nas dziedzinę �
 
 ## Operatory w zapisie formalnym
 
-Operatory wprowadzone w języku zapytań mają swoje formalne odpowiedniki. Poniższa tabela wiąże zapis formalny (stosowany w dowodach) z symbolami spotykanymi w [języku zapytań](../konstrukcja-jezyka-zapytan/README.md):
+Operatory wprowadzone w języku zapytań mają swoje formalne odpowiedniki. Poniższa tabela wiąże zapis formalny (stosowany w dowodach) z symbolami spotykanymi w [języku zapytań](../konstrukcja-jezyka-zapytan/):
 
 | Operacja | Symbol formalny | Symbol w języku zapytań |
 | --- | --- | --- |
