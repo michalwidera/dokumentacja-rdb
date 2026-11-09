@@ -96,20 +96,22 @@ SELECT shifted2[0] STREAM shifted2 FROM core0 > 2
 Wynik kompilacji zachowa oba strumienie bez żadnej redukcji:
 
 ```rasm
-shifted1(1/10)
-        :- PUSH_STREAM(core0)
-        :- STREAM_TIMEMOVE(2)
-        shifted1_0: BYTE
-                PUSH_ID(shifted1[0])
-shifted2(1/10)
-        :- PUSH_STREAM(core0)
-        :- STREAM_TIMEMOVE(2)
-        shifted2_0: BYTE
-                PUSH_ID(shifted2[0])
-core0(1/10)     sensor_a.txt
-        a: BYTE
-        b: INTEGER
+core0(1/10)	sensor_a.txt
+	a: BYTE
+	b: INTEGER
+shifted1(1/10)	origin=2
+	:- PUSH_STREAM(core0)
+	:- STREAM_TIMEMOVE(2)
+	shifted1_0: BYTE
+		PUSH_ID(shifted1[0])
+shifted2(1/10)	origin=2
+	:- PUSH_STREAM(core0)
+	:- STREAM_TIMEMOVE(2)
+	shifted2_0: BYTE
+		PUSH_ID(shifted2[0])
 ```
+
+Oba przesunięte strumienie zaczynają się od indeksu logicznego `2`, stąd `origin=2`. Ich ogon wynosi zero, więc `tail` nie jest wypisywany. Producent `core0` występuje przed swoimi konsumentami.
 
 Semantyczna decyzja jest tu celowa: użytkownik zadeklarował dwa odrębne strumienie wynikowe i oba mają prawo istnieć niezależnie w planie wykonania. Przebieg `deduplicateSubstrats()` nie usuwa żadnego z nich. Kompilator może natomiast współdzielić ich wewnętrzne obliczenie, pozostawiając oba publiczne strumienie - opisuje to następny podrozdział.
 

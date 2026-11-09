@@ -27,10 +27,10 @@ Dla kanonicznego `query.rql` z tego rozdziału plan wygląda następująco:
 {{#include ../regen/out/debug.txt}}
 ```
 
-Każdy blok ma ustalony format:
+Blok strumienia obliczanego ma następujący format; nawiasy kwadratowe oznaczają opcjonalne adnotacje i nie są częścią wydruku:
 
 ```rasm
-nazwaStrumienia(delta)
+nazwaStrumienia(delta) [tail=W] [origin=O]
         :- operacjaStrumieniowa(arg)
         nazwaPolaWyjściowego: TYP
                 instrukcja
@@ -40,6 +40,8 @@ nazwaStrumienia(delta)
 | Element | Znaczenie |
 |---------|-----------|
 | `nazwaStrumienia(delta)` | Nazwa strumienia i jego interwał jako ułamek: `1/10` = 0.1 s = 10 Hz |
+| `tail=W` | Ogon: opóźnienie dostępności rekordu, wyrażone w slotach tego strumienia |
+| `origin=O` | Początek logiczny: indeks pierwszego istniejącego rekordu; rekordy o mniejszych indeksach nie mają definicji |
 | `:- PUSH_STREAM(x)` | Pcha strumień `x` na stos strumieniowy; pojawia się raz na każdy argument FROM |
 | `:- STREAM_ADD` | Operator sumy strumieni (`+` w FROM) |
 | `:- STREAM_HASH` | Operator przeplotu strumieni (`#` w FROM) |
@@ -49,7 +51,9 @@ nazwaStrumienia(delta)
 | `PUSH_VAL(x)` | Odkłada stałą `x` na stos |
 | `ADD`, `MULTIPLY`, ... | Operacja arytmetyczna: zdejmuje dwa argumenty ze stosu, odkłada wynik |
 
-Bloki efemerydów (`DECLARE`) pojawiają się na końcu planu - zawierają listę pól i ścieżkę do pliku danych.
+Adnotacje `tail` i `origin` są wypisywane tylko dla wartości dodatnich; brak danej adnotacji oznacza zero. Jeśli obie występują, `tail` poprzedza `origin`. Szczegóły obu wielkości opisuje rozdział [Ogony, początki logiczne i obserwowalność operatorów](../podstawy-matematyczne/ogony-i-obserwowalnosc-operatorow.md).
+
+Plan jest uporządkowany topologicznie: każdy producent występuje przed strumieniami, które z niego korzystają. Bloki efemerydów (`DECLARE`) zawierają listę pól i ścieżkę do pliku danych.
 
 **Aliasowanie w planie**: jeśli dwa pola wyjściowe wskazują na ten sam `PUSH_ID`, są aliasami. W przykładzie `result_0` i `result_2` oba to `PUSH_ID(merged[0])` - potwierdzenie, że `merged[0]` i `core0[0]` to ta sama pozycja. Patrz [Aliasowanie](aliasowanie.md).
 
@@ -82,7 +86,7 @@ Graf pokazuje zależności między strumieniami jako krawędzie skierowane od ź
 
 Jeśli delta strumienia wynikowego jest niespodziewana:
 
-1. Sprawdź delty strumieni źródłowych - widoczne w blokach DECLARE na końcu planu.
+1. Sprawdź delty strumieni źródłowych - widoczne w blokach DECLARE przed ich konsumentami.
 2. Sprawdź operator w klauzuli FROM - każdy operator ma inne równanie na deltę.
 
 Przykład: `core0(1/10) # core1(1/5)` daje deltę `1/15`: częstości wejść sumują się (`10 Hz + 5 Hz = 15 Hz`), więc interwał wynosi `a*b/(a+b)`. Suma `core0 + core1` daje tu deltę `1/10`, ale również łączy pola obu wejść w jednym rekordzie; przeplot `#` wybiera rekord jednej ze składowych. Dobierz operator także do oczekiwanego schematu i wartości. Pełne równania - patrz [Rozwiązywanie interwałów](rozwiazywanie-interwalow.md).
