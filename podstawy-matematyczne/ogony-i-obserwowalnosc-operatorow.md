@@ -7,7 +7,7 @@ Wykonanie przyczynowe rozszerza strumień \\(S=(s_n,\Delta_S)\\) o **dwie** wiel
 | początek logiczny \\(O_S\\) | *którego rekordu nie ma?* | indeks pierwszego rekordu, który **w ogóle istnieje**; rekordy o mniejszym indeksie nie mają definicji, bo sięgałyby przed początek strumienia źródłowego |
 | ogon startowy \\(W_S\\) | *kiedy rekord jest gotowy?* | rekord \\(n\\) jest emitowany w chwili \\((n+1+W_S)\Delta_S\\) |
 
-Żadna z nich nie jest prefiksem zer ani rekordów all-null. Zasada brzegu obowiązuje bez zmian: `NULL` jest wartością danych, nigdy rezerwacją miejsca. Liczba początkowych slotów, w których strumień milczy, wynosi \\(O_S+W_S\\) - i tylko ta suma była widoczna przed rozdzieleniem obu wielkości.
+Żadna z nich nie jest prefiksem zer ani rekordów all-null. Zasada brzegu stanowi, że `NULL` jest wartością danych, nigdy rezerwacją miejsca. Liczba początkowych slotów, w których strumień milczy, wynosi \\(O_S+W_S\\).
 
 Indeks logiczny jest walutą wszystkich odwzorowań między strumieniami. Strumień o niezerowym \\(O_S\\) nie ma rekordów wcześniejszych, więc jego rekord fizyczny 0 nosi indeks logiczny \\(O_S\\); przeliczenie na offset w buforze wykonuje wyłącznie `dataModel::fetchForward()`.
 
@@ -56,7 +56,20 @@ W_{\\#}
 \qquad \frac{\Delta_a}{\Delta_b}=\frac{p}{q},\quad \gcd(p,q)=1
 \\]
 
-Wybór składowej i faza powtarzają się z okresem \\(p+q\\), więc maksimum po jednym okresie jest maksimum po wszystkich rekordach; początek logiczny przesuwa oba indeksy o tyle samo i nie zmienia wyniku. Wzór jest dokładny. Dla okresów przekraczających `kHashPhaseScanLimit` implementacja używa bezpiecznej postaci zamkniętej. Może ona opóźnić emisję, ale nie może dopuścić do emisji rekordu przed udostępnieniem jego zależności.
+Wymaganie dostępności powtarza się z okresem \\(L=p+q\\), więc maksimum po jednym okresie jest maksimum po wszystkich rekordach. Każdy pełny okres od dowolnego początku logicznego zawiera te same fazy i daje ten sam ogon. Dla nieujemnych ogonów wejść maksimum ma dokładną postać zamkniętą:
+
+\\[
+W_{\\#}
+=\max\left(
+\left\lceil\frac{W_A L}{q}\right\rceil,\;
+\left\lceil\frac{(1+W_B)L+p-1}{p}\right\rceil-1
+\right),
+\qquad L=p+q
+\\]
+
+Pierwszy człon jest największym wymaganiem w fazach wybierających A, drugi - w fazach wybierających B. Uwzględniają jednocześnie ogon składowej i jej fazę. Dla \\(W_A=W_B=0\\) otrzymujemy \\(\lceil(L-1)/p\rceil\\).
+
+`HashStartupLatency()` w `SOperations.hpp` liczy tę postać dla każdego okresu. Równość postaci zamkniętej z maksimum opisuje `exactInterleaveTail_closed`, a minimalność tego maksimum - `exactInterleaveTail_exact` w Lean. Wyprowadzenie i granice powiązania z implementacją przedstawiają [Formalne podstawy i dowody](formalne-podstawy-i-dowody.md#związek-dowodów-z-implementacją). Wynik obliczeń w `int64` przekraczający zakres `int` powoduje odmowę kompilacji planu, opisaną w [przebiegu `computeStartupLatency`](../kompilacja-zapytan/przebiegi-kompilacji.md#computestartuplatency).
 
 ## Przesunięcie \\(\tau_N\\)
 
@@ -70,7 +83,7 @@ W_{\tau_N(S)}=\max\left(0,\;W_S-N\right)
 
 Ogon **maleje**, a nie rośnie. Rekord \\(n-N\\) jest starszy od bieżącego, więc jest dostępny tym bardziej: deficyt slotu \\(n\\) wynosi \\((n-N+1+W_S)-(n+1)=W_S-N\\) i jest **stały**, niezależny od \\(n\\). Przesunięcie przenosi więc milczenie z ogona do początku logicznego i dodatkowo pochłania ogon producenta, gdy \\(N\ge W_S\\).
 
-Suma \\(O+W\\) nie jest przy tym niezmiennikiem: dla \\(N<W_S\\) wynosi \\(N+W_S-N=W_S\\) po lewej, a była \\(W_S+N\\) w realizacji sprzed rozdzielenia wielkości. Wcześniejsza realizacja zawyżała ogon o \\(\min(W_S,N)\\); zawyżenie zdjęto, adresując producenta indeksem logicznym zamiast offsetem względnym.
+Po przesunięciu suma początku logicznego i ogona wynosi \\(O_S+N+\max(0,W_S-N)=O_S+\max(N,W_S)\\). Dla \\(N\le W_S\\) liczba początkowych slotów milczenia pozostaje taka sama; dla \\(N>W_S\\) rośnie do \\(O_S+N\\).
 
 ## Pełne okno AGSE
 
@@ -90,9 +103,9 @@ W_{\operatorname{AGSE}}
 =\left\lceil\frac{(1+W_S)F}{k}\right\rceil-1
 \\]
 
-Człon fazowy \\(P_{F,k,L}=\lfloor(\lvert L\rvert-1)/g\rfloor\,g\\), obecny w postaci sprzed przestemplowania, **zniknął z ogona**: rozpiętość okna nie jest czekaniem, tylko niedefiniowalnością, i przeszła w całości do początku logicznego. Suma \\(O+W\\) opisuje to samo milczenie co poprzednio.
+Rozpiętość okna wyznacza początek logiczny: okno sięgające przed początek źródła nie ma definicji. Ogon zależy od dostępności najnowszego pola.
 
-Dodatnia szerokość zachowuje historyczną konwencję RetractorDB - najnowsze pole jest pierwsze; ujemna szerokość daje odbicie lustrzane, czyli kolejność napływu.
+Dla dodatniej szerokości najnowsze pole jest pierwsze; ujemna szerokość daje odbicie lustrzane, czyli kolejność napływu.
 
 Pojemność historii źródła nie ma tu postaci zamkniętej. Odległość wsteczna w chwili emisji rekordu \\(n\\),
 
@@ -131,6 +144,6 @@ Rozdzielenie nie jest formalnością. Faktoryzacja \\(R_1\\) (\\(\varphi(\tau_i(
 
 Zmiana którejkolwiek składowej części wartościowej zmienia obserwowalny artefakt. W szczególności przyszłe włączenie propagacji luk w strumieniach obliczanych wymaga wersjonowanej zmiany semantyki.
 
-Odczyt poza dostępną historią zwraca wewnętrznie rekord all-null jako bezpiecznik. Poprawnie skompilowany plan nigdy go nie materializuje: `logicalOrigin` pomija sloty bez definicji, `startupLatency` - sloty jeszcze nieokreślone, a pojemność historii zachowuje każdy wymagany indeks. Test `it_k19_boundaries` rozróżnia ten przypadek od prawdziwego `NULL` znajdującego się wewnątrz pełnego okna. Od 23 września 2026 konwencja obowiązuje na całej drodze odczytu: `storage::read()` i `storage::revRead()` zgłaszają brak rekordu osobnym statusem i również ustawiają wzorzec all-null, więc reduktor taki rekord pochłania, a nie składa z niego zera (→ [Pliki](../architektura-systemu-przetwarzania-danych/format-zapisu-danych/pliki.md#odczyt-rekordu-którego-nie-ma)).
+Odczyt poza dostępną historią zwraca wewnętrznie rekord all-null jako bezpiecznik. Poprawnie skompilowany plan nigdy go nie materializuje: `logicalOrigin` pomija sloty bez definicji, `startupLatency` - sloty jeszcze nieokreślone, a pojemność historii zachowuje każdy wymagany indeks. Test `it_k19_boundaries` rozróżnia ten przypadek od prawdziwego `NULL` znajdującego się wewnątrz pełnego okna. Funkcje `storage::read()` i `storage::revRead()` zgłaszają brak rekordu osobnym statusem i również ustawiają wzorzec all-null, więc reduktor taki rekord pochłania, a nie składa z niego zera (→ [Pliki](../architektura-systemu-przetwarzania-danych/format-zapisu-danych/pliki.md#odczyt-rekordu-którego-nie-ma)).
 
 Wzory operatorowe z tego rozdziału są egzekwowane przy każdym commicie: granice i obserwowalność przez `it_k19_boundaries`, głębokości historii przez `it_k24_capacity`, a zgodność początku logicznego i ogona wszystkich kanonicznych klas operatorów oraz ich złożeń przez test jednostkowy `ut_h10aGate`.

@@ -275,14 +275,9 @@ Oba strumienie niosą ∆<sub>c</sub> = ∆<sub>a</sub>. Pokrywają się więc z
 
 Operacja przeplotu nie jest w ogólności przemienna: ponieważ 0 < z < 1, w punkcie n = 0 zawsze zachodzi gałąź równości w definicji przeplotu, więc strumień φ(A, B) zaczyna się od elementu b₀, a strumień φ(B, A) – od elementu a₀. Przeplot jest jednak ekwiwariantny względem przesunięć czasowych dopasowanych do temp strumieni – co jest cenne w optymalizacji planów zapytań.
 
-W realizacji przyczynowej strumień ma postać \\(\widehat{S}=((s_n,\Delta),W_S)\\), gdzie \\(W_S\\) jest ogonem startowym. Przeliczenie ogona producenta na sloty wyjścia definiujemy jako:
+W realizacji przyczynowej strumień ma postać \\(\widehat{S}=((s_n,\Delta),W_S)\\), gdzie \\(W_S\\) jest ogonem startowym.
 
-\\[
-\operatorname{conv}(w,\Delta_s,\Delta_o):=
-\left\lceil\frac{w\Delta_s}{\Delta_o}\right\rceil
-\\]
-
-Ogon przeplotu o interwale \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) wyprowadza się wprost z definicji operatora, bez pośrednictwa jednego członu fazowego.
+Ogon przeplotu o interwale \\(\Delta_c=\Delta_a\Delta_b/(\Delta_a+\Delta_b)\\) wynika z definicji operatora.
 
 Rekord \\(i\\) strumienia \\(\varphi(A,B)\\) niesie treść rekordu \\(j(i)\\) jednej ze składowych - tej, którą w slocie \\(i\\) wybiera definicja przeplotu. Oznaczmy przez \\(\Delta_{s(i)}\\) i \\(W_{s(i)}\\) interwał oraz ogon wybranej składowej. Rekord \\(j(i)\\) jest określony w chwili \\(\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}\\), a slot \\(i\\) konsumenta kończy się w chwili \\((i+1+W)\Delta_c\\). Warunek przyczynowości dla każdego \\(i\\):
 
@@ -302,24 +297,29 @@ W_{\varphi(A,B)}
 \right)
 \\]
 
-Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej dla żadnego węzła. Przegląd okresu zaczyna się od zera - początek logiczny przesuwa indeks konsumenta i indeks składowej o tę samą liczbę slotów, więc okno \\([0,\,p+q)\\) daje tę samą wartość co okno przesunięte.
+Wzór jest **dokładny**: nie zawyża ani nie zaniża granicy zdarzeniowej. Okresowość wymagań oznacza, że maksimum po \\([0,\,p+q)\\) jest takie samo jak po każdym pełnym okresie od dowolnego progu, także początku logicznego strumienia.
 
-Wcześniejsza postać zamknięta
+Dla \\(L=p+q\\) i nieujemnych ogonów \\(W_A,W_B\\) to maksimum ma **postać zamkniętą**:
 
 \\[
 W_{\varphi(A,B)}
 =\max\left(
-\operatorname{conv}(W_A,\Delta_a,\Delta_c),
-\operatorname{conv}(W_B,\Delta_b,\Delta_c)
-+H_{a,b}
+\left\lceil\frac{W_A L}{q}\right\rceil,\;
+\left\lceil\frac{(1+W_B)L+p-1}{p}\right\rceil-1
 \right)
 \\]
 
+Aby ją wyprowadzić, rozpatrujemy pozycje rekordów każdej składowej w przeplocie:
+
 \\[
-H_{a,b}=\left\lceil\frac{p+q-1}{p}\right\rceil
+r_A(j)=\left\lceil\frac{(j+1)L}{q}\right\rceil-1,
+\qquad
+r_B(k)=\left\lfloor\frac{kL}{p}\right\rfloor
 \\]
 
-zabezpieczała najgorszą fazę odczytu drugiego argumentu, ale nie sprawdzała, czy ta faza w ogóle wypada na rekord czekający najdłużej - dlatego zawyżała ogon o slot dla części węzłów. Pozostała w implementacji jako wariant awaryjny dla \\(p+q\\) powyżej progu przeglądu (`kHashPhaseScanLimit` w `SOperations.hpp`): zawyżenie kosztuje jeden slot opóźnienia, podczas gdy zaniżenie oznaczałoby rekord wyemitowany przed określeniem jego zależności. Sloty ogona nie są rekordami.
+Po podstawieniu \\(r_A(j)\\) do warunku dostępności otrzymujemy różnicę dwóch sufitów. Jej maksimum wynosi \\(\lceil W_A L/q\rceil\\) i jest osiągane przy \\(j=q-1\\), w ostatnim slocie okresu. Dla B wymaganie ma postać \\(\lceil(k+1+W_B)L/p\rceil-1-\lfloor kL/p\rfloor\\). Ponieważ \\(\gcd(L,p)=1\\), reszta \\(kL\bmod p\\) przebiega wszystkie wartości od 0 do \\(p-1\\). Maksimum wypada przy reszcie \\(p-1\\) i daje drugi człon wzoru. Dotyczy to również \\(p=1\\), gdy jedyną resztą jest 0.
+
+Równość z maksimum fazowym formalizuje `exactInterleaveTail_closed` w `InterleaveTailExact.lean`; `exactInterleaveTail_exact` stwierdza, że maksimum jest najmniejszym ogonem spełniającym warunek dostępności od dowolnego progu. `HashStartupLatency()` liczy postać zamkniętą dla każdego okresu, bez jego przeglądania. Dla zerowych ogonów wejść otrzymujemy \\(W_{\varphi(A,B)}=\lceil(L-1)/p\rceil\\).
 
 Przesunięcie \\(\tau_m\\) nie zmienia emitowanego ciągu rekordów, ale zmienia **indeks**, pod którym ten ciąg się pojawia: rekord \\(n\\) niesie treść rekordu \\(n-m\\). Rekordy o indeksie mniejszym od \\(O_S+m\\) nie mają definicji, więc
 
@@ -391,15 +391,15 @@ W_{\mathrm{LHS}}
 =W_{\mathrm{RHS}}.
 \\]
 
-Powyżej progu przeglądu silnik stosuje opisane wcześniej oszacowanie awaryjne \\(O(1)\\). Dla niego tę samą nierówność uzyskujemy przez monotoniczność obu członów \\(\operatorname{conv}\\): dopasowane przesunięcie zmniejsza każdy z nich najwyżej o \\(L\\), a składnik \\(H_{a,b}\\) pozostaje bez zmian. Obie strony korzystają z tego samego wariantu obliczeń, bo interwały się nie zmieniają. Oszacowanie awaryjne nie musi być równe dokładnemu maksimum fazowemu. ∎
+Postać zamknięta jest równa maksimum fazowemu dla każdego okresu, więc powyższy argument obejmuje wszystkie stosunki interwałów. ∎
 
 > **⚠️ Zakres twierdzenia**
 >
-> Równość ogonów **nie zachodzi**. Kontrprzykład: \\(\Delta_a=1/10\\), \\(\Delta_b=1/5\\), \\(W_A=W_B=0\\), \\(H_{a,b}=2\\), \\(i=2\\), \\(k=1\\), \\(L=3\\). Wtedy \\(W_{\mathrm{LHS}}=2\\), a \\(W_{\mathrm{RHS}}=\max(0,2-3)=0\\). Strona niesfaktoryzowana czyta składowe **po** ich własnym przesunięciu, więc na tę samą treść czeka dłużej; strona sfaktoryzowana czyta ją wprost z przeplotu.
+> Równość ogonów **nie zachodzi**. Kontrprzykład: \\(\Delta_a=1/10\\), \\(\Delta_b=1/5\\), \\(W_A=W_B=0\\), \\(W_{\varphi(A,B)}=2\\), \\(i=2\\), \\(k=1\\), \\(L=3\\). Wtedy \\(W_{\mathrm{LHS}}=2\\), a \\(W_{\mathrm{RHS}}=\max(0,2-3)=0\\). Strona niesfaktoryzowana czyta składowe **po** ich własnym przesunięciu, więc na tę samą treść czeka dłużej; strona sfaktoryzowana czyta ją wprost z przeplotu.
 >
 > Konsekwencja praktyczna: reguła przepisywania \\(\varphi(\tau_i(A),\tau_k(B))\to\tau_{i+k}(\varphi(A,B))\\) jest **optymalizacją opóźnienia**, a nie przepisaniem neutralnym. Zachowuje całą część wartościową obserwacji i nigdy nie emituje rekordu przed określeniem jego zależności, ale wynik jest gotowy wcześniej.
 >
-> Wcześniej obie strony miały ten sam ogon wyłącznie dlatego, że realizacja \\(\tau_m\\) zawyżała swój ogon o \\(\min(W_S,m)\\). Zawyżenie zdjęto, adresując producenta indeksem logicznym zamiast offsetem względnym. Regresje strzegące tego zakresu: `it_r1_identity_nulls`, `it_optimizer_ablation-factor-name-collision-semantic`.
+> Regresje strzegące tego zakresu: `it_r1_identity_nulls`, `it_optimizer_ablation-factor-name-collision-semantic`.
 
 W kompilatorze dodatkowe niezmienniki zachowują nazwy pól publicznych strumieni, mapy wartości pustych i politykę materializacji.
 
@@ -428,13 +428,13 @@ Dowody matematyczne dotyczą modelu operatorów. Ich formalizacja w Lean oraz te
 | Dokładna odwracalność | [ExactInvertibility.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/ExactInvertibility.lean) |
 | Kontrprzykład dla porządku zdarzeń i przemienność sumy | [EventOrder.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/EventOrder.lean), [SumCommutativity.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/SumCommutativity.lean) |
 | Dopasowane przesunięcia R1 i realizacja przyczynowa | [ShiftMatching.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/ShiftMatching.lean), [CausalShift.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/CausalShift.lean) |
-| Okresowość wymagań fazowych i dokładny ogon przeplotu | [InterleaveTailExact.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/InterleaveTailExact.lean) |
+| Okresowość, minimalność i postać zamknięta ogona przeplotu | [InterleaveTailExact.lean](https://github.com/michalwidera/retractordb/blob/master/math_proofs/Profs/InterleaveTailExact.lean) |
 
 Powiązanie z kodem C++ przebiega w czterech krokach:
 
 1. **Sprawdzenie modelu w Lean.** Pliki `Profs/` zawierają definicje i dowody sprawdzane przez jądro Lean. Formalizacja podziału dodatnich pozycji korzysta z uogólnionego twierdzenia Rayleigha w Mathlib. Nie jest formalizacją pełnego twierdzenia Fraenkela. Po przygotowaniu środowiska polecenie `lake build Profs`, wykonane w katalogu `math_proofs`, sprawdza projekt dowodów.
 2. **Wygenerowanie wyroczni.** [`OracleMain.lean`](https://github.com/michalwidera/retractordb/blob/master/math_proofs/OracleMain.lean) oblicza tablice z definicji modelu. Skrypt `gen-oracle.sh` zapisuje je do `test/UnitTest/proofOracle.hpp` wraz ze skrótami SHA-256 źródeł dowodów i plików określających wersje narzędzi.
-3. **Porównanie z implementacją.** Test `ut_proofOracle` porównuje funkcje z `SOperations.hpp` z wygenerowanymi tablicami i sprawdza konsekwencje twierdzeń, np. `ProofOracle.deinterleave_inverts_interleave` oraz `ProofOracle.causal_shift_matching`. Asercje w C++ sprawdzają wybrane przypadki i zakresy parametrów; nie stanowią uniwersalnego dowodu zgodności całej implementacji z Lean.
+3. **Porównanie z implementacją.** Test `ut_proofOracle` porównuje funkcje z `SOperations.hpp` z wygenerowanymi tablicami i sprawdza konsekwencje twierdzeń. Dla ogona przeplotu `ProofOracle.exactInterleaveTail_table` porównuje wynik C++ z tablicą Lean, a `ProofOracle.exactInterleaveTail_closed` sprawdza tę samą tablicę względem obu członów postaci zamkniętej dla parametrów względnie pierwszych. Asercje w C++ sprawdzają wybrane przypadki i zakresy parametrów; nie stanowią uniwersalnego dowodu zgodności całej implementacji z Lean.
 4. **Kontrola aktualności powiązań.** Test `proof_drift` sprawdza skróty wejść wyroczni i [`test/proof_manifest.tsv`](https://github.com/michalwidera/retractordb/blob/master/test/proof_manifest.tsv). Manifest przypisuje twierdzenia do testów albo jawnie określa brak pokrycia lub zakres poza odpowiednikiem silnika. Zmiana źródeł dowodów lub wersji narzędzi wymaga ponownego wygenerowania wyroczni; sama kontrola skrótów nie zastępuje sprawdzenia dowodów w Lean.
 
-Formalizacja obejmuje indeksy, wartości, interwały, dopasowane przesunięcia, początki logiczne i fazowy wzór dokładnego ogona przeplotu. Awaryjne oszacowanie ogona powyżej `kHashPhaseScanLimit` pozostaje poza jej zakresem. Zgodność deskryptorów, map `NULL`, luk, materializacji i pozostałych ścieżek wykonania C++ wymaga oddzielnych kontroli jednostkowych i integracyjnych. Ich rolę oraz odróżnienie opisu pokrycia od wyniku uruchomienia przedstawiają [Testy integracyjne](../zalaczniki/testy-integracyjne.md).
+Formalizacja obejmuje indeksy, wartości, interwały, dopasowane przesunięcia, początki logiczne oraz minimalność i postać zamkniętą dokładnego ogona przeplotu. Rachunek modelu używa liczb o nieograniczonym zakresie; kontrola reprezentacji `int64` i odmowa planu przy wyniku spoza `int` należą do implementacji C++. Zgodność deskryptorów, map `NULL`, luk, materializacji i pozostałych ścieżek wykonania C++ wymaga oddzielnych kontroli jednostkowych i integracyjnych. Ich rolę oraz odróżnienie opisu pokrycia od wyniku uruchomienia przedstawiają [Testy integracyjne](../zalaczniki/testy-integracyjne.md).

@@ -123,7 +123,7 @@ Wyodrębnia program argumentu każdego agregatu okna - `MIN`, `MAX`, `AVG` albo 
 
 #### inferFieldShapes
 
-Jedyny etap ustalający publiczny kształt pola `SELECT`: typ, długość i krotność. Kształt wynika z całego programu pola - przebieg odtwarza arytmetykę wykonawczą na stosie typów, łącznie z promocją `BYTE`, jawnymi konwersjami w środku wyrażenia, wynikiem agregatu okna oraz szerokością `STRING`. Etap zastąpił wcześniejsze reguły lokalne (`propagateCopiedFieldShapes`, `inferStringFieldTypes`), które rozstrzygały kształt tylko w wybranych przypadkach - patrz [Równanie typów w górę](rownanie-typow-w-gore.md).
+Jedyny etap ustalający publiczny kształt pola `SELECT`: typ, długość i krotność. Kształt wynika z całego programu pola - przebieg odtwarza arytmetykę wykonawczą na stosie typów, łącznie z promocją `BYTE`, jawnymi konwersjami w środku wyrażenia, wynikiem agregatu okna oraz szerokością `STRING`. Szczegóły przedstawia [Równanie typów w górę](rownanie-typow-w-gore.md).
 
 Przebieg działa do punktu stałego, bo drzewo jest jeszcze posortowane według interwału i konsument może stać przed producentem. Obejmuje wyłącznie węzły kopiujące schemat operandu; reduktory i okno `@` zachowują schemat zbudowany przez swój operator, a deklaracje `DECLARE` pozostają nietknięte. Etap poprzedza upraszczanie wyrażeń: po zwinięciu stałych szerokość pola zależałaby od przełącznika optymalizacji.
 
@@ -165,6 +165,23 @@ Oblicza `query::startupLatency`, czyli liczbę początkowych slotów własnego i
 
 Ten przebieg biegnie po `computeLogicalOrigin` i przed obliczeniem pojemności: ogon zależy od tego, które sloty są rekordami, a wymagana historia - od chwili pierwszej emisji konsumenta.
 
+Dla przeplotu kompilator redukuje stosunek \\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\). Funkcja `HashStartupLatency()` (`SOperations.hpp`) oblicza dokładny ogon w postaci zamkniętej:
+
+\\[
+W_{\\#}
+=\max\left(
+\left\lceil\frac{W_A L}{q}\right\rceil,\;
+\left\lceil\frac{(1+W_B)L+p-1}{p}\right\rceil-1
+\right),
+\qquad L=p+q
+\\]
+
+Jest to maksimum warunku dostępności po jednym pełnym okresie fazowym. Liczba operacji po wyznaczeniu \\(p/q\\) nie zależy od \\(L\\). Uzasadnienie wzoru znajduje się w [Formalnych podstawach i dowodach](../podstawy-matematyczne/formalne-podstawy-i-dowody.md).
+
+Rachunek obu członów i wynik mają typ `int64`. Dla dodatnich \\(p,q\\) i nieujemnych \\(W_A,W_B\\) z zakresu `int` liczniki mieszczą się w tym typie. Jeśli wynik przekracza `std::numeric_limits<int>::max()`, `computeStartupLatency()` odrzuca plan przed zapisaniem `query::startupLatency`, wskazując strumień, liczbę wymaganych slotów i limit.
+
+Regresje `ut_soperations` porównują wzór z niezależnym przeglądem warunku dostępności w `__int128`. Obejmują względnie pierwsze \\(p,q\le30\\), trzy skale interwałów i ogony od 0 do 5, a także duże okresy fazowe. Test `xSOperations.hash_startup_latency_handles_the_int_range_edge` sprawdza krańce zakresu argumentów i wynik spoza `int`. Powiązanie z tablicami Lean sprawdza `ut_proofOracle`, a wzór operatorowy w złożeniach - `ut_h10aGate`.
+
 #### computeRequiredCapacities
 
 Oblicza wymagane pojemności buforów dla każdego strumienia na podstawie odległości między czołem producenta a indeksem czytanym przez konsumenta. Dla przesunięcia `>N` odległość wsteczna wynosi `W_out-W_src+N`, więc podstawowa pojemność to `W_out-W_src+N+1`. Jeśli źródłem jest deklaracja, dochodzą dwa rekordy wyprzedzenia: rekord uzbrojony przy otwarciu storage i zerowy prefetch. Wynik jest ograniczany od dołu do jednego rekordu. Pojemność historii jest wymaganiem wykonawczym, a nie prefiksem wyniku.
@@ -178,31 +195,6 @@ Weryfikuje poprawność semantyczną skompilowanego planu: zgodność typów i p
 #### applyCapacitiesToStreams
 
 Aplikuje obliczone pojemności do obiektów strumieni. Magazyn `MEMORY` zachowuje większą z wartości `RETENTION n` i potrzeby planu; dla źródeł zadeklarowanych pojemność wynika z potrzeb konsumentów.
-
-Dla przeplotu kompilator redukuje stosunek \\(\Delta_a/\Delta_b=p/q\\) do względnie pierwszych dodatnich \\(p,q\\) i przegląda **jeden pełny okres fazowy** \\(p+q\\). Dla każdego slotu \\(i\\) tego okresu ustala, którą składową wybiera przeplot i pod jakim indeksem \\(j(i)\\), po czym bierze maksimum wymaganego opóźnienia:
-
-\\[
-W_{\\#}
-=\max_{0\le i<p+q}\left(
-\left\lceil\frac{\bigl(j(i)+1+W_{s(i)}\bigr)\Delta_{s(i)}}{\Delta_c}\right\rceil
--1-i
-\right)
-\\]
-
-Wynik przeglądu jest dokładny - ani nie zaniża, ani nie zawyża granicy przyczynowej. Rachunek prowadzony jest w arytmetyce 64-bitowej, bo iloczyn \\((j+1+W)\cdot\text{licznik}\cdot\text{mianownik}\\) przekracza zakres `int` już dla umiarkowanych interwałów. Powyżej progu `kHashPhaseScanLimit` funkcja `HashStartupLatency()` (`SOperations.hpp`) stosuje bezpieczną granicę bez przeglądu faz:
-
-\\[
-W_{\\#,\mathrm{fallback}}
-=\max\left(
-\left\lceil\frac{W_a\Delta_a}{\Delta_c}\right\rceil,
-\left\lceil\frac{W_b\Delta_b}{\Delta_c}\right\rceil
-+\left\lceil\frac{p+q-1}{p}\right\rceil
-\right)
-\\]
-
-Pierwsze dwa składniki przeliczają ogony wejść na sloty wyjścia; dla zerowego ogona wkład wynosi zero. Składnik \\(\lceil(p+q-1)/p\rceil\\) opisuje tylko fazę i sam nie wystarcza przy niezerowych ogonach wejść. Cała granica jest zachowawcza: nie zwalnia rekordu przed gotowością zależności, ale nie obiecuje nadmiaru dokładnie jednego slotu. Regresja `ut_soperations::xSOperations.hash_startup_latency_above_scan_limit_stays_safe` porównuje ją z niezależnym przeglądem także dla niezerowych ogonów.
-
-Regresje obejmują między innymi stosunki \\(3/5\\), \\(3/2\\), \\(7/11\\) i \\(160/147\\), w tym okresowe rekordy w całości `NULL` w nieprzepisanej lewej stronie tożsamości R1; wzór operatorowy pilnuje test `ut_h10aGate`.
 
 #### checkHistoryMemory
 
