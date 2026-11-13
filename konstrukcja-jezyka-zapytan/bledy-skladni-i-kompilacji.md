@@ -15,6 +15,7 @@ Przejdź do grupy odpowiadającej komunikatowi:
 - [Generatory rodzin strumieni](#generatory-rodzin-strumieni)
 - [Reguły RULE](#reguły-rule)
 - [Źródła, magazyny i dyrektywy](#źródła-magazyny-i-dyrektywy)
+- [Odmowy ad hoc i przeładowania planu](#odmowy-ad-hoc-i-przeładowania-planu)
 
 ## Jak odczytać komunikat
 
@@ -30,12 +31,14 @@ Kod `0` oznacza poprawną kompilację. Odmowa błędnego planu zwraca `EPROTO`, 
 
 | Element komunikatu | Znaczenie | Co sprawdzić |
 | --- | --- | --- |
-| `Syntax error @Rql`, `line L:C`, `msg:...` | Lekser lub parser nie rozpoznał zapisu. | Wskazany znak, poprzedzające go słowo, przecinek, apostrof lub nawias. |
+| `Syntax error @Rql`, `line:L:C at ...`, `msg:...` | Lekser lub parser nie rozpoznał zapisu. | Wskazany znak, poprzedzające go słowo, przecinek, apostrof lub nawias. |
 | `Parse result:...` | Nie powiodło się parsowanie albo kontrola semantyczna parsera. | Oprócz składni także zakres liczby, opcje `DECLARE`, dyrektywy, deklaracje `LET`/`VAR` i cel `RULE`. |
 | `Check result:...` | Parser przyjął zapis, ale kompilator odmówił zbudowania planu. | Nazwy i indeksy pól, zależności, typy, zgodność operatorów oraz zasoby historii. |
 | `FATAL: internal compiler error: ...` | Naruszony został wewnętrzny warunek kompilatora. | Zachowaj plan, komunikat i wersję programu do zgłoszenia błędu. Ten komunikat nie wskazuje zwykłej poprawki składni. |
 
 Numer wiersza `L` jest liczony od `1`, a pozycja `C` w wierszu od `0`. W poleceniu kontynuowanym znakiem `\` numer wskazuje początek połączonego polecenia, a pozycja dotyczy połączonego tekstu. `Input file:` wskazuje plik, którego dotyczy odmowa. Poprawiaj pierwszy błąd i ponawiaj kompilację: kolejne kontrole mogą ujawnić następne problemy dopiero po jego usunięciu.
+
+Parser wypisuje szczegóły na stderr, a następnie zwraca skrócony status, np. `Parse result:line 3:9 ...`. Są to dwa zapisy tej samej odmowy. `at <EOF>` oznacza koniec przekazanego polecenia, a `at <unknown>` może wystąpić przy błędzie leksera, zanim powstanie token. Status błędu składni jest jednowierszowy i ograniczony do 300 bajtów; pełny tekst `msg:` pozostaje na stderr serwera. Nie wszystkie odmowy semantyczne zawierają pozycję: mogą wystąpić jako `Error: ...` oraz `Parse result:...`.
 
 W tabelach poniżej podano charakterystyczne **fragmenty komunikatów**. Pełna treść zawiera również nazwy strumieni, wartości i czasem pozycję w pliku. Lista słów oczekiwanych przez parser zależy od miejsca błędu.
 
@@ -132,6 +135,8 @@ Przykładowo dwa pola `to_string` o szerokości `40000` są osobno dopuszczalne,
 | Fragment komunikatu | Błędnie | Poprawnie |
 | --- | --- | --- |
 | `has length 80000; the limit is 65536` | `SELECT to_string(v:40000)+to_string(w:40000) STREAM result FROM src` | `SELECT to_string(v:16)+to_string(w:16) STREAM result FROM src` |
+
+`has a startup latency of ... slots; the limit is 2147483647` oznacza przekroczenie zakresu ogona wyliczonego dla planu, także przy przeplocie `#`. Nie jest to przekroczenie czasu kompilacji ani limit czasu odczytu `DEVICE`. Zmniejsz okna lub przesunięcia i sprawdź relacje interwałów źródeł; sam fakt, że pojedynczy operator mieści się w limicie, nie wystarcza.
 
 Początek logiczny wyliczony dla złożonego planu musi mieścić się w typie `int`. Dwa kolejne okna AGSE `@(1,65536)` nad źródłem jednopolowym przekraczają limit `2147483647` slotów. Komunikat zawiera `has a logical origin of ... slots; the limit is ...`. Poprawka zmniejsza szerokości obu okien:
 
@@ -236,6 +241,26 @@ SELECT * STREAM result FROM scalar#aux
 | `SUBTRACT interval constraint failed` | `SELECT * STREAM result FROM src-1/2` | `SELECT * STREAM result FROM src-2` |
 
 `src` ma interwał `1`, więc poprawiony cel `2` jest dopuszczalny. Wartość dobierz do wymaganego taktu aplikacji.
+
+### Niedozwolony rozplot lub niereprezentowalny wynik interwału
+
+Operatory `&` i `%` nie przyjmują argumentu równego interwałowi źródła: we wzorze interwału wyniku powstałby zerowy mianownik. Odmowa `You cannot make faster div from slower source` albo `You cannot make faster mod from slower source` oznacza, że wyliczony wynik byłby szybszy od źródła. Sprawdź cały wzór rozplotu, nie tylko dodatniość argumentu.
+
+| Fragment komunikatu | Błędnie | Poprawnie |
+| --- | --- | --- |
+| `'&' argument equal to the source interval` | `SELECT * STREAM result FROM src&1` | `SELECT * STREAM result FROM src&2` |
+| `'%' argument equal to the source interval` | `SELECT * STREAM result FROM src%1` | `SELECT * STREAM result FROM src%2` |
+| `You cannot make faster div from slower source` | `SELECT * STREAM result FROM src&1/4` | `SELECT * STREAM result FROM src&2` |
+| `You cannot make faster mod from slower source` | `SELECT * STREAM result FROM src%1/4` | `SELECT * STREAM result FROM src%2` |
+
+`Stream interval out of representable range - simplify the plan or use coarser intervals` dotyczy interwału **wyliczonego przez kompilator**. Każdy argument może być osobno poprawny, a wynik nie mieścić się w reprezentacji wymiernej. Przykład odmowy (pełny plan):
+
+```rql
+DECLARE x INTEGER STREAM sensor, 46341/46339 TEXTFILE 'x.txt'
+SELECT * STREAM result FROM sensor&46342/46339
+```
+
+Zmniejsz złożoność wyrażenia lub dobierz inne interwały zgodnie z wymaganym taktem; zaokrąglenie zmienia obliczenie. Szczegóły wzorów: [Rozwiązywanie interwałów](../kompilacja-zapytan/rozwiazywanie-interwalow.md).
 
 ### Nieznana funkcja lub zły rodzaj wywołania
 
@@ -704,6 +729,29 @@ SELECT * STREAM result FROM wide>10 VOLATILE
 
 **Testy i wymagania:** [Źródła, dyrektywy i retencja](../zalaczniki/testy-integracyjne.md#rql-tests-storage).
 
+## Odmowy ad hoc i przeładowania planu
+
+Te same kontrole parsera i kompilatora działają w żądaniach `xqry -a` oraz `xqry --reset`, ale odpowiedź ma inny przedrostek. Zwykła odmowa podczas walidacji nie zastępuje działającego planu i nie kończy serwera. Sam fakt, że plik przechodzi `xretractor -c`, nie oznacza, że jego treść wolno przesłać każdym kanałem.
+
+| Fragment odpowiedzi | Znaczenie i poprawka |
+| --- | --- |
+| `Fail parse: ...` | Błąd składni, kontroli semantycznej parsera lub ograniczenia kanału ad hoc. Dalszy tekst wskazuje przyczynę. |
+| `Fail local chain compiler:...` | Kompilator odmówił zapytania lub reguły ad hoc. Stosuj poprawki z katalogu dla `Check result:`. |
+| `Fail compile:...` | Kompilator odmówił nowego planu podczas walidacji `--reset`. |
+| `Rejected: ...` | Odmowa kontroli źródeł, magazynów, zasobów lub zasad kanału. Nie musi oznaczać błędu gramatyki. |
+| `AdHoc accepts exactly one SELECT, DECLARE or RULE statement` | Wyślij jedną instrukcję; cały plan przekaż przez `--reset`. |
+| `AdHoc accepts only SELECT, DECLARE or RULE; ... is not supported` | Samodzielne `LET`, `VAR` i dyrektywy nie są poleceniami ad hoc. Umieść je w pliku planu. |
+| `stream '...' already exists in this instance` | Żądanie ad hoc próbuje ponownie zadeklarować istniejący strumień przez `DECLARE`. Zmień nazwę albo przeładuj cały plan. |
+| `AdHoc RULE supports DO DUMP and DO SET only` | `DO SYSTEM` nie jest dozwolone w regule ad hoc. |
+| `keeps only ... record(s) in memory, but a dump range ... needs ...` | Nowa reguła wymaga głębszej historii niż pierścień działającego strumienia. Skróć zakres albo przeładuj plan z odpowiednią pojemnością. |
+| `engine error: ...` | Zgłoszono naruszenie niezmiennika silnika przez pole `error.response`; zachowaj diagnostykę do zgłoszenia defektu. |
+
+Klient resetu dodaje `xqry: plan reload refused at reset-commit: ...` dla odmowy walidacji. Odmowy na etapach `reset-begin` i `reset-chunk` dotyczą rozpoczęcia lub transferu planu, zanim parser otrzyma kompletny tekst. Plan przesyłany przez reset domyślnie nie może zawierać `DO SYSTEM`; komunikat wymienia regułę i ustawienie `service.unrestricted`. Zasady tej opcji i diagnostykę transferu opisują [Błędy wykonania](../realizacja-zapytan/bledy-wykonania.md#odmowy-poleceń-resetu-i-importu-ad-hoc).
+
+Żądanie ad hoc widzi zadeklarowane `VAR` działającego planu, ale nie jego stałe `LET`, usunięte podczas parsowania pliku. Komunikat o nieznanym `?N` może więc wystąpić mimo wcześniejszego `LET N` w pliku startowym.
+
+**Pokrycie:** `it_adhoc_parse_error-run`, `it_adhoc_rule-run`, `it_storage_refusal` oraz testy resetu w `test/IntegrationTest/`.
+
 ## Co nie jest błędem składni
 
 Udana kompilacja nie potwierdza dostępności urządzenia, istnienia pliku wejściowego, zgodności zachowanego deskryptora ani prawa zapisu do katalogu. Komunikaty takie jak `source file does not exist`, `descriptor schema mismatch` i `directory ... does not exist` odnoszą się do źródeł lub stanu magazynów, sprawdzanych przy uruchamianiu i innych ścieżkach ładowania planu. Przyczynę usuwa się przez poprawienie ścieżki, danych, uprawnień lub uzgodnienie magazynu z planem. Nie należy w ciemno usuwać artefaktów tylko dlatego, że parser zaakceptował zapytanie.
@@ -716,11 +764,12 @@ Katalog opiera się na kontrolach w bieżącej implementacji, a nie wyłącznie 
 
 | Źródło | Zakres komunikatów |
 | --- | --- |
-| [RQL.g4](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/src/retractor/lib/RQL.g4) | Budowa poleceń, kolejność klauzul, rozróżnienie wyrażeń skalarnych, logicznych i strumieniowych. |
-| [RQLParser.cpp](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/src/retractor/lib/RQLParser.cpp) | Pozycje błędów, liczby i wymiary, opcje źródeł, `LET`/`VAR`, dołączanie reguł, dyrektywy i postać retencji. |
-| [compiler.cpp](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/src/retractor/lib/compiler.cpp) | Odwołania, zależności, operatory, generatory, okna, funkcje, przypisania i zasoby historii. |
-| [expressionShape.cpp](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/src/retractor/lib/expressionShape.cpp) | Odmowy niedozwolonych kombinacji operatora lub funkcji z typem argumentu. |
-| [launcher.cpp](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/src/retractor/launcher.cpp) | Kanały `Parse result:` i `Check result:`, kod odmowy planu oraz zakończenie trybu `-c`. |
-| [test_compiler.cpp](https://github.com/michalwidera/retractordb/blob/dfcc42d2a5fee2efa0b531d682766e4b7b9b73bb/test/UnitTest/test_compiler.cpp) | Przypadki odmowy i poprawne warianty kontrolne dla parsera i kompilatora. |
+| [RQL.g4](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/RQL.g4) | Budowa poleceń, kolejność klauzul, rozróżnienie wyrażeń skalarnych, logicznych i strumieniowych. |
+| [RQLParser.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/RQLParser.cpp) | Pozycje błędów, liczby i wymiary, opcje źródeł, `LET`/`VAR`, dołączanie reguł, dyrektywy i postać retencji. |
+| [compiler.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/compiler.cpp) | Odwołania, zależności, operatory, generatory, okna, funkcje, przypisania i zasoby historii. |
+| [expressionShape.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/expressionShape.cpp) | Odmowy niedozwolonych kombinacji operatora lub funkcji z typem argumentu. |
+| [launcher.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/launcher.cpp) | Kanały `Parse result:` i `Check result:`, kod odmowy planu oraz zakończenie trybu `-c`. |
+| [executorsmAdHoc.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/executorsmAdHoc.cpp), [executorsmPlanReload.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/src/retractor/lib/executorsmPlanReload.cpp) | Przedrostki i ograniczenia odmów ad hoc oraz resetu; walidacja przed zmianą działającego planu. |
+| [test_compiler.cpp](https://github.com/michalwidera/retractordb/blob/39b59c698992c35bbafb0c8525b7c8cedd181ac6/test/UnitTest/test_compiler.cpp) | Przypadki odmowy i poprawne warianty kontrolne dla parsera i kompilatora. |
 
 Odnośniki utrwalają rewizję kodu użytą przy opracowaniu rozdziału. Komunikaty o wewnętrznie uszkodzonych tokenach i naruszonych niezmiennikach nie mają pary „błędne/poprawne RQL”: wymagają zgłoszenia defektu. Gdy zapis jest poprawny, ale plan różni się od oczekiwań, użyj [narzędzi debugowania kompilacji](../kompilacja-zapytan/debugowanie-kompilacji.md), a szczegóły kolejności kontroli sprawdź w [Przebiegach kompilacji](../kompilacja-zapytan/przebiegi-kompilacji.md).

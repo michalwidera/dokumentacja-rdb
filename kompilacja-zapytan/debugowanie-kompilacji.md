@@ -13,11 +13,28 @@ xretractor -c query.rql
 Kod wyjścia `0` oznacza sukces. Odmowa błędnego planu przez parser lub kompilator zwraca `EPROTO`, czyli `71` na Linuksie. Inne niepowodzenia, np. brak samego pliku `.rql` albo błąd wewnętrzny, mogą mieć inne kody; w skrypcie sprawdzaj każdy wynik różny od zera. Komunikaty błędów trafiają na stderr:
 
 ```bash
-xretractor -c query.rql 2>errors.txt
-echo $?
+xretractor -c query.rql >plan.txt 2>errors.txt
+status=$?
+printf 'exit=%s\n' "$status"
+cat errors.txt
 ```
 
 Kompilację można wywołać nawet gdy inny proces `xretractor` już działa - flaga `-c` nie próbuje przejąć blokady wykonania.
+
+Zapisz kod wyjścia od razu: po `cat` zmienna `$?` dotyczyłaby odczytu pliku, nie kompilacji. Przy odmowie `plan.txt` nie jest gotowym planem. Wczesne komunikaty programu, takie jak `fatal error: no input file`, mogą trafić na stdout; dlatego zachowuj oba pliki.
+
+## Ustal etap odmowy
+
+| Komunikat lub sytuacja | Etap i następny krok |
+| --- | --- |
+| `fatal error: no input file`, `file ... does not exist`, `Error: Unable to open file!` | Nie wczytano pliku RQL. Sprawdź argument programu, katalog roboczy i dostęp do samego pliku planu. |
+| `fatal error: no queries to process` | `-c` nie znalazło planu do kompilacji, np. w pliku zawierającym wyłącznie komentarze. Zwykły start bez instrukcji może działać bezczynnie. |
+| `Syntax error @Rql`, `Parse result:...` | Odmowa parsera. Sprawdź pierwszy błąd, pozycję i wskazany plik. |
+| `Check result:...` | Odmowa kompilatora, a podczas zwykłego startu także błąd planu wykryty przy inicjalizacji. Odczytaj dalszy tekst; sam przedrostek nie określa poprawki. |
+| `Fail parse:`, `Fail local chain compiler:`, `Fail compile:`, `Rejected:` | Odpowiedź na żądanie ad hoc lub reset. Sprawdź przyczynę i ograniczenia tego kanału. |
+| `FATAL: internal compiler error: ...`, `engine error: ...` | Diagnostyka defektu silnika. Zapisz minimalny plan, pełny komunikat i informacje o buildzie. |
+
+Przykłady błędnych i poprawionych zapytań zawiera katalog [Błędy składni i kompilacji](../konstrukcja-jezyka-zapytan/bledy-skladni-i-kompilacji.md). Po usunięciu pierwszej przyczyny ponów sprawdzenie; kompilator kończy pracę na pierwszej odmowie, więc następna może pochodzić z innego przebiegu.
 
 ## Jak czytać plan kompilacji
 
@@ -80,6 +97,8 @@ Dostępne flagi modyfikujące wyjście DOT:
 
 Graf pokazuje zależności między strumieniami jako krawędzie skierowane od źródeł do wyników. Substraty mają inny kolor niż strumienie jawnie zdefiniowane przez użytkownika. Patrz [Budowa drzewa zależności](budowa-drzewa-zaleznosci.md).
 
+Wyjście DOT powstaje dopiero po **udanej kompilacji**. `-d` nie pokazuje częściowego grafu odrzuconego planu. Uruchamiaj `dot` przez `&&`, jak powyżej, aby odmowa kompilacji nie prowadziła do przetwarzania pustego lub niekompletnego pliku.
+
 > **_NOTE:_** Opisana funkcjonalność ma pokrycie w teście: `issue31_doc` opisanym w załączniku pt. [Testy Integracyjne](../zalaczniki/testy-integracyjne.md).
 
 ## Weryfikacja interwałów
@@ -99,12 +118,9 @@ Liczba spoza zakresu typu docelowego kończy parsowanie komunikatem `numeric lit
 
 ### Cykl w grafie zależności
 
-```
-[error] Circular dependency: stream interval resolution stalled with N
->> unresolved streams
-```
+Status odmowy brzmi `Check result:Circular dependency in stream definitions`. W logu może mu towarzyszyć `Circular dependency: stream interval resolution stalled with N unresolved streams`.
 
-Strumień odwołuje się pośrednio lub bezpośrednio do samego siebie. Wygeneruj graf przez `-d` - cykl będzie widoczny jako pętla. Patrz [Wykrywanie pętli](wykrywanie-petli.md).
+Prześledź odwołania w klauzulach `FROM` w pliku RQL, aż znajdziesz powrót do wcześniejszego strumienia. Usuń zależność cykliczną; zmiana kolejności wierszy jej nie usuwa. Bezpośredni odczyt własnego wyniku może zostać odrzucony wcześniej komunikatem `a stream cannot be its own producer`. Dla odrzuconego planu `-d` również kończy się odmową, więc graf można wygenerować dopiero po poprawce. Patrz [Wykrywanie pętli](wykrywanie-petli.md).
 
 ### Nieznany strumień
 
@@ -116,4 +132,37 @@ Wyrażenie `core0[_] * core1[_]` rozwija się do najmniejszej płaskiej szeroko�
 
 ### Plik danych niedostępny
 
-Błąd ten **nie pojawia się przy `-c`** - flaga weryfikuje poprawność zapytania, nie sprawdza czy pliki danych istnieją. Błąd dostępu do pliku pojawi się dopiero przy uruchamianiu przetwarzania bez `-c`.
+Błąd ten **nie pojawia się przy `-c`** - flaga weryfikuje poprawność zapytania, nie sprawdza czy pliki danych istnieją. Błąd dostępu do źródła może wystąpić podczas zwykłego startu, walidacji resetu lub importu ad hoc. Nie myl go z brakiem samego pliku `.rql`, który uniemożliwia również kompilację.
+
+## Gdy kompilacja przechodzi, a start nie
+
+Kontrole stanu źródeł i magazynów działają przed uruchomieniem przetwarzania, również przy walidacji nowego planu przez reset i nowych strumieni ad hoc. `-c` je pomija, aby można było kompilować plan na maszynie bez jego danych.
+
+| Fragment komunikatu | Co sprawdzić |
+| --- | --- |
+| `source file does not exist`, `cannot inspect source`, `cannot read source` | Ścieżkę i uprawnienia konta uruchamiającego silnik. Ścieżka względna zależy od katalogu roboczego procesu. |
+| `not a regular file`, `not a character device or FIFO` | Czy `BINFILE`/`TEXTFILE` lub `DEVICE` odpowiadają rzeczywistemu rodzajowi źródła. |
+| `directory ... from the STORAGE directive does not exist`, `is not a directory` | Wartość `STORAGE` lub katalog z konfiguracji. Silnik nie tworzy tego katalogu. |
+| `descriptor schema mismatch`, `was written for TYPE`, `was written for source` | Zgodność zachowanego `.desc` z aktualnym schematem, rodzajem i ścieżką źródła. Ustal, czy zamiarem jest kontynuacja danych, czy nowy strumień. |
+| `rotation counter file ... is unreadable`, `cannot be read` | Treść licznika i możliwość odczytu. Poprawna wartość mieści się w `0..INT_MAX-1`; usunięcie pliku zaczyna numerację od zera i może nadpisać archiwa `.old<N>`. |
+| `dataModel: stream '...': ... open-files limit RLIMIT_NOFILE is ...` | Limit otwartych plików procesu. Komunikat podaje limit miękki, twardy i liczbę strumieni. Sprawdź `ulimit -n` lub limity jednostki usługi. |
+
+Nie usuwaj deskryptorów ani licznika rotacji bez ustalenia skutku dla zachowanych danych. Pełny katalog przyczyn i skutków odmowy startu zawiera rozdział [Błędy wykonania](../realizacja-zapytan/bledy-wykonania.md).
+
+### Pamięć historii i pamięć dzielona
+
+`Plan keeps ... bytes of stream history in memory; the budget [limits] history_memory_mib = ...` to odmowa kompilatora. Ogranicz szerokość rekordów i historię wymaganą przez okna lub przesunięcia; sprawdź największy udział strumienia podany w komunikacie. Jest to inny zasób niż kolejki IPC.
+
+Tryb `-c` sprawdza także, czy w pamięci dzielonej mieści się stała rezerwacja instancji. Dlatego poprawny plan może skończyć się komunikatem `shared memory too small: fixed reservation needs ..., only ... free (see -c --shmbudget)` i kodem `ENOBUFS` (`105` na Linuksie). Raport budżetu uzyskasz osobno:
+
+```bash
+xretractor -c --shmbudget query.rql >shm-budget.txt
+```
+
+`--shmbudget` wymaga udanej kompilacji, wypisuje raport zamiast planu i nie odmawia tylko dlatego, że brakuje miejsca na stałą rezerwację. Raport pomaga ocenić koszt IPC; nie potwierdza dostępności plików ani możliwości uruchomienia wszystkich subskrypcji.
+
+## Ostrzeżenia i materiał do zgłoszenia
+
+`warning: ... is declared but never used`, `TIMEOUT ... is longer than the interval`, informacja o przestarzałym `FILE` i `grows without bound on disk` nie są odmowami kompilacji. O powodzeniu decyduje kod wyjścia. Nieużyte nazwy i zbyt długi `TIMEOUT` są raportowane także bez `-v`; ostrzeżenia o przestarzałym źródle `FILE` i nieograniczonym wzroście magazynów są wypisywane na stderr z `--verbose`. Część wpisów logu zależy od konfiguracji builda; brak wpisu nie dowodzi braku problemu.
+
+Do zgłoszenia dołącz minimalny plik RQL, dokładne polecenie, kod wyjścia, oba pliki wyjściowe oraz wynik `xretractor --build-info`. Dla problemu występującego tylko przy starcie zachowaj też użyty TOML, katalog roboczy, istotne deskryptory i log serwera; usuń z kopii dane poufne. Lokalizację logu wskazuje wiersz `Log:` w `xretractor --help`. Dla usługi sprawdź również jej dziennik. W przypadku ad hoc zapisz wysłaną instrukcję i nazwę instancji oraz odpowiedź klienta, bo szczegółowy `msg:` parsera trafia na stderr serwera.
